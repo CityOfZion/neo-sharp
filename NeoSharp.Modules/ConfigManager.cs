@@ -2,9 +2,9 @@
 using System.IO;
 using NeoSharp.Modules;
 
-namespace NeoSharp.Config
+namespace NeoSharp.Modules
 {
-    public class ConfigManager : IConfigManager
+    public class ConfigManager
     {
         public IConfigurationRoot LoadConfig()
         {

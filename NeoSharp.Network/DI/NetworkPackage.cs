@@ -9,7 +9,7 @@ namespace NeoSharp.Network.DI
         public static void RegisterServices(Container container)
         {
             NetworkConfig cfg = new NetworkConfig();
-            IConfigManager loader = container.GetInstance<IConfigManager>(); // TODO error can't call instance here need to rethink
+            ConfigManager loader = new ConfigManager();
             loader.LoadConfig().GetSection(nameof(NetworkConfig)).Bind(cfg);
             container.RegisterInstance(typeof(NetworkConfig), cfg);
 

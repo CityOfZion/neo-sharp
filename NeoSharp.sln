@@ -22,9 +22,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Client.Test", "Neo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Core", "NeoSharp.Core\NeoSharp.Core.csproj", "{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Config", "NeoSharp.Config\NeoSharp.Config.csproj", "{BA7BEF66-849A-4364-87DC-3D7DA71F4EB8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Modules", "NeoSharp.Modules\NeoSharp.Modules.csproj", "{3A7758C7-C450-443E-9F7D-180671503ECF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Modules", "NeoSharp.Modules\NeoSharp.Modules.csproj", "{3A7758C7-C450-443E-9F7D-180671503ECF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -64,10 +62,6 @@ Global
 		{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BA7BEF66-849A-4364-87DC-3D7DA71F4EB8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA7BEF66-849A-4364-87DC-3D7DA71F4EB8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA7BEF66-849A-4364-87DC-3D7DA71F4EB8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA7BEF66-849A-4364-87DC-3D7DA71F4EB8}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3A7758C7-C450-443E-9F7D-180671503ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3A7758C7-C450-443E-9F7D-180671503ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A7758C7-C450-443E-9F7D-180671503ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
