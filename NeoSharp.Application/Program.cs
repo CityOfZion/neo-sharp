@@ -1,5 +1,5 @@
-﻿using NeoSharp.Modules;
-using SimpleInjector;
+﻿using SimpleInjector;
+using NeoSharp.Client;
 
 namespace NeoSharp.Application
 {

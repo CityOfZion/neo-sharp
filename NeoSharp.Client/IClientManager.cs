@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.Modules
+﻿namespace NeoSharp.Client
 {
     public interface IClientManager
     {

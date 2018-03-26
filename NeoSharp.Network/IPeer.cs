@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Threading.Tasks;
 
 namespace NeoSharp.Network
 {
@@ -7,10 +6,5 @@ namespace NeoSharp.Network
     {
         void Connect(IPEndPoint ipEP, uint serverNonce);
         void Stop();
-    }
-
-    public interface IPeerFactory
-    {
-        IPeer Create();
-    }
+    }    
 }

@@ -29,7 +29,7 @@ namespace NeoSharp.Network
             _socket.ConnectAsync(_ipEP.Address, _ipEP.Port); // TODO thread etc
 
             _logger.LogInformation($"Connected to {_ipEP.ToString()}");
-            _stream = new NetworkStream(_socket);                       
+            //_stream = new NetworkStream(_socket);                       
         }        
 
         private void sendVersion()

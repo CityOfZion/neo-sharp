@@ -1,6 +1,4 @@
-﻿using NeoSharp.Modules;
-
-namespace NeoSharp.Client
+﻿namespace NeoSharp.Client
 {
     public class ClientManager : IClientManager
     {

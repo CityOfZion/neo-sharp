@@ -1,5 +1,4 @@
 ﻿using SimpleInjector;
-using NeoSharp.Modules;
 
 namespace NeoSharp.Client.DI
 {
