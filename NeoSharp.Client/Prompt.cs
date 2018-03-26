@@ -1,5 +1,5 @@
-﻿using NeoSharp.Modules;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using NeoSharp.Network;
 
 namespace NeoSharp.Client
 {
