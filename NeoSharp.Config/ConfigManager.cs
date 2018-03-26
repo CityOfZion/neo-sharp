@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Configuration;
-using System;
 using System.IO;
+using NeoSharp.Modules;
 
 namespace NeoSharp.Config
 {
-    public class ConfigLoader : IConfigLoader
+    public class ConfigManager : IConfigManager
     {
         public IConfigurationRoot LoadConfig()
         {

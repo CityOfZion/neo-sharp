@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-
-namespace NeoSharp.Network
+﻿namespace NeoSharp.Modules
 {
     public interface INetworkManager
     {

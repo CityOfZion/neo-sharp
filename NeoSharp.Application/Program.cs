@@ -1,4 +1,4 @@
-﻿using NeoSharp.Client;
+﻿using NeoSharp.Modules;
 using SimpleInjector;
 
 namespace NeoSharp.Application

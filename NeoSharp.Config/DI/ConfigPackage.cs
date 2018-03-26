@@ -1,4 +1,5 @@
 ﻿using SimpleInjector;
+using NeoSharp.Modules;
 
 namespace NeoSharp.Config.DI
 {
@@ -6,7 +7,7 @@ namespace NeoSharp.Config.DI
     {
         public static void RegisterServices(Container container)
         {
-            container.Register<IConfigLoader, ConfigLoader>(Lifestyle.Singleton);
+            container.Register<IConfigManager, ConfigManager>(Lifestyle.Singleton);
         }     
     }
 

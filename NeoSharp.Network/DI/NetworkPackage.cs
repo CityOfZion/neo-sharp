@@ -1,6 +1,6 @@
 ﻿using SimpleInjector;
 using Microsoft.Extensions.Configuration;
-using NeoSharp.Config;
+using NeoSharp.Modules;
 
 namespace NeoSharp.Network.DI
 {
@@ -9,7 +9,7 @@ namespace NeoSharp.Network.DI
         public static void RegisterServices(Container container)
         {
             NetworkConfig cfg = new NetworkConfig();
-            ConfigLoader loader = new ConfigLoader();
+            IConfigManager loader = container.GetInstance<IConfigManager>(); // TODO error can't call instance here need to rethink
             loader.LoadConfig().GetSection(nameof(NetworkConfig)).Bind(cfg);
             container.RegisterInstance(typeof(NetworkConfig), cfg);
 

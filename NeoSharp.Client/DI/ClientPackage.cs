@@ -1,6 +1,5 @@
-﻿using System;
-using SimpleInjector;
-using SimpleInjector.Lifestyles;
+﻿using SimpleInjector;
+using NeoSharp.Modules;
 
 namespace NeoSharp.Client.DI
 {

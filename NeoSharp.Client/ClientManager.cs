@@ -1,5 +1,4 @@
-﻿using SimpleInjector;
-using SimpleInjector.Lifestyles;
+﻿using NeoSharp.Modules;
 
 namespace NeoSharp.Client
 {
