@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NeoSharp.Network;
+using NeoSharp.Modules;
 
 namespace NeoSharp.Client.Test
 {

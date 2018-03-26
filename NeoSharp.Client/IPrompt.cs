@@ -4,6 +4,6 @@ namespace NeoSharp.Client
 {
     public interface IPrompt
     {
-        Task StartPrompt(string[] args);
+        void StartPrompt(string[] args);
     }
 }

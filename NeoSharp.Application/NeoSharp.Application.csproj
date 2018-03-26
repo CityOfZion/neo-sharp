@@ -12,7 +12,14 @@
   <ItemGroup>
     <ProjectReference Include="..\NeoSharp.Client\NeoSharp.Client.csproj" />
     <ProjectReference Include="..\NeoSharp.Logging\NeoSharp.Logging.csproj" />
+    <ProjectReference Include="..\NeoSharp.Modules\NeoSharp.Modules.csproj" />
     <ProjectReference Include="..\NeoSharp.Network\NeoSharp.Network.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

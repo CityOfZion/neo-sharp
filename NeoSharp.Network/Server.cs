@@ -8,15 +8,17 @@ namespace NeoSharp.Network
     public class Server : IServer
     {
         private readonly ILogger<Server> _logger;
+        private readonly NetworkConfig _cfg;
         private readonly IPeerFactory _peerFactory;
-
+        
         private IList<IPeer> _connectedPeers;                // if we successfully connect with a peer it is inserted into this list
         private IList<IPEndPoint> _failedPeers;             // if we can't connect to a peer it is inserted into this list
         private uint _nonce;                                // uniquely identifies this server so we can filter out our own messages sent back to us by other nodes
 
-        public Server(ILoggerFactory loggerFactory, IPeerFactory peerFactoryInit)
+        public Server(ILoggerFactory loggerFactory, NetworkConfig networkConfig, IPeerFactory peerFactoryInit)
         {
             _logger = loggerFactory.CreateLogger<Server>();
+            _cfg = networkConfig;
             _peerFactory = peerFactoryInit;
 
             _connectedPeers = new List<IPeer>();
@@ -38,8 +40,8 @@ namespace NeoSharp.Network
         private void connectToPeers()
         {
             // private net testing setup
-            String ipStr = "192.168.1.116";
-            int port = 20333;
+            String ipStr = _cfg.ServerIp;
+            int port = _cfg.ServerStartPort;
             for (int i = 0; i < 4; i++)
             {
                 IPAddress ipAddr;

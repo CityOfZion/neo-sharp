@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-using NeoSharp.Logging;
-using NeoSharp.Network;
+﻿using NeoSharp.Modules;
 using Microsoft.Extensions.Logging;
 
 namespace NeoSharp.Client

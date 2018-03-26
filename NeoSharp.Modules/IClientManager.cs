@@ -1,6 +1,4 @@
-﻿using SimpleInjector;
-
-namespace NeoSharp.Client
+﻿namespace NeoSharp.Modules
 {
     public interface IClientManager
     {

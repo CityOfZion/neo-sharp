@@ -11,8 +11,8 @@ namespace NeoSharp.Application
         {
             container = new Container();
 
-            ClientPackage.RegisterServices(container);
-            LoggingPackage.RegisterServices(container);
+            LoggingPackage.RegisterServices(container);            
+            ClientPackage.RegisterServices(container);            
             NetworkPackage.RegisterServices(container);
 
             // verify
