@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Client.Test", "Neo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Core", "NeoSharp.Core\NeoSharp.Core.csproj", "{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Config", "NeoSharp.Config\NeoSharp.Config.csproj", "{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Config", "NeoSharp.Config\NeoSharp.Config.csproj", "{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Network.Benchmark", "NeoSharp.Network.Benchmark\NeoSharp.Network.Benchmark.csproj", "{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -66,6 +68,10 @@ Global
 		{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

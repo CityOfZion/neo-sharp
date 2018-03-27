@@ -21,34 +21,34 @@ namespace NeoSharp.Logging.DI
             loggerFactory.ConfigureNLog("nlog.config");            
 
             return loggerFactory;
+        }        
+    }
+
+    /// <summary>
+    ///  This Adapter class lass allows us to use Simple Injector with Microsoft.Extensions.Logging and ILogger<T>
+    /// </summary>
+    public class LoggingAdapter<T> : ILogger<T>
+    {
+        private readonly ILogger _loggerAdapter;
+
+        public LoggingAdapter(ILoggerFactory factory)
+        {
+            _loggerAdapter = factory.CreateLogger<T>();
         }
 
-        /// <summary>
-        ///  This Adapter class lass allows us to use Simple Injector with Microsoft.Extensions.Logging and ILogger<T>
-        /// </summary>
-        public class LoggingAdapter<T> : ILogger<T>
+        public IDisposable BeginScope<TState>(TState state)
         {
-            private readonly ILogger _loggerAdapter;
+            return _loggerAdapter.BeginScope(state);
+        }
 
-            public LoggingAdapter(ILoggerFactory factory)
-            {
-                _loggerAdapter = factory.CreateLogger<T>();
-            }
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return _loggerAdapter.IsEnabled(logLevel);
+        }
 
-            public IDisposable BeginScope<TState>(TState state)
-            {
-                return _loggerAdapter.BeginScope(state);
-            }
-
-            public bool IsEnabled(LogLevel logLevel)
-            {
-                return _loggerAdapter.IsEnabled(logLevel);
-            }
-
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
-            {
-                _loggerAdapter.Log(logLevel, eventId, state, exception, formatter);
-            }
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            _loggerAdapter.Log(logLevel, eventId, state, exception, formatter);
         }
     }
 
