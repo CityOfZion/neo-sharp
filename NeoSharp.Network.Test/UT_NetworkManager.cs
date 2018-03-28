@@ -20,11 +20,19 @@ namespace NeoSharp.Network.Test
             uut = new NetworkManager(mockLoggerFactory.Object, mockServer.Object);
         }
 
-        //[TestMethod]
-        //public void StartNetwork_Starts_Server()
-        //{
-        //    uut.StartNetwork(); 
-        //}
+        [TestMethod]
+        public void StartNetwork_Starts_Server()
+        {
+            uut.StartNetwork();
+            mockServer.Verify(m => m.StartServer(), Times.Once);
+        }
+
+        [TestMethod]
+        public void StopNetwork_Stops_Server()
+        {
+            uut.StartNetwork();
+            mockServer.Verify(m => m.StopServer(), Times.Once);
+        }
 
     }
 }
