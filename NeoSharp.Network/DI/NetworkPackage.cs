@@ -1,6 +1,6 @@
 ﻿using SimpleInjector;
 using Microsoft.Extensions.Configuration;
-using NeoSharp.Config;
+using NeoSharp.Core;
 
 namespace NeoSharp.Network.DI
 {

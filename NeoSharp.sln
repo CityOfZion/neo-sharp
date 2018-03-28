@@ -14,17 +14,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Network.Test", "Ne
 		{2A60A4F8-352B-4CFF-AF4B-D07DA06A3D67} = {2A60A4F8-352B-4CFF-AF4B-D07DA06A3D67}
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Logging", "NeoSharp.Logging\NeoSharp.Logging.csproj", "{4E5C4E72-2A7A-450B-AEBF-1D2830D769E1}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Application", "NeoSharp.Application\NeoSharp.Application.csproj", "{6629F48A-D208-451F-94FB-5874F3217787}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Client.Test", "NeoSharp.Client.Test\NeoSharp.Client.Test.csproj", "{F63C7424-695D-45DB-9E9B-6D30EA7B2F79}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Core", "NeoSharp.Core\NeoSharp.Core.csproj", "{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Config", "NeoSharp.Config\NeoSharp.Config.csproj", "{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Network.Benchmark", "NeoSharp.Network.Benchmark\NeoSharp.Network.Benchmark.csproj", "{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Network.Benchmark", "NeoSharp.Network.Benchmark\NeoSharp.Network.Benchmark.csproj", "{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -48,10 +44,6 @@ Global
 		{D5DFACB9-AB55-4FFC-A3B1-230FEABCECC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5DFACB9-AB55-4FFC-A3B1-230FEABCECC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5DFACB9-AB55-4FFC-A3B1-230FEABCECC3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4E5C4E72-2A7A-450B-AEBF-1D2830D769E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4E5C4E72-2A7A-450B-AEBF-1D2830D769E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4E5C4E72-2A7A-450B-AEBF-1D2830D769E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4E5C4E72-2A7A-450B-AEBF-1D2830D769E1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6629F48A-D208-451F-94FB-5874F3217787}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6629F48A-D208-451F-94FB-5874F3217787}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6629F48A-D208-451F-94FB-5874F3217787}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -64,10 +56,6 @@ Global
 		{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CCD82BF3-2BD3-4EFB-B85B-4DB70A295BD0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB7EE9C7-C1A8-4C7D-8DB2-960972073370}.Release|Any CPU.ActiveCfg = Release|Any CPU
