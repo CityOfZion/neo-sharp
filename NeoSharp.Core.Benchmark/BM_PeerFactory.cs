@@ -1,5 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
-using NeoSharp.Network.DI;
+using NeoSharp.Core.Network;
+using NeoSharp.Core.Network.DI;
 using NeoSharp.Core.DI;
 using SimpleInjector;
 using Moq;

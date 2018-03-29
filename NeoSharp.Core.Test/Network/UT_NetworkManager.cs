@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace NeoSharp.Network.Test
+namespace NeoSharp.Core.Network.Test
 {
     [TestClass]
     public class UT_NetworkManager

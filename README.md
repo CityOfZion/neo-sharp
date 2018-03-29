@@ -21,11 +21,9 @@ neo-sharp is not aimed at adding new features.
 
 * Application - Composition Route and entry point
 * Client - Console based client
-* Config - File based configuration
-* Core - Neo datastructures
-* Database - File based persistence
-* Logging - File based application status reports
-* Network - Neo p2p protocol
+* Core - Neo datastructures, Configuration, Logging
+	* Database - File based persistence
+	* Network - Neo p2p protocol
 
 # Short term TODO
 

@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.Network
+﻿namespace NeoSharp.Core.Network
 {
     public interface INetworkManager
     {

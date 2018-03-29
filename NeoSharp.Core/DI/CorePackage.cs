@@ -9,6 +9,7 @@ namespace NeoSharp.Core.DI
     {
         public static void RegisterServices(Container container)
         {
+            // logger
             container.Register(ConfigureLogger, Lifestyle.Singleton);
             container.Register(typeof(ILogger<>), typeof(LoggerAdapter<>), Lifestyle.Singleton);
         }

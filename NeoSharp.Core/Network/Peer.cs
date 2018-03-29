@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 
-namespace NeoSharp.Network
+namespace NeoSharp.Core.Network
 {
     public class Peer : IPeer
     {
