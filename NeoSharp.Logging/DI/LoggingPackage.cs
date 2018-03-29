@@ -10,7 +10,7 @@ namespace NeoSharp.Logging.DI
         public static void RegisterServices(Container container)
         {
             container.Register(ConfigureLogger, Lifestyle.Singleton);
-            container.Register(typeof(ILogger<>), typeof(LoggingAdapter<>));
+            container.Register(typeof(ILogger<>), typeof(LoggerAdapter<>), Lifestyle.Singleton);
         }
 
         private static ILoggerFactory ConfigureLogger()
@@ -25,30 +25,30 @@ namespace NeoSharp.Logging.DI
     }
 
     /// <summary>
-    ///  This Adapter class lass allows us to use Simple Injector with Microsoft.Extensions.Logging and ILogger<T>
+    ///  This Adapter class allows us to use Simple Injector with Microsoft.Extensions.Logging and ILogger<T>
     /// </summary>
-    public class LoggingAdapter<T> : ILogger<T>
+    public class LoggerAdapter<T> : ILogger<T>
     {
-        private readonly ILogger _loggerAdapter;
+        private readonly ILogger _logger;
 
-        public LoggingAdapter(ILoggerFactory factory)
+        public LoggerAdapter(ILoggerFactory factory)
         {
-            _loggerAdapter = factory.CreateLogger<T>();
+            _logger = factory.CreateLogger<T>();
         }
 
         public IDisposable BeginScope<TState>(TState state)
         {
-            return _loggerAdapter.BeginScope(state);
+            return _logger.BeginScope(state);
         }
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            return _loggerAdapter.IsEnabled(logLevel);
+            return _logger.IsEnabled(logLevel);
         }
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            _loggerAdapter.Log(logLevel, eventId, state, exception, formatter);
+            _logger.Log(logLevel, eventId, state, exception, formatter);
         }
     }
 

@@ -12,7 +12,7 @@ namespace NeoSharp.Client.Test
         Mock<IConsoleReader> mockConsoleReader;
         Mock<IConsoleWriter> mockConsoleWriter;
         Mock<INetworkManager> mockNetworkManager;
-        Mock<ILoggerFactory> mockLoggerFactory;
+        Mock<ILogger<Prompt>> mockLogger;
 
         [TestInitialize]
         public void TestSetup()
@@ -20,8 +20,8 @@ namespace NeoSharp.Client.Test
             mockConsoleReader = new Mock<IConsoleReader>();
             mockConsoleWriter = new Mock<IConsoleWriter>();
             mockNetworkManager = new Mock<INetworkManager>();
-            mockLoggerFactory = new Mock<ILoggerFactory>();
-            uut = new Prompt(mockConsoleReader.Object, mockConsoleWriter.Object, mockLoggerFactory.Object, mockNetworkManager.Object);
+            mockLogger = new Mock<ILogger<Prompt>>();
+            uut = new Prompt(mockConsoleReader.Object, mockConsoleWriter.Object, mockLogger.Object, mockNetworkManager.Object);
         }
 
         private void startPromptCmdAndExit(string cmd)

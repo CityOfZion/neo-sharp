@@ -20,7 +20,7 @@ namespace NeoSharp.Network.Benchmark
             Container cont = new Container();
             cont.Register<IPeer, Peer>(Lifestyle.Transient);
             cont.Register(ConfigureLogger, Lifestyle.Singleton);
-            cont.Register(typeof(ILogger<>), typeof(LoggingAdapter<>));
+            cont.Register(typeof(ILogger<>), typeof(LoggerAdapter<>));
             uub = new PeerFactory(cont);
         }
 
