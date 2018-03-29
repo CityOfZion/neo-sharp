@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.IO;
 
-namespace NeoSharp.Core
+namespace NeoSharp.Core.Config
 {
     public class ConfigManager
     {
