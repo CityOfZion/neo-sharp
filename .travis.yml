@@ -17,5 +17,5 @@ script:
  - dotnet restore
  - cd NeoSharp.Client.Test
  - dotnet test
- - cd ../NeoSharp.Network.Test
+ - cd ../NeoSharp.Core.Test
  - dotnet test

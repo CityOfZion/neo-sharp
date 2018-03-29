@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using NeoSharp.Core.Config;
 
-namespace NeoSharp.Network.DI
+namespace NeoSharp.Core.Network.DI
 {
     public static class NetworkPackage
     {
