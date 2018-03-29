@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NeoSharp.Client\NeoSharp.Client.csproj" />
-    <ProjectReference Include="..\NeoSharp.Logging\NeoSharp.Logging.csproj" />
+    <ProjectReference Include="..\NeoSharp.Core\NeoSharp.Core.csproj" />
     <ProjectReference Include="..\NeoSharp.Network\NeoSharp.Network.csproj" />
   </ItemGroup>
 

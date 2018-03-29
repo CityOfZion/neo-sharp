@@ -1,9 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Attributes.Columns;
-using BenchmarkDotNet.Attributes.Exporters;
-using BenchmarkDotNet.Attributes.Jobs;
 using NeoSharp.Network.DI;
-using NeoSharp.Logging.DI;
+using NeoSharp.Core.DI;
 using SimpleInjector;
 using Moq;
 using Microsoft.Extensions.Logging;
