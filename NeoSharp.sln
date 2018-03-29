@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2024
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Database", "NeoSharp.Database\NeoSharp.Database.csproj", "{641F365E-2534-42A8-8012-155A54A46766}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Client", "NeoSharp.Client\NeoSharp.Client.csproj", "{63C3C4D8-4E58-419B-AC78-A492AF322131}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Network", "NeoSharp.Network\NeoSharp.Network.csproj", "{2A60A4F8-352B-4CFF-AF4B-D07DA06A3D67}"
@@ -28,10 +26,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{641F365E-2534-42A8-8012-155A54A46766}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{641F365E-2534-42A8-8012-155A54A46766}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{641F365E-2534-42A8-8012-155A54A46766}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{641F365E-2534-42A8-8012-155A54A46766}.Release|Any CPU.Build.0 = Release|Any CPU
 		{63C3C4D8-4E58-419B-AC78-A492AF322131}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{63C3C4D8-4E58-419B-AC78-A492AF322131}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{63C3C4D8-4E58-419B-AC78-A492AF322131}.Release|Any CPU.ActiveCfg = Release|Any CPU

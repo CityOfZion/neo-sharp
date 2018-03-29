@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NeoSharp.Database
+﻿namespace NeoSharp.Core.Database
 {
     public interface IRepository
     {

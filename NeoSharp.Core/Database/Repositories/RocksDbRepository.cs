@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace NeoSharp.Database.Repositories
+namespace NeoSharp.Core.Database.Repositories
 {
-    public class CosmosDbRepository : IRepository
+    public class RocksDbRepository : IRepository
     {
         public object GetBlock()
         {
