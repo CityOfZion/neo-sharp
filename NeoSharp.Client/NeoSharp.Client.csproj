@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NeoSharp.Network\NeoSharp.Network.csproj" />
+    <ProjectReference Include="..\NeoSharp.Core\NeoSharp.Core.csproj" />
   </ItemGroup>
 
 </Project>

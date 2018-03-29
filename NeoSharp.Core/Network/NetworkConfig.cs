@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace NeoSharp.Network
+namespace NeoSharp.Core.Network
 {
     public class NetworkConfig
     {

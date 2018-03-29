@@ -1,9 +1,6 @@
-﻿using NeoSharp.Database.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using NeoSharp.Core.Database.Repositories;
 
-namespace NeoSharp.Database
+namespace NeoSharp.Core.Database
 {
     public abstract class RepositoryFactory
     {
