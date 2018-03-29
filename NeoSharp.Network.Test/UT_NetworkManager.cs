@@ -8,23 +8,31 @@ namespace NeoSharp.Network.Test
     public class UT_NetworkManager
     {
         NetworkManager uut;
-        Mock<ILoggerFactory> mockLoggerFactory;
+        Mock<ILogger<NetworkManager>> mockLogger;
         Mock<IServer> mockServer;
 
         [TestInitialize]
         public void TestSetup()
         {
-            mockLoggerFactory = new Mock<ILoggerFactory>();
+            mockLogger = new Mock<ILogger<NetworkManager>>();
             mockServer = new Mock<IServer>();
 
-            uut = new NetworkManager(mockLoggerFactory.Object, mockServer.Object);
+            uut = new NetworkManager(mockLogger.Object, mockServer.Object);
         }
 
-        //[TestMethod]
-        //public void StartNetwork_Starts_Server()
-        //{
-        //    uut.StartNetwork(); 
-        //}
+        [TestMethod]
+        public void StartNetwork_Starts_Server()
+        {
+            uut.StartNetwork();
+            mockServer.Verify(m => m.StartServer(), Times.Once);
+        }
+
+        [TestMethod]
+        public void StopNetwork_Stops_Server()
+        {
+            uut.StopNetwork();
+            mockServer.Verify(m => m.StopServer(), Times.Once);
+        }
 
     }
 }

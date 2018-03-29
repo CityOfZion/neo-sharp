@@ -10,11 +10,11 @@ namespace NeoSharp.Client
         private readonly ILogger<Prompt> _logger;
         private readonly INetworkManager _networkManager;
         
-        public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit, ILoggerFactory loggerFactoryInit, INetworkManager networkManagerInit)
+        public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit, ILogger<Prompt> logger, INetworkManager networkManagerInit)
         {
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;
-            _logger = loggerFactoryInit.CreateLogger<Prompt>();
+            _logger = logger;
             _networkManager = networkManagerInit;
         }
 

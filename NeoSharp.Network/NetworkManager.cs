@@ -7,9 +7,9 @@ namespace NeoSharp.Network
         private readonly ILogger<NetworkManager> _logger;        
         private readonly IServer _server;        
 
-        public NetworkManager(ILoggerFactory loggingFactory, IServer serverInit)
+        public NetworkManager(ILogger<NetworkManager> logger, IServer serverInit)
         {
-            _logger = loggingFactory.CreateLogger<NetworkManager>();            
+            _logger = logger;            
             _server = serverInit;
 
             _logger.LogInformation("Network Manager Initialised");
