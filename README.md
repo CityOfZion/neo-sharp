@@ -7,6 +7,12 @@
 
 <h1 align="center">neo-sharp</h1>
 
+ <p align="center">      
+      <a href="https://travis-ci.org/CityOfZion/neo-sharp">
+        <img src="https://travis-ci.org/CityOfZion/neo-sharp.svg?branch=master">
+      </a>      
+  </p>
+
 <p align="center">
   <b>C#</b> Node for the <a href="https://neo.org">NEO</a> blockchain.
 </p>
