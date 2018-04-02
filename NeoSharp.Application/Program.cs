@@ -1,5 +1,5 @@
-﻿using SimpleInjector;
-using NeoSharp.Client;
+﻿using NeoSharp.Client;
+using SimpleInjector;
 
 namespace NeoSharp.Application
 {
@@ -7,13 +7,11 @@ namespace NeoSharp.Application
     {
         static void Main(string[] args)
         {
-            Container container;
-            Composition.Compose(out container);            
-
-            IClientManager client = container.GetInstance<IClientManager>();
-            client.RunClient(args);
-
-            container.Dispose();
+            using (Container container = Composition.Compose())
+            {
+                IClientManager client = container.GetInstance<IClientManager>();
+                client.RunClient(args);
+            }
         }
     }
 }

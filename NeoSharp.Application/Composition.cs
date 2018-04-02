@@ -7,16 +7,20 @@ namespace NeoSharp.Application
 {
     public static class Composition
     {
-        public static void Compose(out Container container)
+        public static Container Compose()
         {
-            container = new Container();
+            // Create container
+            Container container = new Container();
 
+            // Register services
             CorePackage.RegisterServices(container);            
             ClientPackage.RegisterServices(container);            
             NetworkPackage.RegisterServices(container);
 
-            // verify
+            // Verify
             container.Verify();
+
+            return container;
         }
     }
 }
