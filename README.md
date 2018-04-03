@@ -7,6 +7,12 @@
 
 <h1 align="center">neo-sharp</h1>
 
+<p align="center">      
+  <a href="https://travis-ci.org/CityOfZion/neo-sharp">
+    <img src="https://travis-ci.org/CityOfZion/neo-sharp.svg?branch=master">
+  </a>      
+</p>
+
 <p align="center">
   <b>C#</b> Node for the <a href="https://neo.org">NEO</a> blockchain.
 </p>
@@ -34,8 +40,7 @@ Feedback on structure, particularly with regard to the dependency injection patt
 Feel free to contribute to this project after reading the
 [contributing guidelines](https://github.com/CityOfZion/neo-go/blob/master/CONTRIBUTING.md).
 
-Before starting to work on a certain topic, create an new issue first,
-describing the feauture/topic you are going to implement.
+Before starting to work on a certain topic, create an new issue first, describing the feauture/topic you are going to implement. Please submit new pull requests to the `development` branch
 
 # License
 
