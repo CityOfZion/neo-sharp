@@ -15,7 +15,8 @@ before_install:
 
 script:
  - dotnet restore
- - cd NeoSharp.Client.Test
+ - cd test/NeoSharp.Application.Test
  - dotnet test
- - cd ../NeoSharp.Core.Test
+ - cd ../..
+ - cd test/NeoSharp.Core.Test
  - dotnet test
