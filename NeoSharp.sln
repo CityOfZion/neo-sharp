@@ -23,6 +23,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{049B9D65-595
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1E81559D-7119-409A-9F67-9621D78081E3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.TestHelpers", "test\NeoSharp.TestHelpers\NeoSharp.TestHelpers.csproj", "{D86BE80D-CD48-4F28-B003-567101952D27}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{390C923B-0209-4E0F-8751-C84BC0C0FB76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{390C923B-0209-4E0F-8751-C84BC0C0FB76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{390C923B-0209-4E0F-8751-C84BC0C0FB76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D86BE80D-CD48-4F28-B003-567101952D27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D86BE80D-CD48-4F28-B003-567101952D27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D86BE80D-CD48-4F28-B003-567101952D27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D86BE80D-CD48-4F28-B003-567101952D27}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -74,6 +80,7 @@ Global
 		{D68C8938-EFCA-4B6A-9D01-3FC3DE749EB7} = {049B9D65-5954-424B-8155-5726A60E24C5}
 		{6CD90B02-8B68-4638-8893-E09BB2B02644} = {049B9D65-5954-424B-8155-5726A60E24C5}
 		{390C923B-0209-4E0F-8751-C84BC0C0FB76} = {049B9D65-5954-424B-8155-5726A60E24C5}
+		{D86BE80D-CD48-4F28-B003-567101952D27} = {1E81559D-7119-409A-9F67-9621D78081E3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C0EE31A-D025-404A-8D06-FB883C62C9AD}
