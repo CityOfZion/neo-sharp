@@ -6,7 +6,7 @@ using NeoSharp.Core.Network;
 namespace NeoSharp.Core.Test.Network
 {
     [TestClass]
-    public class UT_NetworkManager
+    public class UTNetworkManager
     {
         NetworkManager uut;
         Mock<ILogger<NetworkManager>> mockLogger;

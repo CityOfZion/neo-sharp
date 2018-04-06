@@ -2,11 +2,12 @@
 using Moq;
 using NeoSharp.Application.Client;
 using NeoSharp.TestHelpers;
+using FluentAssertions;
 
 namespace NeoSharp.Application.Test
 {
     [TestClass]
-    public class ClientManagerTests : TestBase
+    public class UTClientManager : TestBase
     {
         [TestMethod]
         public void Ctor_ConstructValidObject()
@@ -15,8 +16,8 @@ namespace NeoSharp.Application.Test
             // Act
             var clientManager = this.AutoMockContainer.Create<ClientManager>();
 
-            // Assert
-            Assert.IsInstanceOfType(clientManager, typeof(ClientManager));
+            // Assert            
+            clientManager.Should().BeOfType<ClientManager>();
         }
 
         [TestMethod]
@@ -54,7 +55,7 @@ namespace NeoSharp.Application.Test
         }
 
         [TestMethod]
-        public void RunClient_MultupleArguments_MultipleArgumentsAreUsedInStartPrompt()
+        public void RunClient_MultipleArguments_MultipleArgumentsAreUsedInStartPrompt()
         {
             // Arrange
             var expectedParameters = new string[] { "City", "of", "Zion" };

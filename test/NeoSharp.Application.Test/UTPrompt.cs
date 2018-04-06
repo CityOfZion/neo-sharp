@@ -7,7 +7,7 @@ using NeoSharp.Core.Network;
 namespace NeoSharp.Application.Test
 {
     [TestClass]
-    public class UT_Prompt
+    public class UTPrompt
     {
         Prompt uut;
         Mock<IConsoleReader> mockConsoleReader;

@@ -8,7 +8,7 @@ using SimpleInjector;
 
 namespace NeoSharp.Core.Benchmark
 {       
-    public class BM_PeerFactory
+    public class BMPeerFactory
     {
         Func<IPeer> uub;
 

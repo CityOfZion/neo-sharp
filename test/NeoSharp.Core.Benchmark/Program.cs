@@ -8,7 +8,7 @@ namespace NeoSharp.Core.Benchmark
     {
         static void Main(string[] args)
         {
-            Summary summary = BenchmarkRunner.Run<BM_PeerFactory>();
+            Summary summary = BenchmarkRunner.Run<BMPeerFactory>();
             Console.ReadLine();
         }
     }
