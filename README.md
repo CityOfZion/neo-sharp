@@ -10,7 +10,11 @@
 <p align="center">      
   <a href="https://travis-ci.org/CityOfZion/neo-sharp">
     <img src="https://travis-ci.org/CityOfZion/neo-sharp.svg?branch=master">
-  </a>      
+  </a>
+  <a href='https://coveralls.io/github/CityOfZion/neo-sharp?branch=master'>
+    <img src='https://coveralls.io/repos/github/CityOfZion/neo-sharp/badge.svg?branch=master' alt='Coverage Status' />
+  </a>
+
 </p>
 
 <p align="center">
