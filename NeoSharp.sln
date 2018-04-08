@@ -23,7 +23,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{049B9D65-595
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1E81559D-7119-409A-9F67-9621D78081E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.TestHelpers", "test\NeoSharp.TestHelpers\NeoSharp.TestHelpers.csproj", "{D86BE80D-CD48-4F28-B003-567101952D27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.TestHelpers", "test\NeoSharp.TestHelpers\NeoSharp.TestHelpers.csproj", "{D86BE80D-CD48-4F28-B003-567101952D27}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.LevelDB", "src\NeoSharp.Persistence.LevelDB\NeoSharp.Persistence.LevelDB.csproj", "{A3100105-1F16-4A41-A073-1DB20FEEAC94}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +69,10 @@ Global
 		{D86BE80D-CD48-4F28-B003-567101952D27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D86BE80D-CD48-4F28-B003-567101952D27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D86BE80D-CD48-4F28-B003-567101952D27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3100105-1F16-4A41-A073-1DB20FEEAC94}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3100105-1F16-4A41-A073-1DB20FEEAC94}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3100105-1F16-4A41-A073-1DB20FEEAC94}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3100105-1F16-4A41-A073-1DB20FEEAC94}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -81,6 +87,7 @@ Global
 		{6CD90B02-8B68-4638-8893-E09BB2B02644} = {049B9D65-5954-424B-8155-5726A60E24C5}
 		{390C923B-0209-4E0F-8751-C84BC0C0FB76} = {049B9D65-5954-424B-8155-5726A60E24C5}
 		{D86BE80D-CD48-4F28-B003-567101952D27} = {1E81559D-7119-409A-9F67-9621D78081E3}
+		{A3100105-1F16-4A41-A073-1DB20FEEAC94} = {049B9D65-5954-424B-8155-5726A60E24C5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C0EE31A-D025-404A-8D06-FB883C62C9AD}
