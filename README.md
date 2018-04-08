@@ -38,7 +38,7 @@ Feedback on structure, particularly with regard to the dependency injection patt
 # Contributing
 
 Feel free to contribute to this project after reading the
-[contributing guidelines](https://github.com/CityOfZion/neo-go/blob/master/CONTRIBUTING.md).
+[contributing guidelines](https://github.com/CityOfZion/neo-sharp/blob/master/CONTRIBUTING.md).
 
 Before starting to work on a certain topic, create an new issue first, describing the feauture/topic you are going to implement. Please submit new pull requests to the `development` branch
 
