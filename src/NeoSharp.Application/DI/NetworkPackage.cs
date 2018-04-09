@@ -11,6 +11,6 @@ namespace NeoSharp.Application.DI
             container.Register<INetworkManager, NetworkManager>(Lifestyle.Singleton);
             container.Register<IServer, Server>(Lifestyle.Singleton);
             container.RegisterInstanceCreator<IPeer, Peer>(Lifestyle.Transient);
-        }     
+        }
     }
 }

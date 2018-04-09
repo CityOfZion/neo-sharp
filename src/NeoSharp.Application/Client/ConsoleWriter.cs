@@ -5,6 +5,26 @@ namespace NeoSharp.Application.Client
     public class ConsoleWriter : IConsoleWriter
     {
         /// <summary>
+        /// Get current cursor positon
+        /// </summary>
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        public void GetCursorPosition(out int x, out int y)
+        {
+            x = Console.CursorLeft;
+            y = Console.CursorTop;
+        }
+        /// <summary>
+        /// Set cursor position
+        /// </summary>
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        public void SetCursorPosition(int x, int y)
+        {
+            Console.CursorLeft = x;
+            Console.CursorTop = y;
+        }
+        /// <summary>
         /// Apply style
         /// </summary>
         /// <param name="style">Style</param>
@@ -61,6 +81,15 @@ namespace NeoSharp.Application.Client
         {
             ApplyStyle(style);
             Console.WriteLine(line);
+        }
+        /// <summary>
+        /// Create percent writer
+        /// </summary>
+        /// <param name="maxValue">Maximum value</param>
+        /// <returns>Return Console percent writer</returns>
+        public ConsolePercentWriter CreatePercent(int maxValue = 100)
+        {
+            return new ConsolePercentWriter(this, 0, maxValue);
         }
     }
 }
