@@ -1,7 +1,14 @@
-﻿namespace NeoSharp.Application.Client
+﻿using System.Security;
+
+namespace NeoSharp.Application.Client
 {
     public interface IConsoleReader
     {
+        /// <summary>
+        /// Read password
+        /// </summary>
+        /// <returns>Reteurn Secure string password</returns>
+        SecureString ReadPassword();
         /// <summary>
         /// Read string from console
         /// </summary>

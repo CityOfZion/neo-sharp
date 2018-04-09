@@ -13,5 +13,4 @@ namespace NeoSharp.Application.DI
             container.RegisterInstanceCreator<IPeer, Peer>(Lifestyle.Transient);
         }     
     }
-
 }

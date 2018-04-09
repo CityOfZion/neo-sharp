@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
 
 namespace NeoSharp.Application.Client
 {
@@ -44,10 +45,44 @@ namespace NeoSharp.Application.Client
 
             _manualInputs.AddRange(inputs.Where(u => !string.IsNullOrEmpty(u)));
         }
+        /// <summary>
+        /// Read password
+        /// </summary>
+        /// <returns>Reteurn Secure string password</returns>
+        public SecureString ReadPassword()
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
 
+            SecureString pwd = new SecureString();
+
+            while (true)
+            {
+                ConsoleKeyInfo i = Console.ReadKey(true);
+                if (i.Key == ConsoleKey.Enter)
+                {
+                    break;
+                }
+                else if (i.Key == ConsoleKey.Backspace)
+                {
+                    if (pwd.Length > 0)
+                    {
+                        pwd.RemoveAt(pwd.Length - 1);
+                        Console.Write("\b \b");
+                    }
+                }
+                else
+                {
+                    pwd.AppendChar(i.KeyChar);
+                    Console.Write("*");
+                }
+            }
+
+            return pwd;
+        }
         /// <summary>
         /// Read string from console
         /// </summary>
+        /// <returns>Returns the readed string</returns>
         public string ReadFromConsole()
         {
             // Write prompt
@@ -72,7 +107,7 @@ namespace NeoSharp.Application.Client
                 {
                     // Print it
 
-                    _consoleWriter.WriteLine(input, ConsoleWriteStyle.Input);
+                    _consoleWriter.WriteLine(input, ConsoleOutputStyle.Input);
 
                     // Use it
 

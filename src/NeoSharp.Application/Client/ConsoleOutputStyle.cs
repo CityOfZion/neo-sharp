@@ -1,6 +1,6 @@
 ﻿namespace NeoSharp.Application.Client
 {
-    public enum ConsoleWriteStyle : byte
+    public enum ConsoleOutputStyle : byte
     {
         /// <summary>
         /// Regular output

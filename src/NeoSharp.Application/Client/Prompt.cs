@@ -129,11 +129,11 @@ namespace NeoSharp.Application.Client
                 }
                 catch (Exception e)
                 {
-                    _consoleWriter.WriteLine(e.Message, ConsoleWriteStyle.Error);
+                    _consoleWriter.WriteLine(e.Message, ConsoleOutputStyle.Error);
                 }
             }
 
-            _consoleWriter.WriteLine("Exiting", ConsoleWriteStyle.Information);
+            _consoleWriter.WriteLine("Exiting", ConsoleOutputStyle.Information);
         }
 
         #region Commands
@@ -146,20 +146,20 @@ namespace NeoSharp.Application.Client
         {
             if (args == null || args.Length <= 0)
             {
-                _consoleWriter.WriteLine("File required", ConsoleWriteStyle.Error);
+                _consoleWriter.WriteLine("File required", ConsoleOutputStyle.Error);
                 return;
             }
 
             string file = args[0];
             if (!File.Exists(file))
             {
-                _consoleWriter.WriteLine("File not found", ConsoleWriteStyle.Error);
+                _consoleWriter.WriteLine("File not found", ConsoleOutputStyle.Error);
                 return;
             }
 
             if (new FileInfo(file).Length > 1024 * 1024)
             {
-                _consoleWriter.WriteLine("The specified file is too large", ConsoleWriteStyle.Error);
+                _consoleWriter.WriteLine("The specified file is too large", ConsoleOutputStyle.Error);
                 return;
             }
 

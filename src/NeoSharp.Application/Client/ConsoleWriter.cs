@@ -5,44 +5,35 @@ namespace NeoSharp.Application.Client
     public class ConsoleWriter : IConsoleWriter
     {
         /// <summary>
-        /// Write output into console
+        /// Apply style
         /// </summary>
-        /// <param name="output">Output</param>
-        public void Write(string output)
-        {
-            Console.Write(output);
-        }
-        /// <summary>
-        /// Write line into console
-        /// </summary>
-        /// <param name="line">Line</param>
         /// <param name="style">Style</param>
-        public void WriteLine(string line, ConsoleWriteStyle style = ConsoleWriteStyle.Output)
+        void ApplyStyle(ConsoleOutputStyle style)
         {
             switch (style)
             {
-                case ConsoleWriteStyle.Output:
+                case ConsoleOutputStyle.Output:
                     {
                         if (Console.ForegroundColor != ConsoleColor.White)
                             Console.ForegroundColor = ConsoleColor.White;
 
                         break;
                     }
-                case ConsoleWriteStyle.Input:
+                case ConsoleOutputStyle.Input:
                     {
                         if (Console.ForegroundColor != ConsoleColor.Green)
                             Console.ForegroundColor = ConsoleColor.Green;
 
                         break;
                     }
-                case ConsoleWriteStyle.Error:
+                case ConsoleOutputStyle.Error:
                     {
                         if (Console.ForegroundColor != ConsoleColor.Red)
                             Console.ForegroundColor = ConsoleColor.Red;
 
                         break;
                     }
-                case ConsoleWriteStyle.Information:
+                case ConsoleOutputStyle.Information:
                     {
                         if (Console.ForegroundColor != ConsoleColor.Yellow)
                             Console.ForegroundColor = ConsoleColor.Yellow;
@@ -50,7 +41,25 @@ namespace NeoSharp.Application.Client
                         break;
                     }
             }
-
+        }
+        /// <summary>
+        /// Write output into console
+        /// </summary>
+        /// <param name="output">Output</param>
+        /// <param name="style">Style</param>
+        public void Write(string output, ConsoleOutputStyle style = ConsoleOutputStyle.Output)
+        {
+            ApplyStyle(style);
+            Console.Write(output);
+        }
+        /// <summary>
+        /// Write line into console
+        /// </summary>
+        /// <param name="line">Line</param>
+        /// <param name="style">Style</param>
+        public void WriteLine(string line, ConsoleOutputStyle style = ConsoleOutputStyle.Output)
+        {
+            ApplyStyle(style);
             Console.WriteLine(line);
         }
     }
