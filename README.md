@@ -14,6 +14,9 @@
   <a href='https://coveralls.io/github/CityOfZion/neo-sharp?branch=master'>
     <img src='https://coveralls.io/repos/github/CityOfZion/neo-sharp/badge.svg?branch=master' alt='Coverage Status' />
   </a>
+  <a href="https://github.com/CityOfZion/neo-sharp/blob/master/LICENSE">
+    <img src="https://img.shields.io/badge/license-MIT-blue.svg">
+  </a>
 
 </p>
 
