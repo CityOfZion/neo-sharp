@@ -40,10 +40,10 @@ namespace NeoSharp.Application.Client
         /// <param name="networkManagerInit">Network manger init</param>
         public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit, ILogger<Prompt> logger, INetworkManager networkManagerInit)
         {
-            _consoleReader = consoleReaderInit;
-            _consoleWriter = consoleWriterInit;
-            _logger = logger;
-            _networkManager = networkManagerInit;
+            this._consoleReader = consoleReaderInit;
+            this._consoleWriter = consoleWriterInit;
+            this._logger = logger;
+            this._networkManager = networkManagerInit;
         }
 
         /// <summary>
@@ -74,13 +74,13 @@ namespace NeoSharp.Application.Client
 
         public void StartPrompt(string[] args)
         {
-            _logger.LogInformation("Starting Prompt");
-            _consoleWriter.WriteLine("Neo-Sharp");
+            this._logger.LogInformation("Starting Prompt");
+            this._consoleWriter.WriteLine("Neo-Sharp");
 
-            bool exit = false;
+            var exit = false;
             while (!exit)
             {
-                string cmd = _consoleReader.ReadFromConsole();
+                var cmd = this._consoleReader.ReadFromConsole();
                 if (string.IsNullOrWhiteSpace(cmd)) continue;
 
                 try
@@ -173,12 +173,12 @@ namespace NeoSharp.Application.Client
 
         private void StartCommand()
         {
-            _networkManager.StartNetwork();
+            this._networkManager.StartNetwork();
         }
 
         private void StopCommand()
         {
-            _networkManager.StopNetwork();
+            this._networkManager.StopNetwork();
         }
 
         private void HelpCommand()

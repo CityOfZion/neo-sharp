@@ -1,16 +1,15 @@
-using NeoSharp.Application.Client;
+using NeoSharp.Application.DI;
 
 namespace NeoSharp.Application
 {
     public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            using (var container = Composition.Compose())
-            {
-                IClientManager client = container.GetInstance<IClientManager>();
-                client.RunClient(args);
-            }
+            var applicationBootstrapper = new ApplicationBootstrapper();
+
+            applicationBootstrapper.RegisterModules();
+            applicationBootstrapper.Start(args);
         }
     }
 }

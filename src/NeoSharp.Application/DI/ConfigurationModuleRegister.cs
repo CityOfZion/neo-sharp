@@ -1,19 +1,18 @@
 ﻿using System.IO;
 using Microsoft.Extensions.Configuration;
-using SimpleInjector;
 
 namespace NeoSharp.Application.DI
 {
-    public class ConfigurationPackage
+    public class ConfigurationModuleRegister
     {
-        public static void RegisterServices(Container container)
+        public void Register(ISimpleInjectorWrapper container)
         {
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", false, true);
             var configurationRoot = builder.Build();
 
-            container.RegisterInstance<IConfiguration>(configurationRoot);
+            container.Register<IConfiguration>(configurationRoot);
         }
     }
 }

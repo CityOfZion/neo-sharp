@@ -1,6 +1,8 @@
-﻿namespace NeoSharp.Application.Client
+﻿using NeoSharp.Core;
+
+namespace NeoSharp.Application.Client
 {
-    public class ClientManager : IClientManager
+    public class ClientManager : IBootstrapper
     {
         #region Variables
 
@@ -17,16 +19,16 @@
         /// <param name="promptInit">Prompt</param>
         public ClientManager(IPrompt promptInit)
         {
-            _prompt = promptInit;
+            this._prompt = promptInit;
         }
 
         /// <summary>
         /// Run client with arguments
         /// </summary>
         /// <param name="args">Arguments</param>
-        public void RunClient(string[] args)
+        public void Start(string[] args)
         {            
-            _prompt.StartPrompt(args);
+            this._prompt.StartPrompt(args);
         }
     }
 }
