@@ -3,6 +3,7 @@ using Moq;
 using NeoSharp.Application.Client;
 using NeoSharp.Application.DI;
 using NeoSharp.Core;
+using NeoSharp.Core.DI;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Application.Test
@@ -14,17 +15,17 @@ namespace NeoSharp.Application.Test
         public void Register_AllObjectsAreCorrectlyRegister()
         {
             // Arrange
-            var simpleInjectorWrapperMock = this.AutoMockContainer.GetMock<ISimpleInjectorWrapper>();
-            var module = this.AutoMockContainer.Create<ClientModuleRegister>();
+            var containerBuilderMock = this.AutoMockContainer.GetMock<IContainerBuilder>();
+            var module = this.AutoMockContainer.Create<ClientModule>();
 
             // Act
-            module.Register(simpleInjectorWrapperMock.Object);
+            module.Register(containerBuilderMock.Object);
 
             // Assert
-            simpleInjectorWrapperMock.Verify(x => x.Register<IBootstrapper, ClientManager>(), Times.Once);
-            simpleInjectorWrapperMock.Verify(x => x.RegisterSingleton<IPrompt, Prompt>(), Times.Once);
-            simpleInjectorWrapperMock.Verify(x => x.RegisterSingleton<IConsoleReader, ConsoleReader>(), Times.Once);
-            simpleInjectorWrapperMock.Verify(x => x.RegisterSingleton<IConsoleWriter, ConsoleWriter>(), Times.Once);
+            containerBuilderMock.Verify(x => x.Register<IBootstrapper, Bootstrapper>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<IPrompt, Prompt>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<IConsoleReader, ConsoleReader>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<IConsoleWriter, ConsoleWriter>(), Times.Once);
         }
     }
 }

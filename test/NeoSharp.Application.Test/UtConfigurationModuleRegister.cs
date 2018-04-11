@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Application.DI;
+using NeoSharp.Core.DI;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Application.Test
@@ -15,14 +16,14 @@ namespace NeoSharp.Application.Test
         public void Register_AllObjectsAreCorrectlyRegister()
         {
             // Arrange
-            var simpleInjectorWrapperMock = this.AutoMockContainer.GetMock<ISimpleInjectorWrapper>();
-            var module = this.AutoMockContainer.Create<ConfigurationModuleRegister>();
+            var containerBuilderMock = this.AutoMockContainer.GetMock<IContainerBuilder>();
+            var module = this.AutoMockContainer.Create<ConfigurationModule>();
 
             // Act
-            module.Register(simpleInjectorWrapperMock.Object);
+            module.Register(containerBuilderMock.Object);
 
             // Assert
-            simpleInjectorWrapperMock.Verify(
+            containerBuilderMock.Verify(
                 x => x.Register<IConfiguration>(
                     It.Is<IConfigurationRoot>(c =>
                         c.Providers.Count() == 1 &&

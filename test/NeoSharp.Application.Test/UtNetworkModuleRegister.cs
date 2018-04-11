@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Application.DI;
+using NeoSharp.Core.DI;
 using NeoSharp.Core.Network;
 using NeoSharp.TestHelpers;
 
@@ -13,17 +14,17 @@ namespace NeoSharp.Application.Test
         public void Register_AllObjectsAreCorrectlyRegister()
         {
             // Arrange
-            var simpleInjectorWrapperMock = this.AutoMockContainer.GetMock<ISimpleInjectorWrapper>();
-            var module = this.AutoMockContainer.Create<NetworkModuleRegister>();
+            var containerBuilderMock = this.AutoMockContainer.GetMock<IContainerBuilder>();
+            var module = this.AutoMockContainer.Create<NetworkModule>();
 
             // Act
-            module.Register(simpleInjectorWrapperMock.Object);
+            module.Register(containerBuilderMock.Object);
 
             // Assert
-            simpleInjectorWrapperMock.Verify(x => x.RegisterSingleton<NetworkConfig>(), Times.Once);
-            simpleInjectorWrapperMock.Verify(x => x.RegisterSingleton<INetworkManager, NetworkManager>(), Times.Once);
-            simpleInjectorWrapperMock.Verify(x => x.RegisterSingleton<IServer, Server>(), Times.Once);
-            simpleInjectorWrapperMock.Verify(x => x.RegisterTransientInstance<IPeer, Peer>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<NetworkConfig>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<INetworkManager, NetworkManager>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<IServer, Server>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterInstanceCreator<IPeer, Peer>(), Times.Once);
         }
     }
 }

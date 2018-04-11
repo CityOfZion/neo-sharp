@@ -27,6 +27,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.TestHelpers", "tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.LevelDB", "src\NeoSharp.Persistence.LevelDB\NeoSharp.Persistence.LevelDB.csproj", "{A3100105-1F16-4A41-A073-1DB20FEEAC94}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.DI.SimpleInjector", "src\NeoSharp.DI.SimpleInjector\NeoSharp.DI.SimpleInjector.csproj", "{D6817512-EE24-4121-B93F-C978A63FA49A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -73,6 +75,10 @@ Global
 		{A3100105-1F16-4A41-A073-1DB20FEEAC94}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3100105-1F16-4A41-A073-1DB20FEEAC94}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3100105-1F16-4A41-A073-1DB20FEEAC94}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6817512-EE24-4121-B93F-C978A63FA49A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6817512-EE24-4121-B93F-C978A63FA49A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6817512-EE24-4121-B93F-C978A63FA49A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6817512-EE24-4121-B93F-C978A63FA49A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +94,7 @@ Global
 		{390C923B-0209-4E0F-8751-C84BC0C0FB76} = {049B9D65-5954-424B-8155-5726A60E24C5}
 		{D86BE80D-CD48-4F28-B003-567101952D27} = {1E81559D-7119-409A-9F67-9621D78081E3}
 		{A3100105-1F16-4A41-A073-1DB20FEEAC94} = {049B9D65-5954-424B-8155-5726A60E24C5}
+		{D6817512-EE24-4121-B93F-C978A63FA49A} = {049B9D65-5954-424B-8155-5726A60E24C5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C0EE31A-D025-404A-8D06-FB883C62C9AD}

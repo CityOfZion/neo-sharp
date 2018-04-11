@@ -1,4 +1,6 @@
 using NeoSharp.Application.DI;
+using NeoSharp.Core;
+using NeoSharp.DI.SimpleInjector;
 
 namespace NeoSharp.Application
 {
@@ -6,10 +8,18 @@ namespace NeoSharp.Application
     {
         public static void Main(string[] args)
         {
-            var applicationBootstrapper = new ApplicationBootstrapper();
+            var containerBuilder = new SimpleInjectorContainerBuilder();
 
-            applicationBootstrapper.RegisterModules();
-            applicationBootstrapper.Start(args);
+            containerBuilder.RegisterModule<ClientModule>();
+            containerBuilder.RegisterModule<ConfigurationModule>();
+            containerBuilder.RegisterModule<LoggingModule>();
+            containerBuilder.RegisterModule<NetworkModule>();
+
+            var container = containerBuilder.Build();
+
+            var bootstrapper = container.Resolve<IBootstrapper>();
+
+            bootstrapper.Start(args);
         }
     }
 }

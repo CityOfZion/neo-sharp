@@ -9,7 +9,7 @@ namespace NeoSharp.TestHelpers.AutoMock
 {
     public class UnityAutoMockContainer : UnityContainer, IAutoMockContainer
     {
-        private readonly Dictionary<Type, AsExpression> _asExpressions;
+        private readonly IDictionary<Type, AsExpression> _asExpressions;
 
         public UnityAutoMockContainer(MockRepository mockRepository)
         {

@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace NeoSharp.Application.DI
+namespace NeoSharp.Core.DI
 {
-    public interface ISimpleInjectorWrapper
+    public interface IContainerBuilder
     {
         void Register<TService, TImplementation>()
             where TService : class
@@ -17,16 +17,21 @@ namespace NeoSharp.Application.DI
 
         void RegisterSingleton(Type service, Type implementation);
 
+        void RegisterSingleton<TService>(Func<TService> instanceCreator)
+            where TService : class;
+
         void Register<TService>(TService configuration)
             where TService : class;
 
-        void RegisterTransientInstance<TService, TImplementation>()
+        void Register(Type service, Type implementation);
+
+        void RegisterInstanceCreator<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService;
 
-        TEntity Resolve<TEntity>()
-            where TEntity : class;
+        void RegisterModule<TModule>()
+            where TModule : class, IModule, new();
 
-        void Verify();
+        IContainer Build();
     }
 }

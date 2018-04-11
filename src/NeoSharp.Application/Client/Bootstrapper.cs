@@ -2,7 +2,7 @@
 
 namespace NeoSharp.Application.Client
 {
-    public class ClientManager : IBootstrapper
+    public class Bootstrapper : IBootstrapper
     {
         #region Variables
 
@@ -17,7 +17,7 @@ namespace NeoSharp.Application.Client
         /// Constructor
         /// </summary>
         /// <param name="promptInit">Prompt</param>
-        public ClientManager(IPrompt promptInit)
+        public Bootstrapper(IPrompt promptInit)
         {
             this._prompt = promptInit;
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using SimpleInjector;
 
-namespace NeoSharp.Core.Extensions
+namespace NeoSharp.DI.SimpleInjector
 {
     public static class ContainerExtensions
     {

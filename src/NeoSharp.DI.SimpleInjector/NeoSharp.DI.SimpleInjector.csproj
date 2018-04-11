@@ -5,18 +5,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NLog" Version="4.5.0" />
-    <PackageReference Include="NLog.Extensions.Logging" Version="1.0.0" />
+    <PackageReference Include="SimpleInjector" Version="4.1.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\NeoSharp.Core\NeoSharp.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="nlog.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

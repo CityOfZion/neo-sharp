@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
-using SimpleInjector;
+using NeoSharp.DI.SimpleInjector;
 
 namespace NeoSharp.Core.Benchmark
 {       
@@ -15,11 +15,13 @@ namespace NeoSharp.Core.Benchmark
         [GlobalSetup]
         public void Setup()
         {
-            Container cont = new Container();
-            cont.Register<IPeer, Peer>(Lifestyle.Transient);
-            cont.Register(ConfigureLogger, Lifestyle.Singleton);
-            cont.Register(typeof(ILogger<>), typeof(LoggerAdapter<>));
-            uub = () => cont.GetInstance<IPeer>();
+            var containerBuilder = new SimpleInjectorContainerBuilder();
+            containerBuilder.RegisterInstanceCreator<IPeer, Peer>();
+            containerBuilder.RegisterSingleton(ConfigureLogger);
+            containerBuilder.Register(typeof(ILogger<>), typeof(LoggerAdapter<>));
+            var container = containerBuilder.Build();
+
+            uub = () => container.Resolve<IPeer>();
         }
 
         private static ILoggerFactory ConfigureLogger()

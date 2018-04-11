@@ -6,11 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SimpleInjector" Version="4.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\NeoSharp.Core\NeoSharp.Core.csproj" />
+    <ProjectReference Include="..\NeoSharp.DI.SimpleInjector\NeoSharp.DI.SimpleInjector.csproj" />
     <ProjectReference Include="..\NeoSharp.Logging.NLog\NeoSharp.Logging.NLog.csproj" />
   </ItemGroup>
 
