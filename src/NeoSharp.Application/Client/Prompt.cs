@@ -6,6 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Application.Attributes;
+using System.Reflection;
 
 namespace NeoSharp.Application.Client
 {
@@ -13,6 +15,10 @@ namespace NeoSharp.Application.Client
     {
         #region Variables
 
+        /// <summary>
+        /// Exit flag
+        /// </summary>
+        private bool Exit = false;
         /// <summary>
         /// Console Reader
         /// </summary>
@@ -29,6 +35,37 @@ namespace NeoSharp.Application.Client
         /// Network manager
         /// </summary>
         private readonly INetworkManager _networkManager;
+        /// <summary>
+        /// Command caché
+        /// </summary>
+        private static readonly Dictionary<string, PromptCommandAttribute> _CommandCache;
+
+        #endregion
+
+        #region Cache
+
+        /// <summary>
+        /// Static constructor
+        /// </summary>
+        static Prompt()
+        {
+            _CommandCache = new Dictionary<string, PromptCommandAttribute>();
+
+            foreach (MethodInfo mi in typeof(Prompt).GetMethods
+                (
+                BindingFlags.NonPublic | BindingFlags.Public |
+                BindingFlags.Instance | BindingFlags.Static
+                ))
+            {
+                PromptCommandAttribute atr = mi.GetCustomAttribute<PromptCommandAttribute>();
+                if (atr == null) continue;
+
+                atr.Method = mi;
+
+                foreach (string command in atr.Commands)
+                    _CommandCache.Add(command.ToLowerInvariant(), atr);
+            }
+        }
 
         #endregion
 
@@ -78,59 +115,39 @@ namespace NeoSharp.Application.Client
             this._logger.LogInformation("Starting Prompt");
             this._consoleWriter.WriteLine("Neo-Sharp");
 
-            var exit = false;
-            while (!exit)
+            while (!Exit)
             {
-                var cmd = this._consoleReader.ReadFromConsole();
-                if (string.IsNullOrWhiteSpace(cmd)) continue;
+                var fullCmd = this._consoleReader.ReadFromConsole();
+                if (string.IsNullOrWhiteSpace(fullCmd)) continue;
+
+                PromptCommandAttribute cmd = null;
 
                 try
                 {
                     // Parse arguments
 
-                    List<string> cmdArgs = new List<string>(SplitCommandLine(cmd));
+                    List<string> cmdArgs = new List<string>(SplitCommandLine(fullCmd));
                     if (cmdArgs.Count <= 0) continue;
-
-                    // Get command
-
-                    cmd = cmdArgs.FirstOrDefault();
-                    cmdArgs.RemoveAt(0);
 
                     // Process command
 
-                    switch (cmd)
+                    if (!_CommandCache.TryGetValue(cmdArgs.First().ToLowerInvariant(), out cmd))
                     {
-                        case "load":
-                            {
-                                LoadCommand(cmdArgs.ToArray());
-                                break;
-                            }
-                        case "start":
-                            {
-                                StartCommand();
-                                break;
-                            }
-                        case "stop":
-                            {
-                                StopCommand();
-                                break;
-                            }
-                        case "help":
-                            {
-                                HelpCommand();
-                                break;
-                            }
-                        case "exit":
-                            {
-                                StopCommand();
-                                exit = true;
-                                break;
-                            }
+                        throw (new Exception("Command not found"));
                     }
+
+                    // Get command
+
+                    cmd.Method.Invoke(this, cmd.ConvertToArguments(cmdArgs.Skip(1).ToArray()));
                 }
                 catch (Exception e)
                 {
                     _consoleWriter.WriteLine(e.Message, ConsoleOutputStyle.Error);
+
+                    // Print help
+
+                    if (cmd != null && !string.IsNullOrEmpty(cmd.Help))
+                        _consoleWriter.WriteLine(cmd.Help, ConsoleOutputStyle.Information);
                 }
             }
 
@@ -142,29 +159,23 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Load commands from file
         /// </summary>
-        /// <param name="args">Arguments</param>
-        private void LoadCommand(string[] args)
+        /// <param name="file">File</param>
+        [PromptCommand("load", Help = "load <filename>\nPlay stored commands")]
+        private void LoadCommand(FileInfo file)
         {
-            if (args == null || args.Length <= 0)
-            {
-                _consoleWriter.WriteLine("File required", ConsoleOutputStyle.Error);
-                return;
-            }
-
-            string file = args[0];
-            if (!File.Exists(file))
+            if (!file.Exists)
             {
                 _consoleWriter.WriteLine("File not found", ConsoleOutputStyle.Error);
                 return;
             }
 
-            if (new FileInfo(file).Length > 1024 * 1024)
+            if (file.Length > 1024 * 1024)
             {
                 _consoleWriter.WriteLine("The specified file is too large", ConsoleOutputStyle.Error);
                 return;
             }
 
-            string[] lines = File.ReadAllLines(file, Encoding.UTF8);
+            string[] lines = File.ReadAllLines(file.FullName, Encoding.UTF8);
             _consoleReader.AppendInputs(lines);
 
             // Print result
@@ -172,16 +183,26 @@ namespace NeoSharp.Application.Client
             _consoleWriter.WriteLine($"Loaded inputs: {lines.Length.ToString()}");
         }
 
+        [PromptCommand("start")]
         private void StartCommand()
         {
             this._networkManager.StartNetwork();
         }
 
+        [PromptCommand(new string[] { "exit", "quit" })]
+        private void ExitCommand()
+        {
+            StopCommand();
+            this.Exit = true;
+        }
+
+        [PromptCommand("stop")]
         private void StopCommand()
         {
             this._networkManager.StopNetwork();
         }
 
+        [PromptCommand("help")]
         private void HelpCommand()
         {
             _consoleWriter.WriteLine("load");
