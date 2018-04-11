@@ -113,7 +113,7 @@ namespace NeoSharp.Application.Client
         public void StartPrompt(string[] args)
         {
             this._logger.LogInformation("Starting Prompt");
-            this._consoleWriter.WriteLine("Neo-Sharp");
+            this._consoleWriter.WriteLine("Neo-Sharp", ConsoleOutputStyle.Prompt);
 
             while (!Exit)
             {

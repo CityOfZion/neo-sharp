@@ -87,10 +87,7 @@ namespace NeoSharp.Application.Client
         {
             // Write prompt
 
-            if (Console.ForegroundColor != ConsoleColor.DarkGreen)
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-
-            _consoleWriter.Write(_readPrompt);
+            _consoleWriter.Write(_readPrompt, ConsoleOutputStyle.Prompt);
 
             // If have something loaded
 

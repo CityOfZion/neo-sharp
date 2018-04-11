@@ -39,6 +39,13 @@ namespace NeoSharp.Application.Client
 
                         break;
                     }
+                case ConsoleOutputStyle.Prompt:
+                    {
+                        if (Console.ForegroundColor != ConsoleColor.DarkGreen)
+                            Console.ForegroundColor = ConsoleColor.DarkGreen;
+
+                        break;
+                    }
                 case ConsoleOutputStyle.Input:
                     {
                         if (Console.ForegroundColor != ConsoleColor.Green)

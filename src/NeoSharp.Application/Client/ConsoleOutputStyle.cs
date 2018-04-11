@@ -7,6 +7,10 @@
         /// </summary>
         Output,
         /// <summary>
+        /// Prompt
+        /// </summary>
+        Prompt,
+        /// <summary>
         /// Input
         /// </summary>
         Input,
