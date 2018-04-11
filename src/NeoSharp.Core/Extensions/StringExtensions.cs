@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 
-namespace System.Text
+namespace NeoSharp.Core.Extensions
 {
     public static class StringExtensions
     {
@@ -28,6 +30,22 @@ namespace System.Text
             }
 
             return input;
+        }
+
+        public static byte[] HexToBytes(this string value, int limit = 0)
+        {
+            if (string.IsNullOrEmpty(value))
+                return new byte[0];
+            if (value.StartsWith("0x"))
+                value = value.Substring(2);
+            if (value.Length % 2 == 1)
+                throw new FormatException();
+            if (limit != 0 && value.Length != limit)
+                throw new FormatException();
+            var result = new byte[value.Length / 2];
+            for (var i = 0; i < result.Length; i++)
+                result[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier);
+            return result;
         }
     }
 }

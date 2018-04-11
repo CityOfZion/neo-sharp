@@ -9,7 +9,7 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Application.Test
 {
     [TestClass]
-    public class UtClientModuleRegister : TestBase
+    public class UtClientModule : TestBase
     {
         [TestMethod]
         public void Register_AllObjectsAreCorrectlyRegister()

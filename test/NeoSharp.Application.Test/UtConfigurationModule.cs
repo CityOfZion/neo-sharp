@@ -10,7 +10,7 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Application.Test
 {
     [TestClass]
-    public class UtConfigurationModuleRegister : TestBase
+    public class UtConfigurationModule : TestBase
     {
         [TestMethod]
         public void Register_AllObjectsAreCorrectlyRegister()

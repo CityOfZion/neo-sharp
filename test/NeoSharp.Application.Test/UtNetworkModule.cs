@@ -8,7 +8,7 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Application.Test
 {
     [TestClass]
-    public class UtNetworkModuleRegister : TestBase
+    public class UtNetworkModule : TestBase
     {
         [TestMethod]
         public void Register_AllObjectsAreCorrectlyRegister()
