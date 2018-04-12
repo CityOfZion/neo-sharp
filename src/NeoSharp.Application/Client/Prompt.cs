@@ -1,13 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
+using NeoSharp.Application.Attributes;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using NeoSharp.Core.Extensions;
-using NeoSharp.Application.Attributes;
 using System.Reflection;
+using System.Text;
 
 namespace NeoSharp.Application.Client
 {
@@ -84,32 +84,6 @@ namespace NeoSharp.Application.Client
             _networkManager = networkManagerInit;
         }
 
-        /// <summary>
-        /// Split a command line into enumerable
-        ///     https://stackoverflow.com/a/24829691
-        /// </summary>
-        /// <param name="commandLine">Command line</param>
-        /// <returns>Return the ienumerable result</returns>
-        public static IEnumerable<string> SplitCommandLine(string commandLine)
-        {
-            var inQuotes = false;
-            var isEscaping = false;
-
-            return commandLine.Split(c =>
-            {
-                if (c == '\\' && !isEscaping) { isEscaping = true; return false; }
-
-                if (c == '\"' && !isEscaping)
-                    inQuotes = !inQuotes;
-
-                isEscaping = false;
-
-                return !inQuotes && char.IsWhiteSpace(c)/*c == ' '*/;
-            })
-                .Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\""))
-                .Where(arg => !string.IsNullOrEmpty(arg));
-        }
-
         public void StartPrompt(string[] args)
         {
             _logger.LogInformation("Starting Prompt");
@@ -120,38 +94,51 @@ namespace NeoSharp.Application.Client
                 var fullCmd = _consoleReader.ReadFromConsole();
                 if (string.IsNullOrWhiteSpace(fullCmd)) continue;
 
-                PromptCommandAttribute cmd = null;
-
-                try
-                {
-                    // Parse arguments
-
-                    var cmdArgs = new List<string>(SplitCommandLine(fullCmd));
-                    if (cmdArgs.Count <= 0) continue;
-
-                    // Process command
-
-                    if (!_commandCache.TryGetValue(cmdArgs.First().ToLowerInvariant(), out cmd))
-                    {
-                        throw (new Exception("Command not found"));
-                    }
-
-                    // Get command
-
-                    cmd.Method.Invoke(this, cmd.ConvertToArguments(cmdArgs.Skip(1).ToArray()));
-                }
-                catch (Exception e)
-                {
-                    _consoleWriter.WriteLine(e.Message, ConsoleOutputStyle.Error);
-
-                    // Print help
-
-                    if (cmd != null && !string.IsNullOrEmpty(cmd.Help))
-                        _consoleWriter.WriteLine(cmd.Help, ConsoleOutputStyle.Information);
-                }
+                Execute(fullCmd);
             }
 
             _consoleWriter.WriteLine("Exiting", ConsoleOutputStyle.Information);
+        }
+
+        /// <summary>
+        /// Execute command
+        /// </summary>
+        /// <param name="command">Command</param>
+        /// <returns>Return false if fail</returns>
+        public bool Execute(string command)
+        {
+            PromptCommandAttribute cmd = null;
+
+            try
+            {
+                // Parse arguments
+
+                var cmdArgs = new List<string>(command.SplitCommandLine());
+                if (cmdArgs.Count <= 0) return false;
+
+                // Process command
+
+                if (!_commandCache.TryGetValue(cmdArgs.First().ToLowerInvariant(), out cmd))
+                {
+                    throw (new Exception("Command not found"));
+                }
+
+                // Get command
+
+                cmd.Method.Invoke(this, cmd.ConvertToArguments(cmdArgs.Skip(1).ToArray()));
+                return true;
+            }
+            catch (Exception e)
+            {
+                _consoleWriter.WriteLine(e.Message, ConsoleOutputStyle.Error);
+
+                // Print help
+
+                if (cmd != null && !string.IsNullOrEmpty(cmd.Help))
+                    _consoleWriter.WriteLine(cmd.Help, ConsoleOutputStyle.Information);
+
+                return false;
+            }
         }
 
         #region Commands

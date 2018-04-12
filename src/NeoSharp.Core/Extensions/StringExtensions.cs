@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
 
@@ -6,6 +7,32 @@ namespace NeoSharp.Core.Extensions
 {
     public static class StringExtensions
     {
+        /// <summary>
+        /// Split a command line into enumerable
+        ///     https://stackoverflow.com/a/24829691
+        /// </summary>
+        /// <param name="commandLine">Command line</param>
+        /// <returns>Return the ienumerable result</returns>
+        public static IEnumerable<string> SplitCommandLine(this string commandLine)
+        {
+            var inQuotes = false;
+            var isEscaping = false;
+
+            return commandLine.Split(c =>
+            {
+                if (c == '\\' && !isEscaping) { isEscaping = true; return false; }
+
+                if (c == '\"' && !isEscaping)
+                    inQuotes = !inQuotes;
+
+                isEscaping = false;
+
+                return !inQuotes && char.IsWhiteSpace(c)/*c == ' '*/;
+            })
+                .Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\""))
+                .Where(arg => !string.IsNullOrEmpty(arg));
+        }
+
         public static IEnumerable<string> Split(this string str, Func<char, bool> controller)
         {
             var nextPiece = 0;
