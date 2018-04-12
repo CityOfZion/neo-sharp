@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NeoSharp.Core.Caching
+﻿namespace NeoSharp.Core.Caching
 {
     public enum TrackState : byte
     {

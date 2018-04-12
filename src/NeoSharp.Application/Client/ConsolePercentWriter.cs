@@ -6,11 +6,11 @@ namespace NeoSharp.Application.Client
     {
         #region Variables
 
-        int _MaxValue, _Value;
-        Decimal _LastFactor;
+        int _maxValue, _value;
+        Decimal _lastFactor;
 
-        readonly IConsoleWriter _Writer;
-        readonly int _X, _Y;
+        readonly IConsoleWriter _writer;
+        readonly int _x, _y;
 
         #endregion
 
@@ -21,12 +21,12 @@ namespace NeoSharp.Application.Client
         /// </summary>
         public int Value
         {
-            get { return _Value; }
+            get { return _value; }
             set
             {
-                if (value == _Value) return;
+                if (value == _value) return;
 
-                _Value = Math.Min(value, _MaxValue);
+                _value = Math.Min(value, _maxValue);
 
                 Invalidate();
             }
@@ -36,15 +36,15 @@ namespace NeoSharp.Application.Client
         /// </summary>
         public int MaxValue
         {
-            get { return _MaxValue; }
+            get { return _maxValue; }
             set
             {
-                if (value == _MaxValue) return;
+                if (value == _maxValue) return;
 
-                _MaxValue = value;
+                _maxValue = value;
 
-                if (_Value > _MaxValue)
-                    _Value = _MaxValue;
+                if (_value > _maxValue)
+                    _value = _maxValue;
 
                 Invalidate();
             }
@@ -56,8 +56,8 @@ namespace NeoSharp.Application.Client
         {
             get
             {
-                if (_MaxValue == 0) return 0;
-                return (_Value * 100M) / _MaxValue;
+                if (_maxValue == 0) return 0;
+                return (_value * 100M) / _maxValue;
             }
         }
 
@@ -71,8 +71,8 @@ namespace NeoSharp.Application.Client
         /// <param name="maxValue">Maximum value</param>
         public ConsolePercentWriter(IConsoleWriter writer, int value = 0, int maxValue = 100)
         {
-            _Writer = writer;
-            _Writer.GetCursorPosition(out _X, out _Y);
+            _writer = writer;
+            _writer.GetCursorPosition(out _x, out _y);
             MaxValue = maxValue;
             Value = value;
             Invalidate();
@@ -82,28 +82,28 @@ namespace NeoSharp.Application.Client
         /// </summary>
         public void Invalidate()
         {
-            Decimal factor = Math.Round((Percent / 100M), 1);
+            var factor = Math.Round((Percent / 100M), 1);
 
-            if (_LastFactor == factor)
+            if (_lastFactor == factor)
             {
-                _LastFactor = factor;
+                _lastFactor = factor;
                 return;
             }
 
-            string fill = string.Empty.PadLeft((int)(10 * factor), '■');
-            string clean = string.Empty.PadLeft(10 - fill.Length, '■');
+            var fill = string.Empty.PadLeft((int)(10 * factor), '■');
+            var clean = string.Empty.PadLeft(10 - fill.Length, '■');
 
-            _Writer.SetCursorPosition(_X, _Y);
-            _Writer.Write("[", ConsoleOutputStyle.Output);
-            _Writer.Write(fill, ConsoleOutputStyle.Input);
-            _Writer.Write(clean + "] (" + Percent.ToString("0.0").PadLeft(5, ' ') + "%)", ConsoleOutputStyle.Output);
+            _writer.SetCursorPosition(_x, _y);
+            _writer.Write("[");
+            _writer.Write(fill, ConsoleOutputStyle.Input);
+            _writer.Write(clean + "] (" + Percent.ToString("0.0").PadLeft(5, ' ') + "%)");
         }
         /// <summary>
         /// Free console
         /// </summary>
         public void Dispose()
         {
-            _Writer.WriteLine("", ConsoleOutputStyle.Output);
+            _writer.WriteLine("");
         }
     }
 }

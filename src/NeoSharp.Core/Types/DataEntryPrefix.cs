@@ -1,24 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NeoSharp.Core.Types
+﻿namespace NeoSharp.Core.Types
 {
     public enum DataEntryPrefix
     {
-        DATA_Block = 0x01,
-        DATA_Transaction = 0x02,
-        ST_Account = 0x40,
-        ST_Coin = 0x44,
-        ST_SpentCoin = 0x45,
-        ST_Validator = 0x48,
-        ST_Asset = 0x4c,
-        ST_Contract = 0x50,
-        ST_Storage = 0x70,
-        IX_HeaderHashList = 0x80,
-        IX_ValidatorsCount = 0x90,
-        SYS_CurrentBlock = 0xc0,
-        SYS_CurrentHeader = 0xc1,
-        SYS_Version = 0xf0
+        DataBlock = 0x01,
+        DataTransaction = 0x02,
+        StAccount = 0x40,
+        StCoin = 0x44,
+        StSpentCoin = 0x45,
+        StValidator = 0x48,
+        StAsset = 0x4c,
+        StContract = 0x50,
+        StStorage = 0x70,
+        IxHeaderHashList = 0x80,
+        IxValidatorsCount = 0x90,
+        SysCurrentBlock = 0xc0,
+        SysCurrentHeader = 0xc1,
+        SysVersion = 0xf0
     }
 }

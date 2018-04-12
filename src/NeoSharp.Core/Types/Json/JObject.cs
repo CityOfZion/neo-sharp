@@ -2,29 +2,28 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using NeoSharp.Core.Types.Json;
 
 namespace NeoSharp.Core.Types.Json
 {
     public class JObject
     {
         public static readonly JObject Null = null;
-        private Dictionary<string, JObject> properties = new Dictionary<string, JObject>();
+        private Dictionary<string, JObject> _properties = new Dictionary<string, JObject>();
 
         public JObject this[string name]
         {
             get
             {
-                properties.TryGetValue(name, out JObject value);
+                _properties.TryGetValue(name, out var value);
                 return value;
             }
             set
             {
-                properties[name] = value;
+                _properties[name] = value;
             }
         }
 
-        public IReadOnlyDictionary<string, JObject> Properties => properties;
+        public IReadOnlyDictionary<string, JObject> Properties => _properties;
 
         public virtual bool AsBoolean()
         {
@@ -81,13 +80,13 @@ namespace NeoSharp.Core.Types.Json
 
         public bool ContainsProperty(string key)
         {
-            return properties.ContainsKey(key);
+            return _properties.ContainsKey(key);
         }
 
         public static JObject Parse(TextReader reader)
         {
             SkipSpace(reader);
-            char firstChar = (char)reader.Peek();
+            var firstChar = (char)reader.Peek();
             if (firstChar == '\"' || firstChar == '\'')
             {
                 return JString.Parse(reader);
@@ -110,16 +109,16 @@ namespace NeoSharp.Core.Types.Json
             }
             if (reader.Read() != '{') throw new FormatException();
             SkipSpace(reader);
-            JObject obj = new JObject();
+            var obj = new JObject();
             while (reader.Peek() != '}')
             {
                 if (reader.Peek() == ',') reader.Read();
                 SkipSpace(reader);
-                string name = JString.Parse(reader).Value;
+                var name = JString.Parse(reader).Value;
                 SkipSpace(reader);
                 if (reader.Read() != ':') throw new FormatException();
-                JObject value = Parse(reader);
-                obj.properties.Add(name, value);
+                var value = Parse(reader);
+                obj._properties.Add(name, value);
                 SkipSpace(reader);
             }
             reader.Read();
@@ -128,7 +127,7 @@ namespace NeoSharp.Core.Types.Json
 
         public static JObject Parse(string value)
         {
-            using (StringReader reader = new StringReader(value))
+            using (var reader = new StringReader(value))
             {
                 return Parse(reader);
             }
@@ -136,12 +135,12 @@ namespace NeoSharp.Core.Types.Json
 
         private static JObject ParseNull(TextReader reader)
         {
-            char firstChar = (char)reader.Read();
+            var firstChar = (char)reader.Read();
             if (firstChar == 'n')
             {
-                int c2 = reader.Read();
-                int c3 = reader.Read();
-                int c4 = reader.Read();
+                var c2 = reader.Read();
+                var c3 = reader.Read();
+                var c4 = reader.Read();
                 if (c2 == 'u' && c3 == 'l' && c4 == 'l')
                 {
                     return null;
@@ -160,9 +159,9 @@ namespace NeoSharp.Core.Types.Json
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append('{');
-            foreach (KeyValuePair<string, JObject> pair in properties)
+            foreach (var pair in _properties)
             {
                 sb.Append('"');
                 sb.Append(pair.Key);
@@ -178,7 +177,7 @@ namespace NeoSharp.Core.Types.Json
                 }
                 sb.Append(',');
             }
-            if (properties.Count == 0)
+            if (_properties.Count == 0)
             {
                 sb.Append('}');
             }

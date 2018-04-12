@@ -8,19 +8,19 @@ namespace NeoSharp.Core.Network
 
         public NetworkManager(ILogger<NetworkManager> logger, IServer serverInit)
         {
-            this._server = serverInit;
+            _server = serverInit;
 
             logger.LogInformation("Network Manager Initialised");
         }
 
         public void StartNetwork()
         {            
-            this._server.StartServer();            
+            _server.StartServer();            
         }
 
         public void StopNetwork()
         {           
-            this._server.StopServer();
+            _server.StopServer();
         }
     }
 }

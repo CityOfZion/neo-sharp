@@ -18,6 +18,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Throw_when_intialized_with_buffer_non_equal_to_size()
         {
+            // ReSharper disable once ObjectCreationAsStatement
             Action a = () => new UInt160(new byte[]
                 { 212, 41, 126, 177, 14, 255, 59, 82, 218, 113, 248, 145, 98, 5, 128, 140, 42, 70, 32, 69, 0 });
 
@@ -45,16 +46,14 @@ namespace NeoSharp.Core.Test.Types
         public void Can_be_not_equal_to_null_of_same_type()
         {
             var a = UInt160.Parse("0x4520462a8c80056291f871da523bff0eb17e29d4");
-            var b = default(UInt160);
-            a.Equals(b).Should().BeFalse();
+            a.Equals(null).Should().BeFalse();
         }
 
         [TestMethod]
         public void Can_be_not_equal_to_null_of_object_type()
         {
             var a = UInt160.Parse("0x4520462a8c80056291f871da523bff0eb17e29d4");          
-            var b = default(object);
-            a.Equals(b).Should().BeFalse();
+            a.Equals((object)null).Should().BeFalse();
         }
 
         [TestMethod]
@@ -116,7 +115,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Can_parse_valid_string_safely()
         {
-            var actual = UInt160.TryParse("0x4520462a8c80056291f871da523bff0eb17e29d4", out UInt160 a);
+            var actual = UInt160.TryParse("0x4520462a8c80056291f871da523bff0eb17e29d4", out var a);
             actual.Should().BeTrue();
             a.Should().NotBe(UInt160.Zero);
         }
@@ -124,7 +123,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Can_parse_invalid_string_safely()
         {
-            var actual =  UInt160.TryParse("0x4520462a8c80056291f871da523bff0eb17e29d4x0", out UInt160 a);
+            var actual =  UInt160.TryParse("0x4520462a8c80056291f871da523bff0eb17e29d4x0", out var a);
             actual.Should().BeFalse();
             a.Should().Be(UInt160.Zero);
         }

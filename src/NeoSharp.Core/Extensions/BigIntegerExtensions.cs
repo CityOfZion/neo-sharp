@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 using System.Security.Cryptography;
-using System.Text;
 
 namespace NeoSharp.Core.Extensions
 {
@@ -39,7 +37,7 @@ namespace NeoSharp.Core.Extensions
                 throw new ArgumentException("sizeInBits must be non-negative");
             if (sizeInBits == 0)
                 return 0;
-            byte[] b = new byte[sizeInBits / 8 + 1];
+            var b = new byte[sizeInBits / 8 + 1];
             rand.NextBytes(b);
             if (sizeInBits % 8 == 0)
                 b[b.Length - 1] = 0;
@@ -54,7 +52,7 @@ namespace NeoSharp.Core.Extensions
                 throw new ArgumentException("sizeInBits must be non-negative");
             if (sizeInBits == 0)
                 return 0;
-            byte[] b = new byte[sizeInBits / 8 + 1];
+            var b = new byte[sizeInBits / 8 + 1];
             rng.GetBytes(b);
             if (sizeInBits % 8 == 0)
                 b[b.Length - 1] = 0;

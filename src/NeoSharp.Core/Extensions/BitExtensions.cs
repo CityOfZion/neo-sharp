@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
 
 
@@ -26,7 +25,7 @@ namespace NeoSharp.Core.Extensions
 
         internal static int GetBitLength(this BigInteger i)
         {
-            byte[] b = i.ToByteArray();
+            var b = i.ToByteArray();
             return (b.Length - 1) * 8 + BitLen(i.Sign > 0 ? b[b.Length - 1] : 255 - b[b.Length - 1]);
         }
 
@@ -34,11 +33,11 @@ namespace NeoSharp.Core.Extensions
         {
             if (i.Sign == 0)
                 return -1;
-            byte[] b = i.ToByteArray();
-            int w = 0;
+            var b = i.ToByteArray();
+            var w = 0;
             while (b[w] == 0)
                 w++;
-            for (int x = 0; x < 8; x++)
+            for (var x = 0; x < 8; x++)
                 if ((b[w] & 1 << x) > 0)
                     return x + w * 8;
             throw new Exception();

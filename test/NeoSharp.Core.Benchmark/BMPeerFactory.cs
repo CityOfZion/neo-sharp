@@ -8,9 +8,9 @@ using NeoSharp.DI.SimpleInjector;
 
 namespace NeoSharp.Core.Benchmark
 {       
-    public class BMPeerFactory
+    public class BmPeerFactory
     {
-        Func<IPeer> uub;
+        Func<IPeer> _uub;
 
         [GlobalSetup]
         public void Setup()
@@ -21,20 +21,20 @@ namespace NeoSharp.Core.Benchmark
             containerBuilder.Register(typeof(ILogger<>), typeof(LoggerAdapter<>));
             var container = containerBuilder.Build();
 
-            uub = () => container.Resolve<IPeer>();
+            _uub = () => container.Resolve<IPeer>();
         }
 
         private static ILoggerFactory ConfigureLogger()
         {
-            Mock<ILoggerFactory> mockLoggerFactory = new Mock<ILoggerFactory>();
+            var mockLoggerFactory = new Mock<ILoggerFactory>();
             return mockLoggerFactory.Object;
         }
 
         [Benchmark]
-        public void createPeers()
+        public void CreatePeers()
         {
-            for (int i=0; i<10000; i++)
-                uub();
+            for (var i=0; i<10000; i++)
+                _uub();
         }
 
     }

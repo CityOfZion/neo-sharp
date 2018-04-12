@@ -13,9 +13,9 @@ namespace NeoSharp.TestHelpers.AutoMock
 
         public UnityAutoMockContainer(MockRepository mockRepository)
         {
-            this.AddExtension(new UnityAutoMoqExtension(mockRepository, this));
+            AddExtension(new UnityAutoMoqExtension(mockRepository, this));
 
-            this._asExpressions = new Dictionary<Type, AsExpression>();
+            _asExpressions = new Dictionary<Type, AsExpression>();
         }
 
         [DebuggerStepThrough]
@@ -27,7 +27,7 @@ namespace NeoSharp.TestHelpers.AutoMock
         [DebuggerStepThrough]
         public Mock<T> GetMock<T>() where T : class
         {
-            return Mock.Get(this.Create<T>());
+            return Mock.Get(Create<T>());
         }
 
         [DebuggerStepThrough]
@@ -51,7 +51,7 @@ namespace NeoSharp.TestHelpers.AutoMock
         [DebuggerStepThrough]
         internal AsExpression GetInterfaceImplementations(Type t)
         {
-            return this._asExpressions.ContainsKey(t) ? this._asExpressions[t] : null;
+            return _asExpressions.ContainsKey(t) ? _asExpressions[t] : null;
         }
     }
 }

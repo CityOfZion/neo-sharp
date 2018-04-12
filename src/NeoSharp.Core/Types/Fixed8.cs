@@ -1,9 +1,6 @@
-﻿using NeoSharp.Core.Types;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Globalization;
 using System.IO;
-using System.Text;
 
 namespace NeoSharp.Core.Types
 {
@@ -14,15 +11,15 @@ namespace NeoSharp.Core.Types
     public struct Fixed8 : IComparable<Fixed8>, IEquatable<Fixed8>, IFormattable, ISerializable
     {
         private const long D = 100_000_000;
-        internal long value;
+        internal long Value;
 
-        public static readonly Fixed8 MaxValue = new Fixed8 { value = long.MaxValue };
+        public static readonly Fixed8 MaxValue = new Fixed8 { Value = long.MaxValue };
 
-        public static readonly Fixed8 MinValue = new Fixed8 { value = long.MinValue };
+        public static readonly Fixed8 MinValue = new Fixed8 { Value = long.MinValue };
 
-        public static readonly Fixed8 One = new Fixed8 { value = D };
+        public static readonly Fixed8 One = new Fixed8 { Value = D };
 
-        public static readonly Fixed8 Satoshi = new Fixed8 { value = 1 };
+        public static readonly Fixed8 Satoshi = new Fixed8 { Value = 1 };
 
         public static readonly Fixed8 Zero = default(Fixed8);
 
@@ -30,47 +27,47 @@ namespace NeoSharp.Core.Types
 
         public Fixed8(long data)
         {
-            this.value = data;
+            Value = data;
         }
 
         public Fixed8 Abs()
         {
-            if (value >= 0) return this;
+            if (Value >= 0) return this;
             return new Fixed8
             {
-                value = -value
+                Value = -Value
             };
         }
 
         public Fixed8 Ceiling()
         {
-            long remainder = value % D;
+            var remainder = Value % D;
             if (remainder == 0) return this;
             if (remainder > 0)
                 return new Fixed8
                 {
-                    value = value - remainder + D
+                    Value = Value - remainder + D
                 };
             else
                 return new Fixed8
                 {
-                    value = value - remainder
+                    Value = Value - remainder
                 };
         }
 
         public int CompareTo(Fixed8 other)
         {
-            return value.CompareTo(other.value);
+            return Value.CompareTo(other.Value);
         }
 
         void ISerializable.Deserialize(BinaryReader reader)
         {
-            value = reader.ReadInt64();
+            Value = reader.ReadInt64();
         }
 
         public bool Equals(Fixed8 other)
         {
-            return value.Equals(other.value);
+            return Value.Equals(other.Value);
         }
 
         public override bool Equals(object obj)
@@ -86,20 +83,22 @@ namespace NeoSharp.Core.Types
                 throw new OverflowException();
             return new Fixed8
             {
-                value = (long)value
+                Value = (long)value
             };
         }
 
-        public long GetData() => value;
+        public long GetData() => Value;
 
         public override int GetHashCode()
         {
-            return value.GetHashCode();
+            // TODO: It has to be readonly
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
+            return Value.GetHashCode();
         }
 
         public static Fixed8 Max(Fixed8 first, params Fixed8[] others)
         {
-            foreach (Fixed8 other in others)
+            foreach (var other in others)
             {
                 if (first.CompareTo(other) < 0)
                     first = other;
@@ -109,7 +108,7 @@ namespace NeoSharp.Core.Types
 
         public static Fixed8 Min(Fixed8 first, params Fixed8[] others)
         {
-            foreach (Fixed8 other in others)
+            foreach (var other in others)
             {
                 if (first.CompareTo(other) > 0)
                     first = other;
@@ -124,7 +123,7 @@ namespace NeoSharp.Core.Types
 
         void ISerializable.Serialize(BinaryWriter writer)
         {
-            writer.Write(value);
+            writer.Write(Value);
         }
 
         public override string ToString()
@@ -158,19 +157,19 @@ namespace NeoSharp.Core.Types
             }
             result = new Fixed8
             {
-                value = (long)d
+                Value = (long)d
             };
             return true;
         }
 
         public static explicit operator decimal(Fixed8 value)
         {
-            return value.value / (decimal)D;
+            return value.Value / (decimal)D;
         }
 
         public static explicit operator long(Fixed8 value)
         {
-            return value.value / D;
+            return value.Value / D;
         }
 
         public static bool operator ==(Fixed8 x, Fixed8 y)
@@ -205,61 +204,61 @@ namespace NeoSharp.Core.Types
 
         public static Fixed8 operator *(Fixed8 x, Fixed8 y)
         {
-            const ulong QUO = (1ul << 63) / (D >> 1);
-            const ulong REM = ((1ul << 63) % (D >> 1)) << 1;
-            int sign = Math.Sign(x.value) * Math.Sign(y.value);
-            ulong ux = (ulong)Math.Abs(x.value);
-            ulong uy = (ulong)Math.Abs(y.value);
-            ulong xh = ux >> 32;
-            ulong xl = ux & 0x00000000fffffffful;
-            ulong yh = uy >> 32;
-            ulong yl = uy & 0x00000000fffffffful;
-            ulong rh = xh * yh;
-            ulong rm = xh * yl + xl * yh;
-            ulong rl = xl * yl;
-            ulong rmh = rm >> 32;
-            ulong rml = rm << 32;
+            const ulong quo = (1ul << 63) / (D >> 1);
+            const ulong rem = ((1ul << 63) % (D >> 1)) << 1;
+            var sign = Math.Sign(x.Value) * Math.Sign(y.Value);
+            var ux = (ulong)Math.Abs(x.Value);
+            var uy = (ulong)Math.Abs(y.Value);
+            var xh = ux >> 32;
+            var xl = ux & 0x00000000fffffffful;
+            var yh = uy >> 32;
+            var yl = uy & 0x00000000fffffffful;
+            var rh = xh * yh;
+            var rm = xh * yl + xl * yh;
+            var rl = xl * yl;
+            var rmh = rm >> 32;
+            var rml = rm << 32;
             rh += rmh;
             rl += rml;
             if (rl < rml)
                 ++rh;
             if (rh >= D)
                 throw new OverflowException();
-            ulong rd = rh * REM + rl;
+            var rd = rh * rem + rl;
             if (rd < rl)
                 ++rh;
-            ulong r = rh * QUO + rd / D;
-            x.value = (long)r * sign;
+            var r = rh * quo + rd / D;
+            x.Value = (long)r * sign;
             return x;
         }
 
         public static Fixed8 operator *(Fixed8 x, long y)
         {
-            x.value *= y;
+            x.Value *= y;
             return x;
         }
 
         public static Fixed8 operator /(Fixed8 x, long y)
         {
-            x.value /= y;
+            x.Value /= y;
             return x;
         }
 
         public static Fixed8 operator +(Fixed8 x, Fixed8 y)
         {
-            x.value = checked(x.value + y.value);
+            x.Value = checked(x.Value + y.Value);
             return x;
         }
 
         public static Fixed8 operator -(Fixed8 x, Fixed8 y)
         {
-            x.value = checked(x.value - y.value);
+            x.Value = checked(x.Value - y.Value);
             return x;
         }
 
         public static Fixed8 operator -(Fixed8 value)
         {
-            value.value = -value.value;
+            value.Value = -value.Value;
             return value;
         }
     }

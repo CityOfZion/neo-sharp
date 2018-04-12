@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 
 namespace NeoSharp.Core.Types.Json
 {
@@ -11,7 +9,7 @@ namespace NeoSharp.Core.Types.Json
 
         public JBoolean(bool value = false)
         {
-            this.Value = value;
+            Value = value;
         }
 
         public override bool AsBoolean()
@@ -36,12 +34,12 @@ namespace NeoSharp.Core.Types.Json
         internal new static JBoolean Parse(TextReader reader)
         {
             SkipSpace(reader);
-            char firstChar = (char)reader.Read();
+            var firstChar = (char)reader.Read();
             if (firstChar == 't')
             {
-                int c2 = reader.Read();
-                int c3 = reader.Read();
-                int c4 = reader.Read();
+                var c2 = reader.Read();
+                var c3 = reader.Read();
+                var c4 = reader.Read();
                 if (c2 == 'r' && c3 == 'u' && c4 == 'e')
                 {
                     return new JBoolean(true);
@@ -49,13 +47,13 @@ namespace NeoSharp.Core.Types.Json
             }
             else if (firstChar == 'f')
             {
-                int c2 = reader.Read();
-                int c3 = reader.Read();
-                int c4 = reader.Read();
-                int c5 = reader.Read();
+                var c2 = reader.Read();
+                var c3 = reader.Read();
+                var c4 = reader.Read();
+                var c5 = reader.Read();
                 if (c2 == 'a' && c3 == 'l' && c4 == 's' && c5 == 'e')
                 {
-                    return new JBoolean(false);
+                    return new JBoolean();
                 }
             }
             throw new FormatException();

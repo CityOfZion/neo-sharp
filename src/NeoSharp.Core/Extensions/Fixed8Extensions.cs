@@ -1,5 +1,4 @@
 ﻿using NeoSharp.Core.Types;
-using NeoSharp.Core.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +12,9 @@ namespace NeoSharp.Core.Extensions
             long sum = 0;
             checked
             {
-                foreach (Fixed8 item in source)
+                foreach (var item in source)
                 {
-                    sum += item.value;
+                    sum += item.Value;
                 }
             }
             return new Fixed8(sum);

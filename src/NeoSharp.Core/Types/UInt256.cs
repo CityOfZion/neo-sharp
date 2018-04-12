@@ -8,7 +8,7 @@ namespace NeoSharp.Core.Types
 {
     public class UInt256 : IEquatable<UInt256>, IComparable<UInt256>, ISerializable
     {
-        private static readonly int size = 32;
+        private static readonly int s_size = 32;
 
         public static readonly UInt256 Zero = new UInt256();
 
@@ -27,7 +27,7 @@ namespace NeoSharp.Core.Types
             Array.Copy(value, _buffer, _buffer.Length);
         }
 
-        public int Size => size;
+        public int Size => s_size;
 
         public bool Equals(UInt256 other)
         {
@@ -79,7 +79,7 @@ namespace NeoSharp.Core.Types
 
         public static UInt256 Parse(string value)
         {
-            return new UInt256(value.HexToBytes(size * 2).Reverse().ToArray());
+            return new UInt256(value.HexToBytes(s_size * 2).Reverse().ToArray());
         }
 
         public static bool TryParse(string s, out UInt256 result)

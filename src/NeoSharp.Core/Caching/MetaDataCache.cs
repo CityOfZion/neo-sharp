@@ -1,7 +1,5 @@
 ﻿using NeoSharp.Core.Types;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NeoSharp.Core.Caching
 {
@@ -9,13 +7,13 @@ namespace NeoSharp.Core.Caching
     {
         protected T Item;
         protected TrackState State;
-        private Func<T> factory;
+        private Func<T> _factory;
 
         protected abstract T TryGetInternal();
 
         protected MetaDataCache(Func<T> factory)
         {
-            this.factory = factory;
+            _factory = factory;
         }
 
         public T Get()
@@ -26,7 +24,7 @@ namespace NeoSharp.Core.Caching
             }
             if (Item == null)
             {
-                Item = factory?.Invoke() ?? new T();
+                Item = _factory?.Invoke() ?? new T();
                 State = TrackState.Added;
             }
             return Item;
@@ -34,7 +32,7 @@ namespace NeoSharp.Core.Caching
 
         public T GetAndChange()
         {
-            T item = Get();
+            var item = Get();
             if (State == TrackState.None)
                 State = TrackState.Changed;
             return item;

@@ -4,23 +4,23 @@ namespace NeoSharp.Core.Types.Wrappers
 {
     internal class ByteWrapper : SerializableWrapper<byte>
     {
-        private byte value;
+        private byte _value;
 
         public override int Size => sizeof(byte);
 
         public ByteWrapper(byte value)
         {
-            this.value = value;
+            _value = value;
         }
 
         public override void Deserialize(BinaryReader reader)
         {
-            value = reader.ReadByte();
+            _value = reader.ReadByte();
         }
 
         public override void Serialize(BinaryWriter writer)
         {
-            writer.Write(value);
+            writer.Write(_value);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Exit flag
         /// </summary>
-        private bool Exit = false;
+        private bool _exit;
         /// <summary>
         /// Console Reader
         /// </summary>
@@ -38,7 +38,7 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Command caché
         /// </summary>
-        private static readonly Dictionary<string, PromptCommandAttribute> _CommandCache;
+        private static readonly IDictionary<string, PromptCommandAttribute> _commandCache;
 
         #endregion
 
@@ -49,21 +49,21 @@ namespace NeoSharp.Application.Client
         /// </summary>
         static Prompt()
         {
-            _CommandCache = new Dictionary<string, PromptCommandAttribute>();
+            _commandCache = new Dictionary<string, PromptCommandAttribute>();
 
-            foreach (MethodInfo mi in typeof(Prompt).GetMethods
+            foreach (var mi in typeof(Prompt).GetMethods
                 (
                 BindingFlags.NonPublic | BindingFlags.Public |
                 BindingFlags.Instance | BindingFlags.Static
                 ))
             {
-                PromptCommandAttribute atr = mi.GetCustomAttribute<PromptCommandAttribute>();
+                var atr = mi.GetCustomAttribute<PromptCommandAttribute>();
                 if (atr == null) continue;
 
                 atr.Method = mi;
 
-                foreach (string command in atr.Commands)
-                    _CommandCache.Add(command.ToLowerInvariant(), atr);
+                foreach (var command in atr.Commands)
+                    _commandCache.Add(command.ToLowerInvariant(), atr);
             }
         }
 
@@ -78,10 +78,10 @@ namespace NeoSharp.Application.Client
         /// <param name="networkManagerInit">Network manger init</param>
         public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit, ILogger<Prompt> logger, INetworkManager networkManagerInit)
         {
-            this._consoleReader = consoleReaderInit;
-            this._consoleWriter = consoleWriterInit;
-            this._logger = logger;
-            this._networkManager = networkManagerInit;
+            _consoleReader = consoleReaderInit;
+            _consoleWriter = consoleWriterInit;
+            _logger = logger;
+            _networkManager = networkManagerInit;
         }
 
         /// <summary>
@@ -92,8 +92,8 @@ namespace NeoSharp.Application.Client
         /// <returns>Return the ienumerable result</returns>
         public static IEnumerable<string> SplitCommandLine(string commandLine)
         {
-            bool inQuotes = false;
-            bool isEscaping = false;
+            var inQuotes = false;
+            var isEscaping = false;
 
             return commandLine.Split(c =>
             {
@@ -112,12 +112,12 @@ namespace NeoSharp.Application.Client
 
         public void StartPrompt(string[] args)
         {
-            this._logger.LogInformation("Starting Prompt");
-            this._consoleWriter.WriteLine("Neo-Sharp", ConsoleOutputStyle.Prompt);
+            _logger.LogInformation("Starting Prompt");
+            _consoleWriter.WriteLine("Neo-Sharp");
 
-            while (!Exit)
+            while (!_exit)
             {
-                var fullCmd = this._consoleReader.ReadFromConsole();
+                var fullCmd = _consoleReader.ReadFromConsole();
                 if (string.IsNullOrWhiteSpace(fullCmd)) continue;
 
                 PromptCommandAttribute cmd = null;
@@ -126,12 +126,12 @@ namespace NeoSharp.Application.Client
                 {
                     // Parse arguments
 
-                    List<string> cmdArgs = new List<string>(SplitCommandLine(fullCmd));
+                    var cmdArgs = new List<string>(SplitCommandLine(fullCmd));
                     if (cmdArgs.Count <= 0) continue;
 
                     // Process command
 
-                    if (!_CommandCache.TryGetValue(cmdArgs.First().ToLowerInvariant(), out cmd))
+                    if (!_commandCache.TryGetValue(cmdArgs.First().ToLowerInvariant(), out cmd))
                     {
                         throw (new Exception("Command not found"));
                     }
@@ -161,6 +161,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="file">File</param>
         [PromptCommand("load", Help = "load <filename>\nPlay stored commands")]
+        // ReSharper disable once UnusedMember.Local
         private void LoadCommand(FileInfo file)
         {
             if (!file.Exists)
@@ -175,34 +176,37 @@ namespace NeoSharp.Application.Client
                 return;
             }
 
-            string[] lines = File.ReadAllLines(file.FullName, Encoding.UTF8);
+            var lines = File.ReadAllLines(file.FullName, Encoding.UTF8);
             _consoleReader.AppendInputs(lines);
 
             // Print result
 
-            _consoleWriter.WriteLine($"Loaded inputs: {lines.Length.ToString()}");
+            _consoleWriter.WriteLine($"Loaded inputs: {lines.Length}");
         }
 
         [PromptCommand("start")]
+        // ReSharper disable once UnusedMember.Local
         private void StartCommand()
         {
-            this._networkManager.StartNetwork();
+            _networkManager.StartNetwork();
         }
 
-        [PromptCommand(new string[] { "exit", "quit" })]
+        [PromptCommand("exit", "quit")]
+        // ReSharper disable once UnusedMember.Local
         private void ExitCommand()
         {
             StopCommand();
-            this.Exit = true;
+            _exit = true;
         }
 
         [PromptCommand("stop")]
         private void StopCommand()
         {
-            this._networkManager.StopNetwork();
+            _networkManager.StopNetwork();
         }
 
         [PromptCommand("help")]
+        // ReSharper disable once UnusedMember.Local
         private void HelpCommand()
         {
             _consoleWriter.WriteLine("load");

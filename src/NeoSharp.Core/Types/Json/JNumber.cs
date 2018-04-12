@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -12,11 +13,13 @@ namespace NeoSharp.Core.Types.Json
 
         public JNumber(double value = 0)
         {
-            this.Value = value;
+            Value = value;
         }
 
         public override bool AsBoolean()
         {
+            // TODO: Check precision
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (Value == 0)
                 return false;
             return true;
@@ -24,8 +27,8 @@ namespace NeoSharp.Core.Types.Json
 
         public override T AsEnum<T>(bool ignoreCase = false)
         {
-            Type t = typeof(T);
-            TypeInfo ti = t.GetTypeInfo();
+            var t = typeof(T);
+            var ti = t.GetTypeInfo();
             if (!ti.IsEnum)
                 throw new InvalidCastException();
             if (ti.GetEnumUnderlyingType() == typeof(byte))
@@ -54,7 +57,7 @@ namespace NeoSharp.Core.Types.Json
 
         public override string AsString()
         {
-            return Value.ToString();
+            return Value.ToString(CultureInfo.InvariantCulture);
         }
 
         public override bool CanConvertTo(Type type)
@@ -65,7 +68,7 @@ namespace NeoSharp.Core.Types.Json
                 return true;
             if (type == typeof(string))
                 return true;
-            TypeInfo ti = type.GetTypeInfo();
+            var ti = type.GetTypeInfo();
             if (ti.IsEnum && Enum.IsDefined(type, Convert.ChangeType(Value, ti.GetEnumUnderlyingType())))
                 return true;
             return false;
@@ -74,10 +77,10 @@ namespace NeoSharp.Core.Types.Json
         internal new static JNumber Parse(TextReader reader)
         {
             SkipSpace(reader);
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             while (true)
             {
-                char c = (char)reader.Peek();
+                var c = (char)reader.Peek();
                 if (c >= '0' && c <= '9' || c == '.' || c == '-')
                 {
                     sb.Append(c);
@@ -93,7 +96,7 @@ namespace NeoSharp.Core.Types.Json
 
         public override string ToString()
         {
-            return Value.ToString();
+            return Value.ToString(CultureInfo.InvariantCulture);
         }
 
         public DateTime ToTimestamp()

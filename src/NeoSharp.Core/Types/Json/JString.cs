@@ -15,7 +15,7 @@ namespace NeoSharp.Core.Types.Json
         {
             if (value == null)
                 throw new ArgumentNullException();
-            this.Value = value;
+            Value = value;
         }
 
         public override bool AsBoolean()
@@ -79,13 +79,13 @@ namespace NeoSharp.Core.Types.Json
         internal new static JString Parse(TextReader reader)
         {
             SkipSpace(reader);
-            char[] buffer = new char[4];
-            char firstChar = (char)reader.Read();
+            var buffer = new char[4];
+            var firstChar = (char)reader.Read();
             if (firstChar != '\"' && firstChar != '\'') throw new FormatException();
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             while (true)
             {
-                char c = (char)reader.Read();
+                var c = (char)reader.Read();
                 if (c == 65535) throw new FormatException();
                 if (c == firstChar) break;
                 if (c == '\\')

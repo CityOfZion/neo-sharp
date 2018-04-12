@@ -10,56 +10,56 @@ namespace NeoSharp.DI.SimpleInjector
 
         public SimpleInjectorContainerBuilder()
         {
-            this._container = new Container();
+            _container = new Container();
         }
 
         public void RegisterSingleton<TImplementation>()
             where TImplementation : class
         {
-            this._container.Register<TImplementation>(Lifestyle.Singleton);
+            _container.Register<TImplementation>(Lifestyle.Singleton);
         }
 
         public void RegisterSingleton<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
         {
-            this._container.Register<TService, TImplementation>(Lifestyle.Singleton);
+            _container.Register<TService, TImplementation>(Lifestyle.Singleton);
         }
 
         public void RegisterSingleton<TService>(Func<TService> instanceCreator)
             where TService : class
         {
-            this._container.Register(instanceCreator, Lifestyle.Singleton);
+            _container.Register(instanceCreator, Lifestyle.Singleton);
         }
 
         public void RegisterSingleton(Type service, Type implementation)
         {
-            this._container.Register(service, implementation, Lifestyle.Singleton);
+            _container.Register(service, implementation, Lifestyle.Singleton);
         }
 
         public void Register<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
         {
-            this._container.Register<TService, TImplementation>();
+            _container.Register<TService, TImplementation>();
         }
 
         public void Register(Type service, Type implementation)
         {
-            this._container.Register(service, implementation);
+            _container.Register(service, implementation);
         }
 
         public void Register<TService>(TService configuration)
             where TService : class
         {
-            this._container.RegisterInstance(configuration);
+            _container.RegisterInstance(configuration);
         }
 
         public void RegisterInstanceCreator<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService
         {
-            this._container.RegisterInstanceCreator<TService, TImplementation>(Lifestyle.Transient);
+            _container.RegisterInstanceCreator<TService, TImplementation>(Lifestyle.Transient);
         }
 
         public void RegisterModule<TModule>() where TModule : class, IModule, new()
@@ -71,7 +71,7 @@ namespace NeoSharp.DI.SimpleInjector
 
         public IContainer Build()
         {
-            this._container.Verify();
+            _container.Verify();
 
             return new SimpleInjectorContainer(_container);
         }

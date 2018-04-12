@@ -17,16 +17,18 @@ namespace NeoSharp.Core.Extensions
             if (end < start || start + end > 1) throw new ArgumentOutOfRangeException(nameof(end));
             if (weightSelector == null) throw new ArgumentNullException(nameof(weightSelector));
             if (resultSelector == null) throw new ArgumentNullException(nameof(resultSelector));
+            // TODO: check precision
+            // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (source.Count == 0 || start == end) yield break;
             double amount = source.Sum(weightSelector);
             long sum = 0;
             double current = 0;
-            foreach (T item in source)
+            foreach (var item in source)
             {
                 if (current >= end) break;
-                long weight = weightSelector(item);
+                var weight = weightSelector(item);
                 sum += weight;
-                double old = current;
+                var old = current;
                 current = sum / amount;
                 if (current <= start) continue;
                 if (old < start)
@@ -60,36 +62,36 @@ namespace NeoSharp.Core.Extensions
 
         internal static int GetVarSize<T>(this T[] value)
         {
-            int value_size;
-            Type t = typeof(T);
+            int valueSize;
+            var t = typeof(T);
             if (typeof(ISerializable).IsAssignableFrom(t))
             {
-                value_size = value.OfType<ISerializable>().Sum(p => p.Size);
+                valueSize = value.OfType<ISerializable>().Sum(p => p.Size);
             }
             else if (t.GetTypeInfo().IsEnum)
             {
-                int element_size;
-                Type u = t.GetTypeInfo().GetEnumUnderlyingType();
+                int elementSize;
+                var u = t.GetTypeInfo().GetEnumUnderlyingType();
                 if (u == typeof(sbyte) || u == typeof(byte))
-                    element_size = 1;
+                    elementSize = 1;
                 else if (u == typeof(short) || u == typeof(ushort))
-                    element_size = 2;
+                    elementSize = 2;
                 else if (u == typeof(int) || u == typeof(uint))
-                    element_size = 4;
+                    elementSize = 4;
                 else //if (u == typeof(long) || u == typeof(ulong))
-                    element_size = 8;
-                value_size = value.Length * element_size;
+                    elementSize = 8;
+                valueSize = value.Length * elementSize;
             }
             else
             {
-                value_size = value.Length * Marshal.SizeOf<T>();
+                valueSize = value.Length * Marshal.SizeOf<T>();
             }
-            return GetVarSize(value.Length) + value_size;
+            return GetVarSize(value.Length) + valueSize;
         }
 
         internal static int GetVarSize(this string value)
         {
-            int size = Encoding.UTF8.GetByteCount(value);
+            var size = Encoding.UTF8.GetByteCount(value);
             return GetVarSize(size) + size;
         }
     }

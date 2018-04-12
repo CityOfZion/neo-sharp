@@ -1,6 +1,5 @@
 ﻿using NeoSharp.Core.Types;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
@@ -16,7 +15,7 @@ namespace NeoSharp.Core.Extensions
         public static void Write<T>(this BinaryWriter writer, T[] value) where T : ISerializable
         {
             writer.WriteVarInt(value.Length);
-            for (int i = 0; i < value.Length; i++)
+            for (var i = 0; i < value.Length; i++)
             {
                 value[i].Serialize(writer);
             }
@@ -24,20 +23,20 @@ namespace NeoSharp.Core.Extensions
 
         public static void WriteBytesWithGrouping(this BinaryWriter writer, byte[] value)
         {
-            const int GROUP_SIZE = 16;
-            int index = 0;
-            int remain = value.Length;
-            while (remain >= GROUP_SIZE)
+            const int groupSize = 16;
+            var index = 0;
+            var remain = value.Length;
+            while (remain >= groupSize)
             {
-                writer.Write(value, index, GROUP_SIZE);
+                writer.Write(value, index, groupSize);
                 writer.Write((byte)0);
-                index += GROUP_SIZE;
-                remain -= GROUP_SIZE;
+                index += groupSize;
+                remain -= groupSize;
             }
             if (remain > 0)
                 writer.Write(value, index, remain);
-            int padding = GROUP_SIZE - remain;
-            for (int i = 0; i < padding; i++)
+            var padding = groupSize - remain;
+            for (var i = 0; i < padding; i++)
                 writer.Write((byte)0);
             writer.Write((byte)padding);
         }
@@ -48,7 +47,7 @@ namespace NeoSharp.Core.Extensions
                 throw new ArgumentNullException(nameof(value));
             if (value.Length > length)
                 throw new ArgumentException();
-            byte[] bytes = Encoding.UTF8.GetBytes(value);
+            var bytes = Encoding.UTF8.GetBytes(value);
             if (bytes.Length > length)
                 throw new ArgumentException();
             writer.Write(bytes);

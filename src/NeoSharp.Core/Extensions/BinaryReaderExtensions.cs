@@ -1,6 +1,5 @@
 ﻿using NeoSharp.Core.Types;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,17 +10,17 @@ namespace NeoSharp.Core.Extensions
     {
         public static byte[] ReadBytesWithGrouping(this BinaryReader reader)
         {
-            const int GROUP_SIZE = 16;
-            using (MemoryStream ms = new MemoryStream())
+            const int groupSize = 16;
+            using (var ms = new MemoryStream())
             {
-                int padding = 0;
+                int padding;
                 do
                 {
-                    byte[] group = reader.ReadBytes(GROUP_SIZE);
+                    var group = reader.ReadBytes(groupSize);
                     padding = reader.ReadByte();
-                    if (padding > GROUP_SIZE)
+                    if (padding > groupSize)
                         throw new FormatException();
-                    int count = GROUP_SIZE - padding;
+                    var count = groupSize - padding;
                     if (count > 0)
                         ms.Write(group, 0, count);
                 } while (padding == 0);
@@ -31,21 +30,21 @@ namespace NeoSharp.Core.Extensions
 
         public static string ReadFixedString(this BinaryReader reader, int length)
         {
-            byte[] data = reader.ReadBytes(length);
+            var data = reader.ReadBytes(length);
             return Encoding.UTF8.GetString(data.TakeWhile(p => p != 0).ToArray());
         }
 
         public static T ReadSerializable<T>(this BinaryReader reader) where T : ISerializable, new()
         {
-            T obj = new T();
+            var obj = new T();
             obj.Deserialize(reader);
             return obj;
         }
 
         public static T[] ReadSerializableArray<T>(this BinaryReader reader, int max = 0x10000000) where T : ISerializable, new()
         {
-            T[] array = new T[reader.ReadVarInt((ulong)max)];
-            for (int i = 0; i < array.Length; i++)
+            var array = new T[reader.ReadVarInt((ulong)max)];
+            for (var i = 0; i < array.Length; i++)
             {
                 array[i] = new T();
                 array[i].Deserialize(reader);
@@ -60,7 +59,7 @@ namespace NeoSharp.Core.Extensions
 
         public static ulong ReadVarInt(this BinaryReader reader, ulong max = ulong.MaxValue)
         {
-            byte fb = reader.ReadByte();
+            var fb = reader.ReadByte();
             ulong value;
             if (fb == 0xFD)
                 value = reader.ReadUInt16();

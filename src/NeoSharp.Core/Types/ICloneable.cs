@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NeoSharp.Core.Types
+﻿namespace NeoSharp.Core.Types
 {
     public interface ICloneable<T>
     {

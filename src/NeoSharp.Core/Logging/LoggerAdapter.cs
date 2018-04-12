@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace NeoSharp.Core.Logging
 {
     /// <summary>
-    ///  This Adapter class allows us to use Simple Injector with Microsoft.Extensions.Logging and ILogger<T>
+    ///  This Adapter class allows us to use Simple Injector with Microsoft.Extensions.Logging and ILogger{T}
     /// </summary>
     public class LoggerAdapter<T> : ILogger<T>
     {

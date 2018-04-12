@@ -13,14 +13,14 @@ namespace NeoSharp.TestHelpers.AutoMock
             MockRepository mockRepository,
             UnityAutoMockContainer autoMockContainer)
         {
-            this._mockRepository = mockRepository;
-            this._autoMockContainer = autoMockContainer;
+            _mockRepository = mockRepository;
+            _autoMockContainer = autoMockContainer;
         }
 
         protected override void Initialize()
         {
             Context.Strategies.Add(
-                new UnityAutoMoqBuilderStrategy(this._mockRepository, this._autoMockContainer),
+                new UnityAutoMoqBuilderStrategy(_mockRepository, _autoMockContainer),
                 UnityBuildStage.PreCreation);
         }
     }

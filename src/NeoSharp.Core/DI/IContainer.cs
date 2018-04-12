@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NeoSharp.Core.DI
+﻿namespace NeoSharp.Core.DI
 {
     public interface IContainer
     {

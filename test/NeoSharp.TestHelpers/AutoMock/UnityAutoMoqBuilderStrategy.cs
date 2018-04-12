@@ -18,12 +18,12 @@ namespace NeoSharp.TestHelpers.AutoMock
             MockRepository mockRepository,
             UnityAutoMockContainer autoMockContainer)
         {
-            this._mockRepository = mockRepository;
-            this._autoMockContainer = autoMockContainer;
+            _mockRepository = mockRepository;
+            _autoMockContainer = autoMockContainer;
 
-            this._createMethod = mockRepository.GetType().GetMethod("Create", new Type[] { });
+            _createMethod = mockRepository.GetType().GetMethod("Create", new Type[] { });
 
-            this._mocks = new Dictionary<Type, object>();
+            _mocks = new Dictionary<Type, object>();
         }
 
         public override void PreBuildUp(IBuilderContext context)
@@ -32,24 +32,24 @@ namespace NeoSharp.TestHelpers.AutoMock
 
             if (type.IsInterface || type.IsAbstract)
             {
-                context.Existing = this.GetOrCreateMock(type);
+                context.Existing = GetOrCreateMock(type);
                 context.BuildComplete = true;
             }
         }
 
         private object GetOrCreateMock(Type t)
         {
-            if (this._mocks.ContainsKey(t))
+            if (_mocks.ContainsKey(t))
             {
-                return this._mocks[t];
+                return _mocks[t];
             }
 
             var genericType = typeof(Mock<>).MakeGenericType(t);
 
-            var specificCreateMethod = this._createMethod.MakeGenericMethod(t);
-            var mock = (Mock)specificCreateMethod.Invoke(this._mockRepository, null);
+            var specificCreateMethod = _createMethod.MakeGenericMethod(t);
+            var mock = (Mock)specificCreateMethod.Invoke(_mockRepository, null);
 
-            var interfaceImplementations = this._autoMockContainer.GetInterfaceImplementations(t);
+            var interfaceImplementations = _autoMockContainer.GetInterfaceImplementations(t);
             if (interfaceImplementations != null)
             {
                 foreach (var implementation in interfaceImplementations.GetImplementations())
@@ -59,7 +59,7 @@ namespace NeoSharp.TestHelpers.AutoMock
             }
 
             var mockedInstance = mock.Object;
-            this._mocks.Add(t, mockedInstance);
+            _mocks.Add(t, mockedInstance);
 
             return mockedInstance;
         }

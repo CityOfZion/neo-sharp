@@ -2,6 +2,7 @@
 
 namespace NeoSharp.Application.Client
 {
+    // ReSharper disable once ClassNeverInstantiated.Global
     public class Bootstrapper : IBootstrapper
     {
         #region Variables
@@ -19,7 +20,7 @@ namespace NeoSharp.Application.Client
         /// <param name="promptInit">Prompt</param>
         public Bootstrapper(IPrompt promptInit)
         {
-            this._prompt = promptInit;
+            _prompt = promptInit;
         }
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace NeoSharp.Application.Client
         /// <param name="args">Arguments</param>
         public void Start(string[] args)
         {            
-            this._prompt.StartPrompt(args);
+            _prompt.StartPrompt(args);
         }
     }
 }

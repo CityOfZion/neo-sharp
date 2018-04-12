@@ -20,10 +20,12 @@
         /// <param name="maxValue">Maximum value</param>
         /// <returns>Return Console percent writer</returns>
         ConsolePercentWriter CreatePercent(int maxValue = 100);
+
         /// <summary>
         /// Write output into console
         /// </summary>
         /// <param name="output">Output</param>
+        /// <param name="style">Style</param>
         void Write(string output, ConsoleOutputStyle style = ConsoleOutputStyle.Output);
         /// <summary>
         /// Write line into console

@@ -7,24 +7,24 @@ using System.Reflection;
 
 namespace NeoSharp.Application.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Method)]
     public class PromptCommandAttribute : Attribute
     {
         #region Constants
 
-        static Type _StringType = typeof(string);
-        static Type _IListType = typeof(IList);
-        static Type _FileInfoType = typeof(FileInfo);
-        static Type _DirectoryInfoType = typeof(DirectoryInfo);
+        private static readonly Type _stringType = typeof(string);
+        private static readonly Type _iListType = typeof(IList);
+        private static readonly Type _fileInfoType = typeof(FileInfo);
+        private static readonly Type _directoryInfoType = typeof(DirectoryInfo);
 
-        static readonly char[] SplitChars = new char[] { ';', ',', '|' };
+        private static readonly char[] _splitChars = { ';', ',', '|' };
 
         #endregion
 
         #region Variables
 
-        ParameterInfo[] _Parameters;
-        MethodInfo _Method;
+        private ParameterInfo[] _parameters;
+        private MethodInfo _method;
 
         #endregion
 
@@ -43,13 +43,13 @@ namespace NeoSharp.Application.Attributes
         /// </summary>
         internal MethodInfo Method
         {
-            get { return _Method; }
+            get { return _method; }
             set
             {
                 if (value == null) return;
 
-                _Method = value;
-                _Parameters = value.GetParameters();
+                _method = value;
+                _parameters = value.GetParameters();
             }
         }
 
@@ -71,15 +71,15 @@ namespace NeoSharp.Application.Attributes
         /// <returns>Return parsed arguments</returns>
         public object[] ConvertToArguments(string[] args)
         {
-            int max = _Parameters.Length;
-            object[] ret = new object[max];
+            var max = _parameters.Length;
+            var ret = new object[max];
 
             if (args.Length != max)
                 throw (new ArgumentException("Missing parameters"));
 
-            for (int x = 0; x < max; x++)
+            for (var x = 0; x < max; x++)
             {
-                ret[x] = ParseToArgument(args[x], _Parameters[x].ParameterType);
+                ret[x] = ParseToArgument(args[x], _parameters[x].ParameterType);
             }
 
             return ret;
@@ -91,16 +91,16 @@ namespace NeoSharp.Application.Attributes
         /// <param name="input">Input</param>
         /// <param name="type">Type</param>
         /// <returns>Return parsed argument</returns>
-        object ParseToArgument(string input, Type type)
+        private object ParseToArgument(string input, Type type)
         {
             // FileInfo
-            if (_FileInfoType == type)
+            if (_fileInfoType == type)
             {
                 return new FileInfo(input);
             }
 
             // DirectoryInfo
-            if (_DirectoryInfoType == type)
+            if (_directoryInfoType == type)
             {
                 return new DirectoryInfo(input);
             }
@@ -108,34 +108,34 @@ namespace NeoSharp.Application.Attributes
             // Array
             if (type.IsArray)
             {
-                List<object> l = new List<object>();
-                Type gt = type.GetElementType();
-                foreach (string ii in input.Split(SplitChars))
+                var l = new List<object>();
+                var gt = type.GetElementType();
+                foreach (var ii in input.Split(_splitChars))
                 {
-                    object ov = ParseToArgument(ii, gt);
+                    var ov = ParseToArgument(ii, gt);
                     if (ov == null) continue;
 
                     l.Add(ov);
                 }
 
-                Array a = (Array)Activator.CreateInstance(type, l.Count);
+                var a = (Array)Activator.CreateInstance(type, l.Count);
                 Array.Copy(l.ToArray(), a, l.Count);
                 return a;
             }
 
             // List
-            if (_IListType.IsAssignableFrom(type))
+            if (_iListType.IsAssignableFrom(type))
             {
-                IList l = (IList)Activator.CreateInstance(type);
+                var l = (IList)Activator.CreateInstance(type);
 
                 // If dosen't have T return null
                 if (type.GenericTypeArguments == null || type.GenericTypeArguments.Length == 0)
                     return null;
 
-                Type gt = type.GenericTypeArguments[0];
-                foreach (string ii in input.Split(SplitChars))
+                var gt = type.GenericTypeArguments[0];
+                foreach (var ii in input.Split(_splitChars))
                 {
-                    object ov = ParseToArgument(ii, gt);
+                    var ov = ParseToArgument(ii, gt);
                     if (ov == null) continue;
 
                     l.Add(ov);
@@ -144,8 +144,8 @@ namespace NeoSharp.Application.Attributes
             }
 
             // Is Convertible
-            TypeConverter conv = TypeDescriptor.GetConverter(type);
-            if (conv.CanConvertFrom(_StringType))
+            var conv = TypeDescriptor.GetConverter(type);
+            if (conv.CanConvertFrom(_stringType))
             {
                 return conv.ConvertFrom(input);
             }

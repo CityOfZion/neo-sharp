@@ -16,8 +16,8 @@ namespace NeoSharp.Application.Test
         public void Register_AllObjectsAreCorrectlyRegister()
         {
             // Arrange
-            var containerBuilderMock = this.AutoMockContainer.GetMock<IContainerBuilder>();
-            var module = this.AutoMockContainer.Create<LoggingModule>();
+            var containerBuilderMock = AutoMockContainer.GetMock<IContainerBuilder>();
+            var module = AutoMockContainer.Create<LoggingModule>();
 
             // Act
             module.Register(containerBuilderMock.Object);

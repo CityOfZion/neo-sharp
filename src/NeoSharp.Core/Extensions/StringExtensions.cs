@@ -8,9 +8,9 @@ namespace NeoSharp.Core.Extensions
     {
         public static IEnumerable<string> Split(this string str, Func<char, bool> controller)
         {
-            int nextPiece = 0;
+            var nextPiece = 0;
 
-            for (int c = 0; c < str.Length; c++)
+            for (var c = 0; c < str.Length; c++)
             {
                 if (controller(str[c]))
                 {

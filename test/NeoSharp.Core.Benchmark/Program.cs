@@ -1,14 +1,14 @@
 ﻿using System;
-using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
 
 namespace NeoSharp.Core.Benchmark
 {
-    class Program
+    public static class Program
     {
-        static void Main(string[] args)
+        private static void Main()
         {
-            Summary summary = BenchmarkRunner.Run<BMPeerFactory>();
+            // ReSharper disable once UnusedVariable
+            var summary = BenchmarkRunner.Run<BmPeerFactory>();
             Console.ReadLine();
         }
     }

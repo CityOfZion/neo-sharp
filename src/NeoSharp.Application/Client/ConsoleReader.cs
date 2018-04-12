@@ -12,7 +12,7 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Prompt
         /// </summary>
-        private const string _readPrompt = "neo#> ";
+        private const string ReadPrompt = "neo#> ";
 
         #endregion
 
@@ -53,11 +53,11 @@ namespace NeoSharp.Application.Client
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
 
-            SecureString pwd = new SecureString();
+            var pwd = new SecureString();
 
             while (true)
             {
-                ConsoleKeyInfo i = Console.ReadKey(true);
+                var i = Console.ReadKey(true);
                 if (i.Key == ConsoleKey.Enter)
                 {
                     break;
@@ -87,7 +87,7 @@ namespace NeoSharp.Application.Client
         {
             // Write prompt
 
-            _consoleWriter.Write(_readPrompt, ConsoleOutputStyle.Prompt);
+            _consoleWriter.Write(ReadPrompt);
 
             // If have something loaded
 
@@ -97,7 +97,7 @@ namespace NeoSharp.Application.Client
             {
                 // Get first loaded command
 
-                string input = _manualInputs[0];
+                var input = _manualInputs[0];
                 _manualInputs.RemoveAt(0);
 
                 if (!string.IsNullOrEmpty(input))

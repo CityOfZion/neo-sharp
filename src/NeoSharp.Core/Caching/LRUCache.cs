@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NeoSharp.Core.Caching
 {
-    internal abstract class LRUCache<TKey, TValue> : Cache<TKey, TValue>
+    internal abstract class LruCache<TKey, TValue> : Cache<TKey, TValue>
     {
-        public LRUCache(int max_capacity)
-            : base(max_capacity)
+        public LruCache(int maxCapacity)
+            : base(maxCapacity)
         {
         }
 

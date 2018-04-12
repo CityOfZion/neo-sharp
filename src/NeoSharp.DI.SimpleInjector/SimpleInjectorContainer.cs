@@ -14,7 +14,7 @@ namespace NeoSharp.DI.SimpleInjector
 
         public TEntity Resolve<TEntity>() where TEntity : class
         {
-            return this._container.GetInstance<TEntity>();
+            return _container.GetInstance<TEntity>();
         }
     }
 }

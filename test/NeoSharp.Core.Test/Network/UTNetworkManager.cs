@@ -6,33 +6,33 @@ using NeoSharp.Core.Network;
 namespace NeoSharp.Core.Test.Network
 {
     [TestClass]
-    public class UTNetworkManager
+    public class UtNetworkManager
     {
-        NetworkManager uut;
-        Mock<ILogger<NetworkManager>> mockLogger;
-        Mock<IServer> mockServer;
+        NetworkManager _uut;
+        Mock<ILogger<NetworkManager>> _mockLogger;
+        Mock<IServer> _mockServer;
 
         [TestInitialize]
         public void TestSetup()
         {
-            mockLogger = new Mock<ILogger<NetworkManager>>();
-            mockServer = new Mock<IServer>();
+            _mockLogger = new Mock<ILogger<NetworkManager>>();
+            _mockServer = new Mock<IServer>();
 
-            uut = new NetworkManager(mockLogger.Object, mockServer.Object);
+            _uut = new NetworkManager(_mockLogger.Object, _mockServer.Object);
         }
 
         [TestMethod]
         public void StartNetwork_Starts_Server()
         {
-            uut.StartNetwork();
-            mockServer.Verify(m => m.StartServer(), Times.Once);
+            _uut.StartNetwork();
+            _mockServer.Verify(m => m.StartServer(), Times.Once);
         }
 
         [TestMethod]
         public void StopNetwork_Stops_Server()
         {
-            uut.StopNetwork();
-            mockServer.Verify(m => m.StopServer(), Times.Once);
+            _uut.StopNetwork();
+            _mockServer.Verify(m => m.StopServer(), Times.Once);
         }
 
     }

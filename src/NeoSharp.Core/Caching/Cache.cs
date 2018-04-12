@@ -15,15 +15,15 @@ namespace NeoSharp.Core.Caching
 
             public CacheItem(TKey key, TValue value)
             {
-                this.Key = key;
-                this.Value = value;
-                this.Time = DateTime.Now;
+                Key = key;
+                Value = value;
+                Time = DateTime.Now;
             }
         }
 
         public readonly object SyncRoot = new object();
         protected readonly Dictionary<TKey, CacheItem> InnerDictionary = new Dictionary<TKey, CacheItem>();
-        private readonly int max_capacity;
+        private readonly int _maxCapacity;
 
         public TValue this[TKey key]
         {
@@ -31,7 +31,7 @@ namespace NeoSharp.Core.Caching
             {
                 lock (SyncRoot)
                 {
-                    if (!InnerDictionary.TryGetValue(key, out CacheItem item)) throw new KeyNotFoundException();
+                    if (!InnerDictionary.TryGetValue(key, out var item)) throw new KeyNotFoundException();
                     OnAccess(item);
                     return item.Value;
                 }
@@ -49,22 +49,16 @@ namespace NeoSharp.Core.Caching
             }
         }
 
-        public bool IsReadOnly
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public bool IsReadOnly => false;
 
-        public Cache(int max_capacity)
+        public Cache(int maxCapacity)
         {
-            this.max_capacity = max_capacity;
+            _maxCapacity = maxCapacity;
         }
 
         public void Add(TValue item)
         {
-            TKey key = GetKeyForItem(item);
+            var key = GetKeyForItem(item);
             lock (SyncRoot)
             {
                 AddInternal(key, item);
@@ -73,18 +67,18 @@ namespace NeoSharp.Core.Caching
 
         private void AddInternal(TKey key, TValue item)
         {
-            if (InnerDictionary.TryGetValue(key, out CacheItem cacheItem))
+            if (InnerDictionary.TryGetValue(key, out var cacheItem))
             {
                 OnAccess(cacheItem);
             }
             else
             {
-                if (InnerDictionary.Count >= max_capacity)
+                if (InnerDictionary.Count >= _maxCapacity)
                 {
-                    //TODO: 对PLINQ查询进行性能测试，以便确定此处使用何种算法更优（并行或串行）
-                    foreach (CacheItem item_del in InnerDictionary.Values.AsParallel().OrderBy(p => p.Time).Take(InnerDictionary.Count - max_capacity + 1))
+                    //TODO: Perform a performance test on the PLINQ query to determine which algorithm to use here is better (parallel or serial)
+                    foreach (var itemDel in InnerDictionary.Values.AsParallel().OrderBy(p => p.Time).Take(InnerDictionary.Count - _maxCapacity + 1))
                     {
-                        RemoveInternal(item_del);
+                        RemoveInternal(itemDel);
                     }
                 }
                 InnerDictionary.Add(key, new CacheItem(key, item));
@@ -95,9 +89,9 @@ namespace NeoSharp.Core.Caching
         {
             lock (SyncRoot)
             {
-                foreach (TValue item in items)
+                foreach (var item in items)
                 {
-                    TKey key = GetKeyForItem(item);
+                    var key = GetKeyForItem(item);
                     AddInternal(key, item);
                 }
             }
@@ -107,9 +101,9 @@ namespace NeoSharp.Core.Caching
         {
             lock (SyncRoot)
             {
-                foreach (CacheItem item_del in InnerDictionary.Values.ToArray())
+                foreach (var itemDel in InnerDictionary.Values.ToArray())
                 {
-                    RemoveInternal(item_del);
+                    RemoveInternal(itemDel);
                 }
             }
         }
@@ -118,7 +112,7 @@ namespace NeoSharp.Core.Caching
         {
             lock (SyncRoot)
             {
-                if (!InnerDictionary.TryGetValue(key, out CacheItem cacheItem)) return false;
+                if (!InnerDictionary.TryGetValue(key, out var cacheItem)) return false;
                 OnAccess(cacheItem);
                 return true;
             }
@@ -133,8 +127,11 @@ namespace NeoSharp.Core.Caching
         {
             if (array == null) throw new ArgumentNullException();
             if (arrayIndex < 0) throw new ArgumentOutOfRangeException();
-            if (arrayIndex + InnerDictionary.Count > array.Length) throw new ArgumentException();
-            foreach (TValue item in this)
+            lock (SyncRoot)
+            {
+                if (arrayIndex + InnerDictionary.Count > array.Length) throw new ArgumentException();
+            }
+            foreach (var item in this)
             {
                 array[arrayIndex++] = item;
             }
@@ -149,7 +146,7 @@ namespace NeoSharp.Core.Caching
         {
             lock (SyncRoot)
             {
-                foreach (TValue item in InnerDictionary.Values.Select(p => p.Value))
+                foreach (var item in InnerDictionary.Values.Select(p => p.Value))
                 {
                     yield return item;
                 }
@@ -167,7 +164,7 @@ namespace NeoSharp.Core.Caching
         {
             lock (SyncRoot)
             {
-                if (!InnerDictionary.TryGetValue(key, out CacheItem cacheItem)) return false;
+                if (!InnerDictionary.TryGetValue(key, out var cacheItem)) return false;
                 RemoveInternal(cacheItem);
                 return true;
             }
@@ -183,8 +180,7 @@ namespace NeoSharp.Core.Caching
         private void RemoveInternal(CacheItem item)
         {
             InnerDictionary.Remove(item.Key);
-            IDisposable disposable = item.Value as IDisposable;
-            if (disposable != null)
+            if (item.Value is IDisposable disposable)
             {
                 disposable.Dispose();
             }
@@ -194,7 +190,7 @@ namespace NeoSharp.Core.Caching
         {
             lock (SyncRoot)
             {
-                if (InnerDictionary.TryGetValue(key, out CacheItem cacheItem))
+                if (InnerDictionary.TryGetValue(key, out var cacheItem))
                 {
                     OnAccess(cacheItem);
                     item = cacheItem.Value;

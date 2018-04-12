@@ -11,13 +11,13 @@ namespace NeoSharp.TestHelpers
 
         protected TestBase()
         {
-            this._mockRepository = new MockRepository(MockBehavior.Loose);
-            this.AutoMockContainer = new UnityAutoMockContainer(this._mockRepository);
+            _mockRepository = new MockRepository(MockBehavior.Loose);
+            AutoMockContainer = new UnityAutoMockContainer(_mockRepository);
         }
 
         public void VerifyAll()
         {
-            this._mockRepository.VerifyAll();
+            _mockRepository.VerifyAll();
         }
     }
 }

@@ -8,7 +8,7 @@ namespace NeoSharp.Core.Types.Json
 {
     public class JArray : JObject, IList<JObject>
     {
-        private List<JObject> items = new List<JObject>();
+        private List<JObject> _items = new List<JObject>();
 
         public JArray(params JObject[] items) : this((IEnumerable<JObject>)items)
         {
@@ -16,18 +16,18 @@ namespace NeoSharp.Core.Types.Json
 
         public JArray(IEnumerable<JObject> items)
         {
-            this.items.AddRange(items);
+            _items.AddRange(items);
         }
 
         public JObject this[int index]
         {
             get
             {
-                return items[index];
+                return _items[index];
             }
             set
             {
-                items[index] = value;
+                _items[index] = value;
             }
         }
 
@@ -35,7 +35,7 @@ namespace NeoSharp.Core.Types.Json
         {
             get
             {
-                return items.Count;
+                return _items.Count;
             }
         }
 
@@ -49,27 +49,27 @@ namespace NeoSharp.Core.Types.Json
 
         public void Add(JObject item)
         {
-            items.Add(item);
+            _items.Add(item);
         }
 
         public void Clear()
         {
-            items.Clear();
+            _items.Clear();
         }
 
         public bool Contains(JObject item)
         {
-            return items.Contains(item);
+            return _items.Contains(item);
         }
 
         public void CopyTo(JObject[] array, int arrayIndex)
         {
-            items.CopyTo(array, arrayIndex);
+            _items.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<JObject> GetEnumerator()
         {
-            return items.GetEnumerator();
+            return _items.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -79,12 +79,12 @@ namespace NeoSharp.Core.Types.Json
 
         public int IndexOf(JObject item)
         {
-            return items.IndexOf(item);
+            return _items.IndexOf(item);
         }
 
         public void Insert(int index, JObject item)
         {
-            items.Insert(index, item);
+            _items.Insert(index, item);
         }
 
         internal new static JArray Parse(TextReader reader)
@@ -92,12 +92,12 @@ namespace NeoSharp.Core.Types.Json
             SkipSpace(reader);
             if (reader.Read() != '[') throw new FormatException();
             SkipSpace(reader);
-            JArray array = new JArray();
+            var array = new JArray();
             while (reader.Peek() != ']')
             {
                 if (reader.Peek() == ',') reader.Read();
-                JObject obj = JObject.Parse(reader);
-                array.items.Add(obj);
+                var obj = JObject.Parse(reader);
+                array._items.Add(obj);
                 SkipSpace(reader);
             }
             reader.Read();
@@ -106,19 +106,19 @@ namespace NeoSharp.Core.Types.Json
 
         public bool Remove(JObject item)
         {
-            return items.Remove(item);
+            return _items.Remove(item);
         }
 
         public void RemoveAt(int index)
         {
-            items.RemoveAt(index);
+            _items.RemoveAt(index);
         }
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append('[');
-            foreach (JObject item in items)
+            foreach (var item in _items)
             {
                 if (item == null)
                     sb.Append("null");
@@ -126,7 +126,7 @@ namespace NeoSharp.Core.Types.Json
                     sb.Append(item);
                 sb.Append(',');
             }
-            if (items.Count == 0)
+            if (_items.Count == 0)
             {
                 sb.Append(']');
             }
