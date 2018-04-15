@@ -9,8 +9,11 @@ namespace NeoSharp.Core.Network
         private readonly ILogger<Peer> _logger;
 
         private Socket _socket;
+#pragma warning disable 649
         private NetworkStream _stream;
-        private IPEndPoint _ipEP;
+#pragma warning restore 649
+        private IPEndPoint _ipEp;
+        // ReSharper disable once NotAccessedField.Local
         private uint _serverNonce;
 
         public Peer(ILoggerFactory loggerFactory)
@@ -20,21 +23,22 @@ namespace NeoSharp.Core.Network
 
         public void Connect(IPEndPoint ipEndPoint, uint serverNonce)
         {
-            _ipEP = ipEndPoint;
+            _ipEp = ipEndPoint;
             _serverNonce = serverNonce;
 
-            _logger.LogInformation($"Connecting to {_ipEP.ToString()}");
+            _logger.LogInformation($"Connecting to {_ipEp}");
 
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _socket.ConnectAsync(_ipEP.Address, _ipEP.Port); // TODO thread etc
+            _socket.ConnectAsync(_ipEp.Address, _ipEp.Port); // TODO: thread etc
 
-            _logger.LogInformation($"Connected to {_ipEP.ToString()}");
+            _logger.LogInformation($"Connected to {_ipEp}");
             //_stream = new NetworkStream(_socket);                       
         }        
 
-        private void sendVersion()
+        // ReSharper disable once UnusedMember.Local
+        private void SendVersion()
         {
-            _logger.LogInformation($"Sending version to {_ipEP.ToString()}");
+            _logger.LogInformation($"Sending version to {_ipEp}");
             _stream.WriteAsync(new byte[] { 1, 4, 5 }, 0, 3); // dummy send version
         }       
 

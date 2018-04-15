@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace NeoSharp.Core
+﻿namespace NeoSharp.Core
 {
-    public class Header
+    class Header
     {
     }
 }

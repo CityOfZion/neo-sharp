@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\NeoSharp.Application\NeoSharp.Application.csproj" />
+    <ProjectReference Include="..\NeoSharp.TestHelpers\NeoSharp.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>

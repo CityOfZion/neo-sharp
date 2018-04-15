@@ -4,15 +4,13 @@ namespace NeoSharp.Core.Network
 {
     public class NetworkManager : INetworkManager
     {
-        private readonly ILogger<NetworkManager> _logger;        
         private readonly IServer _server;        
 
         public NetworkManager(ILogger<NetworkManager> logger, IServer serverInit)
         {
-            _logger = logger;            
             _server = serverInit;
 
-            _logger.LogInformation("Network Manager Initialised");
+            logger.LogInformation("Network Manager Initialised");
         }
 
         public void StartNetwork()
