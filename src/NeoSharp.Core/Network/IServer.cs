@@ -1,8 +1,10 @@
-﻿namespace NeoSharp.Core.Network
+﻿using System.Threading.Tasks;
+
+namespace NeoSharp.Core.Network
 {
     public interface IServer
     {
-        void StartServer();
+        Task StartServer();
         void StopServer();
     }
 }

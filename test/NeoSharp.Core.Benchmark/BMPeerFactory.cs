@@ -16,7 +16,7 @@ namespace NeoSharp.Core.Benchmark
         public void Setup()
         {
             var containerBuilder = new SimpleInjectorContainerBuilder();
-            containerBuilder.RegisterInstanceCreator<IPeer, Peer>();
+            containerBuilder.RegisterInstanceCreator<IPeer, TcpPeer>();
             containerBuilder.RegisterSingleton(ConfigureLogger);
             containerBuilder.Register(typeof(ILogger<>), typeof(LoggerAdapter<>));
             var container = containerBuilder.Build();

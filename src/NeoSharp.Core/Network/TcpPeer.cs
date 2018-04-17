@@ -1,12 +1,16 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace NeoSharp.Core.Network
 {
-    public class Peer : IPeer
+    public class TcpPeer : IPeer, IDisposable
     {
-        private readonly ILogger<Peer> _logger;
+        public EndPoint EndPoint { get; }
+
+        private readonly ILogger<TcpPeer> _logger;
 
         private Socket _socket;
 #pragma warning disable 649
@@ -16,20 +20,21 @@ namespace NeoSharp.Core.Network
         // ReSharper disable once NotAccessedField.Local
         private uint _serverNonce;
 
-        public Peer(ILoggerFactory loggerFactory)
+        public TcpPeer(EndPoint endPoint, ILogger<TcpPeer> logger)
         {
-            _logger = loggerFactory.CreateLogger<Peer>();
+            EndPoint = endPoint;
+            _logger = logger;
+            IPAddress.TryParse(endPoint.Host, out var ipAddr);
+            _ipEp = new IPEndPoint(ipAddr, endPoint.Port);
         }
 
-        public void Connect(IPEndPoint ipEndPoint, uint serverNonce)
+        public async Task Connect(uint serverNonce)
         {
-            _ipEp = ipEndPoint;
             _serverNonce = serverNonce;
-
             _logger.LogInformation($"Connecting to {_ipEp}");
 
             _socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            _socket.ConnectAsync(_ipEp.Address, _ipEp.Port); // TODO: thread etc
+            await _socket.ConnectAsync(_ipEp.Address, _ipEp.Port); // TODO: thread etc
 
             _logger.LogInformation($"Connected to {_ipEp}");
             //_stream = new NetworkStream(_socket);                       
@@ -42,13 +47,19 @@ namespace NeoSharp.Core.Network
             _stream.WriteAsync(new byte[] { 1, 4, 5 }, 0, 3); // dummy send version
         }       
 
-        public void Stop()
+        public void Disconnect()
         {
-            _logger.LogInformation("Stopping peer");
+            _logger.LogInformation("Disconnecting peer");
             _socket?.Disconnect(false);
             _socket?.Close();
         }
 
 
+        public void Dispose()
+        {
+            // TODO: Call Disconnect()?
+            _socket?.Dispose();
+            _stream?.Dispose();
+        }
     }
 }

@@ -1,7 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace NeoSharp.Core.Network
 {
@@ -10,60 +13,65 @@ namespace NeoSharp.Core.Network
         // ReSharper disable once NotAccessedField.Local
         private readonly ILogger<Server> _logger;
         private readonly NetworkConfig _cfg;
-        private readonly Func<IPeer> _peerFactory;
-        
+        private readonly IPeerFactory _peerFactory;
+
         // ReSharper disable once FieldCanBeMadeReadOnly.Local
         // ReSharper disable once CollectionNeverUpdated.Local
-        private IList<IPeer> _connectedPeers;                // if we successfully connect with a peer it is inserted into this list
+        private ConcurrentBag<IPeer> _connectedPeers;                // if we successfully connect with a peer it is inserted into this list
         // ReSharper disable once NotAccessedField.Local
         private IList<IPEndPoint> _failedPeers;             // if we can't connect to a peer it is inserted into this list
         private uint _nonce;                                // uniquely identifies this server so we can filter out our own messages sent back to us by other nodes
 
-        public Server(ILoggerFactory loggerFactory, NetworkConfig networkConfig, Func<IPeer> peerFactoryInit)
+        public Server(ILogger<Server> logger, NetworkConfig networkConfig, IPeerFactory peerFactory)
         {
-            _logger = loggerFactory.CreateLogger<Server>();
+            _logger = logger;
             _cfg = networkConfig;
-            _peerFactory = peerFactoryInit;
+            _peerFactory = peerFactory;
 
-            _connectedPeers = new List<IPeer>();
+
+            _connectedPeers = new ConcurrentBag<IPeer>();
             _failedPeers = new List<IPEndPoint>();
-            var r = new Random();            
-            _nonce = (uint)r.Next();           
-        }               
+            var r = new Random(Environment.TickCount);
+            _nonce = (uint)r.Next();
+        }
 
-        public void StartServer()
+        public async Task StartServer()
         {
             // connect to peers
-            ConnectToPeers();
+            await ConnectToPeers();
 
             // receive transactions
 
             // listen for peers
         }
 
-        private void ConnectToPeers()
+        private async Task ConnectToPeers()
         {
-            // private net testing setup
-            var ipStr = _cfg.ServerIp;
-            var port = _cfg.ServerStartPort;
-            for (var i = 0; i < 4; i++)
-            {
-                IPAddress ipAddr;
-                IPAddress.TryParse(ipStr, out ipAddr);
-                var ipEp = new IPEndPoint(ipAddr, port + i);
+            var connectTasks = _cfg.PeerEndPoints
+                .Select(pep => _peerFactory.Create(pep))
+                .Select(p => p.Connect(_nonce).ContinueWith(t =>
+                {
+                    if (t.IsCompleted)
+                    {
+                        _connectedPeers.Add(p);
+                    }
+                    else
+                    {
+                        _logger.LogWarning($"Something goes wrong with {p.EndPoint}. Exception: {t.Exception}");
+                    }
+                    return t;
+                }, TaskContinuationOptions.ExecuteSynchronously));
 
-                var newPeer = _peerFactory();
-                newPeer.Connect(ipEp, _nonce);
-            }
+            await Task.WhenAll(connectTasks);            
         }
 
         public void StopServer()
         {
             // send disconnect to all current Peers
-            foreach(var peer in _connectedPeers)
+            foreach (var peer in _connectedPeers)
             {
-                peer.Stop();                
+                peer.Disconnect();
             }
-        }        
+        }
     }
 }

@@ -1,10 +1,11 @@
-﻿using System.Net;
+﻿using System.Threading.Tasks;
 
 namespace NeoSharp.Core.Network
 {
     public interface IPeer
     {
-        void Connect(IPEndPoint ipEp, uint serverNonce);
-        void Stop();
+        EndPoint EndPoint { get; }
+        Task Connect(uint serverNonce);
+        void Disconnect();
     }    
 }

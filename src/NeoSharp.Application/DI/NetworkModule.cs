@@ -10,8 +10,7 @@ namespace NeoSharp.Application.DI
             containerBuilder.RegisterSingleton<NetworkConfig>();
             containerBuilder.RegisterSingleton<INetworkManager, NetworkManager>();
             containerBuilder.RegisterSingleton<IServer, Server>();
-
-            containerBuilder.RegisterInstanceCreator<IPeer, Peer>();
+            containerBuilder.RegisterSingleton<IPeerFactory, PeerFactory>();
         }
     }
 }
