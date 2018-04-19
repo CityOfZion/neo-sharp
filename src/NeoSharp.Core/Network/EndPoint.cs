@@ -19,9 +19,7 @@
         Unknown = 0,
         Tcp = 1,
         // Tls = 2,
-        Http = 3,
-        // Https = 4,
-        Ws = 5,
-        // Wss = 6
+        Ws = 3,
+        // Wss = 4
     }
 }

@@ -1,7 +1,9 @@
-﻿namespace NeoSharp.Core.Network
+﻿using System.Threading.Tasks;
+
+namespace NeoSharp.Core.Network
 {
     public interface IPeerFactory
     {
-        IPeer Create(EndPoint endPoint);
+        Task<IPeer> Create(EndPoint endPoint);
     }
 }

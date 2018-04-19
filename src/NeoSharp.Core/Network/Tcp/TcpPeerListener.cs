@@ -1,0 +1,71 @@
+﻿using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+
+namespace NeoSharp.Core.Network.Tcp
+{
+    public class TcpPeerListener : IPeerListener, IDisposable
+    {
+        private readonly ITcpPeerFactory _peerFactory;
+        private readonly ILogger<TcpPeerListener> _logger;
+        private readonly TcpListener _listener;
+
+        public event EventHandler<IPeer> PeerConnected;
+
+        public TcpPeerListener(NetworkConfig config, ITcpPeerFactory peerFactory, ILogger<TcpPeerListener> logger)
+        {
+            _peerFactory = peerFactory;
+            _logger = logger;
+            _listener = new TcpListener(IPAddress.Any, config.Port);
+            _listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
+        }
+
+        public void Start()
+        {
+            Stop();
+
+            _listener.Start();
+
+            Task.Factory.StartNew(AcceptPeers, TaskCreationOptions.LongRunning);
+        }
+
+        public void Stop()
+        {
+            _listener.Stop();
+        }
+
+        public void Dispose()
+        {
+            Stop();
+        }
+
+        private async Task AcceptPeers()
+        {
+            while (true)
+            {
+                Socket socket;
+
+                try
+                {
+                    socket = await _listener.AcceptSocketAsync();
+
+                    _logger.LogInformation($"\"{(socket.RemoteEndPoint as IPEndPoint)?.Address}\" is connected");
+                }
+                catch (ObjectDisposedException)
+                {
+                    break;
+                }
+                catch (SocketException)
+                {
+                    continue;
+                }
+
+                var peer = _peerFactory.Create(socket);
+
+                PeerConnected?.Invoke(this, peer);
+            }
+        }
+    }
+}

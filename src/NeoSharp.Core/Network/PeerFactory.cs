@@ -1,22 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
-using NeoSharp.Core.DI;
+using System.Threading.Tasks;
+using NeoSharp.Core.Network.Tcp;
 
 namespace NeoSharp.Core.Network
 {
     public class PeerFactory : IPeerFactory
     {
-        private readonly IReadOnlyDictionary<Protocol, Func<EndPoint, IPeer>> _protocolSpecificPeerFactories;
+        private readonly IReadOnlyDictionary<Protocol, Func<EndPoint, Task<IPeer>>> _protocolSpecificPeerFactories;
 
-        public PeerFactory(IContainer container)
+        public PeerFactory(ITcpPeerFactory tcpPeerFactory)
         {
-            _protocolSpecificPeerFactories = new Dictionary<Protocol, Func<EndPoint, IPeer>>
+            _protocolSpecificPeerFactories = new Dictionary<Protocol, Func<EndPoint, Task<IPeer>>>
             {
-                { Protocol.Tcp, ep => new TcpPeer(ep, container.Resolve<ILogger<TcpPeer>>()) }
+                { Protocol.Tcp, tcpPeerFactory.Create }
             };
         }
 
-        public IPeer Create(EndPoint endPoint) => _protocolSpecificPeerFactories[endPoint.Protocol](endPoint);
+        public Task<IPeer> Create(EndPoint endPoint)
+        {
+            if (endPoint == null)
+            {
+                throw new ArgumentNullException(nameof(endPoint));
+            }
+
+            if (_protocolSpecificPeerFactories.ContainsKey(endPoint.Protocol) == false)
+            {
+                throw new NotSupportedException($"The protocol \"{endPoint.Protocol}\" is not supported.");
+            }
+
+            return _protocolSpecificPeerFactories[endPoint.Protocol](endPoint);
+        }
     }
 }

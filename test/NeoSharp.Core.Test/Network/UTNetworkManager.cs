@@ -20,7 +20,7 @@ namespace NeoSharp.Core.Test.Network
             networkManager.StartNetwork();
 
             // Asset
-            serverMock.Verify(x => x.StartServer(), Times.Once);
+            serverMock.Verify(x => x.Start(), Times.Once);
         }
 
         [TestMethod]
@@ -35,7 +35,7 @@ namespace NeoSharp.Core.Test.Network
             networkManager.StopNetwork();
 
             // Asset
-            serverMock.Verify(x => x.StopServer(), Times.Once);
+            serverMock.Verify(x => x.Stop(), Times.Once);
         }
     }
 }
