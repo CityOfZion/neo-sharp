@@ -1,4 +1,5 @@
 ﻿using NeoSharp.Core.Persistence;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 
@@ -6,6 +7,15 @@ namespace NeoSharp.Persistence.RedisDB
 {
     public class RedisDbRepository : IRepository
     {
+        private RedisStreamsHelper _redis;
+
+        public RedisDbRepository()
+        {
+            //Gubantorious 4.21.18 - We need to make sure we persist this connection, we don't want multiple connections within the app
+            //Implementing now for testability, we will want to blend this into the repository / DI patterns
+            _redis = new RedisStreamsHelper(ConnectionMultiplexer.Connect("localhost"));
+        }
+
         public ISnapshot CreateSnapshot()
         {
             throw new NotImplementedException();
