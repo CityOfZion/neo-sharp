@@ -16,37 +16,42 @@ namespace NeoSharp.Persistence.RedisDB
             _redis = new RedisStreamsHelper(ConnectionMultiplexer.Connect("localhost"));
         }
 
-        public ISnapshot CreateSnapshot()
+        public void Commit()
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<byte[]> GetKeys(DataEntry entry, byte[] startKey)
+        public IEnumerable<byte[]> GetKeys(DataEntryPrefix entry, byte[] startKey)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<KeyValuePair<byte[], byte[]>> GetKeyValues(DataEntry entry, byte[] startKey)
+        public IEnumerable<KeyValuePair<byte[], byte[]>> GetKeyValues(DataEntryPrefix entry, byte[] startKey)
         {
             throw new NotImplementedException();
         }
 
-        public void Prepare(DataEntry entry)
+        public bool RemoveKey(DataEntryPrefix entry, byte[] key)
         {
             throw new NotImplementedException();
         }
 
-        public bool RemoveKey(DataEntry entry, byte[] key)
+        public void Rollback()
         {
             throw new NotImplementedException();
         }
 
-        public void SetValue(DataEntry entry, byte[] key, byte[] value)
+        public void SetValue(DataEntryPrefix entry, byte[] key, byte[] value)
         {
             throw new NotImplementedException();
         }
 
-        public bool TryGetValue(DataEntry entry, byte[] key, out byte[] value)
+        public void StartTransaction()
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetValue(DataEntryPrefix entry, byte[] key, out byte[] value)
         {
             throw new NotImplementedException();
         }

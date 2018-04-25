@@ -11,27 +11,35 @@ namespace NeoSharp.Core.Persistence
         /// </summary>
         /// <param name="entry">Entry</param>
         /// <param name="startKey">Start Key</param>
-        IEnumerable<byte[]> GetKeys(DataEntry entry, byte[] startKey);
+        IEnumerable<byte[]> GetKeys(DataEntryPrefix entry, byte[] startKey);
         /// <summary>
         /// Get Key values
         /// </summary>
         /// <param name="entry">Entry</param>
         /// <param name="startKey">Start Key</param>
-        IEnumerable<KeyValuePair<byte[], byte[]>> GetKeyValues(DataEntry entry, byte[] startKey);
+        IEnumerable<KeyValuePair<byte[], byte[]>> GetKeyValues(DataEntryPrefix entry, byte[] startKey);
+
+        #endregion
+
+        #region Transactions
+        
+        /// <summary>
+        /// Start transaction
+        /// </summary>
+        void StartTransaction();
+        /// <summary>
+        /// Commit
+        /// </summary>
+        void Commit();
+        /// <summary>
+        /// Rollback
+        /// </summary>
+        void Rollback();
 
         #endregion
 
         #region Core Repository
 
-        /// <summary>
-        /// Create snapshot
-        /// </summary>
-        ISnapshot CreateSnapshot();
-        /// <summary>
-        /// Prepare entry for this repository
-        /// </summary>
-        /// <param name="entry">Entry</param>
-        void Prepare(DataEntry entry);
         /// <summary>
         /// Get Value
         /// </summary>
@@ -39,21 +47,21 @@ namespace NeoSharp.Core.Persistence
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
         /// <returns>Return true if is finded</returns>
-        bool TryGetValue(DataEntry entry, byte[] key, out byte[] value);
+        bool TryGetValue(DataEntryPrefix entry, byte[] key, out byte[] value);
         /// <summary>
         /// Remove Key
         /// </summary>
         /// <param name="entry">Entry</param>
         /// <param name="key">Key</param>
         /// <returns>Return true if is deleted</returns>
-        bool RemoveKey(DataEntry entry, byte[] key);
+        bool RemoveKey(DataEntryPrefix entry, byte[] key);
         /// <summary>
         /// Set Value
         /// </summary>
         /// <param name="entry">Entry</param>
         /// <param name="key">Key</param>
         /// <param name="value">Value</param>
-        void SetValue(DataEntry entry, byte[] key, byte[] value);
+        void SetValue(DataEntryPrefix entry, byte[] key, byte[] value);
 
         #endregion
     }
