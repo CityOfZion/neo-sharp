@@ -24,7 +24,7 @@ namespace NeoSharp.Application.Test
             containerBuilderMock.Verify(x => x.RegisterSingleton<NetworkConfig>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton<INetworkManager, NetworkManager>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton<IServer, Server>(), Times.Once);
-            containerBuilderMock.Verify(x => x.RegisterInstanceCreator<IPeer, Peer>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<IPeerFactory, PeerFactory>(), Times.Once);
         }
     }
 }

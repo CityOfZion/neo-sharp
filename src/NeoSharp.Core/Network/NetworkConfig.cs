@@ -2,15 +2,16 @@
 
 namespace NeoSharp.Core.Network
 {
-    public class NetworkConfig 
+    public class NetworkConfig
     {
-        public string ServerIp { get; set; }
-
-        public int ServerStartPort { get; set; }
+        public int Port { get; internal set; }
+        public bool ForceIPv6 { get; internal set; }
+        public EndPoint[] PeerEndPoints { get; internal set; }
 
         public NetworkConfig(IConfiguration configuration = null)
         {
-            configuration?.GetSection(nameof(NetworkConfig))?.Bind(this);
+            PeerEndPoints = new EndPoint[0];
+            configuration?.GetSection("network")?.Bind(this);
         }
     }
 }
