@@ -5,11 +5,6 @@ namespace NeoSharp.Core.Network.Tcp
 {
     public class TcpProtocolSelector
     {
-        /// <summary>
-        /// Selector
-        /// </summary>
-        public readonly static TcpProtocolSelector Selector = new TcpProtocolSelector();
-
         Dictionary<uint, ITcpProtocol> _protocols;
 
         /// <summary>

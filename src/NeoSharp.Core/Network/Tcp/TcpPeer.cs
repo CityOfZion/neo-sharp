@@ -20,7 +20,7 @@ namespace NeoSharp.Core.Network.Tcp
         // ReSharper disable once NotAccessedField.Local
         private uint _serverNonce;
 
-        public TcpPeer(Socket socket, ILogger<TcpPeer> logger)
+        public TcpPeer(Socket socket, ILogger<TcpPeer> logger, TcpProtocolSelector protocols)
         {
             _socket = socket ?? throw new ArgumentNullException(nameof(socket));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -36,8 +36,7 @@ namespace NeoSharp.Core.Network.Tcp
                 ret.Wait();
             }
 
-            _protocol = TcpProtocolSelector.Selector.
-                GetProtocol(header.ToUInt32(0)) ?? throw new ArgumentNullException("protocol");
+            _protocol = protocols.GetProtocol(header.ToUInt32(0)) ?? throw new ArgumentNullException("protocol");
         }
 
         public void Connect(uint serverNonce)
