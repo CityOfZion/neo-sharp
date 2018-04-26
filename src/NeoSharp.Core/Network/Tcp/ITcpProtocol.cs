@@ -11,7 +11,7 @@ namespace NeoSharp.Core.Network.Tcp
         #region Constants
 
         protected const int MaxBufferSize = 1024;
-        protected const int TimeOut = 30_000;
+        public const int TimeOut = 30_000;
 
         #endregion
 

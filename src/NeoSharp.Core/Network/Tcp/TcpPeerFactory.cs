@@ -38,7 +38,7 @@ namespace NeoSharp.Core.Network.Tcp
             await socket.ConnectAsync(ipEp.Address, ipEp.Port); // TODO: thread etc
 
             _logger.LogInformation($"Connected to {ipEp}");
-            
+
             return Create(socket);
         }
 
