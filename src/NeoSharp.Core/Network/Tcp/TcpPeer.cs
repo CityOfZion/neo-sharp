@@ -12,9 +12,9 @@ namespace NeoSharp.Core.Network.Tcp
         private readonly ILogger<TcpPeer> _logger;
         private readonly ITcpProtocol _protocol;
 
-        private Socket _socket;
+        private readonly Socket _socket;
 #pragma warning disable 649
-        private NetworkStream _stream;
+        private readonly NetworkStream _stream;
 #pragma warning restore 649
         // private IPEndPoint _ipEp;
         // ReSharper disable once NotAccessedField.Local
@@ -63,7 +63,7 @@ namespace NeoSharp.Core.Network.Tcp
             if (_socket != null)
             {
                 _socket.Shutdown(SocketShutdown.Both);
-                _socket?.Dispose();
+                _socket.Dispose();
             }
 
             _stream?.Dispose();
