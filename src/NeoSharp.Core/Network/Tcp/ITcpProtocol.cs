@@ -32,6 +32,18 @@ namespace NeoSharp.Core.Network.Tcp
         {
             throw new NotImplementedException();
         }
+
+        /// <summary>
+        /// Send message
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="message">Message</param>
+        /// <param name="cancellationToken">Cancel token</param>
+        public virtual async void SendMessageAsync(NetworkStream stream, TcpMessage message, CancellationTokenSource cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
 #pragma warning restore
 
         protected static async Task<byte[]> FillBufferAsync(NetworkStream stream, int buffer_size, CancellationToken cancellationToken)

@@ -9,6 +9,22 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
 {
     public class TcpProtocolV2 : ITcpProtocol
     {
+        public override async void SendMessageAsync(NetworkStream stream, TcpMessage message, CancellationTokenSource cancellationToken)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8))
+            {
+                writer.Write((byte)message.Flags);
+                writer.Write((byte)message.Command);
+                writer.Write(GetChecksum(message.Payload));
+                writer.Write((uint)message.Payload.Length);
+                writer.Write(message.Payload);
+
+                byte[] buffer = ms.ToArray();
+                await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken.Token);
+            }
+        }
+
         public override async Task<TcpMessage> GetMessageAsync(NetworkStream stream, CancellationTokenSource cancellationToken)
         {
             ushort checksum;
