@@ -16,7 +16,7 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
             using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8))
             {
                 writer.Write(MagicHeader);
-                writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadLeft(12, ' ')), 0, 12);
+                writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadRight(12, ' ')), 0, 12);
                 writer.Write(message.Payload.Length);
                 writer.Write(GetChecksum(message.Payload));
                 writer.Write(message.Payload);
