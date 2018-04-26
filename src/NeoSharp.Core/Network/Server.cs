@@ -2,8 +2,12 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Network.Messages;
 
 namespace NeoSharp.Core.Network
 {
@@ -17,7 +21,10 @@ namespace NeoSharp.Core.Network
         private readonly ConcurrentBag<IPeer> _connectedPeers;                // if we successfully connect with a peer it is inserted into this list
         // ReSharper disable once NotAccessedField.Local
         private IList<IPEndPoint> _failedPeers;             // if we can't connect to a peer it is inserted into this list
-        private uint _nonce;                                // uniquely identifies this server so we can filter out our own messages sent back to us by other nodes
+        private readonly ushort _port;
+        private readonly uint _nonce;                                // uniquely identifies this server so we can filter out our own messages sent back to us by other nodes
+        private readonly string _userAgent;       
+        private readonly EventHandler<IPeer> _peerConnected = async (s, e) => await ((Server)s).PeerConnected(e);
 
         public Server(NetworkConfig config, IPeerFactory peerFactory, IPeerListener peerListener, ILogger<Server> logger)
         {
@@ -26,13 +33,21 @@ namespace NeoSharp.Core.Network
             _peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            _peerListener.PeerConnected += OnPeerConnected;
+            _peerListener.OnPeerConnected += _peerConnected;
 
             _connectedPeers = new ConcurrentBag<IPeer>();
             _failedPeers = new List<IPEndPoint>();
+
+            // TODO: Change after port forwarding implementation
+            _port = _config.Port;
+
             var r = new Random(Environment.TickCount);
             _nonce = (uint)r.Next();
+
+            _userAgent = $"/NEO:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/";
         }
+
+        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers;
 
         public void Start()
         {
@@ -58,45 +73,85 @@ namespace NeoSharp.Core.Network
         public void Dispose()
         {
             Stop();
-            _peerListener.PeerConnected -= OnPeerConnected;
+            _peerListener.OnPeerConnected -= _peerConnected;
         }
 
-        private void OnPeerConnected(object sender, IPeer peer)
+        private async Task PeerConnected(IPeer peer)
         {
-            _connectedPeers.Add(peer);
-            peer.Connect(_nonce);
+            try
+            {
+                await Handshake(peer);
+                _connectedPeers.Add(peer);
+            }
+            catch (Exception e)
+            {
+                _logger.LogWarning($"Something went wrong with {peer}. Exception: {e}");
+                peer.Disconnect();
+            }
         }
 
         private void ConnectToPeers()
         {
-            foreach (var peerEp in _config.PeerEndPoints)
+            // TODO: check if localhot:port in seeding list
+            foreach (var peerEndPoint in _config.PeerEndPoints)
             {
                 _peerFactory
-                    .Create(peerEp)
-                    .ContinueWith(t =>
+                    .ConnectTo(peerEndPoint)
+                    .ContinueWith(async t =>
                     {
                         if (t.IsCompletedSuccessfully)
                         {
-                            OnPeerConnected(this, t.Result);
+                            await PeerConnected(t.Result);
                         }
                         else
                         {
-                            _logger.LogWarning($"Something goes wrong with {peerEp}. Exception: {t.Exception}");
+                            _logger.LogWarning($"Something went wrong with {peerEndPoint}. Exception: {t.Exception}");
                         }
-                    }, TaskContinuationOptions.ExecuteSynchronously);
+                    });
             }
         }
 
         private void DisconnectPeers()
         {
-            foreach (var peer in _connectedPeers)
+            foreach (var peer in ConnectedPeers)
             {
-                // TODO: Revise this after handshake is implemented
                 peer.Disconnect();
-                (peer as IDisposable)?.Dispose();
             }
 
             _connectedPeers.Clear();
+        }
+
+        private async Task Handshake(IPeer peer)
+        {
+            var version = GetVersionMessage();
+
+            await peer.Send(version);
+
+            var peerVersion = await peer.Receive<VersionMessage>();
+            if (version.Payload.Nonce != peerVersion.Payload.Nonce)
+            {
+                throw new InvalidOperationException("The handshake failed.");
+            }
+
+            await peer.Send<VersionAcknowledgmentMessage>();
+            await peer.Receive<VersionAcknowledgmentMessage>();
+        }
+
+        private VersionMessage GetVersionMessage()
+        {
+            var version = new VersionMessage();
+            version.Payload.Version = 0;
+            // TODO: What's it?
+            // version.Payload.Services = NetworkAddressWithTime.NODE_NETWORK;
+            version.Payload.Timestamp = DateTime.Now.ToTimestamp();
+            version.Payload.Port = _port;
+            version.Payload.Nonce = _nonce;
+            version.Payload.UserAgent = _userAgent;
+            // TODO: Inject blockchain and get height
+            // version.Payload.StartHeight = Blockchain.Default?.Height ?? 0;
+            version.Payload.Relay = true;
+
+            return version;
         }
     }
 }

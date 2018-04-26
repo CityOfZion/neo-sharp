@@ -18,9 +18,9 @@ namespace NeoSharp.Core.Network
             networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
         }
 
-        private static int ParsePort(IConfiguration config)
+        private static ushort ParsePort(IConfiguration config)
         {
-            var port = config.GetSection("port")?.Get<int>();
+            var port = config.GetSection("port")?.Get<ushort>();
             return port ?? 0;
         }
 

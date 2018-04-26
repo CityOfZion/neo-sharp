@@ -4,23 +4,26 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using NeoSharp.Core.Network.Serialization;
 
 namespace NeoSharp.Core.Network.Tcp
 {
     public class TcpPeerFactory : ITcpPeerFactory
     {
         private readonly bool _forceIPv6;
+        private readonly IMessageSerializer _serializer;
         private readonly ILogger<TcpPeerFactory> _logger;
         private readonly ILogger<TcpPeer> _peerLogger;
 
-        public TcpPeerFactory(NetworkConfig config, ILogger<TcpPeerFactory> logger, ILogger<TcpPeer> peerLogger)
+        public TcpPeerFactory(NetworkConfig config, IMessageSerializer serializer,  ILogger<TcpPeerFactory> logger, ILogger<TcpPeer> peerLogger)
         {
             _forceIPv6 = config.ForceIPv6;
+            _serializer = serializer;
             _logger = logger;
             _peerLogger = peerLogger;
         }
 
-        public async Task<IPeer> Create(EndPoint endPoint)
+        public async Task<IPeer> ConnectTo(EndPoint endPoint)
         {
             var ipAddress = await GetIpAddress(endPoint.Host);
             if (ipAddress == null)
@@ -39,7 +42,12 @@ namespace NeoSharp.Core.Network.Tcp
 
             _logger.LogInformation($"Connected to {ipEp}");
             
-            return Create(socket);
+            return CreateFrom(socket);
+        }
+
+        public TcpPeer CreateFrom(Socket socket)
+        {
+            return new TcpPeer(socket, _serializer, _peerLogger);
         }
 
         private static async Task<IPAddress> GetIpAddress(string hostNameOrAddress)
@@ -62,11 +70,6 @@ namespace NeoSharp.Core.Network.Tcp
 
             return ipHostEntry.AddressList
                 .FirstOrDefault(p => p.AddressFamily == AddressFamily.InterNetwork || p.IsIPv6Teredo);
-        }
-
-        public TcpPeer Create(Socket socket)
-        {
-            return new TcpPeer(socket, _peerLogger);
         }
     }
 }

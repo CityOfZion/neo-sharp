@@ -13,11 +13,11 @@ namespace NeoSharp.Core.Network
         {
             _protocolSpecificPeerFactories = new Dictionary<Protocol, Func<EndPoint, Task<IPeer>>>
             {
-                { Protocol.Tcp, tcpPeerFactory.Create }
+                { Protocol.Tcp, tcpPeerFactory.ConnectTo }
             };
         }
 
-        public Task<IPeer> Create(EndPoint endPoint)
+        public Task<IPeer> ConnectTo(EndPoint endPoint)
         {
             if (endPoint == null)
             {

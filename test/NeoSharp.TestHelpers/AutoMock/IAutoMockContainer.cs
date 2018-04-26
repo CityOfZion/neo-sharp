@@ -6,6 +6,8 @@ namespace NeoSharp.TestHelpers.AutoMock
     {
         T Create<T>();
 
+        T Get<T>() where T : class;
+
         Mock<T> GetMock<T>() where T : class;
 
         void Register<TService, TImplementation>() where TImplementation : TService;

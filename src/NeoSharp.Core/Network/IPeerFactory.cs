@@ -4,6 +4,6 @@ namespace NeoSharp.Core.Network
 {
     public interface IPeerFactory
     {
-        Task<IPeer> Create(EndPoint endPoint);
+        Task<IPeer> ConnectTo(EndPoint endPoint);
     }
 }

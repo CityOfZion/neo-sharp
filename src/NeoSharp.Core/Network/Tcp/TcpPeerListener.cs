@@ -12,7 +12,7 @@ namespace NeoSharp.Core.Network.Tcp
         private readonly ILogger<TcpPeerListener> _logger;
         private readonly TcpListener _listener;
 
-        public event EventHandler<IPeer> PeerConnected;
+        public event EventHandler<IPeer> OnPeerConnected;
 
         public TcpPeerListener(NetworkConfig config, ITcpPeerFactory peerFactory, ILogger<TcpPeerListener> logger)
         {
@@ -62,9 +62,9 @@ namespace NeoSharp.Core.Network.Tcp
                     continue;
                 }
 
-                var peer = _peerFactory.Create(socket);
+                var peer = _peerFactory.CreateFrom(socket);
 
-                PeerConnected?.Invoke(this, peer);
+                OnPeerConnected?.Invoke(this, peer);
             }
         }
     }

@@ -20,10 +20,10 @@ namespace NeoSharp.Core.Test.Network
             var endPoint = new EndPoint { Protocol = Protocol.Tcp };
 
             // Act
-            peerFactory.Create(endPoint);
+            peerFactory.ConnectTo(endPoint);
 
             // Asset
-            tcpPeerFactoryMock.Verify(x => x.Create(It.IsAny<EndPoint>()), Times.Once);
+            tcpPeerFactoryMock.Verify(x => x.ConnectTo(It.IsAny<EndPoint>()), Times.Once);
         }
 
         [TestMethod]
@@ -33,7 +33,7 @@ namespace NeoSharp.Core.Test.Network
             var peerFactory = AutoMockContainer.Create<PeerFactory>();
 
             // Act
-            Action a = () => peerFactory.Create(null);
+            Action a = () => peerFactory.ConnectTo(null);
 
             // Asset
             a.Should().Throw<ArgumentNullException>();
@@ -47,7 +47,7 @@ namespace NeoSharp.Core.Test.Network
             var endPoint = new EndPoint { Protocol = Protocol.Unknown };
 
             // Act
-            Action a = () => peerFactory.Create(endPoint);
+            Action a = () => peerFactory.ConnectTo(endPoint);
 
             // Asset
             a.Should().Throw<NotSupportedException>();

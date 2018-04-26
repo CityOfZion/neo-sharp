@@ -4,7 +4,7 @@ namespace NeoSharp.Core.Network
 {
     public class NetworkConfig
     {
-        public int Port { get; internal set; }
+        public ushort Port { get; internal set; }
         public bool ForceIPv6 { get; internal set; }
         public EndPoint[] PeerEndPoints { get; internal set; }
 
