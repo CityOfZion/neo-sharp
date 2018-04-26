@@ -4,11 +4,38 @@ using System.IO;
 using System.Text;
 using System.Reflection;
 using NeoSharp.Core.Types;
+using System.Threading;
+using System.Security.Cryptography;
+using System.Linq;
 
 namespace NeoSharp.Core.Extensions
 {
     public static class ByteArrayExtensions
     {
+        private static ThreadLocal<SHA256> _sha256 = new ThreadLocal<SHA256>(() => SHA256.Create());
+
+        /// <summary>
+        /// Generate SHA256 hash
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <returns>Return SHA256 hash</returns>
+        public static byte[] Sha256(this IEnumerable<byte> value)
+        {
+            return _sha256.Value.ComputeHash(value.ToArray());
+        }
+
+        /// <summary>
+        /// Generate SHA256 hash
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <param name="offset">Offset</param>
+        /// <param name="count">Count</param>
+        /// <returns>Return SHA256 hash</returns>
+        public static byte[] Sha256(this byte[] value, int offset, int count)
+        {
+            return _sha256.Value.ComputeHash(value, offset, count);
+        }
+
         public static string ToHexString(this IEnumerable<byte> value)
         {
             var sb = new StringBuilder();
