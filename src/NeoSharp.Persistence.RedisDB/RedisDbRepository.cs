@@ -7,7 +7,8 @@ namespace NeoSharp.Persistence.RedisDB
 {
     public class RedisDbRepository : IRepository
     {
-        private RedisStreamsHelper _redis;
+        // ReSharper disable once NotAccessedField.Local
+        private readonly RedisStreamsHelper _redis;
 
         public RedisDbRepository()
         {

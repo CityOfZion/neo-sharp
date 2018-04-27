@@ -27,11 +27,8 @@ namespace NeoSharp.Core.Network.Tcp
 
         public void Disconnect()
         {
-            if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
-
-            _socket.Shutdown(SocketShutdown.Both);
-            _stream.Dispose();
-            _socket.Dispose();
+            _logger.LogInformation("The peer was disconnected");
+            Dispose();
         }
 
         public Task Send<TMessage>() where TMessage : Message, new()
@@ -96,7 +93,11 @@ namespace NeoSharp.Core.Network.Tcp
 
         public void Dispose()
         {
-            Disconnect();
+            if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+
+            _socket.Shutdown(SocketShutdown.Both);
+            _stream.Dispose();
+            _socket.Dispose();
         }
     }
 }

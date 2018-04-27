@@ -1,7 +1,6 @@
 ﻿using StackExchange.Redis;
-using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Diagnostics;
 
 namespace NeoSharp.Persistence.RedisDB
 {
@@ -37,6 +36,8 @@ namespace NeoSharp.Persistence.RedisDB
             if (!id.HasValue)
                 id = "*"; //Auto assign id
 
+            Debug.Assert(id != null, nameof(id) + " != null");
+
             return _redisDb.Execute("XADD", streamName, id.Value, key, value);
         }
 
@@ -58,7 +59,7 @@ namespace NeoSharp.Persistence.RedisDB
             //If only a single value is provided, assume they are targeting a single record
             else if (start.HasValue && !end.HasValue)
                 end = start;
-            else if (!start.HasValue && end.HasValue)
+            else if (!start.HasValue)
                 start = end;
 
             List<RedisStreamEntry> entries = new List<RedisStreamEntry>();

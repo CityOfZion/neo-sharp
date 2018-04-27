@@ -1,4 +1,5 @@
-﻿using System.IO;
+using System;
+using System.IO;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network.Serialization;
 
@@ -30,6 +31,10 @@ namespace NeoSharp.Core.Network.Messages
             writer.Write(Timestamp);
             writer.Write(Port);
             writer.Write(Nonce);
+
+            if (string.IsNullOrWhiteSpace(UserAgent))
+                throw new InvalidOperationException($"{nameof(UserAgent)} field is required.");
+
             writer.WriteVarString(UserAgent);
             writer.Write(StartHeight);
             writer.Write(Relay);
@@ -43,6 +48,10 @@ namespace NeoSharp.Core.Network.Messages
             Port = reader.ReadUInt16();
             Nonce = reader.ReadUInt32();
             UserAgent = reader.ReadVarString(1024);
+
+            if (string.IsNullOrWhiteSpace(UserAgent))
+                throw new FormatException($"{nameof(UserAgent)} cannot be blank.");
+
             StartHeight = reader.ReadUInt32();
             Relay = reader.ReadBoolean();
         }
