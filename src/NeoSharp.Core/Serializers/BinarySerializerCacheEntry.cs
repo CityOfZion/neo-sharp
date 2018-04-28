@@ -1,4 +1,7 @@
-﻿using System.IO;
+using NeoSharp.Core.Extensions;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Text;
 
@@ -29,69 +32,124 @@ namespace NeoSharp.Core.Serializers
         {
             Property = pi;
 
-            if (pi.PropertyType == typeof(string))
+            Type type = pi.PropertyType;
+            bool array = type.IsArray;
+
+            if (array)
+            {
+                // Extract type of array
+                type = type.GetElementType();
+            }
+
+            if (type == typeof(string))
             {
                 GetValue = new delGetValue(GetStringValue);
                 SetValue = new delSetValue(SetStringValue);
             }
-            else if (pi.PropertyType == typeof(long))
+            else if (type == typeof(long))
             {
                 GetValue = new delGetValue(GetInt64Value);
                 SetValue = new delSetValue(SetInt64Value);
             }
-            else if (pi.PropertyType == typeof(ulong))
+            else if (type == typeof(ulong))
             {
                 GetValue = new delGetValue(GetUInt64Value);
                 SetValue = new delSetValue(SetUInt64Value);
             }
-            else if (pi.PropertyType == typeof(int))
+            else if (type == typeof(int))
             {
                 GetValue = new delGetValue(GetInt32Value);
                 SetValue = new delSetValue(SetInt32Value);
             }
-            else if (pi.PropertyType == typeof(uint))
+            else if (type == typeof(uint))
             {
                 GetValue = new delGetValue(GetUInt32Value);
                 SetValue = new delSetValue(SetUInt32Value);
             }
-            else if (pi.PropertyType == typeof(short))
+            else if (type == typeof(short))
             {
                 GetValue = new delGetValue(GetInt16Value);
                 SetValue = new delSetValue(SetInt16Value);
             }
-            else if (pi.PropertyType == typeof(ushort))
+            else if (type == typeof(ushort))
             {
                 GetValue = new delGetValue(GetUInt16Value);
                 SetValue = new delSetValue(SetUInt16Value);
             }
-            else if (pi.PropertyType == typeof(byte))
+            else if (type == typeof(byte))
             {
                 GetValue = new delGetValue(GetByteValue);
                 SetValue = new delSetValue(SetByteValue);
             }
-            else if (pi.PropertyType == typeof(sbyte))
+            else if (type == typeof(sbyte))
             {
                 GetValue = new delGetValue(GetSByteValue);
                 SetValue = new delSetValue(SetSByteValue);
+            }
+            else throw (new NotImplementedException());
+
+            if (array)
+            {
+                ArrayType ar = new ArrayType(pi.PropertyType, GetValue, SetValue);
+                GetValue = new delGetValue(ar.GetArrayValue);
+                SetValue = new delSetValue(ar.SetArrayValue);
             }
         }
 
         #region Internals
 
+        #region Array
+
+        class ArrayType
+        {
+            readonly Type Type;
+            readonly delGetValue GetValue;
+            readonly delSetValue SetValue;
+
+            public ArrayType(Type type, delGetValue get, delSetValue set)
+            {
+                GetValue = get;
+                SetValue = set;
+                Type = type;
+            }
+
+            public int SetArrayValue(BinaryWriter writer, object value)
+            {
+                Array ar = (Array)value;
+
+                int x = writer.WriteVarInt(ar.Length);
+
+                foreach (object o in ar)
+                    x += SetValue(writer, o);
+
+                return x;
+            }
+
+            public object GetArrayValue(BinaryReader reader)
+            {
+                Array a = (Array)Activator.CreateInstance(Type, (int)reader.ReadVarInt(ushort.MaxValue));
+
+                for (int ix = 0, im = a.Length; ix < im; ix++)
+                {
+                    a.SetValue(GetValue(reader), ix);
+                }
+
+                return a;
+            }
+        }
+
+        #endregion
+
         #region String
 
         private int SetStringValue(BinaryWriter writer, object value)
         {
-            // TODO: check this logic
-
-            byte[] data = Encoding.UTF8.GetBytes(value + "\0");
-            writer.Write(data);
-            return data.Length;
+            return writer.WriteVarBytes(Encoding.UTF8.GetBytes((string)value));
         }
 
         private object GetStringValue(BinaryReader reader)
         {
-            return reader.ReadString();
+            return reader.ReadVarString(ushort.MaxValue);
         }
 
         #endregion

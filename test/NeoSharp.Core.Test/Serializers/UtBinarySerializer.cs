@@ -31,6 +31,9 @@ namespace NeoSharp.Core.Test.Serializers
             public long G { get; set; }
             [BinaryProperty(8)]
             public ulong H { get; set; }
+
+            [BinaryProperty(9)]
+            public byte[] I { get; set; }
         }
 
         [TestMethod]
@@ -46,6 +49,7 @@ namespace NeoSharp.Core.Test.Serializers
                 0x06,0x00,0x00,0x00,
                 0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                 0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                0x05,0x01,0x02,0x03,0x04,0x05,
             });
 
             (actual.A == 1).Should().BeTrue();
@@ -56,6 +60,7 @@ namespace NeoSharp.Core.Test.Serializers
             (actual.F == 6).Should().BeTrue();
             (actual.G == 7).Should().BeTrue();
             (actual.H == 8).Should().BeTrue();
+            (actual.I.SequenceEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 })).Should().BeTrue();
         }
 
         [TestMethod]
@@ -70,11 +75,11 @@ namespace NeoSharp.Core.Test.Serializers
                 E = 5,
                 F = 6,
                 G = 7,
-                H = 8
+                H = 8,
+                I = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 }
             };
-            var data = BinarySerializer.Serialize(actual);
 
-            (data.SequenceEqual(new byte[]
+            (BinarySerializer.Serialize(actual).SequenceEqual(new byte[]
             {
                 0x01,
                 0x02,
@@ -84,6 +89,7 @@ namespace NeoSharp.Core.Test.Serializers
                 0x06,0x00,0x00,0x00,
                 0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                 0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                0x05, 0x01, 0x02, 0x03, 0x04, 0x05
             }
             )).Should().BeTrue();
         }

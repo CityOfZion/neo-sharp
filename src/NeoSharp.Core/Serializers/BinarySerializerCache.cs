@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +11,10 @@ namespace NeoSharp.Core.Serializers
         /// Type
         /// </summary>
         public readonly Type Type;
+        /// <summary>
+        /// Count
+        /// </summary>
+        public readonly int Count;
         /// <summary>
         /// Cache entries
         /// </summary>
@@ -31,6 +35,8 @@ namespace NeoSharp.Core.Serializers
                 .OrderBy(u => u.atr.Order)
                 .Select(u => new BinarySerializerCacheEntry(u.prop))
                 .ToArray();
+
+            Count = Entries.Length;
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Text;
 
 namespace NeoSharp.Core.Serializers
@@ -12,6 +13,42 @@ namespace NeoSharp.Core.Serializers
         /// </summary>
         readonly static Dictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
 
+        /// <summary>
+        /// Cache Binary Serializer types
+        /// </summary>
+        static BinarySerializer()
+        {
+            foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+                try { CacheTypesOf(asm); } catch { }
+        }
+
+        /// <summary>
+        /// Cache types (call me if you load a new plugin or module)
+        /// </summary>
+        /// <param name="asm">Assembly</param>
+        public static void CacheTypesOf(Assembly asm)
+        {
+            foreach (Type t in asm.GetTypes())
+                CacheTypesOf(t);
+        }
+        /// <summary>
+        /// Cache type
+        /// </summary>
+        /// <param name="type">Type</param>
+        public static bool CacheTypesOf(Type type)
+        {
+            lock (Cache)
+            {
+                if (Cache.TryGetValue(type, out BinarySerializerCache cache)) return false;
+
+                BinarySerializerCache b = new BinarySerializerCache(type);
+                if (b.Count <= 0) return false;
+
+                Cache.Add(b.Type, b);
+            }
+
+            return true;
+        }
         /// <summary>
         /// Deserialize
         /// </summary>
@@ -37,10 +74,7 @@ namespace NeoSharp.Core.Serializers
 
             Type t = typeof(T);
             if (!Cache.TryGetValue(t, out BinarySerializerCache cache))
-            {
-                cache = new BinarySerializerCache(t);
-                Cache[t] = cache;
-            }
+                throw (new NotImplementedException());
 
             // Deserialize
 
@@ -76,10 +110,7 @@ namespace NeoSharp.Core.Serializers
 
             Type t = typeof(T);
             if (!Cache.TryGetValue(t, out BinarySerializerCache cache))
-            {
-                cache = new BinarySerializerCache(t);
-                Cache[t] = cache;
-            }
+                throw (new NotImplementedException());
 
             // Serialize
 
