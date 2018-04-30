@@ -1,103 +1,72 @@
-﻿using System;
-using System.IO;
+using Microsoft.Extensions.Logging;
+using NeoSharp.Core.Extensions;
+using System;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using NeoSharp.Core.Network.Messages;
-using NeoSharp.Core.Network.Serialization;
 
 namespace NeoSharp.Core.Network.Tcp
 {
     public class TcpPeer : IPeer, IDisposable
     {
-        private readonly Socket _socket;
-        private readonly IMessageSerializer _serializer;
-        private readonly NetworkStream _stream;
         private readonly ILogger<TcpPeer> _logger;
-        private int _disposed;
+        private readonly ITcpProtocol _protocol;
 
-        public TcpPeer(Socket socket, IMessageSerializer serializer, ILogger<TcpPeer> logger)
+        private readonly Socket _socket;
+#pragma warning disable 649
+        private readonly NetworkStream _stream;
+#pragma warning restore 649
+        // private IPEndPoint _ipEp;
+        // ReSharper disable once NotAccessedField.Local
+        private uint _serverNonce;
+
+        public TcpPeer(Socket socket, ILogger<TcpPeer> logger, TcpProtocolSelector protocols)
         {
             _socket = socket ?? throw new ArgumentNullException(nameof(socket));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _stream = new NetworkStream(_socket);
+
+            _stream = new NetworkStream(socket, true);
+
+            // Select protocol by the first 4 bytes
+
+            byte[] header = new byte[4];
+            using (CancellationTokenSource cancel = new CancellationTokenSource(ITcpProtocol.TimeOut))
+            {
+                Task ret = _stream.ReadAsync(header, 0, 4, cancel.Token);
+                ret.Wait();
+            }
+
+            _protocol = protocols.GetProtocol(header.ToUInt32(0)) ?? throw new ArgumentNullException("protocol");
+        }
+
+        public void Connect(uint serverNonce)
+        {
+            _serverNonce = serverNonce;
+
+            //_stream = new NetworkStream(_socket);                       
+        }
+
+        // ReSharper disable once UnusedMember.Local
+        private void SendVersion()
+        {
+            // _logger.LogInformation($"Sending version to {_ipEp}");
+            _stream.WriteAsync(new byte[] { 1, 4, 5 }, 0, 3); // dummy send version
         }
 
         public void Disconnect()
         {
-            _logger.LogInformation("The peer was disconnected");
-            Dispose();
-        }
-
-        public Task Send<TMessage>() where TMessage : Message, new()
-        {
-            return Send(new TMessage());
-        }
-
-        public async Task Send<TMessage>(TMessage message)
-            where TMessage : Message
-        {
-            if (_disposed > 0) return;
-
-            using (var source = new CancellationTokenSource(10000))
-            {
-                //Stream.WriteAsync doesn't support CancellationToken
-                //see: https://stackoverflow.com/questions/20131434/cancel-networkstream-readasync-using-tcplistener
-                source.Token.Register(Disconnect);
-
-                try
-                {
-                    await _serializer.SerializeTo(message, _stream, source.Token);
-                }
-                catch (ObjectDisposedException) { }
-                catch (Exception ex) when (ex is IOException || ex is OperationCanceledException)
-                {
-                    Disconnect();
-                }
-            }
-        }
-
-        public async Task<TMessage> Receive<TMessage>()
-            where TMessage : Message, new()
-        {
-            if (_disposed > 0) return default(TMessage);
-
-            using (var source = new CancellationTokenSource(10000))
-            {
-                //Stream.WriteAsync doesn't support CancellationToken
-                //see: https://stackoverflow.com/questions/20131434/cancel-networkstream-readasync-using-tcplistener
-                source.Token.Register(Disconnect);
-
-                try
-                {
-                    return await _serializer.DeserializeFrom<TMessage>(_stream, source.Token);
-                }
-                catch (ArgumentException)
-                {
-                }
-                catch (ObjectDisposedException)
-                {
-                }
-                catch (Exception ex) when (ex is FormatException ||
-                                           ex is IOException ||
-                                           ex is OperationCanceledException)
-                {
-                    Disconnect();
-                }
-            }
-
-            return default(TMessage);
+            _logger.LogInformation("Disconnecting peer");
         }
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+            if (_socket != null)
+            {
+                _socket.Shutdown(SocketShutdown.Both);
+                _socket.Dispose();
+            }
 
-            _socket.Shutdown(SocketShutdown.Both);
-            _stream.Dispose();
-            _socket.Dispose();
+            _stream?.Dispose();
         }
     }
 }
