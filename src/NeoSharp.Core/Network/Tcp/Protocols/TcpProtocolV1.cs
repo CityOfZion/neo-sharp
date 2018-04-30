@@ -6,15 +6,17 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.Network.Messaging;
 
 namespace NeoSharp.Core.Network.Tcp.Protocols
 {
-    public class TcpProtocolV1 : ITcpProtocol
+    public class TcpProtocolV1 : TcpProtocolBase
     {
-        public override async Task SendMessageAsync(NetworkStream stream, Message message, CancellationTokenSource cancellationToken)
+        public override async Task SendMessageAsync(NetworkStream stream, Message message,
+            CancellationToken cancellationToken)
         {
-            using (MemoryStream ms = new MemoryStream())
-            using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8))
+            using (var ms = new MemoryStream())
+            using (var writer = new BinaryWriter(ms, Encoding.UTF8))
             {
                 writer.Write(MagicHeader);
                 writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadRight(12, ' ')), 0, 12);
@@ -22,39 +24,39 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
                 writer.Write(GetChecksum(message.RawPayload));
                 writer.Write(message.RawPayload);
 
-                byte[] buffer = ms.ToArray();
-                await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken.Token);
+                var buffer = ms.ToArray();
+                await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
             }
         }
 
-        public override async Task<Message> GetMessageAsync(NetworkStream stream, CancellationTokenSource cancellationToken)
+        public override async Task<Message> ReceiveMessageAsync(NetworkStream stream, CancellationToken cancellationToken)
         {
-            uint payload_length, checksum;
-            Message message = new Message()
+            uint payloadLength, checksum;
+            var message = new Message
             {
                 Flags = MessageFlags.None
             };
 
-            byte[] buffer = await FillBufferAsync(stream, 24, cancellationToken.Token);
+            var buffer = await FillBufferAsync(stream, 24, cancellationToken);
 
-            using (MemoryStream ms = new MemoryStream(buffer, false))
-            using (BinaryReader reader = new BinaryReader(ms, Encoding.UTF8))
+            using (var ms = new MemoryStream(buffer, false))
+            using (var reader = new BinaryReader(ms, Encoding.UTF8))
             {
                 if (reader.ReadUInt32() != MagicHeader)
                     throw new FormatException();
 
-                byte[] data = reader.ReadBytes(12);
+                var data = reader.ReadBytes(12);
                 message.Command = Enum.Parse<MessageCommand>(Encoding.UTF8.GetString(data));
-                payload_length = reader.ReadUInt32();
+                payloadLength = reader.ReadUInt32();
 
-                if (payload_length > Message.PayloadMaxSize)
+                if (payloadLength > Message.PayloadMaxSize)
                     throw new FormatException();
 
                 checksum = reader.ReadUInt32();
             }
 
-            if (payload_length > 0)
-                message.RawPayload = await FillBufferAsync(stream, (int)payload_length, cancellationToken.Token);
+            if (payloadLength > 0)
+                message.RawPayload = await FillBufferAsync(stream, (int)payloadLength, cancellationToken);
             else
                 message.RawPayload = new byte[0];
 

@@ -1,4 +1,6 @@
-﻿namespace NeoSharp.Core.Network.Messages
+﻿using NeoSharp.Core.Network.Messaging;
+
+namespace NeoSharp.Core.Network.Messages
 {
     public class VersionAcknowledgmentMessage : Message
     {

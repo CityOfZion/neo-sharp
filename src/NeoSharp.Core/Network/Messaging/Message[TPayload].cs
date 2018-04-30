@@ -1,6 +1,6 @@
 ﻿using NeoSharp.Core.Serializers;
 
-namespace NeoSharp.Core.Network.Messages
+namespace NeoSharp.Core.Network.Messaging
 {
     public class Message<TPayload> : Message, IBinaryOnPreSerializable, IBinaryOnPostDeserializable where TPayload : new()
     {

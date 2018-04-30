@@ -1,0 +1,65 @@
+﻿using NeoSharp.Core.Network.Messages;
+using System;
+using System.IO;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using NeoSharp.Core.Network.Messaging;
+
+namespace NeoSharp.Core.Network.Tcp
+{
+    public abstract class TcpProtocolBase
+    {
+        #region Constants
+
+        private const int MaxBufferSize = 1024;
+
+        #endregion
+
+        /// <summary>
+        /// Magic header protocol
+        /// </summary>
+        public uint MagicHeader { get; }
+
+        /// <summary>
+        /// Send message
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="message">Message</param>
+        /// <param name="cancellationToken">Cancel token</param>
+        public abstract Task SendMessageAsync(NetworkStream stream, Message message, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Receive message
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="cancellationToken">Cancel token</param>
+        /// <returns>Return message or NULL</returns>
+        public abstract Task<Message> ReceiveMessageAsync(NetworkStream stream, CancellationToken cancellationToken);
+
+        protected static async Task<byte[]> FillBufferAsync(
+            Stream stream,
+            int size,
+            CancellationToken cancellationToken)
+        {
+            size = Math.Min(size, MaxBufferSize);
+            var buffer = new byte[size];
+
+            using (var memory = new MemoryStream())
+            {
+                while (size > 0)
+                {
+                    var count = Math.Min(size, buffer.Length);
+
+                    count = await stream.ReadAsync(buffer, 0, count, cancellationToken);
+                    if (count <= 0) throw new IOException();
+
+                    memory.Write(buffer, 0, count);
+                    size -= count;
+                }
+
+                return memory.ToArray();
+            }
+        }
+    }
+}

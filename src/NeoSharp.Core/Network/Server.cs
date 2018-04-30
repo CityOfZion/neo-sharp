@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network.Messages;
+using NeoSharp.Core.Network.Messaging.Messages;
 
 namespace NeoSharp.Core.Network
 {
@@ -132,6 +133,12 @@ namespace NeoSharp.Core.Network
                 throw new InvalidOperationException("The handshake failed.");
             }
 
+            if (version.Payload.Version > peerVersion.Payload.Version)
+            {
+                _logger.LogWarning("Downgraded to lower protocol version.");
+                peer.DowngradeProtocol(peerVersion.Payload.Version);
+            }
+
             await peer.Send(new VersionAcknowledgmentMessage());
             await peer.Receive<VersionAcknowledgmentMessage>();
         }
@@ -139,7 +146,7 @@ namespace NeoSharp.Core.Network
         private VersionMessage GetVersionMessage()
         {
             var version = new VersionMessage();
-            version.Payload.Version = 0;
+            version.Payload.Version = 2;
             // TODO: What's it?
             // version.Payload.Services = NetworkAddressWithTime.NODE_NETWORK;
             version.Payload.Timestamp = DateTime.Now.ToTimestamp();

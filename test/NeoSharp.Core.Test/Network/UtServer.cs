@@ -7,6 +7,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Messages;
+using NeoSharp.Core.Network.Messaging.Messages;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Core.Test.Network

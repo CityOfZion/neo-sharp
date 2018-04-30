@@ -5,7 +5,7 @@ namespace NeoSharp.Core.Network.Tcp
 {
     public class TcpProtocolSelector
     {
-        Dictionary<uint, ITcpProtocol> _protocols;
+        private readonly Dictionary<uint, TcpProtocolBase> _protocols;
 
         /// <summary>
         /// Constructor
@@ -14,14 +14,16 @@ namespace NeoSharp.Core.Network.Tcp
         {
             // Set different protocols
 
-            TcpProtocolV1 v1 = new TcpProtocolV1();
-            TcpProtocolV2 v2 = new TcpProtocolV2();
+            var v1 = new TcpProtocolV1();
+            var v2 = new TcpProtocolV2();
 
-            _protocols = new Dictionary<uint, ITcpProtocol>
+            _protocols = new Dictionary<uint, TcpProtocolBase>
             {
                 { v1.MagicHeader, v1 },
                 { v2.MagicHeader, v2 }
             };
+
+            DefaultProtocol = v2;
         }
 
         /// <summary>
@@ -29,12 +31,11 @@ namespace NeoSharp.Core.Network.Tcp
         /// </summary>
         /// <param name="magicNumber">Magic number</param>
         /// <returns>Return protocol or NULL</returns>
-        public ITcpProtocol GetProtocol(uint magicNumber)
+        public TcpProtocolBase GetProtocol(uint magicNumber)
         {
-            if (_protocols.TryGetValue(magicNumber, out ITcpProtocol protocol))
-                return protocol;
-
-            return null;
+            return _protocols.TryGetValue(magicNumber, out var protocol) ? protocol : null;
         }
+
+        public TcpProtocolBase DefaultProtocol { get; }
     }
 }

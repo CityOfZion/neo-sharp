@@ -6,6 +6,7 @@ using NeoSharp.Core.Serializers;
 using NeoSharp.TestHelpers;
 using System;
 using System.IO;
+using NeoSharp.Core.Network.Messaging.Messages;
 
 namespace NeoSharp.Core.Test.Network.Serialization
 {

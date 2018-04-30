@@ -2,88 +2,127 @@ using Microsoft.Extensions.Logging;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network.Messages;
 using System;
+using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.Network.Messaging;
 
 namespace NeoSharp.Core.Network.Tcp
 {
     public class TcpPeer : IPeer, IDisposable
     {
-        private readonly ILogger<TcpPeer> _logger;
-        private readonly ITcpProtocol _protocol;
+        private const int SocketOperationTimeout = 30_000;
 
         private readonly Socket _socket;
-#pragma warning disable 649
+        private readonly TcpProtocolSelector _protocolSelector;
+        private TcpProtocolBase _protocol;
         private readonly NetworkStream _stream;
-#pragma warning restore 649
-        // private IPEndPoint _ipEp;
-        // ReSharper disable once NotAccessedField.Local
-        private uint _serverNonce;
+        private readonly ILogger<TcpPeer> _logger;
+        private int _disposed;
 
-        public TcpPeer(Socket socket, ILogger<TcpPeer> logger, TcpProtocolSelector protocols)
+        public TcpPeer(Socket socket, TcpProtocolSelector protocolSelector, ILogger<TcpPeer> logger)
         {
             _socket = socket ?? throw new ArgumentNullException(nameof(socket));
+            _protocolSelector = protocolSelector ?? throw new ArgumentNullException(nameof(protocolSelector));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             _stream = new NetworkStream(socket, true);
-
-            // Select protocol by the first 4 bytes
-
-            byte[] header = new byte[4];
-            using (CancellationTokenSource cancel = new CancellationTokenSource(ITcpProtocol.TimeOut))
-            {
-                Task ret = _stream.ReadAsync(header, 0, 4, cancel.Token);
-                ret.Wait();
-            }
-
-            _protocol = protocols.GetProtocol(header.ToUInt32(0)) ?? throw new ArgumentNullException("protocol");
+            _protocol = protocolSelector.DefaultProtocol;
         }
 
-        public void Connect(uint serverNonce)
+        public void DowngradeProtocol(uint version)
         {
-            _serverNonce = serverNonce;
+            if (version > _protocol.MagicHeader)
+                throw new ArgumentException($"The protocol version must to be lower than \"{_protocol.MagicHeader}\"",
+                    nameof(version));
 
-            //_stream = new NetworkStream(_socket);                       
+            var protocol = _protocolSelector.GetProtocol(version);
+
+            _protocol = protocol ?? throw new NotSupportedException("The protocol version is not supported.");
         }
 
         public void Disconnect()
         {
-            _logger.LogInformation("Disconnecting peer");
+            Dispose();
+            _logger.LogInformation("The peer was disconnected");
         }
 
         public void Dispose()
         {
-            if (_socket != null)
+            if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
+
+            _socket.Shutdown(SocketShutdown.Both);
+            _stream.Dispose();
+            _socket.Dispose();
+        }
+
+        public Task Send<TMessage>() where TMessage : Message, new()
+        {
+            return Send(new TMessage());
+        }
+
+        public async Task Send<TMessage>(TMessage message) where TMessage : Message
+        {
+            if (_disposed > 0) return;
+
+            using (var source = new CancellationTokenSource(SocketOperationTimeout))
             {
-                _socket.Shutdown(SocketShutdown.Both);
-                _socket.Dispose();
+                source.Token.Register(Disconnect);
+
+                try
+                {
+                    await _protocol.SendMessageAsync(_stream, message, source.Token);
+                }
+                catch (ObjectDisposedException) { }
+                catch (Exception ex) when (ex is IOException || ex is OperationCanceledException)
+                {
+                    Disconnect();
+                }
+            }
+        }
+
+        public async Task<Message> Receive()
+        {
+            if (_disposed > 0) return null;
+
+            using (var source = new CancellationTokenSource(SocketOperationTimeout))
+            {
+                source.Token.Register(Disconnect);
+
+                try
+                {
+                    return await _protocol.ReceiveMessageAsync(_stream, source.Token);
+                }
+                catch (ArgumentException)
+                {
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+                catch (Exception ex) when (ex is FormatException ||
+                                           ex is IOException ||
+                                           ex is OperationCanceledException)
+                {
+                    Disconnect();
+                }
             }
 
-            _stream?.Dispose();
-        }
-
-        public Task Send<TMessage>(TMessage message) where TMessage : Message, new()
-        {
-            using (CancellationTokenSource cancel = new CancellationTokenSource(ITcpProtocol.TimeOut))
-                return _protocol.SendMessageAsync(_stream, message, cancel);
-        }
-
-        public Task<Message> Receive()
-        {
-            using (CancellationTokenSource cancel = new CancellationTokenSource(ITcpProtocol.TimeOut))
-                return _protocol.GetMessageAsync(_stream, cancel);
+            return null;
         }
 
         public Task<TMessage> Receive<TMessage>() where TMessage : Message, new()
         {
-            return new Task<TMessage>(() =>
-             {
-                 Task<Message> msg = Receive();
-                 msg.Wait();
+            if (_disposed > 0) return null;
 
-                 return new TMessage();
-             });
+            // TODO: This does not work
+            return new Task<TMessage>(() =>
+            {
+                var msg = Receive();
+                msg.Wait();
+
+                return new TMessage();
+            });
         }
     }
 }

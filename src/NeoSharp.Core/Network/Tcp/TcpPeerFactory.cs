@@ -68,7 +68,7 @@ namespace NeoSharp.Core.Network.Tcp
 
         public TcpPeer CreateFrom(Socket socket)
         {
-            return new TcpPeer(socket, _peerLogger, _protocols);
+            return new TcpPeer(socket, _protocols, _peerLogger);
         }
     }
 }
