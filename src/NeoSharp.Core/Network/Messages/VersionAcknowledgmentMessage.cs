@@ -4,7 +4,7 @@
     {
         public VersionAcknowledgmentMessage()
         {
-            Command = "verack";
+            Command = MessageCommand.verack;
         }
     }
 }

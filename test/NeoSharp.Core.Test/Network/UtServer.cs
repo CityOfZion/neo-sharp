@@ -141,7 +141,7 @@ namespace NeoSharp.Core.Test.Network
             Task.Delay(100).Wait();
 
             // Asset
-            peerMock.Verify(x => x.Send<VersionAcknowledgmentMessage>(), Times.Never);
+            peerMock.Verify(x => x.Send(new VersionAcknowledgmentMessage()), Times.Never);
         }
 
         private static NetworkConfig GetNetworkConfig(params string[] peerEndPoints)
@@ -177,7 +177,7 @@ namespace NeoSharp.Core.Test.Network
 
             var verAckMessage = new VersionAcknowledgmentMessage();
 
-            peerMock.Setup(x => x.Send<VersionAcknowledgmentMessage>())
+            peerMock.Setup(x => x.Send(new VersionAcknowledgmentMessage()))
                 .Returns(Task.CompletedTask);
 
             peerMock.Setup(x => x.Receive<VersionAcknowledgmentMessage>())

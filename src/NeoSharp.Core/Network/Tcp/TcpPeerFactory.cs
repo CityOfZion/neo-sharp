@@ -22,7 +22,7 @@ namespace NeoSharp.Core.Network.Tcp
             _protocols = new TcpProtocolSelector();
         }
 
-        public async Task<IPeer> Create(EndPoint endPoint)
+        public async Task<IPeer> ConnectTo(EndPoint endPoint)
         {
             var ipAddress = await GetIpAddress(endPoint.Host);
             if (ipAddress == null)
@@ -41,7 +41,7 @@ namespace NeoSharp.Core.Network.Tcp
 
             _logger.LogInformation($"Connected to {ipEp}");
 
-            return Create(socket);
+            return CreateFrom(socket);
         }
 
         private static async Task<IPAddress> GetIpAddress(string hostNameOrAddress)
@@ -66,7 +66,7 @@ namespace NeoSharp.Core.Network.Tcp
                 .FirstOrDefault(p => p.AddressFamily == AddressFamily.InterNetwork || p.IsIPv6Teredo);
         }
 
-        public TcpPeer Create(Socket socket)
+        public TcpPeer CreateFrom(Socket socket)
         {
             return new TcpPeer(socket, _peerLogger, _protocols);
         }

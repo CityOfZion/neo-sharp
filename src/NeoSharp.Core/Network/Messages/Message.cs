@@ -1,7 +1,28 @@
-﻿namespace NeoSharp.Core.Network.Messages
+﻿using NeoSharp.Core.Serializers;
+
+namespace NeoSharp.Core.Network.Messages
 {
     public class Message
     {
-        public string Command;
+        /// <summary>
+        /// Max size for payload
+        /// </summary>
+        public const int PayloadMaxSize = 0x02000000;
+
+        /// <summary>
+        /// Flags
+        /// </summary>
+        [BinaryProperty(0)]
+        public MessageFlags Flags;
+        /// <summary>
+        /// Command
+        /// </summary>
+        [BinaryProperty(1)]
+        public MessageCommand Command;
+        /// <summary>
+        /// Payload
+        /// </summary>
+        [BinaryProperty(2, MaxLength = PayloadMaxSize)]
+        public byte[] RawPayload;
     }
 }

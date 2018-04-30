@@ -1,33 +1,36 @@
-﻿using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
-using FluentAssertions;
+﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network.Messages;
-using NeoSharp.Core.Network.Serialization;
+using NeoSharp.Core.Serializers;
 using NeoSharp.TestHelpers;
+using System;
+using System.IO;
 
 namespace NeoSharp.Core.Test.Network.Serialization
 {
     [TestClass]
     public class UtMessageSerializer : TestBase
     {
+        [TestInitialize]
+        public void WarmSerializer()
+        {
+            BinarySerializer.CacheTypesOf(typeof(VersionMessage).Assembly);
+        }
+
         [TestMethod]
-        public async Task Can_serialize_and_deserialize_messages()
+        public void Can_serialize_and_deserialize_messages()
         {
             // Arrange 
-            var serializer = AutoMockContainer.Create<MessageSerializer>();
             var expectedVerAckMessage = new VersionAcknowledgmentMessage();
             VersionAcknowledgmentMessage actualVerAckMessage;
 
             // Act
             using (var memory = new MemoryStream())
             {
-                await serializer.SerializeTo(expectedVerAckMessage, memory, CancellationToken.None);
+                BinarySerializer.Serialize(expectedVerAckMessage, memory);
                 memory.Seek(0, SeekOrigin.Begin);
-                actualVerAckMessage = await serializer.DeserializeFrom<VersionAcknowledgmentMessage>(memory, CancellationToken.None);
+                actualVerAckMessage = BinarySerializer.Deserialize<VersionAcknowledgmentMessage>(memory);
             }
 
             // Asset
@@ -36,10 +39,9 @@ namespace NeoSharp.Core.Test.Network.Serialization
         }
 
         [TestMethod]
-        public async Task Can_serialize_and_deserialize_messages_with_payload()
+        public void Can_serialize_and_deserialize_messages_with_payload()
         {
             // Arrange 
-            var serializer = AutoMockContainer.Create<MessageSerializer>();
             var expectedVersionMessage = new VersionMessage();
             var r = new Random(Environment.TickCount);
             expectedVersionMessage.Payload.Version = (uint)r.Next(0, int.MaxValue);
@@ -55,9 +57,9 @@ namespace NeoSharp.Core.Test.Network.Serialization
             // Act
             using (var memory = new MemoryStream())
             {
-                await serializer.SerializeTo(expectedVersionMessage, memory, CancellationToken.None);
+                BinarySerializer.Serialize(expectedVersionMessage, memory);
                 memory.Seek(0, SeekOrigin.Begin);
-                actualVersionMessage = await serializer.DeserializeFrom<VersionMessage>(memory, CancellationToken.None);
+                actualVersionMessage = BinarySerializer.Deserialize<VersionMessage>(memory);
             }
 
             // Asset

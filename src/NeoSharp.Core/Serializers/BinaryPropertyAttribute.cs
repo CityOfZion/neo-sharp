@@ -7,7 +7,11 @@ namespace NeoSharp.Core.Serializers
         /// <summary>
         /// Order
         /// </summary>
-        public int Order { get; }
+        public readonly int Order;
+        /// <summary>
+        /// Max length (used for strings and arrays)
+        /// </summary>
+        public int MaxLength { get; set; } = ushort.MaxValue;
 
         /// <summary>
         /// Constructor

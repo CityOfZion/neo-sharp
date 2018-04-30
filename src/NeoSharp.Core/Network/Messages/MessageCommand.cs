@@ -1,6 +1,6 @@
-﻿namespace NeoSharp.Core.Network.Tcp
+﻿namespace NeoSharp.Core.Network.Messages
 {
-    public enum TcpMessageCommand : byte
+    public enum MessageCommand : byte
     {
         notfound=0x00,
 

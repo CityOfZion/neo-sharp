@@ -1,7 +1,4 @@
-using System;
-using System.IO;
-using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Network.Serialization;
+using NeoSharp.Core.Serializers;
 
 namespace NeoSharp.Core.Network.Messages
 {
@@ -9,51 +6,28 @@ namespace NeoSharp.Core.Network.Messages
     {
         public VersionMessage()
         {
-            Command = "version";
+            Command = MessageCommand.version;
+            Payload = new VersionPayload();
         }
     }
 
-    public class VersionPayload : IBinarySerializable
+    public class VersionPayload
     {
+        [BinaryProperty(1)]
         public uint Version;
+        [BinaryProperty(2)]
         public ulong Services;
+        [BinaryProperty(3)]
         public uint Timestamp;
+        [BinaryProperty(4)]
         public ushort Port;
+        [BinaryProperty(5)]
         public uint Nonce;
+        [BinaryProperty(6, MaxLength = 255)]
         public string UserAgent;
+        [BinaryProperty(7)]
         public uint StartHeight;
+        [BinaryProperty(8)]
         public bool Relay;
-
-        void IBinarySerializable.Serialize(BinaryWriter writer)
-        {
-            writer.Write(Version);
-            writer.Write(Services);
-            writer.Write(Timestamp);
-            writer.Write(Port);
-            writer.Write(Nonce);
-
-            if (string.IsNullOrWhiteSpace(UserAgent))
-                throw new InvalidOperationException($"{nameof(UserAgent)} field is required.");
-
-            writer.WriteVarString(UserAgent);
-            writer.Write(StartHeight);
-            writer.Write(Relay);
-        }
-
-        void IBinarySerializable.Deserialize(BinaryReader reader)
-        {
-            Version = reader.ReadUInt32();
-            Services = reader.ReadUInt64();
-            Timestamp = reader.ReadUInt32();
-            Port = reader.ReadUInt16();
-            Nonce = reader.ReadUInt32();
-            UserAgent = reader.ReadVarString(1024);
-
-            if (string.IsNullOrWhiteSpace(UserAgent))
-                throw new FormatException($"{nameof(UserAgent)} cannot be blank.");
-
-            StartHeight = reader.ReadUInt32();
-            Relay = reader.ReadBoolean();
-        }
     }
 }

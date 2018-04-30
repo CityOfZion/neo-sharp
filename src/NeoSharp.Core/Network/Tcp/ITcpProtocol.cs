@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NeoSharp.Core.Network.Messages;
+using System;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading;
@@ -28,7 +29,7 @@ namespace NeoSharp.Core.Network.Tcp
         /// <param name="stream">Stream</param>
         /// <param name="cancellationToken">Cancel token</param>
         /// <returns>Return message or NULL</returns>
-        public virtual async Task<TcpMessage> GetMessageAsync(NetworkStream stream, CancellationTokenSource cancellationToken)
+        public virtual async Task<Message> GetMessageAsync(NetworkStream stream, CancellationTokenSource cancellationToken)
         {
             throw new NotImplementedException();
         }
@@ -39,7 +40,7 @@ namespace NeoSharp.Core.Network.Tcp
         /// <param name="stream">Stream</param>
         /// <param name="message">Message</param>
         /// <param name="cancellationToken">Cancel token</param>
-        public virtual async void SendMessageAsync(NetworkStream stream, TcpMessage message, CancellationTokenSource cancellationToken)
+        public virtual async Task SendMessageAsync(NetworkStream stream, Message message, CancellationTokenSource cancellationToken)
         {
             throw new NotImplementedException();
         }

@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Network.Messages;
 using System;
 using System.Net.Sockets;
 using System.Threading;
@@ -46,13 +47,6 @@ namespace NeoSharp.Core.Network.Tcp
             //_stream = new NetworkStream(_socket);                       
         }
 
-        // ReSharper disable once UnusedMember.Local
-        private void SendVersion()
-        {
-            // _logger.LogInformation($"Sending version to {_ipEp}");
-            _stream.WriteAsync(new byte[] { 1, 4, 5 }, 0, 3); // dummy send version
-        }
-
         public void Disconnect()
         {
             _logger.LogInformation("Disconnecting peer");
@@ -67,6 +61,29 @@ namespace NeoSharp.Core.Network.Tcp
             }
 
             _stream?.Dispose();
+        }
+
+        public Task Send<TMessage>(TMessage message) where TMessage : Message, new()
+        {
+            using (CancellationTokenSource cancel = new CancellationTokenSource(ITcpProtocol.TimeOut))
+                return _protocol.SendMessageAsync(_stream, message, cancel);
+        }
+
+        public Task<Message> Receive()
+        {
+            using (CancellationTokenSource cancel = new CancellationTokenSource(ITcpProtocol.TimeOut))
+                return _protocol.GetMessageAsync(_stream, cancel);
+        }
+
+        public Task<TMessage> Receive<TMessage>() where TMessage : Message, new()
+        {
+            return new Task<TMessage>(() =>
+             {
+                 Task<Message> msg = Receive();
+                 msg.Wait();
+
+                 return new TMessage();
+             });
         }
     }
 }

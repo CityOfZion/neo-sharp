@@ -16,6 +16,14 @@ namespace NeoSharp.Core.Serializers
         /// </summary>
         public readonly int Count;
         /// <summary>
+        /// Is OnPreSerializable
+        /// </summary>
+        public readonly bool IsOnPreSerializable;
+        /// <summary>
+        /// Is OnPostDeserializable
+        /// </summary>
+        public readonly bool IsOnPostDeserializable;
+        /// <summary>
         /// Cache entries
         /// </summary>
         readonly BinarySerializerCacheEntry[] Entries;
@@ -28,12 +36,30 @@ namespace NeoSharp.Core.Serializers
         {
             Type = type;
 
+            // Check interfaces
+
+            IsOnPreSerializable = typeof(IBinaryOnPreSerializable).IsAssignableFrom(type);
+            IsOnPostDeserializable = typeof(IBinaryOnPostDeserializable).IsAssignableFrom(type);
+
             Entries =
+
+                // Properties
+
                 type.GetProperties()
-                .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>() })
+                .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
                 .Where(u => u.atr != null)
                 .OrderBy(u => u.atr.Order)
-                .Select(u => new BinarySerializerCacheEntry(u.prop))
+                .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
+                .Concat
+                (
+                    // Fields
+
+                    type.GetFields()
+                    .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
+                    .Where(u => u.atr != null)
+                    .OrderBy(u => u.atr.Order)
+                    .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
+                )
                 .ToArray();
 
             Count = Entries.Length;
@@ -48,7 +74,7 @@ namespace NeoSharp.Core.Serializers
         {
             int ret = 0;
             foreach (BinarySerializerCacheEntry e in Entries)
-                ret += e.SetValue(bw, e.Property.GetValue(obj));
+                ret += e.WriteValue(bw, e.GetValue(obj));
 
             return ret;
         }
@@ -72,7 +98,7 @@ namespace NeoSharp.Core.Serializers
 
             foreach (BinarySerializerCacheEntry e in Entries)
             {
-                e.Property.SetValue(ret, e.GetValue(br));
+                e.SetValue(ret, e.ReadValue(br));
             }
 
             return ret;

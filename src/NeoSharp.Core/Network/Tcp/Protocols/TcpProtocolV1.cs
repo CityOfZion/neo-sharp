@@ -1,4 +1,5 @@
 ﻿using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Network.Messages;
 using System;
 using System.IO;
 using System.Net.Sockets;
@@ -10,28 +11,28 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
 {
     public class TcpProtocolV1 : ITcpProtocol
     {
-        public override async void SendMessageAsync(NetworkStream stream, TcpMessage message, CancellationTokenSource cancellationToken)
+        public override async Task SendMessageAsync(NetworkStream stream, Message message, CancellationTokenSource cancellationToken)
         {
             using (MemoryStream ms = new MemoryStream())
             using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8))
             {
                 writer.Write(MagicHeader);
                 writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadRight(12, ' ')), 0, 12);
-                writer.Write(message.Payload.Length);
-                writer.Write(GetChecksum(message.Payload));
-                writer.Write(message.Payload);
+                writer.Write(message.RawPayload.Length);
+                writer.Write(GetChecksum(message.RawPayload));
+                writer.Write(message.RawPayload);
 
                 byte[] buffer = ms.ToArray();
                 await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken.Token);
             }
         }
 
-        public override async Task<TcpMessage> GetMessageAsync(NetworkStream stream, CancellationTokenSource cancellationToken)
+        public override async Task<Message> GetMessageAsync(NetworkStream stream, CancellationTokenSource cancellationToken)
         {
             uint payload_length, checksum;
-            TcpMessage message = new TcpMessage()
+            Message message = new Message()
             {
-                Flags = TcpMessageFlags.None
+                Flags = MessageFlags.None
             };
 
             byte[] buffer = await FillBufferAsync(stream, 24, cancellationToken.Token);
@@ -43,21 +44,21 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
                     throw new FormatException();
 
                 byte[] data = reader.ReadBytes(12);
-                message.Command = Enum.Parse<TcpMessageCommand>(Encoding.UTF8.GetString(data));
+                message.Command = Enum.Parse<MessageCommand>(Encoding.UTF8.GetString(data));
                 payload_length = reader.ReadUInt32();
 
-                if (payload_length > TcpMessage.PayloadMaxSize)
+                if (payload_length > Message.PayloadMaxSize)
                     throw new FormatException();
 
                 checksum = reader.ReadUInt32();
             }
 
             if (payload_length > 0)
-                message.Payload = await FillBufferAsync(stream, (int)payload_length, cancellationToken.Token);
+                message.RawPayload = await FillBufferAsync(stream, (int)payload_length, cancellationToken.Token);
             else
-                message.Payload = new byte[0];
+                message.RawPayload = new byte[0];
 
-            if (GetChecksum(message.Payload) != checksum)
+            if (GetChecksum(message.RawPayload) != checksum)
                 throw new FormatException();
 
             return message;

@@ -19,7 +19,14 @@ namespace NeoSharp.Core.Serializers
         static BinarySerializer()
         {
             foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
-                try { CacheTypesOf(asm); } catch { }
+                try
+                {
+                    // Speed up warm-up process
+                    if (!asm.FullName.StartsWith("Neo")) continue;
+
+                    CacheTypesOf(asm);
+                }
+                catch { }
         }
 
         /// <summary>
@@ -55,7 +62,7 @@ namespace NeoSharp.Core.Serializers
         /// <typeparam name="T">Type</typeparam>
         /// <param name="obj">Object</param>
         /// <returns>Return byte array</returns>
-        public static T Deserialize<T>(byte[] data)
+        public static T Deserialize<T>(byte[] data) where T : new()
         {
             using (MemoryStream ms = new MemoryStream(data))
             {
@@ -68,7 +75,7 @@ namespace NeoSharp.Core.Serializers
         /// <typeparam name="T">Type</typeparam>
         /// <param name="obj">Object</param>
         /// <returns>Return byte array</returns>
-        public static T Deserialize<T>(Stream data)
+        public static T Deserialize<T>(Stream data) where T : new()
         {
             // Search in cache
 
@@ -80,7 +87,12 @@ namespace NeoSharp.Core.Serializers
 
             using (BinaryReader br = new BinaryReader(data, Encoding.UTF8))
             {
-                return cache.Deserialize<T>(br);
+                T obj = cache.Deserialize<T>(br);
+
+                if (cache.IsOnPostDeserializable)
+                    ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
+
+                return obj;
             }
         }
         /// <summary>
@@ -108,14 +120,16 @@ namespace NeoSharp.Core.Serializers
         {
             // Search in cache
 
-            Type t = typeof(T);
-            if (!Cache.TryGetValue(t, out BinarySerializerCache cache))
+            if (!Cache.TryGetValue(typeof(T), out BinarySerializerCache cache))
                 throw (new NotImplementedException());
 
             // Serialize
 
             using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, true))
             {
+                if (cache.IsOnPreSerializable)
+                    ((IBinaryOnPreSerializable)obj).OnPreSerialize();
+
                 return cache.Serialize(bw, obj);
             }
         }

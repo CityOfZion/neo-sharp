@@ -1,6 +1,6 @@
-﻿namespace NeoSharp.Core.Network.Tcp
+﻿namespace NeoSharp.Core.Network.Messages
 {
-    public enum TcpMessageFlags : byte
+    public enum MessageFlags : byte
     {
         /// <summary>
         /// No flag

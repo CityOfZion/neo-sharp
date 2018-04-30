@@ -22,7 +22,7 @@ namespace NeoSharp.Core.Network
         private IList<IPEndPoint> _failedPeers;             // if we can't connect to a peer it is inserted into this list
         private readonly ushort _port;
         private readonly uint _nonce;                                // uniquely identifies this server so we can filter out our own messages sent back to us by other nodes
-        private readonly string _userAgent;       
+        private readonly string _userAgent;
         private readonly EventHandler<IPeer> _peerConnected = async (s, e) => await ((Server)s).PeerConnected(e);
 
         public Server(NetworkConfig config, IPeerFactory peerFactory, IPeerListener peerListener, ILogger<Server> logger)
@@ -132,7 +132,7 @@ namespace NeoSharp.Core.Network
                 throw new InvalidOperationException("The handshake failed.");
             }
 
-            await peer.Send<VersionAcknowledgmentMessage>();
+            await peer.Send(new VersionAcknowledgmentMessage());
             await peer.Receive<VersionAcknowledgmentMessage>();
         }
 

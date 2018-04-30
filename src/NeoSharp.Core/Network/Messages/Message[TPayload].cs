@@ -1,19 +1,27 @@
-﻿using NeoSharp.Core.Network.Serialization;
+﻿using NeoSharp.Core.Serializers;
 
 namespace NeoSharp.Core.Network.Messages
 {
-    public class Message<TPayload> : Message, ICarryPayload
-        where TPayload : IBinarySerializable, new()
+    public class Message<TPayload> : Message, IBinaryOnPreSerializable, IBinaryOnPostDeserializable where TPayload : new()
     {
-        public readonly TPayload Payload;
+        /// <summary>
+        /// Payload
+        /// </summary>
+        public TPayload Payload;
 
-        protected Message()
+        /// <summary>
+        /// Calculate raw data for the current payload
+        /// </summary>
+        public void OnPreSerialize()
         {
-            Payload = new TPayload();
+            RawPayload = BinarySerializer.Serialize(Payload);
         }
-
-        // public int Size => sizeof(uint) + 12 + sizeof(int) + sizeof(uint) + Payload.Length;
-
-        IBinarySerializable ICarryPayload.Payload => Payload;
+        /// <summary>
+        /// Deserialize payload from RawData
+        /// </summary>
+        public void OnPostDeserialize()
+        {
+            Payload = BinarySerializer.Deserialize<TPayload>(RawPayload);
+        }
     }
 }
