@@ -69,6 +69,13 @@ namespace NeoSharp.Core.Serializers
                 return Deserialize<T>(ms);
             }
         }
+        public static object Deserialize(byte[] data, Type type)
+        {
+            using (MemoryStream ms = new MemoryStream(data))
+            {
+                return Deserialize(ms, type);
+            }
+        }
         /// <summary>
         /// Deserialize
         /// </summary>
@@ -88,6 +95,25 @@ namespace NeoSharp.Core.Serializers
             using (BinaryReader br = new BinaryReader(data, Encoding.UTF8))
             {
                 T obj = cache.Deserialize<T>(br);
+
+                if (cache.IsOnPostDeserializable)
+                    ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
+
+                return obj;
+            }
+        }
+        public static object Deserialize(Stream data, Type t)
+        {
+            // Search in cache
+
+            if (!Cache.TryGetValue(t, out BinarySerializerCache cache))
+                throw (new NotImplementedException());
+
+            // Deserialize
+
+            using (BinaryReader br = new BinaryReader(data, Encoding.UTF8))
+            {
+                var obj = cache.Deserialize(br);
 
                 if (cache.IsOnPostDeserializable)
                     ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();

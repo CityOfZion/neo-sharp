@@ -1,17 +1,19 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.IO;
+using System.Threading;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network.Messages;
+using NeoSharp.Core.Network.Messaging.Messages;
+using NeoSharp.Core.Network.Tcp.Protocols;
 using NeoSharp.Core.Serializers;
 using NeoSharp.TestHelpers;
-using System;
-using System.IO;
-using NeoSharp.Core.Network.Messaging.Messages;
 
-namespace NeoSharp.Core.Test.Network.Serialization
+namespace NeoSharp.Core.Test.Network.Tcp
 {
     [TestClass]
-    public class UtMessageSerializer : TestBase
+    public class UtTcpProtocolV1 : TestBase
     {
         [TestInitialize]
         public void WarmSerializer()
@@ -20,18 +22,19 @@ namespace NeoSharp.Core.Test.Network.Serialization
         }
 
         [TestMethod]
-        public void Can_serialize_and_deserialize_messages()
+        public async void Can_serialize_and_deserialize_messages()
         {
             // Arrange 
+            var tcpProtocol = AutoMockContainer.Create<TcpProtocolV1>();
             var expectedVerAckMessage = new VersionAcknowledgmentMessage();
             VersionAcknowledgmentMessage actualVerAckMessage;
 
             // Act
             using (var memory = new MemoryStream())
             {
-                BinarySerializer.Serialize(expectedVerAckMessage, memory);
+                await tcpProtocol.SendMessageAsync(memory, expectedVerAckMessage, CancellationToken.None);
                 memory.Seek(0, SeekOrigin.Begin);
-                actualVerAckMessage = BinarySerializer.Deserialize<VersionAcknowledgmentMessage>(memory);
+                actualVerAckMessage = (VersionAcknowledgmentMessage)await tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
             }
 
             // Asset
@@ -40,9 +43,10 @@ namespace NeoSharp.Core.Test.Network.Serialization
         }
 
         [TestMethod]
-        public void Can_serialize_and_deserialize_messages_with_payload()
+        public async void Can_serialize_and_deserialize_messages_with_payload()
         {
             // Arrange 
+            var tcpProtocol = AutoMockContainer.Create<TcpProtocolV1>();
             var expectedVersionMessage = new VersionMessage();
             var r = new Random(Environment.TickCount);
             expectedVersionMessage.Payload.Version = (uint)r.Next(0, int.MaxValue);
@@ -58,9 +62,9 @@ namespace NeoSharp.Core.Test.Network.Serialization
             // Act
             using (var memory = new MemoryStream())
             {
-                BinarySerializer.Serialize(expectedVersionMessage, memory);
+                await tcpProtocol.SendMessageAsync(memory, expectedVersionMessage, CancellationToken.None);
                 memory.Seek(0, SeekOrigin.Begin);
-                actualVersionMessage = BinarySerializer.Deserialize<VersionMessage>(memory);
+                actualVersionMessage = (VersionMessage)await tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
             }
 
             // Asset

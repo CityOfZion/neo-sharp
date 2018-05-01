@@ -1,7 +1,5 @@
-﻿using NeoSharp.Core.Network.Messages;
 using System;
 using System.IO;
-using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Network.Messaging;
@@ -27,7 +25,7 @@ namespace NeoSharp.Core.Network.Tcp
         /// <param name="stream">Stream</param>
         /// <param name="message">Message</param>
         /// <param name="cancellationToken">Cancel token</param>
-        public abstract Task SendMessageAsync(NetworkStream stream, Message message, CancellationToken cancellationToken);
+        public abstract Task SendMessageAsync(Stream stream, Message message, CancellationToken cancellationToken);
 
         /// <summary>
         /// Receive message
@@ -35,7 +33,7 @@ namespace NeoSharp.Core.Network.Tcp
         /// <param name="stream">Stream</param>
         /// <param name="cancellationToken">Cancel token</param>
         /// <returns>Return message or NULL</returns>
-        public abstract Task<Message> ReceiveMessageAsync(NetworkStream stream, CancellationToken cancellationToken);
+        public abstract Task<Message> ReceiveMessageAsync(Stream stream, CancellationToken cancellationToken);
 
         protected static async Task<byte[]> FillBufferAsync(
             Stream stream,

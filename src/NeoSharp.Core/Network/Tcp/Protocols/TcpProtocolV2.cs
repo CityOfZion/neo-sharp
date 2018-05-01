@@ -1,37 +1,40 @@
-﻿using NeoSharp.Core.Network.Messages;
-using System;
+﻿using System;
 using System.IO;
-using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Network.Messaging;
+using NeoSharp.Core.Serializers;
 
 namespace NeoSharp.Core.Network.Tcp.Protocols
 {
     public class TcpProtocolV2 : TcpProtocolBase
     {
-        public override async Task SendMessageAsync(NetworkStream stream, Message message,
+        public override async Task SendMessageAsync(Stream stream, Message message,
             CancellationToken cancellationToken)
         {
-            using (var ms = new MemoryStream())
-            using (var writer = new BinaryWriter(ms, Encoding.UTF8))
+            using (var memory = new MemoryStream())
+            using (var writer = new BinaryWriter(memory, Encoding.UTF8))
             {
                 writer.Write((byte)message.Flags);
                 writer.Write((byte)message.Command);
-                writer.Write((uint)message.RawPayload.Length);
-                writer.Write(message.RawPayload);
 
-                var buffer = ms.ToArray();
+                var payloadBuffer = message is ICarryPayload messageWithPayload
+                    ? BinarySerializer.Serialize(messageWithPayload.Payload)
+                    : new byte[0];
+
+                writer.Write((uint)payloadBuffer.Length);
+                writer.Write(payloadBuffer);
+                writer.Flush();
+
+                var buffer = memory.ToArray();
                 await stream.WriteAsync(buffer, 0, buffer.Length, cancellationToken);
             }
         }
 
-        public override async Task<Message> ReceiveMessageAsync(NetworkStream stream, CancellationToken cancellationToken)
+        public override async Task<Message> ReceiveMessageAsync(Stream stream, CancellationToken cancellationToken)
         {
-            uint payloadLength;
             var message = new Message();
-
             var buffer = await FillBufferAsync(stream, 8, cancellationToken);
 
             using (var ms = new MemoryStream(buffer, false))
@@ -39,16 +42,23 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
             {
                 message.Flags = (MessageFlags)reader.ReadByte();
                 message.Command = (MessageCommand)reader.ReadByte();
-                payloadLength = reader.ReadUInt32();
 
+                var payloadLength = reader.ReadUInt32();
                 if (payloadLength > Message.PayloadMaxSize)
                     throw new FormatException();
-            }
 
-            if (payloadLength > 0)
-                message.RawPayload = await FillBufferAsync(stream, (int)payloadLength, cancellationToken);
-            else
-                message.RawPayload = new byte[0];
+                var payloadBuffer = payloadLength > 0
+                    ? await FillBufferAsync(stream, (int)payloadLength, cancellationToken)
+                    : new byte[0];
+
+                if (message is ICarryPayload messageWithPayload)
+                {
+                    if (payloadLength == 0)
+                        throw new FormatException();
+
+                    BinarySerializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
+                }
+            }
 
             return message;
         }
