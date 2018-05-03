@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.Core.Network.Messaging
+﻿namespace NeoSharp.Core.Messaging
 {
     public enum MessageFlags : byte
     {

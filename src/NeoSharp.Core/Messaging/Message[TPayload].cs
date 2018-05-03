@@ -1,11 +1,11 @@
-﻿namespace NeoSharp.Core.Network.Messaging
+﻿namespace NeoSharp.Core.Messaging
 {
     public class Message<TPayload> : Message, ICarryPayload where TPayload : new()
     {
         /// <summary>
         /// Payload
         /// </summary>
-        public TPayload Payload;
+        public TPayload Payload { get; protected set; }
 
         object ICarryPayload.Payload => Payload;
     }

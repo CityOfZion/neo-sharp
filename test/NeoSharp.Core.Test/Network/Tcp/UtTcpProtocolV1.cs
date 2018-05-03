@@ -4,8 +4,7 @@ using System.Threading;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Network.Messages;
-using NeoSharp.Core.Network.Messaging.Messages;
+using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network.Tcp.Protocols;
 using NeoSharp.Core.Serializers;
 using NeoSharp.TestHelpers;
@@ -26,15 +25,15 @@ namespace NeoSharp.Core.Test.Network.Tcp
         {
             // Arrange 
             var tcpProtocol = AutoMockContainer.Create<TcpProtocolV1>();
-            var expectedVerAckMessage = new VersionAcknowledgmentMessage();
-            VersionAcknowledgmentMessage actualVerAckMessage;
+            var expectedVerAckMessage = new VerAckMessage();
+            VerAckMessage actualVerAckMessage;
 
             // Act
             using (var memory = new MemoryStream())
             {
                 await tcpProtocol.SendMessageAsync(memory, expectedVerAckMessage, CancellationToken.None);
                 memory.Seek(0, SeekOrigin.Begin);
-                actualVerAckMessage = (VersionAcknowledgmentMessage)await tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
+                actualVerAckMessage = (VerAckMessage)await tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
             }
 
             // Asset

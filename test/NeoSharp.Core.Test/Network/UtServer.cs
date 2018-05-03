@@ -5,9 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
-using NeoSharp.Core.Network.Messages;
-using NeoSharp.Core.Network.Messaging.Messages;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Core.Test.Network
@@ -142,7 +141,7 @@ namespace NeoSharp.Core.Test.Network
             Task.Delay(100).Wait();
 
             // Asset
-            peerMock.Verify(x => x.Send(new VersionAcknowledgmentMessage()), Times.Never);
+            peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
         }
 
         private static NetworkConfig GetNetworkConfig(params string[] peerEndPoints)
@@ -176,12 +175,12 @@ namespace NeoSharp.Core.Test.Network
             peerMock.Setup(x => x.Receive<VersionMessage>())
                 .Returns(() => Task.FromResult(versionMessage));
 
-            var verAckMessage = new VersionAcknowledgmentMessage();
+            var verAckMessage = new VerAckMessage();
 
-            peerMock.Setup(x => x.Send(new VersionAcknowledgmentMessage()))
+            peerMock.Setup(x => x.Send(new VerAckMessage()))
                 .Returns(Task.CompletedTask);
 
-            peerMock.Setup(x => x.Receive<VersionAcknowledgmentMessage>())
+            peerMock.Setup(x => x.Receive<VerAckMessage>())
                 .Returns(Task.FromResult(verAckMessage));
         }
 

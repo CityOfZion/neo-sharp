@@ -1,6 +1,6 @@
 using NeoSharp.Core.Serializers;
 
-namespace NeoSharp.Core.Network.Messaging.Messages
+namespace NeoSharp.Core.Messaging.Messages
 {
     public class VersionMessage : Message<VersionPayload>
     {

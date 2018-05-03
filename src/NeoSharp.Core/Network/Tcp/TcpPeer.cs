@@ -1,12 +1,9 @@
 using Microsoft.Extensions.Logging;
-using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Network.Messages;
 using System;
-using System.IO;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Network.Messaging;
+using NeoSharp.Core.Messaging;
 
 namespace NeoSharp.Core.Network.Tcp
 {
@@ -20,6 +17,7 @@ namespace NeoSharp.Core.Network.Tcp
         private readonly NetworkStream _stream;
         private readonly ILogger<TcpPeer> _logger;
         private int _disposed;
+        private bool _isReady;
 
         public TcpPeer(Socket socket, TcpProtocolSelector protocolSelector, ILogger<TcpPeer> logger)
         {
@@ -29,6 +27,14 @@ namespace NeoSharp.Core.Network.Tcp
 
             _stream = new NetworkStream(socket, true);
             _protocol = protocolSelector.DefaultProtocol;
+        }
+
+        public bool IsConnected => _disposed == 0;
+
+        public bool IsReady
+        {
+            get => IsConnected && _isReady;
+            set => _isReady = value;
         }
 
         public void DowngradeProtocol(uint version)
@@ -52,9 +58,16 @@ namespace NeoSharp.Core.Network.Tcp
         {
             if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
 
-            _socket.Shutdown(SocketShutdown.Both);
-            _stream.Dispose();
-            _socket.Dispose();
+            try
+            {
+                _socket.Shutdown(SocketShutdown.Both);
+                _stream.Dispose();
+                _socket.Dispose();
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         public Task Send<TMessage>() where TMessage : Message, new()
@@ -74,8 +87,7 @@ namespace NeoSharp.Core.Network.Tcp
                 {
                     await _protocol.SendMessageAsync(_stream, message, source.Token);
                 }
-                catch (ObjectDisposedException) { }
-                catch (Exception ex) when (ex is IOException || ex is OperationCanceledException)
+                catch (Exception)
                 {
                     Disconnect();
                 }
@@ -94,15 +106,7 @@ namespace NeoSharp.Core.Network.Tcp
                 {
                     return await _protocol.ReceiveMessageAsync(_stream, source.Token);
                 }
-                catch (ArgumentException)
-                {
-                }
-                catch (ObjectDisposedException)
-                {
-                }
-                catch (Exception ex) when (ex is FormatException ||
-                                           ex is IOException ||
-                                           ex is OperationCanceledException)
+                catch (Exception)
                 {
                     Disconnect();
                 }

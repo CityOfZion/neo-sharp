@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Network.Messaging;
+using NeoSharp.Core.Messaging;
 
 namespace NeoSharp.Core.Network.Tcp
 {
@@ -17,7 +17,7 @@ namespace NeoSharp.Core.Network.Tcp
         /// <summary>
         /// Magic header protocol
         /// </summary>
-        public uint MagicHeader { get; }
+        public abstract uint MagicHeader { get; }
 
         /// <summary>
         /// Send message

@@ -1,10 +1,14 @@
 ﻿using System.Threading.Tasks;
-using NeoSharp.Core.Network.Messaging;
+using NeoSharp.Core.Messaging;
 
 namespace NeoSharp.Core.Network
 {
     public interface IPeer
     {
+        bool IsConnected { get; }
+
+        bool IsReady { get; set; }
+
         void DowngradeProtocol(uint version);
 
         Task Send<TMessage>() where TMessage : Message, new();

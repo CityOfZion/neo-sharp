@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NeoSharp.Core.DI;
 using SimpleInjector;
 
@@ -53,6 +54,11 @@ namespace NeoSharp.DI.SimpleInjector
             _container.Register(service, implementation);
         }
 
+        public void Register(Type service, IEnumerable<Type> implementations)
+        {
+            _container.Register(service, implementations);
+        }
+
         public void Register<TService>(TService configuration)
             where TService : class
         {
@@ -73,12 +79,12 @@ namespace NeoSharp.DI.SimpleInjector
 
         public void RegisterInstanceCreator<TService>(Func<TService> instanceCreator) where TService : class
         {
-            _container.RegisterInstance(instanceCreator);
+            _container.RegisterSingleton(instanceCreator);
         }
 
         public void RegisterInstanceCreator<TService>(Func<IContainer, TService> instanceCreator) where TService : class
         {
-            _container.RegisterInstance<Func<TService>>(() => instanceCreator(_containerAdapter));
+            _container.RegisterSingleton(() => instanceCreator(_containerAdapter));
         }
 
         public void RegisterModule<TModule>() where TModule : class, IModule, new()

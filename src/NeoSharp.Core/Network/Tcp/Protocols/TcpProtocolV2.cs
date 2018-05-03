@@ -3,13 +3,15 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Network.Messaging;
+using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Serializers;
 
 namespace NeoSharp.Core.Network.Tcp.Protocols
 {
     public class TcpProtocolV2 : TcpProtocolBase
     {
+        public override uint MagicHeader => 2;
+
         public override async Task SendMessageAsync(Stream stream, Message message,
             CancellationToken cancellationToken)
         {
