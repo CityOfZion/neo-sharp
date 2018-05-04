@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeoSharp.Core.Serializers;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Test.Types;
 using System.Linq;
 
 namespace NeoSharp.Core.Test.Serializers
@@ -8,32 +9,42 @@ namespace NeoSharp.Core.Test.Serializers
     [TestClass]
     public class UtBinarySerializer
     {
-        class Dummy
+        [TestInitialize]
+        public void WarmSerializer()
         {
-            public byte Trash { get; set; }
+            BinarySerializer.CacheTypesOf(typeof(UtBinarySerializer).Assembly);
+        }
 
-            [BinaryProperty(1)]
-            public byte A { get; set; }
-            [BinaryProperty(2)]
-            public sbyte B { get; set; }
+        [TestMethod]
+        public void DeserializeRecursive()
+        {
+            var parent = BinarySerializer.Deserialize<DummyParent>(new byte[]
+            {
+                0x01,0x00,
+                0x01,
+                0x02,
+                0x03,0x00,
+                0x04,0x00,
+                0x05,0x00,0x00,0x00,
+                0x06,0x00,0x00,0x00,
+                0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                0x05,0x01,0x02,0x03,0x04,0x05,
+            });
 
-            [BinaryProperty(3)]
-            public short C { get; set; }
-            [BinaryProperty(4)]
-            public ushort D { get; set; }
+            (parent.A == 1).Should().BeTrue();
 
-            [BinaryProperty(5)]
-            public int E { get; set; }
-            [BinaryProperty(6)]
-            public uint F { get; set; }
+            var child = parent.B;
 
-            [BinaryProperty(7)]
-            public long G { get; set; }
-            [BinaryProperty(8)]
-            public ulong H { get; set; }
-
-            [BinaryProperty(9)]
-            public byte[] I { get; set; }
+            (child.A == 1).Should().BeTrue();
+            (child.B == 2).Should().BeTrue();
+            (child.C == 3).Should().BeTrue();
+            (child.D == 4).Should().BeTrue();
+            (child.E == 5).Should().BeTrue();
+            (child.F == 6).Should().BeTrue();
+            (child.G == 7).Should().BeTrue();
+            (child.H == 8).Should().BeTrue();
+            (child.I.SequenceEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 })).Should().BeTrue();
         }
 
         [TestMethod]
@@ -61,6 +72,42 @@ namespace NeoSharp.Core.Test.Serializers
             (actual.G == 7).Should().BeTrue();
             (actual.H == 8).Should().BeTrue();
             (actual.I.SequenceEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 })).Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void SerializeRecursive()
+        {
+            var parent = new DummyParent()
+            {
+                A = 1,
+                B = new Dummy()
+                {
+                    A = 1,
+                    B = 2,
+                    C = 3,
+                    D = 4,
+                    E = 5,
+                    F = 6,
+                    G = 7,
+                    H = 8,
+                    I = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 }
+                }
+            };
+
+            (BinarySerializer.Serialize(parent).SequenceEqual(new byte[]
+            {
+                0x01,0x00,
+                0x01,
+                0x02,
+                0x03,0x00,
+                0x04,0x00,
+                0x05,0x00,0x00,0x00,
+                0x06,0x00,0x00,0x00,
+                0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
+                0x05, 0x01, 0x02, 0x03, 0x04, 0x05
+            }
+            )).Should().BeTrue();
         }
 
         [TestMethod]

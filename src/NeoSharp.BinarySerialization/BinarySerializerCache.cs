@@ -1,9 +1,10 @@
+using NeoSharp.BinarySerialization.Interfaces;
 using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace NeoSharp.Core.Serializers
+namespace NeoSharp.BinarySerialization
 {
     internal class BinarySerializerCache
     {

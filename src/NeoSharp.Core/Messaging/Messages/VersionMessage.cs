@@ -1,4 +1,4 @@
-using NeoSharp.Core.Serializers;
+using NeoSharp.BinarySerialization;
 
 namespace NeoSharp.Core.Messaging.Messages
 {

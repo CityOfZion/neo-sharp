@@ -1,17 +1,18 @@
+using NeoSharp.BinarySerialization.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace NeoSharp.Core.Serializers
+namespace NeoSharp.BinarySerialization
 {
     public class BinarySerializer
     {
         /// <summary>
         /// Cache
         /// </summary>
-        readonly static Dictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
+        internal readonly static Dictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
 
         /// <summary>
         /// Cache Binary Serializer types
@@ -36,7 +37,7 @@ namespace NeoSharp.Core.Serializers
         public static void CacheTypesOf(Assembly asm)
         {
             foreach (Type t in asm.GetTypes())
-                CacheTypesOf(t);
+                InternalCacheTypesOf(t);
         }
         /// <summary>
         /// Cache type
@@ -44,17 +45,24 @@ namespace NeoSharp.Core.Serializers
         /// <param name="type">Type</param>
         public static bool CacheTypesOf(Type type)
         {
+            return InternalCacheTypesOf(type) != null;
+        }
+        /// <summary>
+        /// Cache type
+        /// </summary>
+        /// <param name="type">Type</param>
+        internal static BinarySerializerCache InternalCacheTypesOf(Type type)
+        {
             lock (Cache)
             {
-                if (Cache.TryGetValue(type, out BinarySerializerCache cache)) return false;
+                if (Cache.TryGetValue(type, out BinarySerializerCache cache)) return cache;
 
                 BinarySerializerCache b = new BinarySerializerCache(type);
-                if (b.Count <= 0) return false;
+                if (b.Count <= 0) return null;
 
                 Cache.Add(b.Type, b);
+                return b;
             }
-
-            return true;
         }
         /// <summary>
         /// Deserialize
@@ -69,6 +77,12 @@ namespace NeoSharp.Core.Serializers
                 return Deserialize<T>(ms);
             }
         }
+        /// <summary>
+        /// Deserialize
+        /// </summary>
+        /// <param name="data">Data</param>
+        /// <param name="type">Type</param>
+        /// <returns>Return object</returns>
         public static object Deserialize(byte[] data, Type type)
         {
             using (MemoryStream ms = new MemoryStream(data))
@@ -80,19 +94,18 @@ namespace NeoSharp.Core.Serializers
         /// Deserialize
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
-        /// <param name="obj">Object</param>
-        /// <returns>Return byte array</returns>
-        public static T Deserialize<T>(Stream data) where T : new()
+        /// <param name="stream">Stream</param>
+        /// <returns>Return object</returns>
+        public static T Deserialize<T>(Stream stream) where T : new()
         {
             // Search in cache
 
-            Type t = typeof(T);
-            if (!Cache.TryGetValue(t, out BinarySerializerCache cache))
+            if (!Cache.TryGetValue(typeof(T), out BinarySerializerCache cache))
                 throw (new NotImplementedException());
 
             // Deserialize
 
-            using (BinaryReader br = new BinaryReader(data, Encoding.UTF8))
+            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8))
             {
                 T obj = cache.Deserialize<T>(br);
 
@@ -102,7 +115,35 @@ namespace NeoSharp.Core.Serializers
                 return obj;
             }
         }
-        public static object Deserialize(Stream data, Type t)
+        /// <summary>
+        /// Deserialize
+        /// </summary>
+        /// <typeparam name="T">Type</typeparam>
+        /// <param name="stream">Stream</param>
+        /// <returns>Return object</returns>
+        public static T Deserialize<T>(BinaryReader stream) where T : new()
+        {
+            // Search in cache
+
+            if (!Cache.TryGetValue(typeof(T), out BinarySerializerCache cache))
+                throw (new NotImplementedException());
+
+            // Deserialize
+
+            T obj = cache.Deserialize<T>(stream);
+
+            if (cache.IsOnPostDeserializable)
+                ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
+
+            return obj;
+        }
+        /// <summary>
+        /// Deserialize
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="t">Type</param>
+        /// <returns>Return object</returns>
+        public static object Deserialize(Stream stream, Type t)
         {
             // Search in cache
 
@@ -111,7 +152,7 @@ namespace NeoSharp.Core.Serializers
 
             // Deserialize
 
-            using (BinaryReader br = new BinaryReader(data, Encoding.UTF8))
+            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8))
             {
                 var obj = cache.Deserialize(br);
 
@@ -122,12 +163,33 @@ namespace NeoSharp.Core.Serializers
             }
         }
         /// <summary>
+        /// Deserialize
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="t">Type</param>
+        /// <returns>Return object</returns>
+        public static object Deserialize(BinaryReader stream, Type t)
+        {
+            // Search in cache
+
+            if (!Cache.TryGetValue(t, out BinarySerializerCache cache))
+                throw (new NotImplementedException());
+
+            // Deserialize
+
+            var obj = cache.Deserialize(stream);
+
+            if (cache.IsOnPostDeserializable)
+                ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
+
+            return obj;
+        }
+        /// <summary>
         /// Serialize
         /// </summary>
-        /// <typeparam name="T">Type</typeparam>
         /// <param name="obj">Object</param>
         /// <returns>Return byte array</returns>
-        public static byte[] Serialize<T>(T obj)
+        public static byte[] Serialize(object obj)
         {
             using (MemoryStream ms = new MemoryStream())
             {
@@ -138,15 +200,14 @@ namespace NeoSharp.Core.Serializers
         /// <summary>
         /// Serialize
         /// </summary>
-        /// <typeparam name="T">Type</typeparam>
         /// <param name="obj">Object</param>
         /// <param name="stream">Stream</param>
         /// <returns>Return byte array</returns>
-        public static int Serialize<T>(T obj, Stream stream)
+        public static int Serialize(object obj, Stream stream)
         {
             // Search in cache
 
-            if (!Cache.TryGetValue(typeof(T), out BinarySerializerCache cache))
+            if (!Cache.TryGetValue(obj.GetType(), out BinarySerializerCache cache))
                 throw (new NotImplementedException());
 
             // Serialize
@@ -158,6 +219,26 @@ namespace NeoSharp.Core.Serializers
 
                 return cache.Serialize(bw, obj);
             }
+        }
+        /// <summary>
+        /// Serialize
+        /// </summary>
+        /// <param name="obj">Object</param>
+        /// <param name="stream">Stream</param>
+        /// <returns>Return byte array</returns>
+        public static int Serialize(object obj, BinaryWriter stream)
+        {
+            // Search in cache
+
+            if (!Cache.TryGetValue(obj.GetType(), out BinarySerializerCache cache))
+                throw (new NotImplementedException());
+
+            // Serialize
+
+            if (cache.IsOnPreSerializable)
+                ((IBinaryOnPreSerializable)obj).OnPreSerialize();
+
+            return cache.Serialize(stream, obj);
         }
     }
 }
