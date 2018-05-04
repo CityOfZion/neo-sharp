@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NeoSharp.Core.Serializers
+namespace NeoSharp.BinarySerialization
 {
     public class BinaryPropertyAttribute : Attribute
     {

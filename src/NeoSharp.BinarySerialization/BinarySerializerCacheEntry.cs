@@ -1,10 +1,10 @@
-using NeoSharp.Core.Extensions;
 using System;
+using System.Collections;
 using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace NeoSharp.Core.Serializers
+namespace NeoSharp.BinarySerialization
 {
     internal class BinarySerializerCacheEntry
     {
@@ -28,6 +28,10 @@ namespace NeoSharp.Core.Serializers
 
         public readonly string Name;
         public readonly int MaxLength;
+
+        // Cache
+
+        Type _iListType = typeof(IList);
 
         /// <summary>
         /// Constructor
@@ -61,6 +65,7 @@ namespace NeoSharp.Core.Serializers
             Type type = btype;
             MaxLength = atr.MaxLength;
             bool array = type.IsArray;
+            bool list = _iListType.IsAssignableFrom(type);
 
             if (type == typeof(byte[]))
             {
@@ -69,7 +74,7 @@ namespace NeoSharp.Core.Serializers
             }
             else
             {
-                if (array)
+                if (array || list)
                 {
                     // Extract type of array
                     type = type.GetElementType();
@@ -130,7 +135,10 @@ namespace NeoSharp.Core.Serializers
                     ReadValue = new delReadValue(GetBoolValue);
                     WriteValue = new delWriteValue(SetBoolValue);
                 }
-                else throw (new NotImplementedException());
+                else if (!TryRecursive(btype, out ReadValue, out WriteValue))
+                {
+                    throw (new NotImplementedException());
+                }
 
                 if (array)
                 {
@@ -138,10 +146,40 @@ namespace NeoSharp.Core.Serializers
                     ReadValue = new delReadValue(ar.GetArrayValue);
                     WriteValue = new delWriteValue(ar.SetArrayValue);
                 }
+                else if (list)
+                {
+                    ListType ls = new ListType(btype, MaxLength, ReadValue, WriteValue);
+                    ReadValue = new delReadValue(ls.GetListValue);
+                    WriteValue = new delWriteValue(ls.SetListValue);
+                }
             }
         }
 
         #region Internals
+
+        #region Recursive
+
+        class RecursiveType
+        {
+            readonly Type Type;
+
+            public RecursiveType(Type type)
+            {
+                Type = type;
+            }
+
+            public int SetRecursiveValue(BinaryWriter writer, object value)
+            {
+                return BinarySerializer.Serialize(value, writer);
+            }
+
+            public object GetRecursiveValue(BinaryReader reader)
+            {
+                return BinarySerializer.Deserialize(reader, Type);
+            }
+        }
+
+        #endregion
 
         #region ByteArray
 
@@ -150,15 +188,69 @@ namespace NeoSharp.Core.Serializers
             byte[] ar = (byte[])value;
 
             if (ar == null)
-                return writer.WriteVarInt(0);
+                return WriteVarInt(writer, 0);
 
             if (ar.Length > MaxLength) throw new FormatException("MaxLength");
-            return writer.WriteVarBytes(ar);
+            return WriteVarBytes(writer, ar);
         }
 
         public object GetByteArrayValue(BinaryReader reader)
         {
-            return reader.ReadVarBytes(MaxLength);
+            return ReadVarBytes(reader, MaxLength);
+        }
+
+        #endregion
+
+        #region List
+
+        class ListType
+        {
+            readonly Type Type;
+            readonly delReadValue GetValue;
+            readonly delWriteValue SetValue;
+            readonly int MaxLength;
+
+            public ListType(Type type, int maxLength, delReadValue get, delWriteValue set)
+            {
+                MaxLength = maxLength;
+                GetValue = get;
+                SetValue = set;
+                Type = type;
+            }
+
+            public int SetListValue(BinaryWriter writer, object value)
+            {
+                var ar = (IList)value;
+
+                if (ar == null)
+                {
+                    return WriteVarInt(writer, 0);
+                }
+
+                int x = WriteVarInt(writer, ar.Count);
+
+                if (x > MaxLength) throw new FormatException("MaxLength");
+
+                foreach (object o in ar)
+                    x += SetValue(writer, o);
+
+                return x;
+            }
+
+            public object GetListValue(BinaryReader reader)
+            {
+                int l = (int)ReadVarInt(reader, ushort.MaxValue);
+                if (l > MaxLength) throw new FormatException("MaxLength");
+
+                var a = (IList)Activator.CreateInstance(Type);
+
+                for (int ix = 0; ix < l; ix++)
+                {
+                    a.Add(GetValue(reader));
+                }
+
+                return a;
+            }
         }
 
         #endregion
@@ -182,14 +274,14 @@ namespace NeoSharp.Core.Serializers
 
             public int SetArrayValue(BinaryWriter writer, object value)
             {
-                Array ar = (Array)value;
+                var ar = (Array)value;
 
                 if (ar == null)
                 {
-                    return writer.WriteVarInt(0);
+                    return WriteVarInt(writer, 0);
                 }
 
-                int x = writer.WriteVarInt(ar.Length);
+                int x = WriteVarInt(writer, ar.Length);
 
                 if (x > MaxLength) throw new FormatException("MaxLength");
 
@@ -201,10 +293,10 @@ namespace NeoSharp.Core.Serializers
 
             public object GetArrayValue(BinaryReader reader)
             {
-                int l = (int)reader.ReadVarInt(ushort.MaxValue);
+                int l = (int)ReadVarInt(reader, ushort.MaxValue);
                 if (l > MaxLength) throw new FormatException("MaxLength");
 
-                Array a = (Array)Activator.CreateInstance(Type, l);
+                var a = (Array)Activator.CreateInstance(Type, l);
 
                 for (int ix = 0; ix < l; ix++)
                 {
@@ -226,12 +318,12 @@ namespace NeoSharp.Core.Serializers
             if (data.Length >= MaxLength)
                 throw new FormatException("MaxLength");
 
-            return writer.WriteVarBytes(data);
+            return WriteVarBytes(writer, data);
         }
 
         private object GetStringValue(BinaryReader reader)
         {
-            return reader.ReadVarString(MaxLength);
+            return ReadVarString(reader, MaxLength);
         }
 
         #endregion
@@ -372,6 +464,97 @@ namespace NeoSharp.Core.Serializers
         }
 
         #endregion
+
+        #endregion
+
+        #region Helpers
+
+        static bool TryRecursive(Type btype, out delReadValue readValue, out delWriteValue writeValue)
+        {
+            BinarySerializerCache cache = BinarySerializer.InternalCacheTypesOf(btype);
+            if (cache == null)
+            {
+                readValue = null;
+                writeValue = null;
+                return false;
+            }
+
+            RecursiveType r = new RecursiveType(btype);
+            readValue = r.GetRecursiveValue;
+            writeValue = r.SetRecursiveValue;
+            return true;
+        }
+
+        static byte[] ReadVarBytes(BinaryReader reader, int max = 0X7fffffc7)
+        {
+            return reader.ReadBytes((int)ReadVarInt(reader, (ulong)max));
+        }
+
+        static ulong ReadVarInt(BinaryReader reader, ulong max = ulong.MaxValue)
+        {
+            var fb = reader.ReadByte();
+            ulong value;
+            if (fb == 0xFD)
+                value = reader.ReadUInt16();
+            else if (fb == 0xFE)
+                value = reader.ReadUInt32();
+            else if (fb == 0xFF)
+                value = reader.ReadUInt64();
+            else
+                value = fb;
+
+            if (value > max)
+                throw new FormatException("MaxLength");
+
+            return value;
+        }
+
+        static string ReadVarString(BinaryReader reader, int max = 0X7fffffc7)
+        {
+            return Encoding.UTF8.GetString(ReadVarBytes(reader, max));
+        }
+
+        public static int WriteVarBytes(BinaryWriter writer, byte[] value)
+        {
+            int ret = WriteVarInt(writer, value.Length);
+            writer.Write(value);
+            return ret + value.Length;
+        }
+
+        public static int WriteVarInt(BinaryWriter writer, long value)
+        {
+            if (value < 0)
+                throw new ArgumentOutOfRangeException();
+
+            if (value < 0xFD)
+            {
+                writer.Write((byte)value);
+                return 1;
+            }
+            else if (value <= 0xFFFF)
+            {
+                writer.Write((byte)0xFD);
+                writer.Write((ushort)value);
+                return 3;
+            }
+            else if (value <= 0xFFFFFFFF)
+            {
+                writer.Write((byte)0xFE);
+                writer.Write((uint)value);
+                return 5;
+            }
+            else
+            {
+                writer.Write((byte)0xFF);
+                writer.Write(value);
+                return 9;
+            }
+        }
+
+        public static void WriteVarString(BinaryWriter writer, string value)
+        {
+            WriteVarBytes(writer, Encoding.UTF8.GetBytes(value));
+        }
 
         #endregion
 

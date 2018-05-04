@@ -1,11 +1,11 @@
-﻿using NeoSharp.Core.Extensions;
+﻿using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Messaging;
 using System;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Messaging;
-using NeoSharp.Core.Serializers;
 
 namespace NeoSharp.Core.Network.Tcp.Protocols
 {
