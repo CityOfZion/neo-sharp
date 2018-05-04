@@ -18,8 +18,8 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
             using (var memory = new MemoryStream())
             using (var writer = new BinaryWriter(memory, Encoding.UTF8))
             {
-                writer.Write((byte)message.Flags);
                 writer.Write((byte)message.Command);
+                writer.Write((byte)message.Flags);
 
                 var payloadBuffer = message is ICarryPayload messageWithPayload
                     ? BinarySerializer.Serialize(messageWithPayload.Payload)
@@ -36,14 +36,17 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
 
         public override async Task<Message> ReceiveMessageAsync(Stream stream, CancellationToken cancellationToken)
         {
-            var message = new Message();
-            var buffer = await FillBufferAsync(stream, 8, cancellationToken);
-
-            using (var ms = new MemoryStream(buffer, false))
-            using (var reader = new BinaryReader(ms, Encoding.UTF8))
+            using (var reader = new BinaryReader(stream, Encoding.UTF8))
             {
+                MessageCommand command = (MessageCommand)reader.ReadByte();
+
+                if (!Cache.TryGetValue(command, out Type type))
+                    throw (new ArgumentException("command"));
+
+                var message = (Message)Activator.CreateInstance(type);
+
+                message.Command = command;
                 message.Flags = (MessageFlags)reader.ReadByte();
-                message.Command = (MessageCommand)reader.ReadByte();
 
                 var payloadLength = reader.ReadUInt32();
                 if (payloadLength > Message.PayloadMaxSize)
@@ -58,11 +61,11 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
                     if (payloadLength == 0)
                         throw new FormatException();
 
-                    BinarySerializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
+                    messageWithPayload.Payload = BinarySerializer.Deserialize(payloadBuffer, messageWithPayload.PayloadType);
                 }
-            }
 
-            return message;
+                return message;
+            }
         }
     }
 }

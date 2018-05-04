@@ -1,8 +1,11 @@
-﻿namespace NeoSharp.Core.Messaging
+﻿using NeoSharp.Core.Caching;
+using NeoSharp.Core.Messaging.Messages;
+
+namespace NeoSharp.Core.Messaging
 {
     public enum MessageCommand : byte
     {
-        notfound=0x00,
+        notfound = 0x00,
 
         addr = 0x01,
         alert = 0x02,
@@ -23,7 +26,9 @@
         pong = 0x11,
         reject = 0x12,
         tx = 0x13,
+        [ReflectionCache(typeof(VerAckMessage))]
         verack = 0x14,
+        [ReflectionCache(typeof(VersionMessage))]
         version = 0x15,
 
         getdata_pri = 0x16,

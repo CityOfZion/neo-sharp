@@ -38,21 +38,18 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
 
         public override async Task<Message> ReceiveMessageAsync(Stream stream, CancellationToken cancellationToken)
         {
-            var message = new Message
-            {
-                Flags = MessageFlags.None
-            };
-
-            var buffer = await FillBufferAsync(stream, 24, cancellationToken);
-
-            using (var memory = new MemoryStream(buffer, false))
-            using (var reader = new BinaryReader(memory, Encoding.UTF8))
+            using (var reader = new BinaryReader(stream, Encoding.UTF8))
             {
                 if (reader.ReadUInt32() != MagicHeader)
                     throw new FormatException();
 
-                var command = reader.ReadBytes(12);
-                message.Command = Enum.Parse<MessageCommand>(Encoding.UTF8.GetString(command));
+                MessageCommand command = Enum.Parse<MessageCommand>(Encoding.UTF8.GetString(reader.ReadBytes(12)));
+
+                if (!Cache.TryGetValue(command, out Type type))
+                    throw (new ArgumentException("command"));
+
+                var message = (Message)Activator.CreateInstance(type);
+                message.Command = command;
 
                 var payloadLength = reader.ReadUInt32();
                 if (payloadLength > Message.PayloadMaxSize)
@@ -72,11 +69,11 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
                     if (payloadLength == 0)
                         throw new FormatException();
 
-                    BinarySerializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
+                    messageWithPayload.Payload = BinarySerializer.Deserialize(payloadBuffer, messageWithPayload.PayloadType);
                 }
-            }
 
-            return message;
+                return message;
+            }
         }
 
         private static uint CalculateChecksum(byte[] value)
