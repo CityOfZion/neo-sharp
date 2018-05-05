@@ -43,7 +43,7 @@ namespace NeoSharp.Core.Models
 
         [BinaryProperty(2)]
         [JsonProperty("needstorage")]
-        public string NeedStorage;
+        public bool NeedStorage;
 
         [BinaryProperty(3)]
         [JsonProperty("name")]

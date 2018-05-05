@@ -55,11 +55,11 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
                 if (payloadLength > Message.PayloadMaxSize)
                     throw new FormatException();
 
+                var checksum = reader.ReadUInt32();
+
                 var payloadBuffer = payloadLength > 0
                     ? await FillBufferAsync(stream, (int)payloadLength, cancellationToken)
                     : new byte[0];
-
-                var checksum = reader.ReadUInt32();
 
                 if (CalculateChecksum(payloadBuffer) != checksum)
                     throw new FormatException();

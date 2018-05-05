@@ -135,7 +135,12 @@ namespace NeoSharp.BinarySerialization
                     ReadValue = new delReadValue(GetBoolValue);
                     WriteValue = new delWriteValue(SetBoolValue);
                 }
-                else if (!TryRecursive(btype, out ReadValue, out WriteValue))
+                else if (type == typeof(double))
+                {
+                    ReadValue = new delReadValue(GetDoubleValue);
+                    WriteValue = new delWriteValue(SetDoubleValue);
+                }
+                else if (!TryRecursive(type, out ReadValue, out WriteValue))
                 {
                     throw (new NotImplementedException());
                 }
@@ -461,6 +466,21 @@ namespace NeoSharp.BinarySerialization
         private object GetBoolValue(BinaryReader reader)
         {
             return reader.ReadByte() != 0x00;
+        }
+
+        #endregion
+
+        #region Double
+
+        private int SetDoubleValue(BinaryWriter writer, object value)
+        {
+            writer.Write((double)value);
+            return 8;
+        }
+
+        private object GetDoubleValue(BinaryReader reader)
+        {
+            return reader.ReadDouble();
         }
 
         #endregion
