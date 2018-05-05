@@ -99,6 +99,13 @@ namespace NeoSharp.BinarySerialization
 
             foreach (BinarySerializerCacheEntry e in Entries)
             {
+                if (e.ReadOnly)
+                {
+                    // Consume it
+                    e.ReadValue(br);
+                    continue;
+                }
+
                 e.SetValue(ret, e.ReadValue(br));
             }
 

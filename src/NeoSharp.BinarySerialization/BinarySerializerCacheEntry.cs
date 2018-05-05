@@ -28,10 +28,11 @@ namespace NeoSharp.BinarySerialization
 
         public readonly string Name;
         public readonly int MaxLength;
+        public readonly bool ReadOnly;
 
         // Cache
 
-        Type _iListType = typeof(IList);
+        static Type _iListType = typeof(IList);
 
         /// <summary>
         /// Constructor
@@ -43,6 +44,7 @@ namespace NeoSharp.BinarySerialization
             Name = pi.Name;
             GetValue = new delGetValue(pi.GetValue);
             SetValue = new delSetValue(pi.SetValue);
+            ReadOnly = !pi.CanWrite;
         }
         /// <summary>
         /// Constructor
@@ -54,6 +56,7 @@ namespace NeoSharp.BinarySerialization
             Name = fi.Name;
             GetValue = new delGetValue(fi.GetValue);
             SetValue = new delSetValue(fi.SetValue);
+            ReadOnly = false;
         }
         /// <summary>
         /// Constructor
