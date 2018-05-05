@@ -34,7 +34,7 @@ namespace NeoSharp.Core.Caching
                     .FirstOrDefault();
 
                 if (attribute == null)
-                    throw (new FormatException());
+                    continue;
 
                 // Append to cache
                 r.Add((T)t, attribute.Type);

@@ -8,6 +8,7 @@ using NeoSharp.TestHelpers;
 using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NeoSharp.Core.Test.Network.Tcp
 {
@@ -21,7 +22,7 @@ namespace NeoSharp.Core.Test.Network.Tcp
         }
 
         [TestMethod]
-        public async void Can_serialize_and_deserialize_messages()
+        public async Task Can_serialize_and_deserialize_messages()
         {
             // Arrange 
             var tcpProtocol = AutoMockContainer.Create<TcpProtocolV2>();
@@ -42,7 +43,7 @@ namespace NeoSharp.Core.Test.Network.Tcp
         }
 
         [TestMethod]
-        public async void Can_serialize_and_deserialize_messages_with_payload()
+        public async Task Can_serialize_and_deserialize_messages_with_payload()
         {
             // Arrange 
             var tcpProtocol = AutoMockContainer.Create<TcpProtocolV2>();
