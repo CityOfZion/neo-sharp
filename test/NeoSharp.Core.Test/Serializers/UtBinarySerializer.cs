@@ -144,6 +144,15 @@ namespace NeoSharp.Core.Test.Serializers
         }
 
         [TestMethod]
+        public void ReadOnly()
+        {
+            DummyReadOnly readOnly = new DummyReadOnly();
+            var copy = BinarySerializer.Deserialize<DummyReadOnly>((BinarySerializer.Serialize(readOnly)));
+
+            Assert.AreEqual(readOnly.A, copy.A);
+        }
+
+        [TestMethod]
         public void BlockSerialize()
         {
             var block = new Block()
