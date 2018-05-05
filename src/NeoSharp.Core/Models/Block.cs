@@ -1,8 +1,6 @@
 ﻿using NeoSharp.BinarySerialization;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace NeoSharp.Core.Models
 {
@@ -49,9 +47,9 @@ namespace NeoSharp.Core.Models
         [JsonProperty("nextblockhash")]
         public string NextBlockHash;
 
-        [BinaryProperty(11)]
-        [JsonProperty("tx")]
-        public Transaction[] Transactions = new Transaction[0];
+        //[BinaryProperty(11)]
+        //[JsonProperty("tx")]
+        //public Transaction[] Transactions;
 
         [BinaryProperty(12)]
         [JsonProperty("script")]
@@ -61,27 +59,14 @@ namespace NeoSharp.Core.Models
         [JsonProperty("confirmations")]
         public int Confirmations;
 
-        [BinaryProperty(14)]
         [JsonProperty("txcount")]
         public int TxCount
         {
-            get
-            {
-                return Transactions.Length;
-            }
+            get { return TxHashes.Length; }
         }
 
-        [BinaryProperty(15)]
+        [BinaryProperty(14)]
         [JsonProperty("txhashes")]
-        public string[] TxHashes
-        {
-            get
-            {
-                if (Transactions != null)
-                    return Transactions.Select(h => h.BlockHash).ToArray();
-
-                return new string[0];
-            }
-        }
+        public string[] TxHashes { get; set; }
     }
 }

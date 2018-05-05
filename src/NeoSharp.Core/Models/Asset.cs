@@ -1,6 +1,5 @@
 ﻿using NeoSharp.BinarySerialization;
 using Newtonsoft.Json;
-using System.Collections.Generic;
 
 namespace NeoSharp.Core.Models
 {
@@ -35,9 +34,5 @@ namespace NeoSharp.Core.Models
         [BinaryProperty(7)]
         [JsonProperty("admin")]
         public string Admin;
-
-        [BinaryProperty(8)]
-        [JsonProperty("transactions")]
-        public Transaction[] Transactions = new Transaction[0];
     }
 }
