@@ -69,7 +69,7 @@ namespace NeoSharp.Core.Network.Tcp.Protocols
                     if (payloadLength == 0)
                         throw new FormatException();
 
-                    messageWithPayload.Payload = BinarySerializer.Deserialize(payloadBuffer, messageWithPayload.PayloadType);
+                    messageWithPayload.Payload = BinarySerializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
                 }
 
                 return message;

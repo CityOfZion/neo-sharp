@@ -1,4 +1,4 @@
-﻿using NeoSharp.Core.Caching;
+using NeoSharp.Core.Caching;
 using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.Messaging
