@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using NeoSharp.Core.DI;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Handlers;
@@ -29,7 +30,8 @@ namespace NeoSharp.Application.DI
                 .ToArray();
 
             containerBuilder.Register(typeof(IMessageHandler<>), messageHandlerTypes);
-            containerBuilder.RegisterInstanceCreator<IMessageHandler<Message>>(c => new MessageHandlerProxy(c, messageHandlerTypes));
+            containerBuilder.RegisterInstanceCreator<IMessageHandler<Message>>(c =>
+                new MessageHandlerProxy(c, messageHandlerTypes, c.Resolve<ILogger<MessageHandlerProxy>>()));
         }
 
         private static bool IsAssignableToGenericType(Type givenType, Type openGenericType)

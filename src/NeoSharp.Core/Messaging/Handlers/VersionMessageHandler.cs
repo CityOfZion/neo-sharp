@@ -19,9 +19,9 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         public async Task Handle(VersionMessage message, IPeer sender)
         {
-            if (_server.Nonce != message.Payload.Nonce)
+            if (_server.Nonce == message.Payload.Nonce)
             {
-                throw new InvalidOperationException("The handshake is failed due to \"Nonce\" value mistmatch.");
+                throw new InvalidOperationException($"The handshake is failed due to \"{nameof(_server.Nonce)}\" value equality.");
             }
 
             if (_server.ProtocolVersion > message.Payload.Version)

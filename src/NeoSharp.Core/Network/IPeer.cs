@@ -11,9 +11,9 @@ namespace NeoSharp.Core.Network
 
         void DowngradeProtocol(uint version);
 
-        Task Send<TMessage>() where TMessage : Message, new();
+        Task Send(Message message);
 
-        Task Send<TMessage>(TMessage message) where TMessage : Message;
+        Task Send<TMessage>() where TMessage : Message, new();
 
         Task<Message> Receive();
 

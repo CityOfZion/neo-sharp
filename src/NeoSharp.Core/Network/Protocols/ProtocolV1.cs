@@ -29,7 +29,7 @@ namespace NeoSharp.Core.Network.Protocols
             using (var writer = new BinaryWriter(memory, Encoding.UTF8))
             {
                 writer.Write(_magic);
-                writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadRight(12, ' ')), 0, 12);
+                writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadRight(12, ' ')));
 
                 var payloadBuffer = message is ICarryPayload messageWithPayload
                     ? BinarySerializer.Serialize(messageWithPayload.Payload)
@@ -47,7 +47,10 @@ namespace NeoSharp.Core.Network.Protocols
 
         public override async Task<Message> ReceiveMessageAsync(Stream stream, CancellationToken cancellationToken)
         {
-            using (var reader = new BinaryReader(stream, Encoding.UTF8))
+            var buffer = await FillBufferAsync(stream, 24, cancellationToken);
+
+            using (var memory = new MemoryStream(buffer, false))
+            using (var reader = new BinaryReader(memory, Encoding.UTF8))
             {
                 if (reader.ReadUInt32() != _magic)
                     throw new FormatException();

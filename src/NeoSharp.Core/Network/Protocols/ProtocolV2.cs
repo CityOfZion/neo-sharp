@@ -19,7 +19,7 @@ namespace NeoSharp.Core.Network.Protocols
             _magic = config.Magic;
         }
 
-        public override uint Version => 1;
+        public override uint Version => 2;
 
         public override async Task SendMessageAsync(Stream stream, Message message,
             CancellationToken cancellationToken)
@@ -46,7 +46,10 @@ namespace NeoSharp.Core.Network.Protocols
 
         public override async Task<Message> ReceiveMessageAsync(Stream stream, CancellationToken cancellationToken)
         {
-            using (var reader = new BinaryReader(stream, Encoding.UTF8))
+            var buffer = await FillBufferAsync(stream, 10, cancellationToken);
+
+            using (var memory = new MemoryStream(buffer, false))
+            using (var reader = new BinaryReader(memory, Encoding.UTF8))
             {
                 if (reader.ReadUInt32() != _magic)
                     throw new FormatException();

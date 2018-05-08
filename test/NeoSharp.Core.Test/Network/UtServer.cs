@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
 using NeoSharp.TestHelpers;
@@ -169,7 +170,7 @@ namespace NeoSharp.Core.Test.Network
             var versionMessage = default(VersionMessage);
 
             peerMock.Setup(x => x.Send(It.IsAny<VersionMessage>()))
-                .Callback<VersionMessage>(msg => versionMessage = msg)
+                .Callback<Message>(msg => versionMessage = (VersionMessage)msg)
                 .Returns(Task.CompletedTask);
 
             peerMock.Setup(x => x.Receive<VersionMessage>())
