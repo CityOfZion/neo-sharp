@@ -5,22 +5,18 @@ using System.Threading.Tasks;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Messaging;
 
-namespace NeoSharp.Core.Network.Tcp
+namespace NeoSharp.Core.Network.Protocols
 {
-    public abstract class TcpProtocolBase
+    public abstract class ProtocolBase
     {
-        #region Constants
-
         private const int MaxBufferSize = 1024;
 
         protected readonly ReflectionCache<MessageCommand> Cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
 
-        #endregion
-
         /// <summary>
         /// Magic header protocol
         /// </summary>
-        public abstract uint MagicHeader { get; }
+        public abstract uint Version { get; }
 
         /// <summary>
         /// Send message

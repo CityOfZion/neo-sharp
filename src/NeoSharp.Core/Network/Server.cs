@@ -55,7 +55,7 @@ namespace NeoSharp.Core.Network
             // TODO: Change after port forwarding implementation
             _port = _config.Port;
 
-            Version = 2;
+            ProtocolVersion = 2;
 
             var r = new Random(Environment.TickCount);
             Nonce = (uint)r.Next();
@@ -65,7 +65,7 @@ namespace NeoSharp.Core.Network
 
         public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers;
 
-        public uint Version { get; }
+        public uint ProtocolVersion { get; }
 
         public uint Nonce { get; }
 
@@ -156,7 +156,7 @@ namespace NeoSharp.Core.Network
         private VersionMessage GetVersionMessage()
         {
             var version = new VersionMessage();
-            version.Payload.Version = Version;
+            version.Payload.Version = ProtocolVersion;
             // TODO: What's it?
             // version.Payload.Services = NetworkAddressWithTime.NODE_NETWORK;
             version.Payload.Timestamp = DateTime.Now.ToTimestamp();

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using NeoSharp.Core.Network.Protocols;
 
 namespace NeoSharp.Core.Network.Tcp
 {
@@ -12,14 +13,14 @@ namespace NeoSharp.Core.Network.Tcp
         private readonly bool _forceIPv6;
         private readonly ILogger<TcpPeerFactory> _logger;
         private readonly ILogger<TcpPeer> _peerLogger;
-        private readonly TcpProtocolSelector _protocols;
+        private readonly ProtocolSelector _protocolSelector;
 
-        public TcpPeerFactory(NetworkConfig config, ILogger<TcpPeerFactory> logger, ILogger<TcpPeer> peerLogger)
+        public TcpPeerFactory(NetworkConfig config, ProtocolSelector protocolSelector, ILogger<TcpPeerFactory> logger, ILogger<TcpPeer> peerLogger)
         {
             _forceIPv6 = config.ForceIPv6;
+            _protocolSelector = protocolSelector;
             _logger = logger;
             _peerLogger = peerLogger;
-            _protocols = new TcpProtocolSelector();
         }
 
         public async Task<IPeer> ConnectTo(EndPoint endPoint)
@@ -68,7 +69,7 @@ namespace NeoSharp.Core.Network.Tcp
 
         public TcpPeer CreateFrom(Socket socket)
         {
-            return new TcpPeer(socket, _protocols, _peerLogger);
+            return new TcpPeer(socket, _protocolSelector, _peerLogger);
         }
     }
 }

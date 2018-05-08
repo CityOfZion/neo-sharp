@@ -10,12 +10,11 @@ namespace NeoSharp.Core.Messaging
         /// <summary>
         /// Flags
         /// </summary>
-
         public MessageFlags Flags;
+
         /// <summary>
         /// Command
         /// </summary>
-
         public MessageCommand Command;
     }
 }

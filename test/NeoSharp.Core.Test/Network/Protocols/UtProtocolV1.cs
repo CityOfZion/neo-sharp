@@ -1,19 +1,19 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Core.Network.Tcp.Protocols;
+using NeoSharp.Core.Network.Protocols;
 using NeoSharp.TestHelpers;
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace NeoSharp.Core.Test.Network.Tcp
+namespace NeoSharp.Core.Test.Network.Protocols
 {
     [TestClass]
-    public class UtTcpProtocolV1 : TestBase
+    public class UtProtocolV1 : TestBase
     {
         [TestInitialize]
         public void WarmSerializer()
@@ -25,7 +25,7 @@ namespace NeoSharp.Core.Test.Network.Tcp
         public async Task Can_serialize_and_deserialize_messages()
         {
             // Arrange 
-            var tcpProtocol = AutoMockContainer.Create<TcpProtocolV1>();
+            var tcpProtocol = AutoMockContainer.Create<ProtocolV1>();
             var expectedVerAckMessage = new VerAckMessage();
             VerAckMessage actualVerAckMessage;
 
@@ -46,7 +46,7 @@ namespace NeoSharp.Core.Test.Network.Tcp
         public async Task Can_serialize_and_deserialize_messages_with_payload()
         {
             // Arrange 
-            var tcpProtocol = AutoMockContainer.Create<TcpProtocolV1>();
+            var tcpProtocol = AutoMockContainer.Create<ProtocolV1>();
             var expectedVersionMessage = new VersionMessage();
             var r = new Random(Environment.TickCount);
             expectedVersionMessage.Payload.Version = (uint)r.Next(0, int.MaxValue);

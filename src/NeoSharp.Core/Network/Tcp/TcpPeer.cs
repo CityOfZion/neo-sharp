@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Network.Protocols;
 
 namespace NeoSharp.Core.Network.Tcp
 {
@@ -12,14 +13,14 @@ namespace NeoSharp.Core.Network.Tcp
         private const int SocketOperationTimeout = 30_000;
 
         private readonly Socket _socket;
-        private readonly TcpProtocolSelector _protocolSelector;
-        private TcpProtocolBase _protocol;
+        private readonly ProtocolSelector _protocolSelector;
+        private ProtocolBase _protocol;
         private readonly NetworkStream _stream;
         private readonly ILogger<TcpPeer> _logger;
         private int _disposed;
         private bool _isReady;
 
-        public TcpPeer(Socket socket, TcpProtocolSelector protocolSelector, ILogger<TcpPeer> logger)
+        public TcpPeer(Socket socket, ProtocolSelector protocolSelector, ILogger<TcpPeer> logger)
         {
             _socket = socket ?? throw new ArgumentNullException(nameof(socket));
             _protocolSelector = protocolSelector ?? throw new ArgumentNullException(nameof(protocolSelector));
@@ -39,8 +40,8 @@ namespace NeoSharp.Core.Network.Tcp
 
         public void DowngradeProtocol(uint version)
         {
-            if (version > _protocol.MagicHeader)
-                throw new ArgumentException($"The protocol version must to be lower than \"{_protocol.MagicHeader}\"",
+            if (version > _protocol.Version)
+                throw new ArgumentException($"The protocol version must to be lower than \"{_protocol.Version}\"",
                     nameof(version));
 
             var protocol = _protocolSelector.GetProtocol(version);
