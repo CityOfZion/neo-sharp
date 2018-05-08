@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Network.Tcp;
 using NeoSharp.DI.SimpleInjector;
 
 namespace NeoSharp.Core.Benchmark
@@ -16,7 +17,7 @@ namespace NeoSharp.Core.Benchmark
         public void Setup()
         {
             var containerBuilder = new SimpleInjectorContainerBuilder();
-            containerBuilder.RegisterInstanceCreator<IPeer, Peer>();
+            containerBuilder.RegisterInstanceCreator<IPeer, TcpPeer>();
             containerBuilder.RegisterSingleton(ConfigureLogger);
             containerBuilder.Register(typeof(ILogger<>), typeof(LoggerAdapter<>));
             var container = containerBuilder.Build();

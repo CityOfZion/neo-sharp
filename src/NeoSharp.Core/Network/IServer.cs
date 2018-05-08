@@ -1,8 +1,13 @@
-﻿namespace NeoSharp.Core.Network
+﻿using System.Collections.Generic;
+
+namespace NeoSharp.Core.Network
 {
     public interface IServer
     {
-        void StartServer();
-        void StopServer();
+        void Start();
+        void Stop();
+        IReadOnlyCollection<IPeer> ConnectedPeers { get; }
+        uint Version { get; }
+        uint Nonce { get; }
     }
 }

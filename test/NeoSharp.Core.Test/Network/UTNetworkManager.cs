@@ -12,30 +12,30 @@ namespace NeoSharp.Core.Test.Network
         public void StartNetwork_Starts_Server()
         {
             // Arrange 
-            var serverMock = this.AutoMockContainer.GetMock<IServer>();
+            var serverMock = AutoMockContainer.GetMock<IServer>();
 
-            var networkManager = this.AutoMockContainer.Create<NetworkManager>();
+            var networkManager = AutoMockContainer.Create<NetworkManager>();
 
             // Act
             networkManager.StartNetwork();
 
             // Asset
-            serverMock.Verify(x => x.StartServer(), Times.Once);
+            serverMock.Verify(x => x.Start(), Times.Once);
         }
 
         [TestMethod]
         public void StopNetwork_Stops_Server()
         {
             // Arrange 
-            var serverMock = this.AutoMockContainer.GetMock<IServer>();
+            var serverMock = AutoMockContainer.GetMock<IServer>();
 
-            var networkManager = this.AutoMockContainer.Create<NetworkManager>();
+            var networkManager = AutoMockContainer.Create<NetworkManager>();
 
             // Act
             networkManager.StopNetwork();
 
             // Asset
-            serverMock.Verify(x => x.StopServer(), Times.Once);
+            serverMock.Verify(x => x.Stop(), Times.Once);
         }
     }
 }

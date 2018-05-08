@@ -25,6 +25,12 @@ namespace NeoSharp.TestHelpers.AutoMock
         }
 
         [DebuggerStepThrough]
+        public T Get<T>() where T : class
+        {
+            return this.Resolve<T>();
+        }
+
+        [DebuggerStepThrough]
         public Mock<T> GetMock<T>() where T : class
         {
             return Mock.Get(Create<T>());

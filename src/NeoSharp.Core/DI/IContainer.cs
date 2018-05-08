@@ -1,7 +1,11 @@
-﻿namespace NeoSharp.Core.DI
+﻿using System;
+
+namespace NeoSharp.Core.DI
 {
     public interface IContainer
     {
+        object Resolve(Type serviceType);
+
         TEntity Resolve<TEntity>()
             where TEntity : class;
     }

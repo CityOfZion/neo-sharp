@@ -1,6 +1,6 @@
-﻿namespace NeoSharp.Core.Types
+﻿namespace NeoSharp.Core.Persistence
 {
-    public enum DataEntryPrefix
+    public enum DataEntryPrefix : byte
     {
         DataBlock = 0x01,
         DataTransaction = 0x02,

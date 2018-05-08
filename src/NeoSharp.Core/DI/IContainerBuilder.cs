@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace NeoSharp.Core.DI
 {
@@ -25,9 +26,19 @@ namespace NeoSharp.Core.DI
 
         void Register(Type service, Type implementation);
 
+        void Register(Type service, IEnumerable<Type> implementations);
+
+        void RegisterInstance<TService>(TService instance)
+            where TService : class;
+
         void RegisterInstanceCreator<TService, TImplementation>()
             where TService : class
             where TImplementation : class, TService;
+
+        void RegisterInstanceCreator<TService>(Func<TService> instanceCreator) where TService : class;
+
+        void RegisterInstanceCreator<TService>(Func<IContainer, TService> instanceCreator)
+            where TService : class;
 
         void RegisterModule<TModule>()
             where TModule : class, IModule, new();

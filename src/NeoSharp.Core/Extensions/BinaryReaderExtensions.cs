@@ -69,7 +69,10 @@ namespace NeoSharp.Core.Extensions
                 value = reader.ReadUInt64();
             else
                 value = fb;
-            if (value > max) throw new FormatException();
+
+            if (value > max)
+                throw new FormatException("MaxLength");
+
             return value;
         }
 

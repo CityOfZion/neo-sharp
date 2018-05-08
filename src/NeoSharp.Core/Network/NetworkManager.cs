@@ -15,12 +15,12 @@ namespace NeoSharp.Core.Network
 
         public void StartNetwork()
         {            
-            _server.StartServer();            
+            _server.Start();            
         }
 
         public void StopNetwork()
         {           
-            _server.StopServer();
+            _server.Stop();
         }
     }
 }
