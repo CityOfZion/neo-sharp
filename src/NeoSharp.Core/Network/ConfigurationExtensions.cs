@@ -7,15 +7,23 @@ namespace NeoSharp.Core.Network
 {
     public static class ConfigurationExtensions
     {
+        private const int DefaultMagic = 7630401;
         private const string DefaultProtocol = "tcp";
 
         private static readonly Regex _peerEndPointPattern = new Regex(@"^(?<proto>\w+)://(?<host>[^/:]+):?(?<port>\d+)?/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static void Bind(this IConfiguration config, NetworkConfig networkConfig)
         {
+            networkConfig.Magic = ParseMagic(config);
             networkConfig.Port = ParsePort(config);
             networkConfig.ForceIPv6 = ParseForceIPv6(config);
             networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
+        }
+
+        private static uint ParseMagic(IConfiguration config)
+        {
+            var magic = config.GetSection("magic")?.Get<uint>();
+            return magic ?? DefaultMagic;
         }
 
         private static ushort ParsePort(IConfiguration config)

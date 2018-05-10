@@ -1,19 +1,19 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Core.Network.Tcp.Protocols;
+using NeoSharp.Core.Network.Protocols;
 using NeoSharp.TestHelpers;
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace NeoSharp.Core.Test.Network.Tcp
+namespace NeoSharp.Core.Test.Network.Protocols
 {
     [TestClass]
-    public class UtTcpProtocolV2 : TestBase
+    public class UtProtocolV1 : TestBase
     {
         [TestInitialize]
         public void WarmSerializer()
@@ -25,7 +25,7 @@ namespace NeoSharp.Core.Test.Network.Tcp
         public async Task Can_serialize_and_deserialize_messages()
         {
             // Arrange 
-            var tcpProtocol = AutoMockContainer.Create<TcpProtocolV2>();
+            var tcpProtocol = AutoMockContainer.Create<ProtocolV1>();
             var expectedVerAckMessage = new VerAckMessage();
             VerAckMessage actualVerAckMessage;
 
@@ -46,7 +46,7 @@ namespace NeoSharp.Core.Test.Network.Tcp
         public async Task Can_serialize_and_deserialize_messages_with_payload()
         {
             // Arrange 
-            var tcpProtocol = AutoMockContainer.Create<TcpProtocolV2>();
+            var tcpProtocol = AutoMockContainer.Create<ProtocolV1>();
             var expectedVersionMessage = new VersionMessage();
             var r = new Random(Environment.TickCount);
             expectedVersionMessage.Payload.Version = (uint)r.Next(0, int.MaxValue);
@@ -69,7 +69,6 @@ namespace NeoSharp.Core.Test.Network.Tcp
 
             // Asset
             actualVersionMessage.Should().NotBeNull();
-            actualVersionMessage.Flags.Should().Be(expectedVersionMessage.Flags);
             actualVersionMessage.Command.Should().Be(expectedVersionMessage.Command);
             actualVersionMessage.Payload.Should().NotBeNull();
             actualVersionMessage.Payload.Version.Should().Be(expectedVersionMessage.Payload.Version);

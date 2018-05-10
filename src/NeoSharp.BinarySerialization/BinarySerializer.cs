@@ -12,14 +12,14 @@ namespace NeoSharp.BinarySerialization
         /// <summary>
         /// Cache
         /// </summary>
-        internal readonly static Dictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
+        internal static readonly Dictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
 
         /// <summary>
         /// Cache Binary Serializer types
         /// </summary>
         static BinarySerializer()
         {
-            foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
                 try
                 {
                     // Speed up warm-up process
@@ -36,7 +36,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="asm">Assembly</param>
         public static void CacheTypesOf(Assembly asm)
         {
-            foreach (Type t in asm.GetTypes())
+            foreach (var t in asm.GetTypes())
                 InternalCacheTypesOf(t);
         }
         /// <summary>
@@ -55,9 +55,9 @@ namespace NeoSharp.BinarySerialization
         {
             lock (Cache)
             {
-                if (Cache.TryGetValue(type, out BinarySerializerCache cache)) return cache;
+                if (Cache.TryGetValue(type, out var cache)) return cache;
 
-                BinarySerializerCache b = new BinarySerializerCache(type);
+                var b = new BinarySerializerCache(type);
                 if (b.Count <= 0) return null;
 
                 Cache.Add(b.Type, b);
@@ -72,7 +72,7 @@ namespace NeoSharp.BinarySerialization
         /// <returns>Return byte array</returns>
         public static T Deserialize<T>(byte[] data) where T : new()
         {
-            using (MemoryStream ms = new MemoryStream(data))
+            using (var ms = new MemoryStream(data))
             {
                 return Deserialize<T>(ms);
             }
@@ -85,7 +85,7 @@ namespace NeoSharp.BinarySerialization
         /// <returns>Return object</returns>
         public static object Deserialize(byte[] data, Type type)
         {
-            using (MemoryStream ms = new MemoryStream(data))
+            using (var ms = new MemoryStream(data))
             {
                 return Deserialize(ms, type);
             }
@@ -100,14 +100,14 @@ namespace NeoSharp.BinarySerialization
         {
             // Search in cache
 
-            if (!Cache.TryGetValue(typeof(T), out BinarySerializerCache cache))
-                throw (new NotImplementedException());
+            if (!Cache.TryGetValue(typeof(T), out var cache))
+                throw new KeyNotFoundException("The type is not registered");
 
             // Deserialize
 
-            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8))
+            using (var br = new BinaryReader(stream, Encoding.UTF8))
             {
-                T obj = cache.Deserialize<T>(br);
+                var obj = cache.Deserialize<T>(br);
 
                 if (cache.IsOnPostDeserializable)
                     ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
@@ -125,12 +125,12 @@ namespace NeoSharp.BinarySerialization
         {
             // Search in cache
 
-            if (!Cache.TryGetValue(typeof(T), out BinarySerializerCache cache))
-                throw (new NotImplementedException());
+            if (!Cache.TryGetValue(typeof(T), out var cache))
+                throw new KeyNotFoundException("The type is not registered");
 
             // Deserialize
 
-            T obj = cache.Deserialize<T>(stream);
+            var obj = cache.Deserialize<T>(stream);
 
             if (cache.IsOnPostDeserializable)
                 ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
@@ -147,12 +147,12 @@ namespace NeoSharp.BinarySerialization
         {
             // Search in cache
 
-            if (!Cache.TryGetValue(t, out BinarySerializerCache cache))
-                throw (new NotImplementedException());
+            if (!Cache.TryGetValue(t, out var cache))
+                throw new KeyNotFoundException("The type is not registered");
 
             // Deserialize
 
-            using (BinaryReader br = new BinaryReader(stream, Encoding.UTF8))
+            using (var br = new BinaryReader(stream, Encoding.UTF8))
             {
                 var obj = cache.Deserialize(br);
 
@@ -172,8 +172,8 @@ namespace NeoSharp.BinarySerialization
         {
             // Search in cache
 
-            if (!Cache.TryGetValue(t, out BinarySerializerCache cache))
-                throw (new NotImplementedException());
+            if (!Cache.TryGetValue(t, out var cache))
+                throw new KeyNotFoundException("The type is not registered");
 
             // Deserialize
 
@@ -191,7 +191,7 @@ namespace NeoSharp.BinarySerialization
         /// <returns>Return byte array</returns>
         public static byte[] Serialize(object obj)
         {
-            using (MemoryStream ms = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
                 Serialize(obj, ms);
                 return ms.ToArray();
@@ -207,12 +207,12 @@ namespace NeoSharp.BinarySerialization
         {
             // Search in cache
 
-            if (!Cache.TryGetValue(obj.GetType(), out BinarySerializerCache cache))
-                throw (new NotImplementedException());
+            if (!Cache.TryGetValue(obj.GetType(), out var cache))
+                throw new KeyNotFoundException("The type is not registered");
 
             // Serialize
 
-            using (BinaryWriter bw = new BinaryWriter(stream, Encoding.UTF8, true))
+            using (var bw = new BinaryWriter(stream, Encoding.UTF8, true))
             {
                 if (cache.IsOnPreSerializable)
                     ((IBinaryOnPreSerializable)obj).OnPreSerialize();
@@ -230,8 +230,8 @@ namespace NeoSharp.BinarySerialization
         {
             // Search in cache
 
-            if (!Cache.TryGetValue(obj.GetType(), out BinarySerializerCache cache))
-                throw (new NotImplementedException());
+            if (!Cache.TryGetValue(obj.GetType(), out var cache))
+                throw new NotImplementedException();
 
             // Serialize
 

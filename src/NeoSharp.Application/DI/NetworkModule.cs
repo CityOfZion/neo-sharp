@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using NeoSharp.Core.DI;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Network.Protocols;
 using NeoSharp.Core.Network.Tcp;
 
 namespace NeoSharp.Application.DI
@@ -13,6 +15,7 @@ namespace NeoSharp.Application.DI
         public void Register(IContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterSingleton<NetworkConfig>();
+            containerBuilder.RegisterSingleton<ProtocolSelector>();
             containerBuilder.RegisterSingleton<INetworkManager, NetworkManager>();
             containerBuilder.RegisterSingleton<IServer, Server>();
             containerBuilder.RegisterSingleton<IPeerFactory, PeerFactory>();
@@ -27,7 +30,8 @@ namespace NeoSharp.Application.DI
                 .ToArray();
 
             containerBuilder.Register(typeof(IMessageHandler<>), messageHandlerTypes);
-            containerBuilder.RegisterInstanceCreator<IMessageHandler<Message>>(c => new MessageHandlerProxy(c, messageHandlerTypes));
+            containerBuilder.RegisterInstanceCreator<IMessageHandler<Message>>(c =>
+                new MessageHandlerProxy(c, messageHandlerTypes, c.Resolve<ILogger<MessageHandlerProxy>>()));
         }
 
         private static bool IsAssignableToGenericType(Type givenType, Type openGenericType)

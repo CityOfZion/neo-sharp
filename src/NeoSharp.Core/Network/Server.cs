@@ -26,7 +26,7 @@ namespace NeoSharp.Core.Network
         private IList<IPEndPoint> _failedPeers;             // if we can't connect to a peer it is inserted into this list
         private readonly ushort _port;
         private readonly string _userAgent;
-        private CancellationTokenSource _stopTokenSource;
+        private CancellationTokenSource _messageListenerTokenSource;
 
         private static readonly Type[] _handshakeMessageTypes = new[]
         {
@@ -55,7 +55,7 @@ namespace NeoSharp.Core.Network
             // TODO: Change after port forwarding implementation
             _port = _config.Port;
 
-            Version = 2;
+            ProtocolVersion = 2;
 
             var r = new Random(Environment.TickCount);
             Nonce = (uint)r.Next();
@@ -65,7 +65,7 @@ namespace NeoSharp.Core.Network
 
         public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers;
 
-        public uint Version { get; }
+        public uint ProtocolVersion { get; }
 
         public uint Nonce { get; }
 
@@ -73,7 +73,7 @@ namespace NeoSharp.Core.Network
         {
             Stop();
 
-            _stopTokenSource = new CancellationTokenSource(1000);
+            _messageListenerTokenSource = new CancellationTokenSource(1000);
 
             // connect to peers
             ConnectToPeers();
@@ -89,7 +89,7 @@ namespace NeoSharp.Core.Network
             // send disconnect to all current Peers
             DisconnectPeers();
 
-            _stopTokenSource?.Cancel();
+            _messageListenerTokenSource?.Cancel();
         }
 
         public void Dispose()
@@ -104,7 +104,7 @@ namespace NeoSharp.Core.Network
             {
                 _connectedPeers.Add(peer);
 
-                ListenForIncomingMessages(peer);
+                ListenForMessages(peer, _messageListenerTokenSource.Token);
 
                 InitiateHandshaking(peer);
             }
@@ -156,7 +156,7 @@ namespace NeoSharp.Core.Network
         private VersionMessage GetVersionMessage()
         {
             var version = new VersionMessage();
-            version.Payload.Version = Version;
+            version.Payload.Version = ProtocolVersion;
             // TODO: What's it?
             // version.Payload.Services = NetworkAddressWithTime.NODE_NETWORK;
             version.Payload.Timestamp = DateTime.Now.ToTimestamp();
@@ -170,7 +170,7 @@ namespace NeoSharp.Core.Network
             return version;
         }
 
-        private void ListenForIncomingMessages(IPeer peer)
+        private void ListenForMessages(IPeer peer, CancellationToken cancellationToken)
         {
             Task.Factory.StartNew(async () =>
             {
@@ -182,9 +182,9 @@ namespace NeoSharp.Core.Network
 
                     await _messageHandler.Handle(message, peer);
 
-                    await Task.Delay(1000, _stopTokenSource.Token);
+                    await Task.Delay(1000, cancellationToken);
                 }
-            }, _stopTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         private static bool IsHandshakeMessage(Message m) => _handshakeMessageTypes.Contains(m.GetType());

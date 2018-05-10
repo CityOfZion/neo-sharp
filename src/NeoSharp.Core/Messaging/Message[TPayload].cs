@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace NeoSharp.Core.Messaging
+﻿namespace NeoSharp.Core.Messaging
 {
     public class Message<TPayload> : Message, ICarryPayload where TPayload : new()
     {
@@ -9,12 +7,10 @@ namespace NeoSharp.Core.Messaging
         /// </summary>
         public TPayload Payload { get; protected set; }
 
-        public Type PayloadType => typeof(TPayload);
-
         object ICarryPayload.Payload
         {
-            get { return Payload; }
-            set { Payload = (TPayload)value; }
+            get => Payload;
+            set => Payload = (TPayload)value;
         }
     }
 }
