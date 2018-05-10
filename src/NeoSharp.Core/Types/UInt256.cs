@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using NeoSharp.Core.Converters;
 using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Types
 {
+    [TypeConverter(typeof(UInt160Converter))]
     public class UInt256 : IEquatable<UInt256>, IComparable<UInt256>, ISerializable
     {
         private static readonly int s_size = 32;

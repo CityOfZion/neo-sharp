@@ -5,6 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Network\Tcp\**" />
+    <EmbeddedResource Remove="Network\Tcp\**" />
+    <None Remove="Network\Tcp\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.2" />
@@ -20,10 +26,6 @@
 
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Network\Tcp\" />
   </ItemGroup>
 
 </Project>

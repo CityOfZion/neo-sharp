@@ -4,7 +4,7 @@ namespace NeoSharp.Core.Network
 {
     public class NetworkManager : INetworkManager
     {
-        private readonly IServer _server;        
+        private readonly IServer _server;
 
         public NetworkManager(ILogger<NetworkManager> logger, IServer serverInit)
         {
@@ -14,12 +14,12 @@ namespace NeoSharp.Core.Network
         }
 
         public void StartNetwork()
-        {            
-            _server.Start();            
+        {
+            _server.Start();
         }
 
         public void StopNetwork()
-        {           
+        {
             _server.Stop();
         }
     }

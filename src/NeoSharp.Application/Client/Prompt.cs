@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Types;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -113,12 +115,12 @@ namespace NeoSharp.Application.Client
             {
                 // Parse arguments
 
-                var cmdArgs = new List<string>(command.SplitCommandLine());
+                var cmdArgs = new List<CommandToken>(command.SplitCommandLine());
                 if (cmdArgs.Count <= 0) return false;
 
                 // Process command
 
-                if (!_commandCache.TryGetValue(cmdArgs.First().ToLowerInvariant(), out cmd))
+                if (!_commandCache.TryGetValue(cmdArgs.First().Value.ToLowerInvariant(), out cmd))
                 {
                     throw (new Exception("Command not found"));
                 }
@@ -142,6 +144,34 @@ namespace NeoSharp.Application.Client
         }
 
         #region Commands
+
+        /// <summary>
+        /// Invoke contract
+        /// </summary>
+        /// <param name="contractHash">Contract</param>
+        /// <param name="body">Body</param>
+        [PromptCommand("invoke", Help = "invoke contract <parameters>\nInvoke a contract")]
+        private void Invoke(UInt160 contractHash, [PromptCommandParameterBody] object[] args)
+        {
+            Contract contract = Contract.GetContract(contractHash);
+            if (contract == null) throw (new ArgumentNullException("Contract not found"));
+
+            var tx = contract.CreateInvokeTransaction(args);
+        }
+
+        /// <summary>
+        /// Invoke contract
+        /// </summary>
+        /// <param name="contractHash">Contract</param>
+        /// <param name="body">Body</param>
+        [PromptCommand("testinvoke", Help = "testinvoke contract <parameters>\nTest invoke contract")]
+        private void TestInvoke(UInt160 contractHash, [PromptCommandParameterBody] object[] args)
+        {
+            Contract contract = Contract.GetContract(contractHash);
+            if (contract == null) throw (new ArgumentNullException("Contract not found"));
+
+            var tx = contract.CreateInvokeTransaction(args);
+        }
 
         /// <summary>
         /// Load commands from file
