@@ -89,14 +89,12 @@ namespace NeoSharp.BinarySerialization
             return (T)Deserialize(br);
         }
         /// <summary>
-        /// Deserialize
+        /// Deserialize without create a new object
         /// </summary>
         /// <param name="br">Stream</param>
-        /// <returns>Return object</returns>
-        public object Deserialize(BinaryReader br)
+        /// <param name="obj">Object</param>
+        public void DeserializeInside(BinaryReader br, object obj)
         {
-            object ret = Activator.CreateInstance(Type);
-
             foreach (BinarySerializerCacheEntry e in Entries)
             {
                 if (e.ReadOnly)
@@ -106,9 +104,18 @@ namespace NeoSharp.BinarySerialization
                     continue;
                 }
 
-                e.SetValue(ret, e.ReadValue(br));
+                e.SetValue(obj, e.ReadValue(br));
             }
-
+        }
+        /// <summary>
+        /// Deserialize
+        /// </summary>
+        /// <param name="br">Stream</param>
+        /// <returns>Return object</returns>
+        public object Deserialize(BinaryReader br)
+        {
+            object ret = Activator.CreateInstance(Type);
+            DeserializeInside(br, ret);
             return ret;
         }
     }

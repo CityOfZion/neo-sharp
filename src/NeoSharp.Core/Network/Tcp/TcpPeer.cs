@@ -1,13 +1,11 @@
 using Microsoft.Extensions.Logging;
+using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Network.Protocols;
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Messaging;
-using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Core.Network.Protocols;
 
 namespace NeoSharp.Core.Network.Tcp
 {
@@ -15,12 +13,6 @@ namespace NeoSharp.Core.Network.Tcp
     {
         private const int SocketOperationTimeout = 300_000;
         private const int MessageQueueCheckInterval = 100;
-
-        private static readonly Type[] _highPrioritySendMessageTypes =
-        {
-            typeof(VersionMessage),
-            typeof(VerAckMessage)
-        };
 
         private readonly Socket _socket;
         private readonly ProtocolSelector _protocolSelector;
@@ -109,7 +101,7 @@ namespace NeoSharp.Core.Network.Tcp
 
         public Task Send(Message message)
         {
-            if (IsHighPriorityMessage(message))
+            if (_protocol.IsHighPriorityMessage(message))
             {
                 _highPrioritySendMessageQueue.Enqueue(message);
             }
@@ -154,8 +146,6 @@ namespace NeoSharp.Core.Network.Tcp
 
             return await Receive() as TMessage;
         }
-
-        private static bool IsHighPriorityMessage(Message m) => _highPrioritySendMessageTypes.Contains(m.GetType());
 
         private async Task InternalSend(Message message)
         {

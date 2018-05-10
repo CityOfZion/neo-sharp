@@ -1,11 +1,11 @@
-﻿using System;
+﻿using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Messaging;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Messaging;
 
 namespace NeoSharp.Core.Network.Protocols
 {
@@ -81,7 +81,7 @@ namespace NeoSharp.Core.Network.Protocols
                     if (payloadLength == 0)
                         throw new FormatException();
 
-                    messageWithPayload.Payload = BinarySerializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
+                    BinarySerializer.DeserializeInside(payloadBuffer, messageWithPayload.Payload);
                 }
 
                 return message;

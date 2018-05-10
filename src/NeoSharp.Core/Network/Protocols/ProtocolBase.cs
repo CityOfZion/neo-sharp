@@ -1,9 +1,11 @@
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NeoSharp.Core.Network.Protocols
 {
@@ -12,6 +14,12 @@ namespace NeoSharp.Core.Network.Protocols
         private const int MaxBufferSize = 1024;
 
         protected readonly ReflectionCache<MessageCommand> Cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
+
+        private static readonly Type[] _highPrioritySendMessageTypes =
+        {
+            typeof(VersionMessage),
+            typeof(VerAckMessage)
+        };
 
         /// <summary>
         /// Magic header protocol
@@ -25,6 +33,11 @@ namespace NeoSharp.Core.Network.Protocols
         /// <param name="message">Message</param>
         /// <param name="cancellationToken">Cancel token</param>
         public abstract Task SendMessageAsync(Stream stream, Message message, CancellationToken cancellationToken);
+
+        public virtual bool IsHighPriorityMessage(Message m)
+        {
+            return _highPrioritySendMessageTypes.Contains(m.GetType());
+        }
 
         /// <summary>
         /// Receive message
