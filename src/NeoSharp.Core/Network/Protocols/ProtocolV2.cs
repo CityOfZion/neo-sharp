@@ -1,10 +1,10 @@
-﻿using System;
+﻿using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Messaging;
+using System;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Messaging;
 
 namespace NeoSharp.Core.Network.Protocols
 {
@@ -20,6 +20,11 @@ namespace NeoSharp.Core.Network.Protocols
         }
 
         public override uint Version => 2;
+
+        public override bool IsHighPriorityMessage(Message m)
+        {
+            return m.Flags.HasFlag(MessageFlags.Urgent) || base.IsHighPriorityMessage(m);
+        }
 
         public override async Task SendMessageAsync(Stream stream, Message message,
             CancellationToken cancellationToken)
