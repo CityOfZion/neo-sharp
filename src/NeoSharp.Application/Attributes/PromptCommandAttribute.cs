@@ -186,6 +186,9 @@ namespace NeoSharp.Application.Attributes
                     {
                         case "[":
                             {
+                                // No bidimensional arrays
+                                if (curArray != null) throw new ArgumentException();
+
                                 curArray = new List<object>();
                                 break;
                             }
