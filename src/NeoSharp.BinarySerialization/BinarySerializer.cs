@@ -163,6 +163,40 @@ namespace NeoSharp.BinarySerialization
             }
         }
         /// <summary>
+        /// Deserialize without create a new object
+        /// </summary>
+        /// <param name="buffer">Buffer</param>
+        /// <param name="obj">Object</param>
+        public static void DeserializeInside(byte[] buffer, object obj)
+        {
+            using (var ms = new MemoryStream(buffer))
+            {
+                DeserializeInside(ms, obj);
+            }
+        }
+        /// <summary>
+        /// Deserialize without create a new object
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="obj">Object</param>
+        public static void DeserializeInside(Stream stream, object obj)
+        {
+            // Search in cache
+
+            if (!Cache.TryGetValue(obj.GetType(), out var cache))
+                throw new KeyNotFoundException("The type is not registered");
+
+            // Deserialize
+
+            using (var br = new BinaryReader(stream, Encoding.UTF8))
+            {
+                cache.DeserializeInside(br, obj);
+
+                if (cache.IsOnPostDeserializable)
+                    ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
+            }
+        }
+        /// <summary>
         /// Deserialize
         /// </summary>
         /// <param name="stream">Stream</param>
