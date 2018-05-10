@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Extensions
 {
@@ -13,7 +14,7 @@ namespace NeoSharp.Core.Extensions
         /// </summary>
         /// <param name="commandLine">Command line</param>
         /// <returns>Return the ienumerable result</returns>
-        public static IEnumerable<string> SplitCommandLine(this string commandLine)
+        public static IEnumerable<CommandToken> SplitCommandLine(this string commandLine)
         {
             var inQuotes = false;
             var isEscaping = false;
@@ -29,8 +30,8 @@ namespace NeoSharp.Core.Extensions
 
                 return !inQuotes && char.IsWhiteSpace(c)/*c == ' '*/;
             })
-                .Select(arg => arg.Trim().TrimMatchingQuotes('\"').Replace("\\\"", "\""))
-                .Where(arg => !string.IsNullOrEmpty(arg));
+                .Select(arg => new CommandToken(arg))
+                .Where(arg => !string.IsNullOrEmpty(arg.Value));
         }
 
         public static IEnumerable<string> Split(this string str, Func<char, bool> controller)
