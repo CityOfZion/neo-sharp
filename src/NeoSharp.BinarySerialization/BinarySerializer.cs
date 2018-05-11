@@ -37,7 +37,7 @@ namespace NeoSharp.BinarySerialization
         public static void CacheTypesOf(Assembly asm)
         {
             foreach (var t in asm.GetTypes())
-                InternalCacheTypesOf(t);
+                CacheTypesOf(t);
         }
         /// <summary>
         /// Cache type
@@ -152,7 +152,7 @@ namespace NeoSharp.BinarySerialization
 
             // Deserialize
 
-            using (var br = new BinaryReader(stream, Encoding.UTF8))
+            using (var br = new BinaryReader(stream, Encoding.UTF8, true))
             {
                 var obj = cache.Deserialize(br);
 
@@ -188,7 +188,7 @@ namespace NeoSharp.BinarySerialization
 
             // Deserialize
 
-            using (var br = new BinaryReader(stream, Encoding.UTF8))
+            using (var br = new BinaryReader(stream, Encoding.UTF8, true))
             {
                 cache.DeserializeInside(br, obj);
 

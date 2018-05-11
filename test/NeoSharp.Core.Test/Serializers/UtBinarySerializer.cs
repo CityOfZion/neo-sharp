@@ -3,6 +3,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Test.Types;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace NeoSharp.Core.Test.Serializers
@@ -20,7 +22,7 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void DeserializeRecursive()
         {
-            var parent = BinarySerializer.Deserialize<DummyParent>(new byte[]
+            byte[] data = new byte[]
             {
                 0x01,0x00,
                 0x01,
@@ -34,23 +36,45 @@ namespace NeoSharp.Core.Test.Serializers
                 0x05,0x01,0x02,0x03,0x04,0x05,
                 0xcd,0xcc,0xcc,0xcc,0xcc,0xcc,0x25,0x40,
                 0x00,
-            });
+            };
 
-            (parent.A == 1).Should().BeTrue();
+            List<DummyParent> ls = new List<DummyParent>();
+            ls.Add(BinarySerializer.Deserialize<DummyParent>(data));
+            ls.Add((DummyParent)BinarySerializer.Deserialize(data, typeof(DummyParent)));
 
-            var child = parent.B;
+            using (MemoryStream ms = new MemoryStream(data))
+            {
+                ls.Add((DummyParent)BinarySerializer.Deserialize(ms, typeof(DummyParent)));
+                ms.Seek(0, SeekOrigin.Begin);
+                ls.Add(BinarySerializer.Deserialize<DummyParent>(ms));
+            }
 
-            (child.A == 1).Should().BeTrue();
-            (child.B == 2).Should().BeTrue();
-            (child.C == 3).Should().BeTrue();
-            (child.D == 4).Should().BeTrue();
-            (child.E == 5).Should().BeTrue();
-            (child.F == 6).Should().BeTrue();
-            (child.G == 7).Should().BeTrue();
-            (child.H == 8).Should().BeTrue();
-            (child.I.SequenceEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 })).Should().BeTrue();
-            (child.J == 10.9).Should().BeTrue();
-            (child.K).Should().BeFalse();
+            using (MemoryStream ms = new MemoryStream(data))
+            using (BinaryReader mr = new BinaryReader(ms))
+            {
+                ls.Add((DummyParent)BinarySerializer.Deserialize(mr, typeof(DummyParent)));
+                ms.Seek(0, SeekOrigin.Begin);
+                ls.Add(BinarySerializer.Deserialize<DummyParent>(mr));
+            }
+
+            foreach (DummyParent parent in ls)
+            {
+                (parent.A == 1).Should().BeTrue();
+
+                var child = parent.B;
+
+                (child.A == 1).Should().BeTrue();
+                (child.B == 2).Should().BeTrue();
+                (child.C == 3).Should().BeTrue();
+                (child.D == 4).Should().BeTrue();
+                (child.E == 5).Should().BeTrue();
+                (child.F == 6).Should().BeTrue();
+                (child.G == 7).Should().BeTrue();
+                (child.H == 8).Should().BeTrue();
+                (child.I.SequenceEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 })).Should().BeTrue();
+                (child.J == 10.9).Should().BeTrue();
+                (child.K).Should().BeFalse();
+            }
         }
 
         [TestMethod]
@@ -106,8 +130,8 @@ namespace NeoSharp.Core.Test.Serializers
                 }
             };
 
-            (BinarySerializer.Serialize(parent).SequenceEqual(new byte[]
-            {
+            byte[] ret = new byte[]
+             {
                 0x01,0x00,
                 0x01,
                 0x02,
@@ -120,8 +144,23 @@ namespace NeoSharp.Core.Test.Serializers
                 0x05, 0x01, 0x02, 0x03, 0x04, 0x05,
                 0xcd,0xcc,0xcc,0xcc,0xcc,0xcc,0x25,0x40,
                 0x01,
+             };
+
+            (BinarySerializer.Serialize(parent).SequenceEqual(ret)).Should().BeTrue();
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                BinarySerializer.Serialize(parent, ms);
+                ms.ToArray().SequenceEqual(ret).Should().BeTrue();
+
+                ms.SetLength(0);
+
+                using (BinaryWriter mw = new BinaryWriter(ms))
+                {
+                    BinarySerializer.Serialize(parent, mw);
+                    ms.ToArray().SequenceEqual(ret).Should().BeTrue();
+                }
             }
-            )).Should().BeTrue();
         }
 
         [TestMethod]
