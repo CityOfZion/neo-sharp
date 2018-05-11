@@ -94,5 +94,15 @@ namespace NeoSharp.Core.Models
         [BinaryProperty(20)]
         [JsonProperty("asset")]
         public Asset Asset;
+
+        public byte[] ToBytes()
+        {
+            return BinarySerializer.Serialize(this);
+        }
+
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }

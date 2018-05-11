@@ -47,10 +47,6 @@ namespace NeoSharp.Core.Models
         [JsonProperty("nextblockhash")]
         public string NextBlockHash;
 
-        //[BinaryProperty(11)]
-        //[JsonProperty("tx")]
-        //public Transaction[] Transactions;
-
         [BinaryProperty(12)]
         [JsonProperty("script")]
         public Witness Script;
@@ -68,5 +64,15 @@ namespace NeoSharp.Core.Models
         [BinaryProperty(14)]
         [JsonProperty("txhashes")]
         public string[] TxHashes { get; set; }
+
+        public byte[] ToBytes()
+        {
+            return BinarySerializer.Serialize(this);
+        }
+
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
     }
 }
