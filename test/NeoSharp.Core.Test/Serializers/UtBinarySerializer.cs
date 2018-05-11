@@ -32,6 +32,8 @@ namespace NeoSharp.Core.Test.Serializers
                 0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                 0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                 0x05,0x01,0x02,0x03,0x04,0x05,
+                0xcd,0xcc,0xcc,0xcc,0xcc,0xcc,0x25,0x40,
+                0x00,
             });
 
             (parent.A == 1).Should().BeTrue();
@@ -47,6 +49,8 @@ namespace NeoSharp.Core.Test.Serializers
             (child.G == 7).Should().BeTrue();
             (child.H == 8).Should().BeTrue();
             (child.I.SequenceEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 })).Should().BeTrue();
+            (child.J == 10.9).Should().BeTrue();
+            (child.K).Should().BeFalse();
         }
 
         [TestMethod]
@@ -63,6 +67,8 @@ namespace NeoSharp.Core.Test.Serializers
                 0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                 0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                 0x05,0x01,0x02,0x03,0x04,0x05,
+                0xcd,0xcc,0xcc,0xcc,0xcc,0xcc,0x25,0x40,
+                0x01,
             });
 
             (actual.A == 1).Should().BeTrue();
@@ -74,6 +80,8 @@ namespace NeoSharp.Core.Test.Serializers
             (actual.G == 7).Should().BeTrue();
             (actual.H == 8).Should().BeTrue();
             (actual.I.SequenceEqual(new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 })).Should().BeTrue();
+            (actual.J == 10.9).Should().BeTrue();
+            (actual.K).Should().BeTrue();
         }
 
         [TestMethod]
@@ -92,7 +100,9 @@ namespace NeoSharp.Core.Test.Serializers
                     F = 6,
                     G = 7,
                     H = 8,
-                    I = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 }
+                    I = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 },
+                    J = 10.9,
+                    K = true
                 }
             };
 
@@ -107,7 +117,9 @@ namespace NeoSharp.Core.Test.Serializers
                 0x06,0x00,0x00,0x00,
                 0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                 0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-                0x05, 0x01, 0x02, 0x03, 0x04, 0x05
+                0x05, 0x01, 0x02, 0x03, 0x04, 0x05,
+                0xcd,0xcc,0xcc,0xcc,0xcc,0xcc,0x25,0x40,
+                0x01,
             }
             )).Should().BeTrue();
         }
@@ -125,7 +137,9 @@ namespace NeoSharp.Core.Test.Serializers
                 F = 6,
                 G = 7,
                 H = 8,
-                I = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 }
+                I = new byte[] { 0x01, 0x02, 0x03, 0x04, 0x05 },
+                J = 10.9,
+                K = false
             };
 
             (BinarySerializer.Serialize(actual).SequenceEqual(new byte[]
@@ -138,7 +152,9 @@ namespace NeoSharp.Core.Test.Serializers
                 0x06,0x00,0x00,0x00,
                 0x07,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
                 0x08,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-                0x05, 0x01, 0x02, 0x03, 0x04, 0x05
+                0x05, 0x01, 0x02, 0x03, 0x04, 0x05,
+                0xcd,0xcc,0xcc,0xcc,0xcc,0xcc,0x25,0x40,
+                0x00
             }
             )).Should().BeTrue();
         }
@@ -173,7 +189,7 @@ namespace NeoSharp.Core.Test.Serializers
                     InvocationScript = "InvocationScript",
                     VerificationScript = "VerificationScript",
                 },
-                TxHashes = new [] { "a", "b", "c" }
+                TxHashes = new[] { "a", "b", "c" }
             };
 
             var blockCopy = BinarySerializer.Deserialize<Block>((BinarySerializer.Serialize(block)));
