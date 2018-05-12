@@ -1,7 +1,7 @@
 ﻿using NeoSharp.BinarySerialization;
 using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Models
 {
@@ -10,7 +10,7 @@ namespace NeoSharp.Core.Models
     {
         [BinaryProperty(1)]
         [JsonProperty("txid")]
-        public string Hash;
+        public UInt256 Hash;
 
         [BinaryProperty(2)]
         [JsonProperty("size")]
