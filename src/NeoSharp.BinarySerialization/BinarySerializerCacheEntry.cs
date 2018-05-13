@@ -35,6 +35,8 @@ namespace NeoSharp.BinarySerialization
         // Cache
 
         private static Type _iListType = typeof(IList);
+        const byte BTRUE = 0x01;
+        const byte BFALSE = 0x00;
 
         /// <summary>
         /// Constructor
@@ -464,8 +466,8 @@ namespace NeoSharp.BinarySerialization
 
         private int SetBoolValue(BinaryWriter writer, object value)
         {
-            if ((bool)value) writer.Write(0x01);
-            else writer.Write(0x00);
+            if ((bool)value) writer.Write(BTRUE);
+            else writer.Write(BFALSE);
 
             return 1;
         }

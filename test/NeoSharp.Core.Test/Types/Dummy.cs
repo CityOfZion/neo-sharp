@@ -28,5 +28,11 @@ namespace NeoSharp.Core.Test.Types
 
         [BinaryProperty(9)]
         public byte[] I { get; set; }
+
+        [BinaryProperty(10)]
+        public double J { get; set; }
+
+        [BinaryProperty(11)]
+        public bool K { get; set; }
     }
 }
