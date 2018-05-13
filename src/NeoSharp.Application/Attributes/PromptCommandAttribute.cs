@@ -123,25 +123,92 @@ namespace NeoSharp.Application.Attributes
                     if (BigDecimal.TryParse(token.Value, 20, out BigDecimal bd))
                         return bd;
 
-                    // TODO: Parse address format here
+                    // Hashes
+
+                    if (UInt160.TryParse(token.Value, out UInt160 hash160))
+                        return hash160;
+
+                    if (UInt256.TryParse(token.Value, out UInt256 hash256))
+                        return hash256;
                 }
             }
 
             return token.Value;
         }
 
+        void AddTo(object obj, List<object> ret, Stack<List<object>> arrays)
+        {
+            if (arrays.Count > 0)
+            {
+                List<object> ls = arrays.Peek();
+                ls.Add(obj);
+            }
+            else
+            {
+                ret.Add(obj);
+            }
+        }
+
         object ParseAutoObject(string value)
         {
-            List<object> ret = new List<object>();
-            List<object> curArray = null;
-
             // Separate Array tokens
 
+            CommandToken[] tks = CleanCommand(value.SplitCommandLine());
+
+            // Fetch parameters
+
+            List<object> ret = new List<object>();
+            Stack<List<object>> arrays = new Stack<List<object>>();
+
+            foreach (CommandToken token in tks)
+            {
+                string val = token.Value;
+
+                if (token.Quoted)
+                {
+                    AddTo(ParseAutoObject(token), ret, arrays);
+                }
+                else
+                {
+                    switch (val)
+                    {
+                        case "[":
+                            {
+                                List<object> ls = new List<object>();
+                                arrays.Push(ls);
+                                break;
+                            }
+                        case "]":
+                            {
+                                List<object> ls = arrays.Pop();
+                                AddTo(ls.ToArray(), ret, arrays);
+                                break;
+                            }
+                        default:
+                            {
+                                AddTo(ParseAutoObject(token), ret, arrays);
+                                break;
+                            }
+                    }
+                }
+            }
+
+            if (arrays.Count > 0) throw new ArgumentException();
+
+            return ret.Count == 1 ? ret[0] : ret.ToArray();
+        }
+
+        private CommandToken[] CleanCommand(IEnumerable<CommandToken> tokens)
+        {
+            bool change = false;
             List<CommandToken> tks = new List<CommandToken>();
 
-            foreach (CommandToken token in value.SplitCommandLine().ToArray())
+            foreach (CommandToken token in tokens)
             {
-                if (token.Quoted) tks.Add(token);
+                if (token.Quoted || token.Value == "[" || token.Value == "]")
+                {
+                    tks.Add(token);
+                }
                 else
                 {
                     string val = token.Value;
@@ -149,6 +216,7 @@ namespace NeoSharp.Application.Attributes
                     {
                         tks.Add(new CommandToken("["));
                         val = val.Substring(1);
+                        change = true;
                     }
 
                     CommandToken add = null;
@@ -157,6 +225,7 @@ namespace NeoSharp.Application.Attributes
                     {
                         add = new CommandToken("]");
                         val = val.Substring(0, val.Length - 1);
+                        change = true;
                     }
 
                     if (!string.IsNullOrEmpty(val))
@@ -167,55 +236,10 @@ namespace NeoSharp.Application.Attributes
                 }
             }
 
-            // Fetch parameters
+            // Recursive
+            if (change) return CleanCommand(tks);
 
-            foreach (CommandToken token in tks)
-            {
-                string val = token.Value;
-
-                if (token.Quoted)
-                {
-                    object oc = ParseAutoObject(token);
-
-                    if (curArray != null) curArray.Add(oc);
-                    else ret.Add(oc);
-                }
-                else
-                {
-                    switch (val)
-                    {
-                        case "[":
-                            {
-                                // No bidimensional arrays
-                                if (curArray != null) throw new ArgumentException();
-
-                                curArray = new List<object>();
-                                break;
-                            }
-                        case "]":
-                            {
-                                if (curArray != null)
-                                {
-                                    ret.Add(curArray.ToArray());
-                                    curArray = null;
-                                }
-                                break;
-                            }
-                        default:
-                            {
-                                object oc = ParseAutoObject(token);
-
-                                if (curArray != null) curArray.Add(oc);
-                                else ret.Add(oc);
-                                break;
-                            }
-                    }
-                }
-            }
-
-            if (curArray != null) throw new ArgumentException();
-
-            return ret.Count == 1 ? ret[0] : ret.ToArray();
+            return tks.ToArray();
         }
 
         /// <summary>
