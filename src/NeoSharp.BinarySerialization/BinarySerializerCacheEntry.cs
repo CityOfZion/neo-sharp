@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -35,8 +34,8 @@ namespace NeoSharp.BinarySerialization
         // Cache
 
         private static Type _iListType = typeof(IList);
-        const byte BTRUE = 0x01;
-        const byte BFALSE = 0x00;
+        private const byte BTRUE = 0x01;
+        private const byte BFALSE = 0x00;
 
         /// <summary>
         /// Constructor
@@ -503,24 +502,21 @@ namespace NeoSharp.BinarySerialization
             var cache = BinarySerializer.InternalCacheTypesOf(type);
             if (cache == null)
             {
-                if (BinarySerializer.TypeConverterCache.Any())
+                foreach (var typeConverter in BinarySerializer.TypeConverterCache.Values)
                 {
-                    foreach (var typeConverter in BinarySerializer.TypeConverterCache.Values)
+                    if (typeConverter.CanConvertTo(typeof(byte[])) && typeConverter.CanConvertFrom(type))
                     {
-                        if (typeConverter.CanConvertTo(typeof(byte[])) && typeConverter.CanConvertFrom(type))
+                        readValue = reader =>
                         {
-                            readValue = reader =>
-                            {
-                                var buffer = ReadVarBytes(reader, 100);
-                                return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
-                            };
-                            writeValue = (writer, value) =>
-                            {
-                                var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
-                                return WriteVarBytes(writer, buffer);
-                            };
-                            return true;
-                        }
+                            var buffer = ReadVarBytes(reader, 100);
+                            return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
+                        };
+                        writeValue = (writer, value) =>
+                        {
+                            var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
+                            return WriteVarBytes(writer, buffer);
+                        };
+                        return true;
                     }
                 }
 
