@@ -10,8 +10,10 @@ namespace NeoSharp.Core.Types
     /// </summary>
     public struct Fixed8 : IComparable<Fixed8>, IEquatable<Fixed8>, IFormattable, ISerializable
     {
+        #region Private Fields 
         private const long D = 100_000_000;
         internal long Value;
+        #endregion
 
         public static readonly Fixed8 MaxValue = new Fixed8 { Value = long.MaxValue };
 
@@ -23,13 +25,73 @@ namespace NeoSharp.Core.Types
 
         public static readonly Fixed8 Zero = default(Fixed8);
 
-        public int Size => sizeof(long);
+        #region Public Properties
+        public long GetData() => Value;
+        #endregion
 
+        #region Constructor 
         public Fixed8(long data)
         {
             Value = data;
         }
+        #endregion
 
+        #region ISerializable implementation 
+        public int Size => sizeof(long);
+
+        public void Deserialize(BinaryReader reader)
+        {
+            Value = reader.ReadInt64();
+        }
+
+        public void Serialize(BinaryWriter writer)
+        {
+            writer.Write(Value);
+        }
+        #endregion
+
+        #region IComparable Implementation 
+        public int CompareTo(Fixed8 other)
+        {
+            return Value.CompareTo(other.Value);
+        }
+        #endregion
+
+        #region IEquatable Implementation 
+        public bool Equals(Fixed8 other)
+        {
+            return Value.Equals(other.Value);
+        }
+        #endregion
+
+        #region IFormatable Implementation 
+        public string ToString(string format, IFormatProvider formatProvider)
+        {
+            return ((decimal)this).ToString(format, formatProvider);
+        }
+        #endregion
+
+        #region Override Methods
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Fixed8)) return false;
+            return Equals((Fixed8)obj);
+        }
+
+        public override int GetHashCode()
+        {
+            // TODO: It has to be readonly
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
+            return Value.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return ((decimal)this).ToString(CultureInfo.InvariantCulture);
+        }
+        #endregion
+
+        #region Public Methods 
         public Fixed8 Abs()
         {
             if (Value >= 0) return this;
@@ -54,81 +116,19 @@ namespace NeoSharp.Core.Types
                     Value = Value - remainder
                 };
         }
-
-        public int CompareTo(Fixed8 other)
-        {
-            return Value.CompareTo(other.Value);
-        }
-
-        void ISerializable.Deserialize(BinaryReader reader)
-        {
-            Value = reader.ReadInt64();
-        }
-
-        public bool Equals(Fixed8 other)
-        {
-            return Value.Equals(other.Value);
-        }
-
-        public override bool Equals(object obj)
-        {
-            if (!(obj is Fixed8)) return false;
-            return Equals((Fixed8)obj);
-        }
-
+        
         public static Fixed8 FromDecimal(decimal value)
         {
             value *= D;
             if (value < long.MinValue || value > long.MaxValue)
+            {
                 throw new OverflowException();
+            }
+
             return new Fixed8
             {
                 Value = (long)value
             };
-        }
-
-        public long GetData() => Value;
-
-        public override int GetHashCode()
-        {
-            // TODO: It has to be readonly
-            // ReSharper disable once NonReadonlyMemberInGetHashCode
-            return Value.GetHashCode();
-        }
-
-        public static Fixed8 Max(Fixed8 first, params Fixed8[] others)
-        {
-            foreach (var other in others)
-            {
-                if (first.CompareTo(other) < 0)
-                    first = other;
-            }
-            return first;
-        }
-
-        public static Fixed8 Min(Fixed8 first, params Fixed8[] others)
-        {
-            foreach (var other in others)
-            {
-                if (first.CompareTo(other) > 0)
-                    first = other;
-            }
-            return first;
-        }
-
-        public static Fixed8 Parse(string s)
-        {
-            return FromDecimal(decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture));
-        }
-
-        void ISerializable.Serialize(BinaryWriter writer)
-        {
-            writer.Write(Value);
-        }
-
-        public override string ToString()
-        {
-            return ((decimal)this).ToString(CultureInfo.InvariantCulture);
         }
 
         public string ToString(string format)
@@ -136,9 +136,9 @@ namespace NeoSharp.Core.Types
             return ((decimal)this).ToString(format);
         }
 
-        public string ToString(string format, IFormatProvider formatProvider)
+        public static Fixed8 Parse(string s)
         {
-            return ((decimal)this).ToString(format, formatProvider);
+            return FromDecimal(decimal.Parse(s, NumberStyles.Float, CultureInfo.InvariantCulture));
         }
 
         public static bool TryParse(string s, out Fixed8 result)
@@ -261,5 +261,6 @@ namespace NeoSharp.Core.Types
             value.Value = -value.Value;
             return value;
         }
+        #endregion
     }
 }
