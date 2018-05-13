@@ -1,6 +1,7 @@
 ﻿using NeoSharp.BinarySerialization;
 using Newtonsoft.Json;
 using System;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Models
 {
@@ -9,11 +10,11 @@ namespace NeoSharp.Core.Models
     {
         [BinaryProperty(1)]
         [JsonProperty("txid")]
-        public string PrevHash;
+        public UInt256 PrevHash;
 
         [BinaryProperty(2)]
         [JsonProperty("vout")]
-        public int PrevIndex;
+        public ushort PrevIndex;
 
         [BinaryProperty(3)]
         [JsonProperty("id")]

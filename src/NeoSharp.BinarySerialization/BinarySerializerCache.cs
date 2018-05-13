@@ -27,7 +27,7 @@ namespace NeoSharp.BinarySerialization
         /// <summary>
         /// Cache entries
         /// </summary>
-        readonly BinarySerializerCacheEntry[] Entries;
+        private readonly BinarySerializerCacheEntry[] _entries;
 
         /// <summary>
         /// Constructor
@@ -42,7 +42,7 @@ namespace NeoSharp.BinarySerialization
             IsOnPreSerializable = typeof(IBinaryOnPreSerializable).IsAssignableFrom(type);
             IsOnPostDeserializable = typeof(IBinaryOnPostDeserializable).IsAssignableFrom(type);
 
-            Entries =
+            _entries =
 
                 // Properties
 
@@ -63,7 +63,7 @@ namespace NeoSharp.BinarySerialization
                 )
                 .ToArray();
 
-            Count = Entries.Length;
+            Count = _entries.Length;
         }
 
         /// <summary>
@@ -74,7 +74,7 @@ namespace NeoSharp.BinarySerialization
         public int Serialize(BinaryWriter bw, object obj)
         {
             int ret = 0;
-            foreach (BinarySerializerCacheEntry e in Entries)
+            foreach (BinarySerializerCacheEntry e in _entries)
                 ret += e.WriteValue(bw, e.GetValue(obj));
 
             return ret;
@@ -95,7 +95,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="obj">Object</param>
         public void DeserializeInside(BinaryReader br, object obj)
         {
-            foreach (BinarySerializerCacheEntry e in Entries)
+            foreach (BinarySerializerCacheEntry e in _entries)
             {
                 if (e.ReadOnly)
                 {

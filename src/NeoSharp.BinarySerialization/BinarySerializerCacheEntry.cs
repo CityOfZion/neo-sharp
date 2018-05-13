@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -10,19 +12,19 @@ namespace NeoSharp.BinarySerialization
     {
         // Delegates
 
-        public delegate object delReadValue(BinaryReader reader);
-        public delegate int delWriteValue(BinaryWriter writer, object value);
+        public delegate object ReadValueDelegate(BinaryReader reader);
+        public delegate int WriteValueDelegate(BinaryWriter writer, object value);
 
-        public delegate object delGetValue(object o);
-        public delegate void delSetValue(object o, object value);
+        public delegate object GetValueDelegate(object o);
+        public delegate void SetValueDelegate(object o, object value);
 
         // Callbacks
 
-        public readonly delReadValue ReadValue;
-        public readonly delWriteValue WriteValue;
+        public readonly ReadValueDelegate ReadValue;
+        public readonly WriteValueDelegate WriteValue;
 
-        public readonly delGetValue GetValue;
-        public readonly delSetValue SetValue;
+        public readonly GetValueDelegate GetValue;
+        public readonly SetValueDelegate SetValue;
 
         // Fields
 
@@ -32,7 +34,7 @@ namespace NeoSharp.BinarySerialization
 
         // Cache
 
-        static Type _iListType = typeof(IList);
+        private static Type _iListType = typeof(IList);
         const byte BTRUE = 0x01;
         const byte BFALSE = 0x00;
 
@@ -44,8 +46,8 @@ namespace NeoSharp.BinarySerialization
         public BinarySerializerCacheEntry(BinaryPropertyAttribute atr, PropertyInfo pi) : this(atr, pi.PropertyType)
         {
             Name = pi.Name;
-            GetValue = new delGetValue(pi.GetValue);
-            SetValue = new delSetValue(pi.SetValue);
+            GetValue = pi.GetValue;
+            SetValue = pi.SetValue;
             ReadOnly = !pi.CanWrite;
         }
         /// <summary>
@@ -56,8 +58,8 @@ namespace NeoSharp.BinarySerialization
         public BinarySerializerCacheEntry(BinaryPropertyAttribute atr, FieldInfo fi) : this(atr, fi.FieldType)
         {
             Name = fi.Name;
-            GetValue = new delGetValue(fi.GetValue);
-            SetValue = new delSetValue(fi.SetValue);
+            GetValue = fi.GetValue;
+            SetValue = fi.SetValue;
             ReadOnly = false;
         }
         /// <summary>
@@ -65,21 +67,21 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="atr">Attribute</param>
         /// <param name="btype">Type</param>
-        BinarySerializerCacheEntry(BinaryPropertyAttribute atr, Type btype)
+        private BinarySerializerCacheEntry(BinaryPropertyAttribute atr, Type btype)
         {
-            Type type = btype;
+            var type = btype;
             MaxLength = atr.MaxLength;
-            bool array = type.IsArray;
-            bool list = _iListType.IsAssignableFrom(type);
+            var isArray = type.IsArray;
+            var isList = _iListType.IsAssignableFrom(type);
 
             if (type == typeof(byte[]))
             {
-                ReadValue = new delReadValue(GetByteArrayValue);
-                WriteValue = new delWriteValue(SetByteArrayValue);
+                ReadValue = GetByteArrayValue;
+                WriteValue = SetByteArrayValue;
             }
             else
             {
-                if (array || list)
+                if (isArray || isList)
                 {
                     // Extract type of array
                     type = type.GetElementType();
@@ -92,75 +94,75 @@ namespace NeoSharp.BinarySerialization
 
                 if (type == typeof(string))
                 {
-                    ReadValue = new delReadValue(GetStringValue);
-                    WriteValue = new delWriteValue(SetStringValue);
+                    ReadValue = GetStringValue;
+                    WriteValue = SetStringValue;
                 }
                 else if (type == typeof(long))
                 {
-                    ReadValue = new delReadValue(GetInt64Value);
-                    WriteValue = new delWriteValue(SetInt64Value);
+                    ReadValue = GetInt64Value;
+                    WriteValue = SetInt64Value;
                 }
                 else if (type == typeof(ulong))
                 {
-                    ReadValue = new delReadValue(GetUInt64Value);
-                    WriteValue = new delWriteValue(SetUInt64Value);
+                    ReadValue = GetUInt64Value;
+                    WriteValue = SetUInt64Value;
                 }
                 else if (type == typeof(int))
                 {
-                    ReadValue = new delReadValue(GetInt32Value);
-                    WriteValue = new delWriteValue(SetInt32Value);
+                    ReadValue = GetInt32Value;
+                    WriteValue = SetInt32Value;
                 }
                 else if (type == typeof(uint))
                 {
-                    ReadValue = new delReadValue(GetUInt32Value);
-                    WriteValue = new delWriteValue(SetUInt32Value);
+                    ReadValue = GetUInt32Value;
+                    WriteValue = SetUInt32Value;
                 }
                 else if (type == typeof(short))
                 {
-                    ReadValue = new delReadValue(GetInt16Value);
-                    WriteValue = new delWriteValue(SetInt16Value);
+                    ReadValue = GetInt16Value;
+                    WriteValue = SetInt16Value;
                 }
                 else if (type == typeof(ushort))
                 {
-                    ReadValue = new delReadValue(GetUInt16Value);
-                    WriteValue = new delWriteValue(SetUInt16Value);
+                    ReadValue = GetUInt16Value;
+                    WriteValue = SetUInt16Value;
                 }
                 else if (type == typeof(byte))
                 {
-                    ReadValue = new delReadValue(GetByteValue);
-                    WriteValue = new delWriteValue(SetByteValue);
+                    ReadValue = GetByteValue;
+                    WriteValue = SetByteValue;
                 }
                 else if (type == typeof(sbyte))
                 {
-                    ReadValue = new delReadValue(GetSByteValue);
-                    WriteValue = new delWriteValue(SetSByteValue);
+                    ReadValue = GetSByteValue;
+                    WriteValue = SetSByteValue;
                 }
                 else if (type == typeof(bool))
                 {
-                    ReadValue = new delReadValue(GetBoolValue);
-                    WriteValue = new delWriteValue(SetBoolValue);
+                    ReadValue = GetBoolValue;
+                    WriteValue = SetBoolValue;
                 }
                 else if (type == typeof(double))
                 {
-                    ReadValue = new delReadValue(GetDoubleValue);
-                    WriteValue = new delWriteValue(SetDoubleValue);
+                    ReadValue = GetDoubleValue;
+                    WriteValue = SetDoubleValue;
                 }
                 else if (!TryRecursive(type, out ReadValue, out WriteValue))
                 {
-                    throw (new NotImplementedException());
+                    throw new NotImplementedException();
                 }
 
-                if (array)
+                if (isArray)
                 {
-                    ArrayType ar = new ArrayType(btype, MaxLength, ReadValue, WriteValue);
-                    ReadValue = new delReadValue(ar.GetArrayValue);
-                    WriteValue = new delWriteValue(ar.SetArrayValue);
+                    var ar = new ArrayType(btype, MaxLength, ReadValue, WriteValue);
+                    ReadValue = ar.GetArrayValue;
+                    WriteValue = ar.SetArrayValue;
                 }
-                else if (list)
+                else if (isList)
                 {
-                    ListType ls = new ListType(btype, MaxLength, ReadValue, WriteValue);
-                    ReadValue = new delReadValue(ls.GetListValue);
-                    WriteValue = new delWriteValue(ls.SetListValue);
+                    var ls = new ListType(btype, MaxLength, ReadValue, WriteValue);
+                    ReadValue = ls.GetListValue;
+                    WriteValue = ls.SetListValue;
                 }
             }
         }
@@ -169,9 +171,9 @@ namespace NeoSharp.BinarySerialization
 
         #region Recursive
 
-        class RecursiveType
+        private class RecursiveType
         {
-            readonly Type Type;
+            private readonly Type Type;
 
             public RecursiveType(Type type)
             {
@@ -193,18 +195,20 @@ namespace NeoSharp.BinarySerialization
 
         #region ByteArray
 
-        public int SetByteArrayValue(BinaryWriter writer, object value)
+        private int SetByteArrayValue(BinaryWriter writer, object value)
         {
-            byte[] ar = (byte[])value;
+            var ar = (byte[])value;
 
             if (ar == null)
                 return WriteVarInt(writer, 0);
 
-            if (ar.Length > MaxLength) throw new FormatException("MaxLength");
+            if (ar.Length > MaxLength)
+                throw new FormatException("MaxLength");
+
             return WriteVarBytes(writer, ar);
         }
 
-        public object GetByteArrayValue(BinaryReader reader)
+        private object GetByteArrayValue(BinaryReader reader)
         {
             return ReadVarBytes(reader, MaxLength);
         }
@@ -213,14 +217,14 @@ namespace NeoSharp.BinarySerialization
 
         #region List
 
-        class ListType
+        private class ListType
         {
-            readonly Type Type;
-            readonly delReadValue GetValue;
-            readonly delWriteValue SetValue;
-            readonly int MaxLength;
+            private readonly Type Type;
+            private readonly ReadValueDelegate GetValue;
+            private readonly WriteValueDelegate SetValue;
+            private readonly int MaxLength;
 
-            public ListType(Type type, int maxLength, delReadValue get, delWriteValue set)
+            public ListType(Type type, int maxLength, ReadValueDelegate get, WriteValueDelegate set)
             {
                 MaxLength = maxLength;
                 GetValue = get;
@@ -237,11 +241,11 @@ namespace NeoSharp.BinarySerialization
                     return WriteVarInt(writer, 0);
                 }
 
-                int x = WriteVarInt(writer, ar.Count);
+                var x = WriteVarInt(writer, ar.Count);
 
                 if (x > MaxLength) throw new FormatException("MaxLength");
 
-                foreach (object o in ar)
+                foreach (var o in ar)
                     x += SetValue(writer, o);
 
                 return x;
@@ -249,12 +253,12 @@ namespace NeoSharp.BinarySerialization
 
             public object GetListValue(BinaryReader reader)
             {
-                int l = (int)ReadVarInt(reader, ushort.MaxValue);
+                var l = (int)ReadVarInt(reader, ushort.MaxValue);
                 if (l > MaxLength) throw new FormatException("MaxLength");
 
                 var a = (IList)Activator.CreateInstance(Type);
 
-                for (int ix = 0; ix < l; ix++)
+                for (var ix = 0; ix < l; ix++)
                 {
                     a.Add(GetValue(reader));
                 }
@@ -267,14 +271,14 @@ namespace NeoSharp.BinarySerialization
 
         #region Array
 
-        class ArrayType
+        private class ArrayType
         {
-            readonly Type Type;
-            readonly delReadValue GetValue;
-            readonly delWriteValue SetValue;
-            readonly int MaxLength;
+            private readonly Type Type;
+            private readonly ReadValueDelegate GetValue;
+            private readonly WriteValueDelegate SetValue;
+            private readonly int MaxLength;
 
-            public ArrayType(Type type, int maxLength, delReadValue get, delWriteValue set)
+            public ArrayType(Type type, int maxLength, ReadValueDelegate get, WriteValueDelegate set)
             {
                 MaxLength = maxLength;
                 GetValue = get;
@@ -291,11 +295,11 @@ namespace NeoSharp.BinarySerialization
                     return WriteVarInt(writer, 0);
                 }
 
-                int x = WriteVarInt(writer, ar.Length);
+                var x = WriteVarInt(writer, ar.Length);
 
                 if (x > MaxLength) throw new FormatException("MaxLength");
 
-                foreach (object o in ar)
+                foreach (var o in ar)
                     x += SetValue(writer, o);
 
                 return x;
@@ -303,12 +307,12 @@ namespace NeoSharp.BinarySerialization
 
             public object GetArrayValue(BinaryReader reader)
             {
-                int l = (int)ReadVarInt(reader, ushort.MaxValue);
+                var l = (int)ReadVarInt(reader, ushort.MaxValue);
                 if (l > MaxLength) throw new FormatException("MaxLength");
 
                 var a = (Array)Activator.CreateInstance(Type, l);
 
-                for (int ix = 0; ix < l; ix++)
+                for (var ix = 0; ix < l; ix++)
                 {
                     a.SetValue(GetValue(reader), ix);
                 }
@@ -323,7 +327,7 @@ namespace NeoSharp.BinarySerialization
 
         private int SetStringValue(BinaryWriter writer, object value)
         {
-            byte[] data = Encoding.UTF8.GetBytes((string)value);
+            var data = Encoding.UTF8.GetBytes((string)value);
 
             if (data.Length >= MaxLength)
                 throw new FormatException("MaxLength");
@@ -494,28 +498,49 @@ namespace NeoSharp.BinarySerialization
 
         #region Helpers
 
-        static bool TryRecursive(Type btype, out delReadValue readValue, out delWriteValue writeValue)
+        private static bool TryRecursive(Type type, out ReadValueDelegate readValue, out WriteValueDelegate writeValue)
         {
-            BinarySerializerCache cache = BinarySerializer.InternalCacheTypesOf(btype);
+            var cache = BinarySerializer.InternalCacheTypesOf(type);
             if (cache == null)
             {
+                if (BinarySerializer.TypeConverterCache.Any())
+                {
+                    foreach (var typeConverter in BinarySerializer.TypeConverterCache.Values)
+                    {
+                        if (typeConverter.CanConvertTo(typeof(byte[])) && typeConverter.CanConvertFrom(type))
+                        {
+                            readValue = reader =>
+                            {
+                                var buffer = ReadVarBytes(reader, 100);
+                                return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
+                            };
+                            writeValue = (writer, value) =>
+                            {
+                                var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
+                                return WriteVarBytes(writer, buffer);
+                            };
+                            return true;
+                        }
+                    }
+                }
+
                 readValue = null;
                 writeValue = null;
                 return false;
             }
 
-            RecursiveType r = new RecursiveType(btype);
+            var r = new RecursiveType(type);
             readValue = r.GetRecursiveValue;
             writeValue = r.SetRecursiveValue;
             return true;
         }
 
-        static byte[] ReadVarBytes(BinaryReader reader, int max = 0X7fffffc7)
+        private static byte[] ReadVarBytes(BinaryReader reader, int max = 0X7fffffc7)
         {
             return reader.ReadBytes((int)ReadVarInt(reader, (ulong)max));
         }
 
-        static ulong ReadVarInt(BinaryReader reader, ulong max = ulong.MaxValue)
+        private static ulong ReadVarInt(BinaryReader reader, ulong max = ulong.MaxValue)
         {
             var fb = reader.ReadByte();
             ulong value;
@@ -534,14 +559,14 @@ namespace NeoSharp.BinarySerialization
             return value;
         }
 
-        static string ReadVarString(BinaryReader reader, int max = 0X7fffffc7)
+        private static string ReadVarString(BinaryReader reader, int max = 0X7fffffc7)
         {
             return Encoding.UTF8.GetString(ReadVarBytes(reader, max));
         }
 
         public static int WriteVarBytes(BinaryWriter writer, byte[] value)
         {
-            int ret = WriteVarInt(writer, value.Length);
+            var ret = WriteVarInt(writer, value.Length);
             writer.Write(value);
             return ret + value.Length;
         }
@@ -585,7 +610,7 @@ namespace NeoSharp.BinarySerialization
 
         public override string ToString()
         {
-            return Name.ToString();
+            return Name;
         }
     }
 }

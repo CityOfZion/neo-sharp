@@ -41,10 +41,10 @@ namespace NeoSharp.Persistence.RedisDB
             var transactionBytes = transaction.ToBytes();
 
             //Write the redis database with the binary bytes
-            _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash, transactionBytes);
+            _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash.ToString(), transactionBytes);
 
             //Add to secondary index to find transactions for a block by block height
-            _redis.Database.AddToIndex(RedisIndex.TransactionBlockHeight, transaction.BlockIndex, transaction.Hash);
+            _redis.Database.AddToIndex(RedisIndex.TransactionBlockHeight, transaction.BlockIndex, transaction.Hash.ToString());
         }
 
         public Block GetBlockByHeight(int height)

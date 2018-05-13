@@ -21,7 +21,7 @@ namespace NeoSharp.Persistence.RocksDB
 
         public void AddTransaction(Transaction transaction)
         {
-            var hash = Encoding.UTF8.GetBytes(transaction.Hash);
+            var hash = transaction.Hash.ToArray();
             _rocksDb.Put(BuildKey(DataEntryPrefix.DataTransaction,hash), transaction.ToBytes());
         }
 

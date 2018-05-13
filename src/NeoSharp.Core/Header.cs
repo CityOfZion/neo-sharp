@@ -1,6 +1,6 @@
 ﻿namespace NeoSharp.Core
 {
-    class Header
+    public class Header
     {
     }
 }

@@ -1,7 +1,9 @@
 using NeoSharp.BinarySerialization.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -12,7 +14,8 @@ namespace NeoSharp.BinarySerialization
         /// <summary>
         /// Cache
         /// </summary>
-        internal static readonly Dictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
+        private static readonly IDictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
+        internal static readonly IDictionary<Type, TypeConverter> TypeConverterCache = new Dictionary<Type, TypeConverter>();
 
         /// <summary>
         /// Cache Binary Serializer types
@@ -27,7 +30,10 @@ namespace NeoSharp.BinarySerialization
 
                     CacheTypesOf(asm);
                 }
-                catch { }
+                catch
+                {
+                    // ignored
+                }
         }
 
         /// <summary>
@@ -36,17 +42,13 @@ namespace NeoSharp.BinarySerialization
         /// <param name="asm">Assembly</param>
         public static void CacheTypesOf(Assembly asm)
         {
-            foreach (var t in asm.GetTypes())
-                CacheTypesOf(t);
+            foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t)))
+                InternalCacheTypeConvertersOf(t);
+
+            foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t) == false))
+                InternalCacheTypesOf(t);
         }
-        /// <summary>
-        /// Cache type
-        /// </summary>
-        /// <param name="type">Type</param>
-        public static bool CacheTypesOf(Type type)
-        {
-            return InternalCacheTypesOf(type) != null;
-        }
+
         /// <summary>
         /// Cache type
         /// </summary>
@@ -64,6 +66,17 @@ namespace NeoSharp.BinarySerialization
                 return b;
             }
         }
+
+        internal static void InternalCacheTypeConvertersOf(Type type)
+        {
+            lock (TypeConverterCache)
+            {
+                if (TypeConverterCache.ContainsKey(type)) return;
+
+                TypeConverterCache.Add(type, (TypeConverter)Activator.CreateInstance(type));
+            }
+        }
+
         /// <summary>
         /// Deserialize
         /// </summary>

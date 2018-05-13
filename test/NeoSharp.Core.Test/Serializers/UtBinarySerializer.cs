@@ -6,6 +6,7 @@ using NeoSharp.Core.Test.Types;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Test.Serializers
 {
@@ -15,8 +16,8 @@ namespace NeoSharp.Core.Test.Serializers
         [TestInitialize]
         public void WarmSerializer()
         {
-            BinarySerializer.CacheTypesOf(typeof(UtBinarySerializer).Assembly);
             BinarySerializer.CacheTypesOf(typeof(Block).Assembly);
+            BinarySerializer.CacheTypesOf(typeof(UtBinarySerializer).Assembly);
         }
 
         [TestMethod]
@@ -213,25 +214,25 @@ namespace NeoSharp.Core.Test.Serializers
             var block = new Block()
             {
                 Confirmations = 1,
-                ConsensusData = "ConsensusData",
+                ConsensusData = 100_000_000,
                 Hash = "Hash",
                 Index = 0,
-                MerkleRoot = "MerkleRoot",
-                NextBlockHash = "NextBlockHash",
-                NextConsensus = "NextConsensus",
-                PreviousBlockHash = "PreviousBlockHash",
+                MerkleRoot = UInt256.Zero,
+                NextBlockHash = UInt256.Zero,
+                NextConsensus = UInt160.Zero,
+                PreviousBlockHash = UInt256.Zero,
                 Size = 2,
                 Timestamp = 3,
                 Version = 4,
                 Script = new Witness
                 {
                     InvocationScript = "InvocationScript",
-                    VerificationScript = "VerificationScript",
+                    VerificationScript = new byte[0],
                 },
                 TxHashes = new[] { "a", "b", "c" }
             };
 
-            var blockCopy = BinarySerializer.Deserialize<Block>((BinarySerializer.Serialize(block)));
+            var blockCopy = BinarySerializer.Deserialize<Block>(BinarySerializer.Serialize(block));
 
             Assert.AreEqual(block.Confirmations, blockCopy.Confirmations);
             Assert.AreEqual(block.ConsensusData, blockCopy.ConsensusData);
@@ -245,7 +246,7 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(block.Version, blockCopy.Version);
 
             Assert.AreEqual(block.Script.InvocationScript, blockCopy.Script.InvocationScript);
-            Assert.AreEqual(block.Script.VerificationScript, blockCopy.Script.VerificationScript);
+            Assert.IsTrue(block.Script.VerificationScript.SequenceEqual(blockCopy.Script.VerificationScript));
 
             Assert.IsTrue(block.TxHashes.SequenceEqual(blockCopy.TxHashes));
         }

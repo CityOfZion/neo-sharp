@@ -1,6 +1,7 @@
 ﻿using NeoSharp.BinarySerialization;
 using Newtonsoft.Json;
 using System;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Models
 {
@@ -21,15 +22,15 @@ namespace NeoSharp.Core.Models
 
         [BinaryProperty(4)]
         [JsonProperty("previousblockhash")]
-        public string PreviousBlockHash;
+        public UInt256 PreviousBlockHash;
 
         [BinaryProperty(5)]
         [JsonProperty("merkleroot")]
-        public string MerkleRoot;
+        public UInt256 MerkleRoot;
 
         [BinaryProperty(6)]
         [JsonProperty("time")]
-        public int Timestamp;
+        public uint Timestamp;
 
         [BinaryProperty(7)]
         [JsonProperty("index")]
@@ -37,15 +38,15 @@ namespace NeoSharp.Core.Models
 
         [BinaryProperty(8)]
         [JsonProperty("nonce")]
-        public string ConsensusData;
+        public ulong ConsensusData;
 
         [BinaryProperty(9)]
         [JsonProperty("nextconsensus")]
-        public string NextConsensus;
+        public UInt160 NextConsensus;
 
         [BinaryProperty(10)]
         [JsonProperty("nextblockhash")]
-        public string NextBlockHash;
+        public UInt256 NextBlockHash;
 
         [BinaryProperty(12)]
         [JsonProperty("script")]
