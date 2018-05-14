@@ -409,7 +409,7 @@ namespace NeoSharp.Application.Client
                     // Print category
 
                     lastCat = c.Category;
-                    _consoleWriter.WriteLine(lastCat);
+                    _consoleWriter.WriteLine(lastCat, ConsoleOutputStyle.Information);
                 }
 
                 string command = string.Join(" ", key);
