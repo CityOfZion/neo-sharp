@@ -1,5 +1,5 @@
 using NeoSharp.BinarySerialization.Cache;
-using NeoSharp.BinarySerialization.Interfaces;
+using NeoSharp.BinarySerialization.SerializationHooks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,16 +20,16 @@ namespace NeoSharp.BinarySerialization
         /// <param name="asms">Assemblies</param>
         public BinarySerializer(params Assembly[] asms)
         {
-            BinarySerializerCache.CacheTypesOf(asms);
+            BinarySerializerCache.RegisterTypes(asms);
         }
 
         /// <summary>
-        /// Cache types (call me if you load a new plugin or module)
+        /// Register types (call me if you load a new plugin or module)
         /// </summary>
         /// <param name="asms">Assemblies</param>
-        public static void CacheTypesOf(params Assembly[] asms)
+        public static void RegisterTypes(params Assembly[] asms)
         {
-            BinarySerializerCache.CacheTypesOf(asms);
+            BinarySerializerCache.RegisterTypes(asms);
         }
 
         /// <summary>

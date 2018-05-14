@@ -3,11 +3,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Test.Types;
+using NeoSharp.Core.Types;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NeoSharp.Core.Types;
-using NeoSharp.BinarySerialization.Interfaces;
 
 namespace NeoSharp.Core.Test.Serializers
 {

@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace NeoSharp.BinarySerialization.Interfaces
+namespace NeoSharp.BinarySerialization
 {
     public interface IBinarySerializer
     {

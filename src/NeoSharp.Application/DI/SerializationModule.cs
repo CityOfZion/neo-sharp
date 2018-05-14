@@ -1,5 +1,4 @@
 ﻿using NeoSharp.BinarySerialization;
-using NeoSharp.BinarySerialization.Interfaces;
 using NeoSharp.Core.DI;
 using System;
 using System.Linq;

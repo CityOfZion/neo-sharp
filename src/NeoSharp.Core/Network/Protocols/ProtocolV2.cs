@@ -1,4 +1,4 @@
-﻿using NeoSharp.BinarySerialization.Interfaces;
+﻿using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Messaging;
 using System;
 using System.IO;

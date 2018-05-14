@@ -1,4 +1,4 @@
-﻿using NeoSharp.BinarySerialization.Interfaces;
+﻿using NeoSharp.BinarySerialization;
 using System.Collections.Generic;
 
 namespace NeoSharp.Core.Network.Protocols

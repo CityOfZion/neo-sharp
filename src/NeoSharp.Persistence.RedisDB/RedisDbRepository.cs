@@ -1,4 +1,4 @@
-﻿using NeoSharp.BinarySerialization.Interfaces;
+﻿using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using StackExchange.Redis;

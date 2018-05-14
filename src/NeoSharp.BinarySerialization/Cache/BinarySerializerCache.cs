@@ -1,4 +1,4 @@
-using NeoSharp.BinarySerialization.Interfaces;
+using NeoSharp.BinarySerialization.SerializationHooks;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -20,15 +20,15 @@ namespace NeoSharp.BinarySerialization.Cache
         /// Cache types (call me if you load a new plugin or module)
         /// </summary>
         /// <param name="asms">Assemblies</param>
-        public static void CacheTypesOf(params Assembly[] asms)
+        public static void RegisterTypes(params Assembly[] asms)
         {
             foreach (Assembly asm in asms)
             {
                 foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t)))
-                    InternalCacheTypeConvertersOf(t);
+                    InternalRegisterTypeConverter(t);
 
                 foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t) == false))
-                    InternalCacheTypesOf(t);
+                    InternalRegisterTypes(t);
             }
         }
 
@@ -36,7 +36,7 @@ namespace NeoSharp.BinarySerialization.Cache
         /// Cache type
         /// </summary>
         /// <param name="type">Type</param>
-        internal static BinarySerializerCache InternalCacheTypesOf(Type type)
+        internal static BinarySerializerCache InternalRegisterTypes(Type type)
         {
             lock (Cache)
             {
@@ -50,7 +50,7 @@ namespace NeoSharp.BinarySerialization.Cache
             }
         }
 
-        internal static void InternalCacheTypeConvertersOf(Type type)
+        internal static void InternalRegisterTypeConverter(Type type)
         {
             lock (TypeConverterCache)
             {

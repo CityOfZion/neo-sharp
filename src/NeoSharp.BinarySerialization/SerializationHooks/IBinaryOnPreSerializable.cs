@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.BinarySerialization.Interfaces
+﻿namespace NeoSharp.BinarySerialization.SerializationHooks
 {
     public interface IBinaryOnPreSerializable
     {
