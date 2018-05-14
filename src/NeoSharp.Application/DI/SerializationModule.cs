@@ -1,7 +1,8 @@
-﻿using System;
-using System.Linq;
-using NeoSharp.BinarySerialization;
+﻿using NeoSharp.BinarySerialization;
+using NeoSharp.BinarySerialization.Interfaces;
 using NeoSharp.Core.DI;
+using System;
+using System.Linq;
 
 namespace NeoSharp.Application.DI
 {
@@ -9,7 +10,7 @@ namespace NeoSharp.Application.DI
     {
         public void Register(IContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterInstanceCreator<IBinarySerializer>(() =>
+            containerBuilder.RegisterSingleton<IBinarySerializer>(() =>
             {
                 var assemblies = AppDomain.CurrentDomain
                     .GetAssemblies()
@@ -17,6 +18,16 @@ namespace NeoSharp.Application.DI
                     .ToArray();
 
                 return new BinarySerializer(assemblies);
+            });
+
+            containerBuilder.RegisterSingleton<IBinaryDeserializer>(() =>
+            {
+                var assemblies = AppDomain.CurrentDomain
+                    .GetAssemblies()
+                    .Where(asm => asm.FullName.StartsWith("Neo"))
+                    .ToArray();
+
+                return new BinaryDeserializer(assemblies);
             });
         }
     }

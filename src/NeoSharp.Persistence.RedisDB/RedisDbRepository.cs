@@ -1,4 +1,4 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using NeoSharp.BinarySerialization.Interfaces;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using StackExchange.Redis;
@@ -11,11 +11,13 @@ namespace NeoSharp.Persistence.RedisDB
     public class RedisDbRepository : IRepository
     {
         private readonly IBinarySerializer _serializer;
+        private readonly IBinaryDeserializer _deserializer;
         private RedisHelper _redis;
 
-        public RedisDbRepository(IBinarySerializer serializer)
+        public RedisDbRepository(IBinarySerializer serializer, IBinaryDeserializer deserializer)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
         }
 
         #region IRepository Members
@@ -54,7 +56,7 @@ namespace NeoSharp.Persistence.RedisDB
             RedisValue[] values = _redis.Database.GetFromIndex(RedisIndex.BlockHeight, height);
 
             //We want only the first result
-            if(values.Length > 0)
+            if (values.Length > 0)
                 return GetBlockById((string)values[0]);
 
             return null;
@@ -83,7 +85,7 @@ namespace NeoSharp.Persistence.RedisDB
             var blockBytes = GetRawBlockBytes(id);
 
             //Deserialize the block
-            return _serializer.Deserialize<Block>(blockBytes);
+            return _deserializer.Deserialize<Block>(blockBytes);
         }
 
         public byte[] GetRawBlockBytes(string id)
@@ -110,7 +112,7 @@ namespace NeoSharp.Persistence.RedisDB
         public Transaction GetTransaction(string id)
         {
             var transactionBytes = _redis.Database.Get(DataEntryPrefix.DataTransaction, id);
-            return _serializer.Deserialize<Transaction>(transactionBytes);
+            return _deserializer.Deserialize<Transaction>(transactionBytes);
         }
 
         public Transaction[] GetTransactionsForBlock(byte[] id)
@@ -124,7 +126,7 @@ namespace NeoSharp.Persistence.RedisDB
             List<Transaction> transactions = new List<Transaction>();
             var block = GetBlockById(id);
 
-            foreach(var txHash in block.TxHashes)
+            foreach (var txHash in block.TxHashes)
             {
                 var tx = GetTransaction(txHash);
                 transactions.Add(tx);
@@ -138,8 +140,7 @@ namespace NeoSharp.Persistence.RedisDB
             if (String.IsNullOrEmpty(connection))
                 connection = "localhost";
 
-            int dbId = 0;
-            int.TryParse(database, out dbId);
+            int.TryParse(database, out int dbId);
 
             //TODO: We need to make sure we persist this connection multiplexer, we don't want multiple connections within the app
             //Implementing now for testability, we will want to blend this into the repository / DI patterns
