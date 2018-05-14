@@ -167,7 +167,7 @@ namespace NeoSharp.Application.Client
 
                 switch (cmds.Count)
                 {
-                    case 0: throw (new Exception("Command not found"));
+                    case 0: throw (new Exception($"Command not found <{command}>"));
                     case 1: cmd = cmds[0]; break;
                     case 2:
                         {

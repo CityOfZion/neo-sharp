@@ -67,6 +67,20 @@ namespace NeoSharp.Application.Client
 
                         break;
                     }
+                case ConsoleOutputStyle.Autocomplete:
+                    {
+                        if (Console.ForegroundColor != ConsoleColor.DarkYellow)
+                            Console.ForegroundColor = ConsoleColor.DarkYellow;
+
+                        break;
+                    }
+                case ConsoleOutputStyle.AutocompleteMatch:
+                    {
+                        if (Console.ForegroundColor != ConsoleColor.Yellow)
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+
+                        break;
+                    }
             }
         }
         /// <summary>
