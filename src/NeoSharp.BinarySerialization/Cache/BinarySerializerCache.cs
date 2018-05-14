@@ -17,25 +17,6 @@ namespace NeoSharp.BinarySerialization.Cache
         internal static readonly IDictionary<Type, TypeConverter> TypeConverterCache = new Dictionary<Type, TypeConverter>();
 
         /// <summary>
-        /// Cache Binary Serializer types
-        /// </summary>
-        static BinarySerializerCache()
-        {
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
-                try
-                {
-                    // Speed up warm-up process
-                    if (!asm.FullName.StartsWith("Neo")) continue;
-
-                    CacheTypesOf(asm);
-                }
-                catch
-                {
-                    // ignored
-                }
-        }
-
-        /// <summary>
         /// Cache types (call me if you load a new plugin or module)
         /// </summary>
         /// <param name="asms">Assemblies</param>
