@@ -1,9 +1,8 @@
-using NeoSharp.BinarySerialization.Interfaces;
+using NeoSharp.BinarySerialization.Cache;
+using NeoSharp.BinarySerialization.SerializationHooks;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -12,223 +11,27 @@ namespace NeoSharp.BinarySerialization
     public class BinarySerializer : IBinarySerializer
     {
         /// <summary>
-        /// Cache
+        /// Constructor
         /// </summary>
-        private static readonly IDictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
-        internal static readonly IDictionary<Type, TypeConverter> TypeConverterCache = new Dictionary<Type, TypeConverter>();
-
+        public BinarySerializer() { }
         /// <summary>
-        /// Cache Binary Serializer types
+        /// Constructor
         /// </summary>
-        public BinarySerializer(params Assembly[] assemblies)
+        /// <param name="asms">Assemblies</param>
+        public BinarySerializer(params Assembly[] asms)
         {
-            foreach (var asm in assemblies)
-                try
-                {
-                    // Speed up warm-up process
-                    CacheTypesOf(asm);
-                }
-                catch
-                {
-                    // ignored
-                }
+            BinarySerializerCache.RegisterTypes(asms);
         }
 
         /// <summary>
-        /// Cache types (call me if you load a new plugin or module)
+        /// Register types (call me if you load a new plugin or module)
         /// </summary>
-        /// <param name="asm">Assembly</param>
-        internal void CacheTypesOf(Assembly asm)
+        /// <param name="asms">Assemblies</param>
+        public static void RegisterTypes(params Assembly[] asms)
         {
-            foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t)))
-                InternalCacheTypeConvertersOf(t);
-
-            foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t) == false))
-                InternalCacheTypesOf(t);
+            BinarySerializerCache.RegisterTypes(asms);
         }
 
-        /// <summary>
-        /// Cache type
-        /// </summary>
-        /// <param name="type">Type</param>
-        internal BinarySerializerCache InternalCacheTypesOf(Type type)
-        {
-            lock (Cache)
-            {
-                if (Cache.TryGetValue(type, out var cache)) return cache;
-
-                var b = new BinarySerializerCache(type, this);
-                if (b.Count <= 0) return null;
-
-                Cache.Add(b.Type, b);
-                return b;
-            }
-        }
-
-        internal void InternalCacheTypeConvertersOf(Type type)
-        {
-            lock (TypeConverterCache)
-            {
-                if (TypeConverterCache.ContainsKey(type)) return;
-
-                TypeConverterCache.Add(type, (TypeConverter)Activator.CreateInstance(type));
-            }
-        }
-
-        /// <summary>
-        /// Deserialize
-        /// </summary>
-        /// <typeparam name="T">Type</typeparam>
-        /// <param name="obj">Object</param>
-        /// <returns>Return byte array</returns>
-        public T Deserialize<T>(byte[] data) where T : new()
-        {
-            using (var ms = new MemoryStream(data))
-            {
-                return Deserialize<T>(ms);
-            }
-        }
-        /// <summary>
-        /// Deserialize
-        /// </summary>
-        /// <param name="data">Data</param>
-        /// <param name="type">Type</param>
-        /// <returns>Return object</returns>
-        public object Deserialize(byte[] data, Type type)
-        {
-            using (var ms = new MemoryStream(data))
-            {
-                return Deserialize(ms, type);
-            }
-        }
-        /// <summary>
-        /// Deserialize
-        /// </summary>
-        /// <typeparam name="T">Type</typeparam>
-        /// <param name="stream">Stream</param>
-        /// <returns>Return object</returns>
-        public T Deserialize<T>(Stream stream) where T : new()
-        {
-            // Search in cache
-
-            if (!Cache.TryGetValue(typeof(T), out var cache))
-                throw new KeyNotFoundException("The type is not registered");
-
-            // Deserialize
-
-            using (var br = new BinaryReader(stream, Encoding.UTF8))
-            {
-                var obj = cache.Deserialize<T>(br);
-
-                if (cache.IsOnPostDeserializable)
-                    ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
-
-                return obj;
-            }
-        }
-        /// <summary>
-        /// Deserialize
-        /// </summary>
-        /// <typeparam name="T">Type</typeparam>
-        /// <param name="stream">Stream</param>
-        /// <returns>Return object</returns>
-        public T Deserialize<T>(BinaryReader stream) where T : new()
-        {
-            // Search in cache
-
-            if (!Cache.TryGetValue(typeof(T), out var cache))
-                throw new KeyNotFoundException("The type is not registered");
-
-            // Deserialize
-
-            var obj = cache.Deserialize<T>(stream);
-
-            if (cache.IsOnPostDeserializable)
-                ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
-
-            return obj;
-        }
-        /// <summary>
-        /// Deserialize
-        /// </summary>
-        /// <param name="stream">Stream</param>
-        /// <param name="t">Type</param>
-        /// <returns>Return object</returns>
-        public object Deserialize(Stream stream, Type t)
-        {
-            // Search in cache
-
-            if (!Cache.TryGetValue(t, out var cache))
-                throw new KeyNotFoundException("The type is not registered");
-
-            // Deserialize
-
-            using (var br = new BinaryReader(stream, Encoding.UTF8, true))
-            {
-                var obj = cache.Deserialize(br);
-
-                if (cache.IsOnPostDeserializable)
-                    ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
-
-                return obj;
-            }
-        }
-        /// <summary>
-        /// Deserialize without create a new object
-        /// </summary>
-        /// <param name="buffer">Buffer</param>
-        /// <param name="obj">Object</param>
-        public void DeserializeInside(byte[] buffer, object obj)
-        {
-            using (var ms = new MemoryStream(buffer))
-            {
-                DeserializeInside(ms, obj);
-            }
-        }
-        /// <summary>
-        /// Deserialize without create a new object
-        /// </summary>
-        /// <param name="stream">Stream</param>
-        /// <param name="obj">Object</param>
-        public void DeserializeInside(Stream stream, object obj)
-        {
-            // Search in cache
-
-            if (!Cache.TryGetValue(obj.GetType(), out var cache))
-                throw new KeyNotFoundException("The type is not registered");
-
-            // Deserialize
-
-            using (var br = new BinaryReader(stream, Encoding.UTF8, true))
-            {
-                cache.DeserializeInside(br, obj);
-
-                if (cache.IsOnPostDeserializable)
-                    ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
-            }
-        }
-        /// <summary>
-        /// Deserialize
-        /// </summary>
-        /// <param name="stream">Stream</param>
-        /// <param name="t">Type</param>
-        /// <returns>Return object</returns>
-        public object Deserialize(BinaryReader stream, Type t)
-        {
-            // Search in cache
-
-            if (!Cache.TryGetValue(t, out var cache))
-                throw new KeyNotFoundException("The type is not registered");
-
-            // Deserialize
-
-            var obj = cache.Deserialize(stream);
-
-            if (cache.IsOnPostDeserializable)
-                ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
-
-            return obj;
-        }
         /// <summary>
         /// Serialize
         /// </summary>
@@ -252,7 +55,7 @@ namespace NeoSharp.BinarySerialization
         {
             // Search in cache
 
-            if (!Cache.TryGetValue(obj.GetType(), out var cache))
+            if (!BinarySerializerCache.Cache.TryGetValue(obj.GetType(), out var cache))
                 throw new KeyNotFoundException("The type is not registered");
 
             // Serialize
@@ -262,7 +65,7 @@ namespace NeoSharp.BinarySerialization
                 if (cache.IsOnPreSerializable)
                     ((IBinaryOnPreSerializable)obj).OnPreSerialize();
 
-                return cache.Serialize(bw, obj);
+                return cache.Serialize(this, bw, obj);
             }
         }
         /// <summary>
@@ -275,7 +78,7 @@ namespace NeoSharp.BinarySerialization
         {
             // Search in cache
 
-            if (!Cache.TryGetValue(obj.GetType(), out var cache))
+            if (!BinarySerializerCache.Cache.TryGetValue(obj.GetType(), out var cache))
                 throw new NotImplementedException();
 
             // Serialize
@@ -283,7 +86,7 @@ namespace NeoSharp.BinarySerialization
             if (cache.IsOnPreSerializable)
                 ((IBinaryOnPreSerializable)obj).OnPreSerialize();
 
-            return cache.Serialize(stream, obj);
+            return cache.Serialize(this, stream, obj);
         }
     }
 }

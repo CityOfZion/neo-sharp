@@ -3,10 +3,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Test.Types;
+using NeoSharp.Core.Types;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Test.Serializers
 {
@@ -14,11 +14,13 @@ namespace NeoSharp.Core.Test.Serializers
     public class UtBinarySerializer
     {
         private IBinarySerializer _serializer;
+        private IBinaryDeserializer _deserializer;
 
         [TestInitialize]
         public void WarmSerializer()
         {
             _serializer = new BinarySerializer(typeof(Block).Assembly, typeof(UtBinarySerializer).Assembly);
+            _deserializer = new BinaryDeserializer(typeof(Block).Assembly, typeof(UtBinarySerializer).Assembly);
         }
 
         [TestMethod]
@@ -42,23 +44,23 @@ namespace NeoSharp.Core.Test.Serializers
 
             List<DummyParent> ls = new List<DummyParent>
             {
-                _serializer.Deserialize<DummyParent>(data),
-                (DummyParent)_serializer.Deserialize(data, typeof(DummyParent))
+                _deserializer.Deserialize<DummyParent>(data),
+                (DummyParent)_deserializer.Deserialize(data, typeof(DummyParent))
             };
 
             using (var ms = new MemoryStream(data))
             {
-                ls.Add((DummyParent)_serializer.Deserialize(ms, typeof(DummyParent)));
+                ls.Add((DummyParent)_deserializer.Deserialize(ms, typeof(DummyParent)));
                 ms.Seek(0, SeekOrigin.Begin);
-                ls.Add(_serializer.Deserialize<DummyParent>(ms));
+                ls.Add(_deserializer.Deserialize<DummyParent>(ms));
             }
 
             using (var ms = new MemoryStream(data))
             using (var mr = new BinaryReader(ms))
             {
-                ls.Add((DummyParent)_serializer.Deserialize(mr, typeof(DummyParent)));
+                ls.Add((DummyParent)_deserializer.Deserialize(mr, typeof(DummyParent)));
                 ms.Seek(0, SeekOrigin.Begin);
-                ls.Add(_serializer.Deserialize<DummyParent>(mr));
+                ls.Add(_deserializer.Deserialize<DummyParent>(mr));
             }
 
             foreach (var parent in ls)
@@ -84,7 +86,7 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void Deserialize()
         {
-            var actual = _serializer.Deserialize<Dummy>(new byte[]
+            var actual = _deserializer.Deserialize<Dummy>(new byte[]
             {
                 0x01,
                 0x02,
@@ -206,7 +208,7 @@ namespace NeoSharp.Core.Test.Serializers
         public void ReadOnly()
         {
             var readOnly = new DummyReadOnly();
-            var copy = _serializer.Deserialize<DummyReadOnly>(_serializer.Serialize(readOnly));
+            var copy = _deserializer.Deserialize<DummyReadOnly>(_serializer.Serialize(readOnly));
 
             Assert.AreEqual(readOnly.A, copy.A);
         }
@@ -235,7 +237,7 @@ namespace NeoSharp.Core.Test.Serializers
                 TxHashes = new[] { "a", "b", "c" }
             };
 
-            var blockCopy = _serializer.Deserialize<Block>(_serializer.Serialize(block));
+            var blockCopy = _deserializer.Deserialize<Block>(_serializer.Serialize(block));
 
             Assert.AreEqual(block.Confirmations, blockCopy.Confirmations);
             Assert.AreEqual(block.ConsensusData, blockCopy.ConsensusData);

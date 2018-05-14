@@ -1,20 +1,22 @@
-﻿using NeoSharp.Core.Models;
+﻿using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
+using RocksDbSharp;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using RocksDbSharp;
-using NeoSharp.BinarySerialization;
 
 namespace NeoSharp.Persistence.RocksDB
 {
     public class RocksDbRepository : IRepository, IDisposable
     {
         private readonly IBinarySerializer _serializer;
+        private readonly IBinaryDeserializer _deserializer;
 
-        public RocksDbRepository(IBinarySerializer serializer)
+        public RocksDbRepository(IBinarySerializer serializer, IBinaryDeserializer deserializer)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
         }
 
         private RocksDb _rocksDb;
@@ -40,7 +42,7 @@ namespace NeoSharp.Persistence.RocksDB
         public Block GetBlockById(byte[] id)
         {
             var bytes = GetRawBlockBytes(id);
-            return _serializer.Deserialize<Block>(bytes);
+            return _deserializer.Deserialize<Block>(bytes);
         }
 
         public Block GetBlockById(string id)
@@ -71,7 +73,7 @@ namespace NeoSharp.Persistence.RocksDB
         public Transaction GetTransaction(byte[] id)
         {
             var bytes = _rocksDb.Get(BuildKey(DataEntryPrefix.DataTransaction, id));
-            return _serializer.Deserialize<Transaction>(bytes);
+            return _deserializer.Deserialize<Transaction>(bytes);
         }
 
         public Transaction GetTransaction(string id)
