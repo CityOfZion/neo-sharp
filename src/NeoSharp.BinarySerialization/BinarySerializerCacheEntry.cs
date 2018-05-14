@@ -9,6 +9,7 @@ namespace NeoSharp.BinarySerialization
 {
     internal class BinarySerializerCacheEntry
     {
+        private readonly BinarySerializer _serializer;
         // Delegates
 
         public delegate object ReadValueDelegate(BinaryReader reader);
@@ -40,9 +41,10 @@ namespace NeoSharp.BinarySerialization
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="atr">Attribute</param>
+        /// <param name="attr">Attribute</param>
         /// <param name="pi">Property</param>
-        public BinarySerializerCacheEntry(BinaryPropertyAttribute atr, PropertyInfo pi) : this(atr, pi.PropertyType)
+        public BinarySerializerCacheEntry(BinaryPropertyAttribute attr, PropertyInfo pi, BinarySerializer serializer)
+            : this(attr, pi.PropertyType, serializer)
         {
             Name = pi.Name;
             GetValue = pi.GetValue;
@@ -52,9 +54,10 @@ namespace NeoSharp.BinarySerialization
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="atr">Attribute</param>
+        /// <param name="attr">Attribute</param>
         /// <param name="fi">Field</param>
-        public BinarySerializerCacheEntry(BinaryPropertyAttribute atr, FieldInfo fi) : this(atr, fi.FieldType)
+        public BinarySerializerCacheEntry(BinaryPropertyAttribute attr, FieldInfo fi, BinarySerializer serializer)
+            : this(attr, fi.FieldType, serializer)
         {
             Name = fi.Name;
             GetValue = fi.GetValue;
@@ -64,12 +67,14 @@ namespace NeoSharp.BinarySerialization
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="atr">Attribute</param>
+        /// <param name="attr">Attribute</param>
         /// <param name="btype">Type</param>
-        private BinarySerializerCacheEntry(BinaryPropertyAttribute atr, Type btype)
+        private BinarySerializerCacheEntry(BinaryPropertyAttribute attr, Type btype, BinarySerializer serializer)
         {
+            _serializer = serializer;
+
             var type = btype;
-            MaxLength = atr.MaxLength;
+            MaxLength = attr.MaxLength;
             var isArray = type.IsArray;
             var isList = _iListType.IsAssignableFrom(type);
 
@@ -173,20 +178,22 @@ namespace NeoSharp.BinarySerialization
         private class RecursiveType
         {
             private readonly Type Type;
+            private readonly BinarySerializer _serializer;
 
-            public RecursiveType(Type type)
+            public RecursiveType(Type type, BinarySerializer serializer)
             {
                 Type = type;
+                _serializer = serializer;
             }
 
             public int SetRecursiveValue(BinaryWriter writer, object value)
             {
-                return BinarySerializer.Serialize(value, writer);
+                return _serializer.Serialize(value, writer);
             }
 
             public object GetRecursiveValue(BinaryReader reader)
             {
-                return BinarySerializer.Deserialize(reader, Type);
+                return _serializer.Deserialize(reader, Type);
             }
         }
 
@@ -497,9 +504,9 @@ namespace NeoSharp.BinarySerialization
 
         #region Helpers
 
-        private static bool TryRecursive(Type type, out ReadValueDelegate readValue, out WriteValueDelegate writeValue)
+        private bool TryRecursive(Type type, out ReadValueDelegate readValue, out WriteValueDelegate writeValue)
         {
-            var cache = BinarySerializer.InternalCacheTypesOf(type);
+            var cache = _serializer.InternalCacheTypesOf(type);
             if (cache == null)
             {
                 foreach (var typeConverter in BinarySerializer.TypeConverterCache.Values)
@@ -525,7 +532,7 @@ namespace NeoSharp.BinarySerialization
                 return false;
             }
 
-            var r = new RecursiveType(type);
+            var r = new RecursiveType(type, _serializer);
             readValue = r.GetRecursiveValue;
             writeValue = r.SetRecursiveValue;
             return true;

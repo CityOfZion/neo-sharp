@@ -40,7 +40,7 @@ namespace NeoSharp.Core.Blockchain
         public static readonly NetworkBlock GenesisBlock = new NetworkBlock
         {
             PreviousBlockHash = UInt256.Zero,
-            Timestamp = (new DateTime(2016, 7, 15, 15, 8, 21, DateTimeKind.Utc)).ToTimestamp(),
+            Timestamp = new DateTime(2016, 7, 15, 15, 8, 21, DateTimeKind.Utc).ToTimestamp(),
             Index = 0,
             ConsensusData = 2083236893, //Pay tribute to Bitcoin
             NextConsensus = GetConsensusAddress(StandbyValidators),
@@ -90,7 +90,8 @@ namespace NeoSharp.Core.Blockchain
         {
             _repository = repository;
 
-            GenesisBlock.MerkleRoot = MerkleTree.ComputeRoot(GenesisBlock.Transactions.Select(p => p.Hash).ToArray());
+            // TODO: Uncomment when we figure out transactions in genesis block
+            // GenesisBlock.MerkleRoot = MerkleTree.ComputeRoot(GenesisBlock.Transactions.Select(p => p.Hash).ToArray());
         }
 
         public UInt256 CurrentBlockHash { get; }

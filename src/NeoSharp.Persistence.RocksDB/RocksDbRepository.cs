@@ -10,19 +10,26 @@ namespace NeoSharp.Persistence.RocksDB
 {
     public class RocksDbRepository : IRepository, IDisposable
     {
+        private readonly IBinarySerializer _serializer;
+
+        public RocksDbRepository(IBinarySerializer serializer)
+        {
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+        }
+
         private RocksDb _rocksDb;
 
         #region IRepository Members
         public void AddBlock(Block block)
         {
             var hash = Encoding.UTF8.GetBytes(block.Hash);
-            _rocksDb.Put(BuildKey(DataEntryPrefix.DataBlock,hash), block.ToBytes());
+            _rocksDb.Put(BuildKey(DataEntryPrefix.DataBlock,hash), _serializer.Serialize(block));
         }
 
         public void AddTransaction(Transaction transaction)
         {
             var hash = transaction.Hash.ToArray();
-            _rocksDb.Put(BuildKey(DataEntryPrefix.DataTransaction,hash), transaction.ToBytes());
+            _rocksDb.Put(BuildKey(DataEntryPrefix.DataTransaction,hash), _serializer.Serialize(transaction));
         }
 
         public Block GetBlockByHeight(int height)
@@ -33,7 +40,7 @@ namespace NeoSharp.Persistence.RocksDB
         public Block GetBlockById(byte[] id)
         {
             var bytes = GetRawBlockBytes(id);
-            return BinarySerializer.Deserialize<Block>(bytes);
+            return _serializer.Deserialize<Block>(bytes);
         }
 
         public Block GetBlockById(string id)
@@ -64,7 +71,7 @@ namespace NeoSharp.Persistence.RocksDB
         public Transaction GetTransaction(byte[] id)
         {
             var bytes = _rocksDb.Get(BuildKey(DataEntryPrefix.DataTransaction, id));
-            return BinarySerializer.Deserialize<Transaction>(bytes);
+            return _serializer.Deserialize<Transaction>(bytes);
         }
 
         public Transaction GetTransaction(string id)
@@ -85,7 +92,7 @@ namespace NeoSharp.Persistence.RocksDB
         public void Initialize(string connection, string database)
         {
             if (String.IsNullOrEmpty(connection))
-                throw new ArgumentNullException("No connection / path provided for RocksDB");
+                throw new ArgumentNullException(nameof(connection), "No connection / path provided for RocksDB");
 
             //Connection = path in rocksDB, but I don't like this - we need to rethink how we could
             //Make this signature more generic for all of the varieties of repositories

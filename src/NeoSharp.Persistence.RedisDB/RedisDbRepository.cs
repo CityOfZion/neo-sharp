@@ -10,11 +10,12 @@ namespace NeoSharp.Persistence.RedisDB
 {
     public class RedisDbRepository : IRepository
     {
+        private readonly IBinarySerializer _serializer;
         private RedisHelper _redis;
 
-        public RedisDbRepository()
+        public RedisDbRepository(IBinarySerializer serializer)
         {
-
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         #region IRepository Members
@@ -22,7 +23,7 @@ namespace NeoSharp.Persistence.RedisDB
         public void AddBlock(Block block)
         {
             //Convert to bytes
-            var blockBytes = block.ToBytes();
+            var blockBytes = _serializer.Serialize(block);
 
             //Write the redis database with the binary bytes
             _redis.Database.Set(DataEntryPrefix.DataBlock, block.Hash, blockBytes);
@@ -38,7 +39,7 @@ namespace NeoSharp.Persistence.RedisDB
         public void AddTransaction(Transaction transaction)
         {
             //Convert to bytes
-            var transactionBytes = transaction.ToBytes();
+            var transactionBytes = _serializer.Serialize(transaction);
 
             //Write the redis database with the binary bytes
             _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash.ToString(), transactionBytes);
@@ -82,7 +83,7 @@ namespace NeoSharp.Persistence.RedisDB
             var blockBytes = GetRawBlockBytes(id);
 
             //Deserialize the block
-            return BinarySerializer.Deserialize<Block>(blockBytes);
+            return _serializer.Deserialize<Block>(blockBytes);
         }
 
         public byte[] GetRawBlockBytes(string id)
@@ -109,7 +110,7 @@ namespace NeoSharp.Persistence.RedisDB
         public Transaction GetTransaction(string id)
         {
             var transactionBytes = _redis.Database.Get(DataEntryPrefix.DataTransaction, id);
-            return BinarySerializer.Deserialize<Transaction>(transactionBytes);
+            return _serializer.Deserialize<Transaction>(transactionBytes);
         }
 
         public Transaction[] GetTransactionsForBlock(byte[] id)
