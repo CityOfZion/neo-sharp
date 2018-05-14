@@ -9,7 +9,6 @@ namespace NeoSharp.Core.Network
         public NetworkManager(ILogger<NetworkManager> logger, IServer serverInit)
         {
             _server = serverInit;
-
             logger.LogInformation("Network Manager Initialised");
         }
 

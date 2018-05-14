@@ -59,7 +59,7 @@ namespace NeoSharp.Core.Models
         [JsonProperty("txcount")]
         public int TxCount
         {
-            get { return TxHashes.Length; }
+            get { return TxHashes == null ? 0 : TxHashes.Length; }
         }
 
         [BinaryProperty(14)]
@@ -71,9 +71,9 @@ namespace NeoSharp.Core.Models
             return BinarySerializer.Serialize(this);
         }
 
-        public string ToJson()
+        public string ToJson(bool indent = false)
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonConvert.SerializeObject(this, indent ? Formatting.Indented : Formatting.None);
         }
     }
 }
