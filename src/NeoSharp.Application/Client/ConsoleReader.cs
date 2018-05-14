@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security;
+using System.Text;
 
 namespace NeoSharp.Application.Client
 {
@@ -13,6 +15,10 @@ namespace NeoSharp.Application.Client
         /// Prompt
         /// </summary>
         private const string ReadPrompt = "neo#> ";
+        /// <summary>
+        /// Max history size
+        /// </summary>
+        private const int MaxHistorySize = 32;
 
         #endregion
 
@@ -20,6 +26,7 @@ namespace NeoSharp.Application.Client
 
         private readonly IConsoleWriter _consoleWriter;
         private readonly List<string> _manualInputs;
+        private readonly List<string> _history;
 
         #endregion
 
@@ -31,6 +38,7 @@ namespace NeoSharp.Application.Client
         {
             _consoleWriter = consoleWriterInit;
             _manualInputs = new List<string>();
+            _history = new List<string>();
         }
 
         /// <summary>
@@ -82,8 +90,9 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Read string from console
         /// </summary>
+        /// <param name="autocomplete">Autocomplete</param>
         /// <returns>Returns the readed string</returns>
-        public string ReadFromConsole()
+        public string ReadFromConsole(IDictionary<string, List<ParameterInfo[]>> autocomplete = null)
         {
             // Write prompt
 
@@ -114,7 +123,282 @@ namespace NeoSharp.Application.Client
 
             // Read from console
 
-            return Console.ReadLine();
+            string ret;
+            if (autocomplete != null && autocomplete.Count > 0)
+            {
+                int cursor = 0;
+                int historyIndex = 0;
+                bool insertMode = true;
+                var txt = new StringBuilder();
+
+                Console.CursorSize = !insertMode ? 100 : 25;
+                _consoleWriter.GetCursorPosition(out int startX, out int startY);
+
+                READ_LINE:
+
+                var i = Console.ReadKey(true);
+
+                switch (i.Key)
+                {
+                    // Accept
+                    case ConsoleKey.Enter:
+                        {
+                            Console.WriteLine();
+                            break;
+                        }
+                    // Remove
+                    case ConsoleKey.Delete:
+                        {
+                            if (cursor >= txt.Length)
+                                goto READ_LINE;
+
+                            txt.Remove(cursor, 1);
+
+                            if (txt.Length - cursor != 0)
+                            {
+                                _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                                _consoleWriter.Write(txt.ToString().Substring(cursor) + " \b", ConsoleOutputStyle.Input);
+                                _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                            }
+                            else
+                            {
+                                _consoleWriter.Write(" \b", ConsoleOutputStyle.Input);
+                            }
+
+                            goto READ_LINE;
+                        }
+                    case ConsoleKey.Backspace:
+                        {
+                            if (cursor > 0)
+                            {
+                                txt.Remove(cursor - 1, 1);
+                                cursor--;
+                            }
+                            else if (cursor == 0)
+                                goto READ_LINE;
+
+                            int l = txt.Length - cursor;
+                            if (l > 0)
+                            {
+                                _consoleWriter.Write("".PadLeft(l, ' '), ConsoleOutputStyle.Input);
+                                _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                                _consoleWriter.Write(txt.ToString().Substring(cursor), ConsoleOutputStyle.Input);
+                                _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                            }
+                            else
+                            {
+                                _consoleWriter.Write("\b \b", ConsoleOutputStyle.Input);
+                            }
+
+                            goto READ_LINE;
+                        }
+                    // Move
+                    case ConsoleKey.LeftArrow:
+                    case ConsoleKey.RightArrow:
+                        {
+                            if (i.Key == ConsoleKey.LeftArrow)
+                                cursor = Math.Max(0, cursor - 1);
+                            else
+                                cursor = Math.Min(txt.Length, cursor + 1);
+
+                            _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                            goto READ_LINE;
+                        }
+                    case ConsoleKey.Home:
+                    case ConsoleKey.End:
+                        {
+                            if (i.Key != ConsoleKey.End)
+                                cursor = 0;
+                            else
+                                cursor = txt.Length;
+
+                            _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                            goto READ_LINE;
+                        }
+                    // History
+                    case ConsoleKey.UpArrow:
+                    case ConsoleKey.PageUp:
+                    case ConsoleKey.DownArrow:
+                    case ConsoleKey.PageDown:
+                        {
+                            string strH = "";
+                            if (_history.Count > 0)
+                            {
+                                historyIndex = (historyIndex + (i.Key == ConsoleKey.DownArrow || i.Key == ConsoleKey.PageDown ? 1 : -1));
+
+                                if (historyIndex < 0) historyIndex = _history.Count - 1;
+                                else if (historyIndex > _history.Count - 1) historyIndex = 0;
+
+                                strH = _history[historyIndex];
+
+                                txt.Clear();
+                                txt.Append(strH);
+                                cursor = txt.Length;
+                            }
+
+                            CleanFromThisPoint(startX, startY);
+                            _consoleWriter.Write(strH, ConsoleOutputStyle.Input);
+
+                            goto READ_LINE;
+                        }
+                    // Autocomplete
+                    case ConsoleKey.Tab:
+                        {
+                            List<string> founds = new List<string>();
+                            string cmd = txt.ToString().ToLowerInvariant();
+
+                            foreach (KeyValuePair<string, List<ParameterInfo[]>> var in autocomplete)
+                            {
+                                if (var.Key.StartsWith(cmd))
+                                {
+                                    if (founds.Count == 0)
+                                    {
+                                        _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
+                                    }
+
+                                    founds.Add(var.Key);
+
+                                    // Print found
+
+                                    _consoleWriter.Write(var.Key.Substring(0, cmd.Length), ConsoleOutputStyle.AutocompleteMatch);
+                                    _consoleWriter.WriteLine(var.Key.Substring(cmd.Length), ConsoleOutputStyle.Autocomplete);
+                                }
+                            }
+
+                            if (founds.Count > 0)
+                            {
+                                if (founds.Count == 1)
+                                {
+                                    // 1 found
+
+                                    txt.Clear();
+                                    txt.Append(founds[0] + " ");
+                                    cursor = txt.Length;
+                                }
+                                else
+                                {
+                                    // Search match
+
+                                    cmd = founds[0];
+                                    int max = 0;
+                                    for (int x = 1, m = cmd.Length; x < m; x++)
+                                    {
+                                        bool ok = true;
+                                        foreach (string s in founds)
+                                        {
+                                            if (!s.StartsWith(cmd.Substring(0, x)))
+                                            {
+                                                ok = false;
+                                                break;
+                                            }
+                                        }
+                                        if (ok) max = x;
+                                        else break;
+                                    }
+
+                                    // Take coincidences
+
+                                    txt.Clear();
+                                    txt.Append(founds[0].Substring(0, max));
+                                    cursor = txt.Length;
+                                }
+
+                                // Prompt
+
+                                _consoleWriter.Write(ReadPrompt, ConsoleOutputStyle.Prompt);
+                                _consoleWriter.GetCursorPosition(out startX, out startY);
+
+                                _consoleWriter.Write(txt.ToString(), ConsoleOutputStyle.Input);
+                                _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                            }
+
+                            goto READ_LINE;
+                        }
+                    // Special
+                    case ConsoleKey.Insert:
+                        {
+                            insertMode = !insertMode;
+                            Console.CursorSize = !insertMode ? 100 : 25;
+                            goto READ_LINE;
+                        }
+                    // Write
+                    default:
+                        {
+                            txt.Insert(cursor, i.KeyChar);
+                            cursor++;
+
+                            if (!insertMode)
+                            {
+                                _consoleWriter.Write(i.KeyChar.ToString(), ConsoleOutputStyle.Input);
+
+                                if (cursor < txt.Length)
+                                    txt.Remove(cursor, 1);
+                            }
+                            else
+                            {
+                                _consoleWriter.Write(txt.ToString().Substring(cursor - 1), ConsoleOutputStyle.Input);
+                                _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                            }
+
+                            goto READ_LINE;
+                        }
+                }
+
+                ret = txt.ToString();
+            }
+            else
+            {
+                ret = Console.ReadLine();
+            }
+
+            // Append to history
+
+            if (_history.LastOrDefault() != ret)
+            {
+                if (_history.Count > MaxHistorySize)
+                    _history.RemoveAt(0);
+
+                _history.Add(ret);
+            }
+
+            // return text
+
+            return ret;
+        }
+
+        private void CleanFromThisPoint(int startX, int startY)
+        {
+            _consoleWriter.GetCursorPosition(out int endX, out int endY);
+
+            int l;
+
+            if (startY == endY)
+            {
+                // Same row
+                l = endX - startX;
+            }
+            else
+            {
+                if (startY < endY)
+                {
+                    // More than 1 row
+                    l = endX + (Console.WindowWidth - startX);
+                    l += (Math.Max(0, endY - startY - 1)) * Console.WindowWidth;
+                }
+                else
+                {
+                    l = 0;
+                }
+            }
+
+            _consoleWriter.SetCursorPosition(startX, startY);
+
+            // Clean
+            if (l > 0)
+            {
+                _consoleWriter.Write("".PadLeft(l, ' '), ConsoleOutputStyle.Input);
+                _consoleWriter.SetCursorPosition(startX, startY);
+            }
         }
     }
 }

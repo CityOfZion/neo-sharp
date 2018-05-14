@@ -19,6 +19,14 @@
         /// </summary>
         Information,
         /// <summary>
+        /// Autocomplete
+        /// </summary>
+        Autocomplete,
+        /// <summary>
+        /// Autocomplete match
+        /// </summary>
+        AutocompleteMatch,
+        /// <summary>
         /// Error
         /// </summary>
         Error

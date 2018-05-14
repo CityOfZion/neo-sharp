@@ -28,7 +28,6 @@ namespace NeoSharp.Application.Attributes
 
         #region Variables
 
-        private ParameterInfo[] _parameters;
         private MethodInfo _method;
 
         #endregion
@@ -52,6 +51,10 @@ namespace NeoSharp.Application.Attributes
         /// </summary>
         internal int CommandLength;
         /// <summary>
+        /// Parameters
+        /// </summary>
+        internal ParameterInfo[] Parameters { get; private set; }
+        /// <summary>
         /// Method
         /// </summary>
         internal MethodInfo Method
@@ -62,7 +65,7 @@ namespace NeoSharp.Application.Attributes
                 if (value == null) return;
 
                 _method = value;
-                _parameters = value.GetParameters();
+                Parameters = value.GetParameters();
             }
         }
 
@@ -85,7 +88,7 @@ namespace NeoSharp.Application.Attributes
         /// <returns>Return parsed arguments</returns>
         public object[] ConvertToArguments(CommandToken[] args)
         {
-            var max = _parameters.Length;
+            var max = Parameters.Length;
             var ret = new object[max];
 
             if (args.Length < max)
@@ -93,18 +96,18 @@ namespace NeoSharp.Application.Attributes
 
             for (var x = 0; x < max; x++)
             {
-                if (_parameters[x].GetCustomAttribute<PromptCommandParameterBodyAttribute>() != null)
+                if (Parameters[x].GetCustomAttribute<PromptCommandParameterBodyAttribute>() != null)
                 {
                     // From here to the end
 
-                    ret[x] = ParseToArgument(new CommandToken(string.Join(" ", args.Skip(x)), false), _parameters[x].ParameterType);
+                    ret[x] = ParseToArgument(new CommandToken(string.Join(" ", args.Skip(x)), false), Parameters[x].ParameterType);
                     return ret;
                 }
                 else
                 {
                     // Regular parameter
 
-                    ret[x] = ParseToArgument(args[x], _parameters[x].ParameterType);
+                    ret[x] = ParseToArgument(args[x], Parameters[x].ParameterType);
                 }
             }
 

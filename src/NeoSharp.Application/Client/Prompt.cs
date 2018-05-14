@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
@@ -43,9 +43,10 @@ namespace NeoSharp.Application.Client
         /// </summary>
         private readonly IServer _server;
         /// <summary>
-        /// Command caché
+        /// Command cache
         /// </summary>
         private static readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
+        private static readonly IDictionary<string, List<ParameterInfo[]>> _commandAutocompleteCache;
 
         #endregion
 
@@ -57,6 +58,7 @@ namespace NeoSharp.Application.Client
         static Prompt()
         {
             _commandCache = new Dictionary<string[], PromptCommandAttribute>();
+            _commandAutocompleteCache = new Dictionary<string, List<ParameterInfo[]>>();
 
             foreach (var mi in typeof(Prompt).GetMethods
                 (
@@ -67,12 +69,24 @@ namespace NeoSharp.Application.Client
                 var atr = mi.GetCustomAttribute<PromptCommandAttribute>();
                 if (atr == null) continue;
 
-                string[] key = atr.Command.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                string cmd = atr.Command.ToLowerInvariant();
+                string[] key = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 atr.Method = mi;
                 atr.CommandLength = key.Length;
 
                 _commandCache.Add(key, atr);
+
+                if (_commandAutocompleteCache.ContainsKey(cmd))
+                {
+                    _commandAutocompleteCache[cmd].Add(mi.GetParameters());
+                }
+                else
+                {
+                    var ls = new List<ParameterInfo[]>();
+                    ls.Add(mi.GetParameters());
+                    _commandAutocompleteCache.Add(cmd, ls);
+                }
             }
         }
 
@@ -102,7 +116,7 @@ namespace NeoSharp.Application.Client
 
             while (!_exit)
             {
-                var fullCmd = _consoleReader.ReadFromConsole();
+                var fullCmd = _consoleReader.ReadFromConsole(_commandAutocompleteCache);
                 if (string.IsNullOrWhiteSpace(fullCmd)) continue;
 
                 Execute(fullCmd);
@@ -119,6 +133,7 @@ namespace NeoSharp.Application.Client
         public bool Execute(string command)
         {
             PromptCommandAttribute cmd = null;
+            List<PromptCommandAttribute> cmds = new List<PromptCommandAttribute>();
 
             try
             {
@@ -129,7 +144,6 @@ namespace NeoSharp.Application.Client
 
                 // Search command
 
-                List<PromptCommandAttribute> cmds = new List<PromptCommandAttribute>();
                 foreach (KeyValuePair<string[], PromptCommandAttribute> key in _commandCache)
                 {
                     if (key.Key.Length > cmdArgs.Count) continue;
@@ -153,13 +167,11 @@ namespace NeoSharp.Application.Client
 
                 switch (cmds.Count)
                 {
-                    case 0: throw (new Exception("Command not found"));
+                    case 0: throw (new Exception($"Command not found <{command}>"));
                     case 1: cmd = cmds[0]; break;
                     case 2:
                         {
                             // Multiple commands
-
-                            cmd = cmds[0]; // for help if error
 
                             foreach (var a in cmds)
                             {
@@ -172,7 +184,10 @@ namespace NeoSharp.Application.Client
                             }
 
                             if (cmd == null)
+                            {
+                                cmd = cmds[0]; // for help message
                                 goto case 0;
+                            }
 
                             break;
                         }
@@ -192,7 +207,29 @@ namespace NeoSharp.Application.Client
                 // Print help
 
                 if (cmd != null && !string.IsNullOrEmpty(cmd.Help))
+                {
                     _consoleWriter.WriteLine(cmd.Help, ConsoleOutputStyle.Information);
+
+                    if (cmds.Count > 0)
+                    {
+                        _consoleWriter.WriteLine("Examples:", ConsoleOutputStyle.Information);
+
+                        // How to use?
+
+                        foreach (var v in cmds)
+                        {
+                            string args = "";
+
+                            if (v.Parameters != null && v.Parameters.Length > 0)
+                            {
+                                foreach (var par in v.Parameters)
+                                    args += $" <{par.Name}>";
+                            }
+
+                            _consoleWriter.WriteLine("  " + v.Command + args, ConsoleOutputStyle.Information);
+                        }
+                    }
+                }
 
                 return false;
             }
@@ -207,7 +244,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="contractHash">Contract</param>
         /// <param name="body">Body</param>
-        [PromptCommand("invoke", Help = "invoke contract <parameters>\nInvoke a contract", Category = "Invokes")]
+        [PromptCommand("invoke", Help = "Invoke a contract", Category = "Invokes")]
         private void Invoke(UInt160 contractHash, [PromptCommandParameterBody] object[] args)
         {
             Contract contract = Contract.GetContract(contractHash);
@@ -221,7 +258,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="contractHash">Contract</param>
         /// <param name="body">Body</param>
-        [PromptCommand("testinvoke", Help = "testinvoke contract <parameters>\nTest invoke contract", Category = "Invokes")]
+        [PromptCommand("testinvoke", Help = "Test invoke contract", Category = "Invokes")]
         private void TestInvoke(UInt160 contractHash, [PromptCommandParameterBody] object[] args)
         {
             Contract contract = Contract.GetContract(contractHash);
@@ -237,7 +274,7 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Nodes
         /// </summary>
-        [PromptCommand("nodes", Category = "Network", Help = "nodes\nGet nodes information")]
+        [PromptCommand("nodes", Category = "Network", Help = "Get nodes information")]
         // ReSharper disable once UnusedMember.Local
         private void NodesCommand()
         {
@@ -277,7 +314,7 @@ namespace NeoSharp.Application.Client
 
         #region Wallet
 
-        [PromptCommand("create wallet", Category = "Wallet", Help = "create wallet <file>\nCreate a new wallet")]
+        [PromptCommand("create wallet", Category = "Wallet", Help = "Create a new wallet")]
         private void CreateWalletCommand(FileInfo file)
         {
             if (file.Exists)
@@ -287,7 +324,7 @@ namespace NeoSharp.Application.Client
             }
         }
 
-        [PromptCommand("open wallet", Category = "Wallet", Help = "open wallet <file>\nOpen wallet")]
+        [PromptCommand("open wallet", Category = "Wallet", Help = "Open wallet")]
         private void OpenWalletCommand(FileInfo file)
         {
             if (!file.Exists)
@@ -314,7 +351,7 @@ namespace NeoSharp.Application.Client
         /// Get block by index
         /// </summary>
         /// <param name="index">Index</param>
-        [PromptCommand("block", Category = "Blockchain", Help = "block <index or hash>\nGet block")]
+        [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
         private void BlockCommand(ulong index)
         {
             // TODO: Change this
@@ -327,7 +364,7 @@ namespace NeoSharp.Application.Client
         /// Get block by hash
         /// </summary>
         /// <param name="hash">Hash</param>
-        [PromptCommand("block", Category = "Blockchain", Help = "block <index or hash>\nGet block")]
+        [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
         private void BlockCommand(UInt256 hash)
         {
             // TODO: Change this
@@ -340,7 +377,7 @@ namespace NeoSharp.Application.Client
         /// Get tx by hash
         /// </summary>
         /// <param name="hash">Hash</param>
-        [PromptCommand("tx", Category = "Blockchain", Help = "tx <hash>\nGet tx")]
+        [PromptCommand("tx", Category = "Blockchain", Help = "Get tx")]
         private void TxCommand(UInt256 hash)
         {
             // TODO: Change this
@@ -354,10 +391,19 @@ namespace NeoSharp.Application.Client
         #region Usability
 
         /// <summary>
+        /// Clear
+        /// </summary>
+        [PromptCommand("clear", Help = "clear output", Category = "Usability")]
+        private void ClearCommand()
+        {
+            _consoleWriter.Clear();
+        }
+
+        /// <summary>
         /// Load commands from file
         /// </summary>
         /// <param name="file">File</param>
-        [PromptCommand("load", Help = "load <filename>\nPlay stored commands", Category = "Usability")]
+        [PromptCommand("load", Help = "Play stored commands", Category = "Usability")]
         // ReSharper disable once UnusedMember.Local
         private void LoadCommand(FileInfo file)
         {
