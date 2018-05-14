@@ -7,23 +7,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NeoSharp.Core.Types;
-using NeoSharp.BinarySerialization.Interfaces;
 
 namespace NeoSharp.Core.Test.Serializers
 {
     [TestClass]
     public class UtBinarySerializer
     {
-        IBinarySerializer Serializer;
-        IBinaryDeserializer Deserializer;
-
         [TestInitialize]
         public void WarmSerializer()
         {
             BinarySerializer.CacheTypesOf(typeof(Block).Assembly);
             BinarySerializer.CacheTypesOf(typeof(UtBinarySerializer).Assembly);
-            Serializer = new BinarySerializer();
-            Deserializer = new BinaryDeserializer();
         }
 
         [TestMethod]
@@ -47,23 +41,23 @@ namespace NeoSharp.Core.Test.Serializers
 
             List<DummyParent> ls = new List<DummyParent>
             {
-                Deserializer.Deserialize<DummyParent>(data),
-                (DummyParent)Deserializer.Deserialize(data, typeof(DummyParent))
+                BinarySerializer.Deserialize<DummyParent>(data),
+                (DummyParent)BinarySerializer.Deserialize(data, typeof(DummyParent))
             };
 
             using (MemoryStream ms = new MemoryStream(data))
             {
-                ls.Add((DummyParent)Deserializer.Deserialize(ms, typeof(DummyParent)));
+                ls.Add((DummyParent)BinarySerializer.Deserialize(ms, typeof(DummyParent)));
                 ms.Seek(0, SeekOrigin.Begin);
-                ls.Add(Deserializer.Deserialize<DummyParent>(ms));
+                ls.Add(BinarySerializer.Deserialize<DummyParent>(ms));
             }
 
             using (MemoryStream ms = new MemoryStream(data))
             using (BinaryReader mr = new BinaryReader(ms))
             {
-                ls.Add((DummyParent)Deserializer.Deserialize(mr, typeof(DummyParent)));
+                ls.Add((DummyParent)BinarySerializer.Deserialize(mr, typeof(DummyParent)));
                 ms.Seek(0, SeekOrigin.Begin);
-                ls.Add(Deserializer.Deserialize<DummyParent>(mr));
+                ls.Add(BinarySerializer.Deserialize<DummyParent>(mr));
             }
 
             foreach (DummyParent parent in ls)
@@ -89,7 +83,7 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void Deserialize()
         {
-            var actual = Deserializer.Deserialize<Dummy>(new byte[]
+            var actual = BinarySerializer.Deserialize<Dummy>(new byte[]
             {
                 0x01,
                 0x02,
@@ -155,18 +149,18 @@ namespace NeoSharp.Core.Test.Serializers
                 0x01,
              };
 
-            (Serializer.Serialize(parent).SequenceEqual(ret)).Should().BeTrue();
+            (BinarySerializer.Serialize(parent).SequenceEqual(ret)).Should().BeTrue();
 
             using (MemoryStream ms = new MemoryStream())
             {
-                Serializer.Serialize(parent, ms);
+                BinarySerializer.Serialize(parent, ms);
                 ms.ToArray().SequenceEqual(ret).Should().BeTrue();
 
                 ms.SetLength(0);
 
                 using (BinaryWriter mw = new BinaryWriter(ms))
                 {
-                    Serializer.Serialize(parent, mw);
+                    BinarySerializer.Serialize(parent, mw);
                     ms.ToArray().SequenceEqual(ret).Should().BeTrue();
                 }
             }
@@ -190,7 +184,7 @@ namespace NeoSharp.Core.Test.Serializers
                 K = false
             };
 
-            (Serializer.Serialize(actual).SequenceEqual(new byte[]
+            (BinarySerializer.Serialize(actual).SequenceEqual(new byte[]
             {
                 0x01,
                 0x02,
@@ -211,7 +205,7 @@ namespace NeoSharp.Core.Test.Serializers
         public void ReadOnly()
         {
             DummyReadOnly readOnly = new DummyReadOnly();
-            var copy = Deserializer.Deserialize<DummyReadOnly>((Serializer.Serialize(readOnly)));
+            var copy = BinarySerializer.Deserialize<DummyReadOnly>((BinarySerializer.Serialize(readOnly)));
 
             Assert.AreEqual(readOnly.A, copy.A);
         }
@@ -240,7 +234,7 @@ namespace NeoSharp.Core.Test.Serializers
                 TxHashes = new[] { "a", "b", "c" }
             };
 
-            var blockCopy = Deserializer.Deserialize<Block>(Serializer.Serialize(block));
+            var blockCopy = BinarySerializer.Deserialize<Block>(BinarySerializer.Serialize(block));
 
             Assert.AreEqual(block.Confirmations, blockCopy.Confirmations);
             Assert.AreEqual(block.ConsensusData, blockCopy.ConsensusData);

@@ -1,5 +1,4 @@
-﻿using NeoSharp.BinarySerialization.Interfaces;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace NeoSharp.Core.Network.Protocols
 {
@@ -10,12 +9,12 @@ namespace NeoSharp.Core.Network.Protocols
         /// <summary>
         /// Constructor
         /// </summary>
-        public ProtocolSelector(NetworkConfig config, IBinarySerializer serializer, IBinaryDeserializer deserializer)
+        public ProtocolSelector(NetworkConfig config)
         {
             // Set different protocols
 
-            var v1 = new ProtocolV1(config, serializer, deserializer);
-            var v2 = new ProtocolV2(config, serializer, deserializer);
+            var v1 = new ProtocolV1(config);
+            var v2 = new ProtocolV2(config);
 
             _protocols = new Dictionary<uint, ProtocolBase>
             {

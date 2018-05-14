@@ -1,8 +1,7 @@
 ﻿using NeoSharp.BinarySerialization;
-using NeoSharp.BinarySerialization.Interfaces;
-using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 using System;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Models
 {
@@ -95,6 +94,11 @@ namespace NeoSharp.Core.Models
         [BinaryProperty(20)]
         [JsonProperty("asset")]
         public Asset Asset;
+
+        public byte[] ToBytes()
+        {
+            return BinarySerializer.Serialize(this);
+        }
 
         public string ToJson(bool indent = false)
         {

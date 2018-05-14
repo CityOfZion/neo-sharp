@@ -15,4 +15,5 @@ namespace NeoSharp.Application.DI
             containerBuilder.RegisterSingleton<IConsoleWriter, ConsoleWriter>();
         }
     }
+
 }

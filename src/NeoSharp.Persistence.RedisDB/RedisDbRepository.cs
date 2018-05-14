@@ -1,5 +1,4 @@
 ﻿using NeoSharp.BinarySerialization;
-using NeoSharp.BinarySerialization.Interfaces;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using StackExchange.Redis;
@@ -13,13 +12,9 @@ namespace NeoSharp.Persistence.RedisDB
     {
         private RedisHelper _redis;
 
-        private readonly IBinarySerializer _serializer;
-        private readonly IBinaryDeserializer _deserializer;
-
-        public RedisDbRepository(IBinarySerializer serializer, IBinaryDeserializer deserializer)
+        public RedisDbRepository()
         {
-            _serializer = serializer;
-            _deserializer = deserializer;
+
         }
 
         #region IRepository Members
@@ -27,7 +22,7 @@ namespace NeoSharp.Persistence.RedisDB
         public void AddBlock(Block block)
         {
             //Convert to bytes
-            var blockBytes = _serializer.Serialize(block);
+            var blockBytes = block.ToBytes();
 
             //Write the redis database with the binary bytes
             _redis.Database.Set(DataEntryPrefix.DataBlock, block.Hash, blockBytes);
@@ -43,7 +38,7 @@ namespace NeoSharp.Persistence.RedisDB
         public void AddTransaction(Transaction transaction)
         {
             //Convert to bytes
-            var transactionBytes = _serializer.Serialize(transaction);
+            var transactionBytes = transaction.ToBytes();
 
             //Write the redis database with the binary bytes
             _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash.ToString(), transactionBytes);
@@ -87,7 +82,7 @@ namespace NeoSharp.Persistence.RedisDB
             var blockBytes = GetRawBlockBytes(id);
 
             //Deserialize the block
-            return _deserializer.Deserialize<Block>(blockBytes);
+            return BinarySerializer.Deserialize<Block>(blockBytes);
         }
 
         public byte[] GetRawBlockBytes(string id)
@@ -114,7 +109,7 @@ namespace NeoSharp.Persistence.RedisDB
         public Transaction GetTransaction(string id)
         {
             var transactionBytes = _redis.Database.Get(DataEntryPrefix.DataTransaction, id);
-            return _deserializer.Deserialize<Transaction>(transactionBytes);
+            return BinarySerializer.Deserialize<Transaction>(transactionBytes);
         }
 
         public Transaction[] GetTransactionsForBlock(byte[] id)

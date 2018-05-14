@@ -1,36 +1,28 @@
-﻿using NeoSharp.BinarySerialization.Interfaces;
-using NeoSharp.Core.Models;
+﻿using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
-using RocksDbSharp;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using RocksDbSharp;
+using NeoSharp.BinarySerialization;
 
 namespace NeoSharp.Persistence.RocksDB
 {
     public class RocksDbRepository : IRepository, IDisposable
     {
         private RocksDb _rocksDb;
-        private readonly IBinarySerializer _serializer;
-        private readonly IBinaryDeserializer _deserializer;
-
-        public RocksDbRepository(IBinarySerializer serializer, IBinaryDeserializer deserializer)
-        {
-            _serializer = serializer;
-            _deserializer = deserializer;
-        }
 
         #region IRepository Members
         public void AddBlock(Block block)
         {
             var hash = Encoding.UTF8.GetBytes(block.Hash);
-            _rocksDb.Put(BuildKey(DataEntryPrefix.DataBlock, hash), _serializer.Serialize(block));
+            _rocksDb.Put(BuildKey(DataEntryPrefix.DataBlock,hash), block.ToBytes());
         }
 
         public void AddTransaction(Transaction transaction)
         {
             var hash = transaction.Hash.ToArray();
-            _rocksDb.Put(BuildKey(DataEntryPrefix.DataTransaction, hash), _serializer.Serialize(transaction));
+            _rocksDb.Put(BuildKey(DataEntryPrefix.DataTransaction,hash), transaction.ToBytes());
         }
 
         public Block GetBlockByHeight(int height)
@@ -41,7 +33,7 @@ namespace NeoSharp.Persistence.RocksDB
         public Block GetBlockById(byte[] id)
         {
             var bytes = GetRawBlockBytes(id);
-            return _deserializer.Deserialize<Block>(bytes);
+            return BinarySerializer.Deserialize<Block>(bytes);
         }
 
         public Block GetBlockById(string id)
@@ -61,7 +53,7 @@ namespace NeoSharp.Persistence.RocksDB
 
         public byte[] GetRawBlockBytes(byte[] id)
         {
-            return _rocksDb.Get(BuildKey(DataEntryPrefix.DataBlock, id));
+            return _rocksDb.Get(BuildKey(DataEntryPrefix.DataBlock,id));
         }
 
         public long GetTotalBlockHeight()
@@ -72,7 +64,7 @@ namespace NeoSharp.Persistence.RocksDB
         public Transaction GetTransaction(byte[] id)
         {
             var bytes = _rocksDb.Get(BuildKey(DataEntryPrefix.DataTransaction, id));
-            return _deserializer.Deserialize<Transaction>(bytes);
+            return BinarySerializer.Deserialize<Transaction>(bytes);
         }
 
         public Transaction GetTransaction(string id)

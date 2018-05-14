@@ -83,10 +83,8 @@ namespace NeoSharp.Application.Client
                 }
                 else
                 {
-                    var ls = new List<ParameterInfo[]>
-                    {
-                        mi.GetParameters()
-                    };
+                    var ls = new List<ParameterInfo[]>();
+                    ls.Add(mi.GetParameters());
                     _commandAutocompleteCache.Add(cmd, ls);
                 }
             }
