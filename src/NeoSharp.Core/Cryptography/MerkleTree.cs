@@ -58,7 +58,7 @@ namespace NeoSharp.Core.Cryptography
         {
             if (hashes.Length == 0) throw new ArgumentException();
             if (hashes.Length == 1) return hashes[0];
-            MerkleTree tree = new MerkleTree(hashes);
+            var tree = new MerkleTree(hashes);
             return tree.root.Hash;
         }
 

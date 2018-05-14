@@ -18,7 +18,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
         [TestInitialize]
         public void WarmSerializer()
         {
-            BinarySerializer.CacheTypesOf(typeof(VersionMessage).Assembly);
+            AutoMockContainer.Register<IBinarySerializer>(new BinarySerializer(typeof(VersionMessage).Assembly));
         }
 
         [TestMethod]

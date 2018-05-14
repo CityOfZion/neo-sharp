@@ -57,19 +57,11 @@ namespace NeoSharp.Core.Models
         public int Confirmations;
 
         [JsonProperty("txcount")]
-        public int TxCount
-        {
-            get { return TxHashes == null ? 0 : TxHashes.Length; }
-        }
+        public int TxCount => TxHashes?.Length ?? 0;
 
         [BinaryProperty(14)]
         [JsonProperty("txhashes")]
         public string[] TxHashes { get; set; }
-
-        public byte[] ToBytes()
-        {
-            return BinarySerializer.Serialize(this);
-        }
 
         public string ToJson(bool indent = false)
         {

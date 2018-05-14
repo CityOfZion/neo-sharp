@@ -9,7 +9,7 @@ using System.Text;
 
 namespace NeoSharp.BinarySerialization
 {
-    public class BinarySerializer
+    public class BinarySerializer : IBinarySerializer
     {
         /// <summary>
         /// Cache
@@ -20,14 +20,12 @@ namespace NeoSharp.BinarySerialization
         /// <summary>
         /// Cache Binary Serializer types
         /// </summary>
-        static BinarySerializer()
+        public BinarySerializer(params Assembly[] assemblies)
         {
-            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var asm in assemblies)
                 try
                 {
                     // Speed up warm-up process
-                    if (!asm.FullName.StartsWith("Neo")) continue;
-
                     CacheTypesOf(asm);
                 }
                 catch
@@ -40,7 +38,7 @@ namespace NeoSharp.BinarySerialization
         /// Cache types (call me if you load a new plugin or module)
         /// </summary>
         /// <param name="asm">Assembly</param>
-        public static void CacheTypesOf(Assembly asm)
+        internal void CacheTypesOf(Assembly asm)
         {
             foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t)))
                 InternalCacheTypeConvertersOf(t);
@@ -53,13 +51,13 @@ namespace NeoSharp.BinarySerialization
         /// Cache type
         /// </summary>
         /// <param name="type">Type</param>
-        internal static BinarySerializerCache InternalCacheTypesOf(Type type)
+        internal BinarySerializerCache InternalCacheTypesOf(Type type)
         {
             lock (Cache)
             {
                 if (Cache.TryGetValue(type, out var cache)) return cache;
 
-                var b = new BinarySerializerCache(type);
+                var b = new BinarySerializerCache(type, this);
                 if (b.Count <= 0) return null;
 
                 Cache.Add(b.Type, b);
@@ -67,7 +65,7 @@ namespace NeoSharp.BinarySerialization
             }
         }
 
-        internal static void InternalCacheTypeConvertersOf(Type type)
+        internal void InternalCacheTypeConvertersOf(Type type)
         {
             lock (TypeConverterCache)
             {
@@ -83,7 +81,7 @@ namespace NeoSharp.BinarySerialization
         /// <typeparam name="T">Type</typeparam>
         /// <param name="obj">Object</param>
         /// <returns>Return byte array</returns>
-        public static T Deserialize<T>(byte[] data) where T : new()
+        public T Deserialize<T>(byte[] data) where T : new()
         {
             using (var ms = new MemoryStream(data))
             {
@@ -96,7 +94,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="data">Data</param>
         /// <param name="type">Type</param>
         /// <returns>Return object</returns>
-        public static object Deserialize(byte[] data, Type type)
+        public object Deserialize(byte[] data, Type type)
         {
             using (var ms = new MemoryStream(data))
             {
@@ -109,7 +107,7 @@ namespace NeoSharp.BinarySerialization
         /// <typeparam name="T">Type</typeparam>
         /// <param name="stream">Stream</param>
         /// <returns>Return object</returns>
-        public static T Deserialize<T>(Stream stream) where T : new()
+        public T Deserialize<T>(Stream stream) where T : new()
         {
             // Search in cache
 
@@ -134,7 +132,7 @@ namespace NeoSharp.BinarySerialization
         /// <typeparam name="T">Type</typeparam>
         /// <param name="stream">Stream</param>
         /// <returns>Return object</returns>
-        public static T Deserialize<T>(BinaryReader stream) where T : new()
+        public T Deserialize<T>(BinaryReader stream) where T : new()
         {
             // Search in cache
 
@@ -156,7 +154,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="stream">Stream</param>
         /// <param name="t">Type</param>
         /// <returns>Return object</returns>
-        public static object Deserialize(Stream stream, Type t)
+        public object Deserialize(Stream stream, Type t)
         {
             // Search in cache
 
@@ -180,7 +178,7 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="buffer">Buffer</param>
         /// <param name="obj">Object</param>
-        public static void DeserializeInside(byte[] buffer, object obj)
+        public void DeserializeInside(byte[] buffer, object obj)
         {
             using (var ms = new MemoryStream(buffer))
             {
@@ -192,7 +190,7 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="obj">Object</param>
-        public static void DeserializeInside(Stream stream, object obj)
+        public void DeserializeInside(Stream stream, object obj)
         {
             // Search in cache
 
@@ -215,7 +213,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="stream">Stream</param>
         /// <param name="t">Type</param>
         /// <returns>Return object</returns>
-        public static object Deserialize(BinaryReader stream, Type t)
+        public object Deserialize(BinaryReader stream, Type t)
         {
             // Search in cache
 
@@ -236,7 +234,7 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="obj">Object</param>
         /// <returns>Return byte array</returns>
-        public static byte[] Serialize(object obj)
+        public byte[] Serialize(object obj)
         {
             using (var ms = new MemoryStream())
             {
@@ -250,7 +248,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="obj">Object</param>
         /// <param name="stream">Stream</param>
         /// <returns>Return byte array</returns>
-        public static int Serialize(object obj, Stream stream)
+        public int Serialize(object obj, Stream stream)
         {
             // Search in cache
 
@@ -273,7 +271,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="obj">Object</param>
         /// <param name="stream">Stream</param>
         /// <returns>Return byte array</returns>
-        public static int Serialize(object obj, BinaryWriter stream)
+        public int Serialize(object obj, BinaryWriter stream)
         {
             // Search in cache
 

@@ -33,7 +33,8 @@ namespace NeoSharp.BinarySerialization
         /// Constructor
         /// </summary>
         /// <param name="type">Type</param>
-        public BinarySerializerCache(Type type)
+        /// <param name="serializer">Serializer</param>
+        public BinarySerializerCache(Type type, BinarySerializer serializer)
         {
             Type = type;
 
@@ -47,21 +48,20 @@ namespace NeoSharp.BinarySerialization
                 // Properties
 
                 type.GetProperties()
-                .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
-                .Where(u => u.atr != null)
-                .OrderBy(u => u.atr.Order)
-                .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
-                .Concat
-                (
-                    // Fields
-
-                    type.GetFields()
                     .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
                     .Where(u => u.atr != null)
                     .OrderBy(u => u.atr.Order)
-                    .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
-                )
-                .ToArray();
+                    .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop, serializer))
+                    .Concat
+                    (
+                        // Fields
+                        type.GetFields()
+                            .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
+                            .Where(u => u.atr != null)
+                            .OrderBy(u => u.atr.Order)
+                            .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop, serializer))
+                    )
+                    .ToArray();
 
             Count = _entries.Length;
         }

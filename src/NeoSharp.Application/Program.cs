@@ -1,5 +1,6 @@
 using NeoSharp.Application.DI;
 using NeoSharp.Core;
+using NeoSharp.Core.DI;
 using NeoSharp.DI.SimpleInjector;
 
 namespace NeoSharp.Application
@@ -10,10 +11,12 @@ namespace NeoSharp.Application
         {
             var containerBuilder = new SimpleInjectorContainerBuilder();
 
-            containerBuilder.RegisterModule<ClientModule>();
+            containerBuilder.RegisterModule<CoreModule>();
             containerBuilder.RegisterModule<ConfigurationModule>();
             containerBuilder.RegisterModule<LoggingModule>();
-            containerBuilder.RegisterModule<NetworkModule>();
+            containerBuilder.RegisterModule<SerializationModule>();
+            containerBuilder.RegisterModule<PersistenceModule>();
+            containerBuilder.RegisterModule<ClientModule>();
 
             var container = containerBuilder.Build();
 
