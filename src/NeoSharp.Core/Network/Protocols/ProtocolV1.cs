@@ -11,15 +11,13 @@ namespace NeoSharp.Core.Network.Protocols
 {
     public class ProtocolV1 : ProtocolBase
     {
-        private readonly IBinarySerializer _serializer;
-        private readonly IBinaryDeserializer _deserializer;
+        private readonly IBinaryConverter _serializer;
         private readonly uint _magic;
 
-        public ProtocolV1(NetworkConfig config, IBinarySerializer serializer, IBinaryDeserializer deserializer)
+        public ProtocolV1(NetworkConfig config, IBinaryConverter serializer)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
 
             _magic = config.Magic;
         }
@@ -85,7 +83,7 @@ namespace NeoSharp.Core.Network.Protocols
                     if (payloadLength == 0)
                         throw new FormatException();
 
-                    _deserializer.DeserializeInside(payloadBuffer, messageWithPayload.Payload);
+                    _serializer.DeserializeInside(payloadBuffer, messageWithPayload.Payload);
                 }
 
                 return message;

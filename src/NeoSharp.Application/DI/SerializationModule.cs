@@ -28,6 +28,16 @@ namespace NeoSharp.Application.DI
 
                 return new BinaryDeserializer(assemblies);
             });
+
+            containerBuilder.RegisterSingleton<IBinaryConverter>(() =>
+            {
+                var assemblies = AppDomain.CurrentDomain
+                    .GetAssemblies()
+                    .Where(asm => asm.FullName.StartsWith("Neo"))
+                    .ToArray();
+
+                return new BinaryConverter(assemblies);
+            });
         }
     }
 }
