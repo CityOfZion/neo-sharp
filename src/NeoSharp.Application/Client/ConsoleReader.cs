@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 
 namespace NeoSharp.Application.Client
@@ -82,8 +83,9 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Read string from console
         /// </summary>
+        /// <param name="autocomplete">Autocomplete</param>
         /// <returns>Returns the readed string</returns>
-        public string ReadFromConsole()
+        public string ReadFromConsole(IDictionary<string, List<ParameterInfo[]>> autocomplete = null)
         {
             // Write prompt
 

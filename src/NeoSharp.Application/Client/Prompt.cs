@@ -43,9 +43,10 @@ namespace NeoSharp.Application.Client
         /// </summary>
         private readonly IServer _server;
         /// <summary>
-        /// Command caché
+        /// Command cache
         /// </summary>
         private static readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
+        private static readonly IDictionary<string, List<ParameterInfo[]>> _commandAutocompleteCache;
 
         #endregion
 
@@ -57,6 +58,7 @@ namespace NeoSharp.Application.Client
         static Prompt()
         {
             _commandCache = new Dictionary<string[], PromptCommandAttribute>();
+            _commandAutocompleteCache = new Dictionary<string, List<ParameterInfo[]>>();
 
             foreach (var mi in typeof(Prompt).GetMethods
                 (
@@ -67,12 +69,24 @@ namespace NeoSharp.Application.Client
                 var atr = mi.GetCustomAttribute<PromptCommandAttribute>();
                 if (atr == null) continue;
 
-                string[] key = atr.Command.ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                string cmd = atr.Command.ToLowerInvariant();
+                string[] key = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
                 atr.Method = mi;
                 atr.CommandLength = key.Length;
 
                 _commandCache.Add(key, atr);
+
+                if (_commandAutocompleteCache.ContainsKey(cmd))
+                {
+                    _commandAutocompleteCache[cmd].Add(mi.GetParameters());
+                }
+                else
+                {
+                    var ls = new List<ParameterInfo[]>();
+                    ls.Add(mi.GetParameters());
+                    _commandAutocompleteCache.Add(cmd, ls);
+                }
             }
         }
 
@@ -102,7 +116,7 @@ namespace NeoSharp.Application.Client
 
             while (!_exit)
             {
-                var fullCmd = _consoleReader.ReadFromConsole();
+                var fullCmd = _consoleReader.ReadFromConsole(_commandAutocompleteCache);
                 if (string.IsNullOrWhiteSpace(fullCmd)) continue;
 
                 Execute(fullCmd);
@@ -159,8 +173,6 @@ namespace NeoSharp.Application.Client
                         {
                             // Multiple commands
 
-                            cmd = cmds[0]; // for help if error
-
                             foreach (var a in cmds)
                             {
                                 try
@@ -172,7 +184,10 @@ namespace NeoSharp.Application.Client
                             }
 
                             if (cmd == null)
+                            {
+                                cmd = cmds[0]; // for help message
                                 goto case 0;
+                            }
 
                             break;
                         }
@@ -352,6 +367,15 @@ namespace NeoSharp.Application.Client
         #endregion
 
         #region Usability
+
+        /// <summary>
+        /// Clear
+        /// </summary>
+        [PromptCommand("clear", Help = "clear output", Category = "Usability")]
+        private void ClearCommand()
+        {
+            _consoleWriter.Clear();
+        }
 
         /// <summary>
         /// Load commands from file

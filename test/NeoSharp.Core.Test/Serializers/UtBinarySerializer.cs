@@ -39,9 +39,11 @@ namespace NeoSharp.Core.Test.Serializers
                 0x00,
             };
 
-            List<DummyParent> ls = new List<DummyParent>();
-            ls.Add(BinarySerializer.Deserialize<DummyParent>(data));
-            ls.Add((DummyParent)BinarySerializer.Deserialize(data, typeof(DummyParent)));
+            List<DummyParent> ls = new List<DummyParent>
+            {
+                BinarySerializer.Deserialize<DummyParent>(data),
+                (DummyParent)BinarySerializer.Deserialize(data, typeof(DummyParent))
+            };
 
             using (MemoryStream ms = new MemoryStream(data))
             {

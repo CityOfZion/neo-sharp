@@ -70,6 +70,20 @@ namespace NeoSharp.Application.Client
             }
         }
         /// <summary>
+        /// Beep
+        /// </summary>
+        public void Beep()
+        {
+            Console.Beep();
+        }
+        /// <summary>
+        /// Clear
+        /// </summary>
+        public void Clear()
+        {
+            Console.Clear();
+        }
+        /// <summary>
         /// Write output into console
         /// </summary>
         /// <param name="output">Output</param>

@@ -3,6 +3,14 @@
     public interface IConsoleWriter
     {
         /// <summary>
+        /// Beep
+        /// </summary>
+        void Beep();
+        /// <summary>
+        /// Clear
+        /// </summary>
+        void Clear();
+        /// <summary>
         /// Get current cursor positon
         /// </summary>
         /// <param name="x">X</param>
