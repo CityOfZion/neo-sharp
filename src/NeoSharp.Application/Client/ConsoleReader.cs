@@ -293,6 +293,7 @@ namespace NeoSharp.Application.Client
                                             }
                                         }
                                         if (ok) max = x;
+                                        else break;
                                     }
 
                                     // Take coincidences
