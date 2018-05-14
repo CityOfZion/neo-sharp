@@ -100,9 +100,9 @@ namespace NeoSharp.Core.Models
             return BinarySerializer.Serialize(this);
         }
 
-        public string ToJson()
+        public string ToJson(bool indent = false)
         {
-            return JsonConvert.SerializeObject(this);
+            return JsonConvert.SerializeObject(this, indent ? Formatting.Indented : Formatting.None);
         }
     }
 }

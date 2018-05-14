@@ -38,11 +38,19 @@ namespace NeoSharp.Application.Attributes
         /// <summary>
         /// Commands
         /// </summary>
-        public readonly string[] Commands;
+        public readonly string Command;
         /// <summary>
         /// Help
         /// </summary>
         public string Help { get; set; }
+        /// <summary>
+        /// Category
+        /// </summary>
+        public string Category { get; set; }
+        /// <summary>
+        /// Command Length
+        /// </summary>
+        internal int CommandLength;
         /// <summary>
         /// Method
         /// </summary>
@@ -64,10 +72,10 @@ namespace NeoSharp.Application.Attributes
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="commands">Commands</param>
-        public PromptCommandAttribute(params string[] commands)
+        /// <param name="command">Command</param>
+        public PromptCommandAttribute(string command)
         {
-            Commands = commands;
+            Command = command;
         }
 
         /// <summary>

@@ -8,7 +8,7 @@ using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Types
 {
-    [TypeConverter(typeof(UInt160Converter))]
+    [TypeConverter(typeof(UInt256Converter))]
     public class UInt256 : IEquatable<UInt256>, IComparable<UInt256>, ISerializable
     {
         private static readonly int s_size = 32;

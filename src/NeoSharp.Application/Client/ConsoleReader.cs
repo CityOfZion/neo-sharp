@@ -87,7 +87,7 @@ namespace NeoSharp.Application.Client
         {
             // Write prompt
 
-            _consoleWriter.Write(ReadPrompt);
+            _consoleWriter.Write(ReadPrompt, ConsoleOutputStyle.Prompt);
 
             // If have something loaded
 
