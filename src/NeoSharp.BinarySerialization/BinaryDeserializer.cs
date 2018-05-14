@@ -135,11 +135,11 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="buffer">Buffer</param>
         /// <param name="obj">Object</param>
-        public void DeserializeInside(byte[] buffer, object obj)
+        public void Deserialize(byte[] buffer, object obj)
         {
             using (var ms = new MemoryStream(buffer))
             {
-                DeserializeInside(ms, obj);
+                Deserialize(ms, obj);
             }
         }
         /// <summary>
@@ -147,7 +147,7 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="obj">Object</param>
-        public void DeserializeInside(Stream stream, object obj)
+        public void Deserialize(Stream stream, object obj)
         {
             // Search in cache
 
@@ -158,7 +158,7 @@ namespace NeoSharp.BinarySerialization
 
             using (var br = new BinaryReader(stream, Encoding.UTF8, true))
             {
-                cache.DeserializeInside(this, br, obj);
+                cache.Deserialize(this, br, obj);
 
                 if (cache.IsOnPostDeserializable)
                     ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();

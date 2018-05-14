@@ -83,7 +83,7 @@ namespace NeoSharp.Core.Network.Protocols
                     if (payloadLength == 0)
                         throw new FormatException();
 
-                    _serializer.DeserializeInside(payloadBuffer, messageWithPayload.Payload);
+                    _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload);
                 }
 
                 return message;

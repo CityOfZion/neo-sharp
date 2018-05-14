@@ -148,7 +148,7 @@ namespace NeoSharp.BinarySerialization.Cache
         /// <param name="deserializer">Deserializer</param>
         /// <param name="br">Stream</param>
         /// <param name="obj">Object</param>
-        public void DeserializeInside(IBinaryDeserializer deserializer, BinaryReader br, object obj)
+        public void Deserialize(IBinaryDeserializer deserializer, BinaryReader br, object obj)
         {
             foreach (BinarySerializerCacheEntry e in _entries)
             {
@@ -171,7 +171,7 @@ namespace NeoSharp.BinarySerialization.Cache
         public object Deserialize(IBinaryDeserializer deserializer, BinaryReader br)
         {
             object ret = Activator.CreateInstance(Type);
-            DeserializeInside(deserializer, br, ret);
+            Deserialize(deserializer, br, ret);
             return ret;
         }
     }

@@ -22,7 +22,7 @@ namespace NeoSharp.BinarySerialization
         /// Constructor
         /// </summary>
         /// <param name="asms">Assemblies</param>
-        public BinaryConverter(params Assembly[] asms) : base()
+        public BinaryConverter(params Assembly[] asms) : this()
         {
             BinarySerializerCache.RegisterTypes(asms);
         }
@@ -35,8 +35,8 @@ namespace NeoSharp.BinarySerialization
         public T Deserialize<T>(BinaryReader stream) where T : new() => Deserializer.Deserialize<T>(stream);
         public object Deserialize(Stream stream, Type t) => Deserializer.Deserialize(stream, t);
         public object Deserialize(BinaryReader stream, Type t) => Deserializer.Deserialize(stream, t);
-        public void DeserializeInside(byte[] buffer, object obj) => Deserializer.DeserializeInside(buffer, obj);
-        public void DeserializeInside(Stream stream, object obj) => Deserializer.DeserializeInside(stream, obj);
+        public void Deserialize(byte[] buffer, object obj) => Deserializer.Deserialize(buffer, obj);
+        public void Deserialize(Stream stream, object obj) => Deserializer.Deserialize(stream, obj);
         public byte[] Serialize(object obj) => Serializer.Serialize(obj);
         public int Serialize(object obj, Stream stream) => Serializer.Serialize(obj, stream);
         public int Serialize(object obj, BinaryWriter stream) => Serializer.Serialize(obj, stream);

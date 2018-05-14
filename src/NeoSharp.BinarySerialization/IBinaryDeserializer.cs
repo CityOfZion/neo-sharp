@@ -45,13 +45,13 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="buffer">Buffer</param>
         /// <param name="obj">Object</param>
-        void DeserializeInside(byte[] buffer, object obj);
+        void Deserialize(byte[] buffer, object obj);
         /// <summary>
         /// Deserialize without create a new object
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="obj">Object</param>
-        void DeserializeInside(Stream stream, object obj);
+        void Deserialize(Stream stream, object obj);
         /// <summary>
         /// Deserialize
         /// </summary>

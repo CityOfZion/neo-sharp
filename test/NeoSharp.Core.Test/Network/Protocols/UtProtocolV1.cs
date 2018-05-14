@@ -2,6 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network.Protocols;
 using NeoSharp.TestHelpers;
@@ -43,7 +44,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
         }
 
         [TestMethod]
-        public async Task Can_serialize_and_deserialize_messages_with_payload()
+        public void Can_serialize_and_deserialize_messages_with_payload()
         {
             // Arrange 
             var tcpProtocol = AutoMockContainer.Create<ProtocolV1>();
@@ -62,9 +63,12 @@ namespace NeoSharp.Core.Test.Network.Protocols
             // Act
             using (var memory = new MemoryStream())
             {
-                await tcpProtocol.SendMessageAsync(memory, expectedVersionMessage, CancellationToken.None);
+                Task a = tcpProtocol.SendMessageAsync(memory, expectedVersionMessage, CancellationToken.None);
+                a.Wait();
                 memory.Seek(0, SeekOrigin.Begin);
-                actualVersionMessage = (VersionMessage)await tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
+                Task<Message> b = tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
+                b.Wait();
+                actualVersionMessage = (VersionMessage)b.Result;
             }
 
             // Asset
