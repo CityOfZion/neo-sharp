@@ -1,13 +1,81 @@
 using NeoSharp.BinarySerialization.Interfaces;
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 
-namespace NeoSharp.BinarySerialization
+namespace NeoSharp.BinarySerialization.Cache
 {
     internal class BinarySerializerCache
     {
+        /// <summary>
+        /// Cache
+        /// </summary>
+        internal static readonly IDictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
+        internal static readonly IDictionary<Type, TypeConverter> TypeConverterCache = new Dictionary<Type, TypeConverter>();
+
+        /// <summary>
+        /// Cache Binary Serializer types
+        /// </summary>
+        static BinarySerializerCache()
+        {
+            foreach (var asm in AppDomain.CurrentDomain.GetAssemblies())
+                try
+                {
+                    // Speed up warm-up process
+                    if (!asm.FullName.StartsWith("Neo")) continue;
+
+                    CacheTypesOf(asm);
+                }
+                catch
+                {
+                    // ignored
+                }
+        }
+
+        /// <summary>
+        /// Cache types (call me if you load a new plugin or module)
+        /// </summary>
+        /// <param name="asm">Assembly</param>
+        public static void CacheTypesOf(Assembly asm)
+        {
+            foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t)))
+                InternalCacheTypeConvertersOf(t);
+
+            foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t) == false))
+                InternalCacheTypesOf(t);
+        }
+
+        /// <summary>
+        /// Cache type
+        /// </summary>
+        /// <param name="type">Type</param>
+        internal static BinarySerializerCache InternalCacheTypesOf(Type type)
+        {
+            lock (Cache)
+            {
+                if (Cache.TryGetValue(type, out var cache)) return cache;
+
+                var b = new BinarySerializerCache(type);
+                if (b.Count <= 0) return null;
+
+                Cache.Add(b.Type, b);
+                return b;
+            }
+        }
+
+        internal static void InternalCacheTypeConvertersOf(Type type)
+        {
+            lock (TypeConverterCache)
+            {
+                if (TypeConverterCache.ContainsKey(type)) return;
+
+                TypeConverterCache.Add(type, (TypeConverter)Activator.CreateInstance(type));
+            }
+        }
+
         /// <summary>
         /// Type
         /// </summary>
@@ -69,53 +137,57 @@ namespace NeoSharp.BinarySerialization
         /// <summary>
         /// Serialize
         /// </summary>
+        /// <param name="serializer">Serializer</param>
         /// <param name="bw">Stream</param>
         /// <param name="obj">Object</param>
-        public int Serialize(BinaryWriter bw, object obj)
+        public int Serialize(IBinarySerializer serializer, BinaryWriter bw, object obj)
         {
             int ret = 0;
             foreach (BinarySerializerCacheEntry e in _entries)
-                ret += e.WriteValue(bw, e.GetValue(obj));
+                ret += e.WriteValue(serializer, bw, e.GetValue(obj));
 
             return ret;
         }
         /// <summary>
         /// Deserialize
         /// </summary>
+        /// <param name="deserializer">Deserializer</param>
         /// <param name="br">Stream</param>
         /// <returns>Return object</returns>
-        public T Deserialize<T>(BinaryReader br)
+        public T Deserialize<T>(IBinaryDeserializer deserializer, BinaryReader br)
         {
-            return (T)Deserialize(br);
+            return (T)Deserialize(deserializer, br);
         }
         /// <summary>
         /// Deserialize without create a new object
         /// </summary>
+        /// <param name="deserializer">Deserializer</param>
         /// <param name="br">Stream</param>
         /// <param name="obj">Object</param>
-        public void DeserializeInside(BinaryReader br, object obj)
+        public void DeserializeInside(IBinaryDeserializer deserializer, BinaryReader br, object obj)
         {
             foreach (BinarySerializerCacheEntry e in _entries)
             {
                 if (e.ReadOnly)
                 {
                     // Consume it
-                    e.ReadValue(br);
+                    e.ReadValue(deserializer, br);
                     continue;
                 }
 
-                e.SetValue(obj, e.ReadValue(br));
+                e.SetValue(obj, e.ReadValue(deserializer, br));
             }
         }
         /// <summary>
         /// Deserialize
         /// </summary>
+        /// <param name="deserializer">Deserializer</param>
         /// <param name="br">Stream</param>
         /// <returns>Return object</returns>
-        public object Deserialize(BinaryReader br)
+        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader br)
         {
             object ret = Activator.CreateInstance(Type);
-            DeserializeInside(br, ret);
+            DeserializeInside(deserializer, br, ret);
             return ret;
         }
     }

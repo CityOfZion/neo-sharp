@@ -1,6 +1,8 @@
-﻿using System.IO;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
+using NeoSharp.BinarySerialization;
+using NeoSharp.BinarySerialization.Interfaces;
 using NeoSharp.Core.DI;
+using System.IO;
 
 namespace NeoSharp.Application.DI
 {
@@ -14,6 +16,8 @@ namespace NeoSharp.Application.DI
             var configurationRoot = builder.Build();
 
             containerBuilder.Register<IConfiguration>(configurationRoot);
+            containerBuilder.RegisterSingleton<IBinarySerializer, BinarySerializer>();
+            containerBuilder.RegisterSingleton<IBinaryDeserializer, BinaryDeserializer>();
         }
     }
 }

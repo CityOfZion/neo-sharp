@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using NeoSharp.Core.Types;
+using NeoSharp.BinarySerialization.Interfaces;
 
 namespace NeoSharp.Core.Models
 {
@@ -65,11 +66,6 @@ namespace NeoSharp.Core.Models
         [BinaryProperty(14)]
         [JsonProperty("txhashes")]
         public string[] TxHashes { get; set; }
-
-        public byte[] ToBytes()
-        {
-            return BinarySerializer.Serialize(this);
-        }
 
         public string ToJson(bool indent = false)
         {

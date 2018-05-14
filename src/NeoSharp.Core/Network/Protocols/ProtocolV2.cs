@@ -1,4 +1,4 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using NeoSharp.BinarySerialization.Interfaces;
 using NeoSharp.Core.Messaging;
 using System;
 using System.IO;
@@ -11,12 +11,16 @@ namespace NeoSharp.Core.Network.Protocols
     public class ProtocolV2 : ProtocolBase
     {
         private readonly uint _magic;
+        private readonly IBinarySerializer _serializer;
+        private readonly IBinaryDeserializer _deserializer;
 
-        public ProtocolV2(NetworkConfig config)
+        public ProtocolV2(NetworkConfig config, IBinarySerializer serializer, IBinaryDeserializer deserializer)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
 
             _magic = config.Magic;
+            _serializer = serializer;
+            _deserializer = deserializer;
         }
 
         public override uint Version => 2;
@@ -37,7 +41,7 @@ namespace NeoSharp.Core.Network.Protocols
                 writer.Write((byte)message.Flags);
 
                 var payloadBuffer = message is ICarryPayload messageWithPayload
-                    ? BinarySerializer.Serialize(messageWithPayload.Payload)
+                    ? _serializer.Serialize(messageWithPayload.Payload)
                     : new byte[0];
 
                 writer.Write((uint)payloadBuffer.Length);
@@ -82,7 +86,7 @@ namespace NeoSharp.Core.Network.Protocols
                     if (payloadLength == 0)
                         throw new FormatException();
 
-                    BinarySerializer.DeserializeInside(payloadBuffer, messageWithPayload.Payload);
+                    _deserializer.DeserializeInside(payloadBuffer, messageWithPayload.Payload);
                 }
 
                 return message;
