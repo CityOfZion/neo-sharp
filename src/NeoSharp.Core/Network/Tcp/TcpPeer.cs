@@ -6,6 +6,7 @@ using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.Network.Tcp
 {
@@ -58,6 +59,8 @@ namespace NeoSharp.Core.Network.Tcp
         }
 
         public bool IsConnected => _disposed == 0;
+
+        public VersionPayload Version { get; set; }
 
         public bool IsReady
         {

@@ -7,20 +7,20 @@ using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class VerAckMessageHandler : IMessageHandler<VerAckMessage>
+    public class BlockHeadersMessageHandler : IMessageHandler<BlockHeadersMessage>
     {
         private readonly IBlockchain _blockchain;
-        private readonly ILogger<VerAckMessageHandler> _logger;
+        private readonly ILogger<BlockHeadersMessageHandler> _logger;
 
-        public VerAckMessageHandler(IBlockchain blockchain, ILogger<VerAckMessageHandler> logger)
+        public BlockHeadersMessageHandler(IBlockchain blockchain, ILogger<BlockHeadersMessageHandler> logger)
         {
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(VerAckMessage message, IPeer sender)
+        public async Task Handle(BlockHeadersMessage message, IPeer sender)
         {
-            sender.IsReady = true;
+            _blockchain.AddBlockHeaders(message.Payload.Headers);
 
             if (_blockchain.BlockHeaderHeight < sender.Version.StartHeight)
             {

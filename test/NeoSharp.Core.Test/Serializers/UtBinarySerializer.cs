@@ -17,10 +17,10 @@ namespace NeoSharp.Core.Test.Serializers
         private IBinaryDeserializer _deserializer;
 
         [TestInitialize]
-        public void WarmSerializer()
+        public void WarmUpSerializer()
         {
-            _serializer = new BinarySerializer(typeof(Block).Assembly, typeof(UtBinarySerializer).Assembly);
-            _deserializer = new BinaryDeserializer(typeof(Block).Assembly, typeof(UtBinarySerializer).Assembly);
+            _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
+            _deserializer = new BinaryDeserializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
         }
 
         [TestMethod]
@@ -216,11 +216,11 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void BlockSerialize()
         {
-            var block = new Block()
+            var blockHeader = new BlockHeader()
             {
                 Confirmations = 1,
                 ConsensusData = 100_000_000,
-                Hash = "Hash",
+                Hash = UInt256.Zero,
                 Index = 0,
                 MerkleRoot = UInt256.Zero,
                 NextBlockHash = UInt256.Zero,
@@ -234,26 +234,26 @@ namespace NeoSharp.Core.Test.Serializers
                     InvocationScript = "InvocationScript",
                     VerificationScript = new byte[0],
                 },
-                TxHashes = new[] { "a", "b", "c" }
+                TransactionHashes = new[] { "a", "b", "c" }
             };
 
-            var blockCopy = _deserializer.Deserialize<Block>(_serializer.Serialize(block));
+            var blockHeaderCopy = _deserializer.Deserialize<BlockHeader>(_serializer.Serialize(blockHeader));
 
-            Assert.AreEqual(block.Confirmations, blockCopy.Confirmations);
-            Assert.AreEqual(block.ConsensusData, blockCopy.ConsensusData);
-            Assert.AreEqual(block.Hash, blockCopy.Hash);
-            Assert.AreEqual(block.Index, blockCopy.Index);
-            Assert.AreEqual(block.MerkleRoot, blockCopy.MerkleRoot);
-            Assert.AreEqual(block.NextConsensus, blockCopy.NextConsensus);
-            Assert.AreEqual(block.PreviousBlockHash, blockCopy.PreviousBlockHash);
-            Assert.AreEqual(block.Size, blockCopy.Size);
-            Assert.AreEqual(block.Timestamp, blockCopy.Timestamp);
-            Assert.AreEqual(block.Version, blockCopy.Version);
+            Assert.AreEqual(blockHeader.Confirmations, blockHeaderCopy.Confirmations);
+            Assert.AreEqual(blockHeader.ConsensusData, blockHeaderCopy.ConsensusData);
+            Assert.AreEqual(blockHeader.Hash, blockHeaderCopy.Hash);
+            Assert.AreEqual(blockHeader.Index, blockHeaderCopy.Index);
+            Assert.AreEqual(blockHeader.MerkleRoot, blockHeaderCopy.MerkleRoot);
+            Assert.AreEqual(blockHeader.NextConsensus, blockHeaderCopy.NextConsensus);
+            Assert.AreEqual(blockHeader.PreviousBlockHash, blockHeaderCopy.PreviousBlockHash);
+            Assert.AreEqual(blockHeader.Size, blockHeaderCopy.Size);
+            Assert.AreEqual(blockHeader.Timestamp, blockHeaderCopy.Timestamp);
+            Assert.AreEqual(blockHeader.Version, blockHeaderCopy.Version);
 
-            Assert.AreEqual(block.Script.InvocationScript, blockCopy.Script.InvocationScript);
-            Assert.IsTrue(block.Script.VerificationScript.SequenceEqual(blockCopy.Script.VerificationScript));
+            Assert.AreEqual(blockHeader.Script.InvocationScript, blockHeaderCopy.Script.InvocationScript);
+            Assert.IsTrue(blockHeader.Script.VerificationScript.SequenceEqual(blockHeaderCopy.Script.VerificationScript));
 
-            Assert.IsTrue(block.TxHashes.SequenceEqual(blockCopy.TxHashes));
+            Assert.IsTrue(blockHeader.TransactionHashes.SequenceEqual(blockHeaderCopy.TransactionHashes));
         }
     }
 }

@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace NeoSharp.Application.Client
 {
@@ -357,7 +358,7 @@ namespace NeoSharp.Application.Client
             // TODO: Change this
 
             Block block = Blockchain.GenesisBlock;
-            _consoleWriter.WriteLine(block.ToJson(true));
+            _consoleWriter.WriteLine(JsonConvert.SerializeObject(block, Formatting.Indented));
         }
 
         /// <summary>
@@ -370,7 +371,7 @@ namespace NeoSharp.Application.Client
             // TODO: Change this
 
             Block block = Blockchain.GenesisBlock;
-            _consoleWriter.WriteLine(block.ToJson(true));
+            _consoleWriter.WriteLine(JsonConvert.SerializeObject(block, Formatting.Indented));
         }
 
         /// <summary>

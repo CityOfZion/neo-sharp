@@ -9,8 +9,11 @@ namespace NeoSharp.Core.Blockchain
     public interface IBlockchain
     {
         UInt256 CurrentBlockHash { get; }
-        UInt256 CurrentHeaderHash { get; }
-        uint HeaderHeight { get; }
+
+        UInt256 CurrentBlockHeaderHash { get; }
+
+        uint BlockHeaderHeight { get; }
+
         uint Height { get; }
 
         /// <summary>
@@ -64,14 +67,14 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="height"></param>
         /// <returns></returns>
-        Header GetHeader(uint height);
+        BlockHeader GetBlockHeader(uint height);
 
         /// <summary>
         /// Returns the corresponding block header information according to the specified hash value
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        Header GetHeader(UInt256 hash);
+        BlockHeader GetBlockHeader(UInt256 hash);
 
         ECPoint[] GetValidators();
         IEnumerable<ECPoint> GetValidators(IEnumerable<Transaction> others);
@@ -135,5 +138,11 @@ namespace NeoSharp.Core.Blockchain
         /// <param name="tx"></param>
         /// <returns></returns>
         bool IsDoubleSpend(Transaction tx);
+
+        /// <summary>
+        /// Add the specified block headers to the blockchain
+        /// </summary>
+        /// <param name="blockHeaders"></param>
+        void AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders);
     }
 }
