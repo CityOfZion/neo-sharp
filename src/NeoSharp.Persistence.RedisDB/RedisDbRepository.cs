@@ -22,20 +22,20 @@ namespace NeoSharp.Persistence.RedisDB
 
         #region IRepository Members
 
-        public void AddBlock(Block block)
+        public void AddBlockHeader(BlockHeader blockHeader)
         {
             //Convert to bytes
-            var blockBytes = _serializer.Serialize(block);
+            var blockHeaderBytes = _serializer.Serialize(blockHeader);
 
             //Write the redis database with the binary bytes
-            _redis.Database.Set(DataEntryPrefix.DataBlock, block.Hash, blockBytes);
+            _redis.Database.Set(DataEntryPrefix.DataBlock, blockHeader.Hash.ToString(), blockHeaderBytes);
 
             //Add secondary indexes to find block hash by timestamp or height
             //Add to timestamp / blockhash index
-            _redis.Database.AddToIndex(RedisIndex.BlockTimestamp, block.Timestamp, block.Hash);
+            _redis.Database.AddToIndex(RedisIndex.BlockTimestamp, blockHeader.Timestamp, blockHeader.Hash.ToString());
 
             //Add to heignt / blockhash index
-            _redis.Database.AddToIndex(RedisIndex.BlockHeight, block.Index, block.Hash);
+            _redis.Database.AddToIndex(RedisIndex.BlockHeight, blockHeader.Index, blockHeader.Hash.ToString());
         }
 
         public void AddTransaction(Transaction transaction)
@@ -50,42 +50,42 @@ namespace NeoSharp.Persistence.RedisDB
             _redis.Database.AddToIndex(RedisIndex.TransactionBlockHeight, transaction.BlockIndex, transaction.Hash.ToString());
         }
 
-        public Block GetBlockByHeight(int height)
+        public BlockHeader GetBlockHeaderByHeight(int height)
         {
             //Get the hash for the block at the specified height from our secondary index
             RedisValue[] values = _redis.Database.GetFromIndex(RedisIndex.BlockHeight, height);
 
             //We want only the first result
-            if (values.Length > 0)
-                return GetBlockById((string)values[0]);
+            if(values.Length > 0)
+                return GetBlockHeaderById((string)values[0]);
 
             return null;
         }
 
-        public Block GetBlockByTimestamp(int timestamp)
+        public BlockHeader GetBlockHeaderByTimestamp(int timestamp)
         {
             //Get the hash for the block with the specified timestamp from our secondary index
             RedisValue[] values = _redis.Database.GetFromIndex(RedisIndex.BlockTimestamp, timestamp);
 
             //We want only the first result
             if (values.Length > 0)
-                return GetBlockById((string)values[0]);
+                return GetBlockHeaderById((string)values[0]);
 
             return null;
         }
 
-        public Block GetBlockById(byte[] id)
+        public BlockHeader GetBlockHeaderById(byte[] id)
         {
-            return GetBlockById(Encoding.UTF8.GetString(id));
+            return GetBlockHeaderById(Encoding.UTF8.GetString(id));
         }
 
-        public Block GetBlockById(string id)
+        public BlockHeader GetBlockHeaderById(string id)
         {
-            //Retrieve the block
-            var blockBytes = GetRawBlockBytes(id);
+            //Retrieve the block header
+            var blockHeaderBytes = GetRawBlockBytes(id);
 
-            //Deserialize the block
-            return _deserializer.Deserialize<Block>(blockBytes);
+            //Deserialize the block header
+            return _deserializer.Deserialize<BlockHeader>(blockHeaderBytes);
         }
 
         public byte[] GetRawBlockBytes(string id)
@@ -124,12 +124,12 @@ namespace NeoSharp.Persistence.RedisDB
         {
             //TODO:  This can be optimized
             List<Transaction> transactions = new List<Transaction>();
-            var block = GetBlockById(id);
+            var block = GetBlockHeaderById(id);
 
-            foreach (var txHash in block.TxHashes)
+            foreach(var transactionHash in block.TransactionHashes)
             {
-                var tx = GetTransaction(txHash);
-                transactions.Add(tx);
+                var transaction = GetTransaction(transactionHash);
+                transactions.Add(transaction);
             }
 
             return transactions.ToArray();

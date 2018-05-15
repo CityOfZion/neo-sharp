@@ -1,5 +1,4 @@
 ﻿using NeoSharp.Core.Models;
-using System.Collections.Generic;
 
 namespace NeoSharp.Core.Persistence
 {
@@ -16,39 +15,40 @@ namespace NeoSharp.Core.Persistence
 
 
         #region Blocks
-        /// <summary>
-        /// Adds a block to the repository storage
-        /// </summary>
-        /// <param name="block">Block to be added</param>
-        void AddBlock(Block block);
 
         /// <summary>
-        /// Retrieves a block by identifier
+        /// Adds a block header to the repository storage
         /// </summary>
-        /// <param name="id">Block id / hash</param>
-        /// <returns>Block with specified id</returns>
-        Block GetBlockById(byte[] id);
+        /// <param name="blockHeader"></param>
+        void AddBlockHeader(BlockHeader blockHeader);
 
         /// <summary>
-        /// Retrieves a block by identifier
+        /// Retrieves a block header by identifier
         /// </summary>
         /// <param name="id">Block id / hash</param>
-        /// <returns>Block with specified id</returns>
-        Block GetBlockById(string id);
+        /// <returns>Block header with specified id</returns>
+        BlockHeader GetBlockHeaderById(byte[] id);
 
         /// <summary>
-        /// Retrieves a block by height / index
+        /// Retrieves a block header by identifier
+        /// </summary>
+        /// <param name="id">Block id / hash</param>
+        /// <returns>Block header with specified id</returns>
+        BlockHeader GetBlockHeaderById(string id);
+
+        /// <summary>
+        /// Retrieves a block header by height / index
         /// </summary>
         /// <param name="height">The block height / index to retrieve</param>
-        /// <returns>Block at specified height / index</returns>
-        Block GetBlockByHeight(int height);
+        /// <returns>Block header at specified height / index</returns>
+        BlockHeader GetBlockHeaderByHeight(int height);
 
         /// <summary>
-        /// Retrieves a block by timestamp
+        /// Retrieves a block header by timestamp
         /// </summary>
         /// <param name="timestamp">The block timestamp to retrieve the block at</param>
-        /// <returns>Block at the specified timestamp</returns>
-        Block GetBlockByTimestamp(int timestamp);
+        /// <returns>Block header at the specified timestamp</returns>
+        BlockHeader GetBlockHeaderByTimestamp(int timestamp);
 
         /// <summary>
         /// Retrieves the raw bytes for a block by identifier

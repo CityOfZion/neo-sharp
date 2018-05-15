@@ -1,11 +1,14 @@
 ﻿using System.Threading.Tasks;
 using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.Network
 {
     public interface IPeer
     {
         bool IsConnected { get; }
+
+        VersionPayload Version { get; set; }
 
         bool IsReady { get; set; }
 

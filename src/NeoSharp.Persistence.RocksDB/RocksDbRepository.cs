@@ -22,10 +22,10 @@ namespace NeoSharp.Persistence.RocksDB
         private RocksDb _rocksDb;
 
         #region IRepository Members
-        public void AddBlock(Block block)
+        public void AddBlockHeader(BlockHeader blockHeader)
         {
-            var hash = Encoding.UTF8.GetBytes(block.Hash);
-            _rocksDb.Put(BuildKey(DataEntryPrefix.DataBlock,hash), _serializer.Serialize(block));
+            var hash = blockHeader.Hash.ToArray();
+            _rocksDb.Put(BuildKey(DataEntryPrefix.DataBlock,hash), _serializer.Serialize(blockHeader));
         }
 
         public void AddTransaction(Transaction transaction)
@@ -34,23 +34,23 @@ namespace NeoSharp.Persistence.RocksDB
             _rocksDb.Put(BuildKey(DataEntryPrefix.DataTransaction,hash), _serializer.Serialize(transaction));
         }
 
-        public Block GetBlockByHeight(int height)
+        public BlockHeader GetBlockHeaderByHeight(int height)
         {
             throw new NotImplementedException();
         }
 
-        public Block GetBlockById(byte[] id)
+        public BlockHeader GetBlockHeaderById(byte[] id)
         {
             var bytes = GetRawBlockBytes(id);
-            return _deserializer.Deserialize<Block>(bytes);
+            return _deserializer.Deserialize<BlockHeader>(bytes);
         }
 
-        public Block GetBlockById(string id)
+        public BlockHeader GetBlockHeaderById(string id)
         {
-            return GetBlockById(Encoding.UTF8.GetBytes(id));
+            return GetBlockHeaderById(Encoding.UTF8.GetBytes(id));
         }
 
-        public Block GetBlockByTimestamp(int timestamp)
+        public BlockHeader GetBlockHeaderByTimestamp(int timestamp)
         {
             throw new NotImplementedException();
         }

@@ -37,7 +37,7 @@ namespace NeoSharp.Core.Blockchain
         /// <summary>
         /// 创世区块
         /// </summary>
-        public static readonly NetworkBlock GenesisBlock = new NetworkBlock
+        public static readonly Block GenesisBlock = new Block
         {
             PreviousBlockHash = UInt256.Zero,
             Timestamp = new DateTime(2016, 7, 15, 15, 8, 21, DateTimeKind.Utc).ToTimestamp(),
@@ -96,9 +96,9 @@ namespace NeoSharp.Core.Blockchain
 
         public UInt256 CurrentBlockHash { get; }
 
-        public UInt256 CurrentHeaderHash { get; }
+        public UInt256 CurrentBlockHeaderHash { get; }
 
-        public uint HeaderHeight { get; }
+        public uint BlockHeaderHeight { get; }
 
         public uint Height { get; }
 
@@ -115,8 +115,8 @@ namespace NeoSharp.Core.Blockchain
         /// <summary>
         /// Add the specified block headers to the blockchain
         /// </summary>
-        /// <param name="headers"></param>
-        protected internal void AddHeaders(IEnumerable<Header> headers)
+        /// <param name="blockHeaders"></param>
+        public void AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders)
         {
         }
 
@@ -292,9 +292,10 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="height"></param>
         /// <returns></returns>
-        public Header GetHeader(uint height)
+        public BlockHeader GetBlockHeader(uint height)
         {
-            return null;
+            //TODO: read from repo
+            return new BlockHeader();
         }
 
         /// <summary>
@@ -302,9 +303,10 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        public Header GetHeader(UInt256 hash)
+        public BlockHeader GetBlockHeader(UInt256 hash)
         {
-            return null;
+            //TODO: read from repo
+            return new BlockHeader();
         }
 
         /// <summary>
