@@ -23,7 +23,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
         }
 
         [TestMethod]
-        public async Task Can_serialize_and_deserialize_messages()
+        public void Can_serialize_and_deserialize_messages()
         {
             // Arrange 
             var tcpProtocol = AutoMockContainer.Create<ProtocolV2>();
@@ -33,9 +33,12 @@ namespace NeoSharp.Core.Test.Network.Protocols
             // Act
             using (var memory = new MemoryStream())
             {
-                await tcpProtocol.SendMessageAsync(memory, expectedVerAckMessage, CancellationToken.None);
+                Task a = tcpProtocol.SendMessageAsync(memory, expectedVerAckMessage, CancellationToken.None);
+                a.Wait();
                 memory.Seek(0, SeekOrigin.Begin);
-                actualVerAckMessage = (VerAckMessage)await tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
+                Task<Message> b = tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
+                b.Wait();
+                actualVerAckMessage = (VerAckMessage)b.Result;
             }
 
             // Asset
