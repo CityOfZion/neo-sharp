@@ -14,5 +14,9 @@
         /// Urgent
         /// </summary>
         Urgent = 0x02,
+        /// <summary>
+        /// WithPayload
+        /// </summary>
+        WithPayload = 0x04,
     }
 }

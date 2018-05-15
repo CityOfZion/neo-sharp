@@ -1,7 +1,9 @@
 ﻿using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging;
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +19,6 @@ namespace NeoSharp.Core.Network.Protocols
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-
             _magic = config.Magic;
         }
 
@@ -34,16 +35,40 @@ namespace NeoSharp.Core.Network.Protocols
             using (var memory = new MemoryStream())
             using (var writer = new BinaryWriter(memory, Encoding.UTF8))
             {
+                // TODO: Remove this magic in V2, only for handshake
                 writer.Write(_magic);
                 writer.Write((byte)message.Command);
-                writer.Write((byte)message.Flags);
 
-                var payloadBuffer = message is ICarryPayload messageWithPayload
-                    ? _serializer.Serialize(messageWithPayload.Payload)
-                    : new byte[0];
+                if (message is ICarryPayload messageWithPayload)
+                {
+                    message.Flags |= MessageFlags.WithPayload;
+                    byte[] payloadBuffer = _serializer.Serialize(messageWithPayload.Payload);
 
-                writer.Write((uint)payloadBuffer.Length);
-                writer.Write(payloadBuffer);
+                    if (payloadBuffer.Length > 100)
+                    {
+                        using (MemoryStream ms = new MemoryStream())
+                        {
+                            using (GZipStream gzip = new GZipStream(ms, CompressionLevel.Fastest, true))
+                                gzip.Write(payloadBuffer, 0, payloadBuffer.Length);
+
+                            if (payloadBuffer.Length > ms.Length)
+                            {
+                                payloadBuffer = ms.ToArray();
+                                message.Flags |= MessageFlags.Compressed;
+                            }
+                        }
+                    }
+
+                    writer.Write((byte)message.Flags);
+                    writer.Write((uint)payloadBuffer.Length);
+                    writer.Write(payloadBuffer);
+                }
+                else
+                {
+                    message.Flags &= ~MessageFlags.WithPayload;
+                    writer.Write((byte)message.Flags);
+                }
+
                 writer.Flush();
 
                 var buffer = memory.ToArray();
@@ -53,25 +78,26 @@ namespace NeoSharp.Core.Network.Protocols
 
         public override async Task<Message> ReceiveMessageAsync(Stream stream, CancellationToken cancellationToken)
         {
-            var buffer = await FillBufferAsync(stream, 10, cancellationToken);
+            var buffer = await FillBufferAsync(stream, 6, cancellationToken);
 
-            using (var memory = new MemoryStream(buffer, false))
-            using (var reader = new BinaryReader(memory, Encoding.UTF8))
+            // TODO: Remove this magic in V2, only for handshake
+            if (buffer.ToInt32(0) != _magic)
+                throw new FormatException();
+
+            var command = (MessageCommand)buffer[4];
+
+            if (!Cache.TryGetValue(command, out var type))
+                throw (new ArgumentException("command"));
+
+            Message message = (Message)Activator.CreateInstance(type);
+            message.Command = command;
+            message.Flags = (MessageFlags)buffer[5];
+
+            if (message.Flags.HasFlag(MessageFlags.WithPayload))
             {
-                if (reader.ReadUInt32() != _magic)
-                    throw new FormatException();
+                buffer = await FillBufferAsync(stream, 4, cancellationToken);
 
-                var command = (MessageCommand)reader.ReadByte();
-
-                if (!Cache.TryGetValue(command, out var type))
-                    throw (new ArgumentException("command"));
-
-                var message = (Message)Activator.CreateInstance(type);
-
-                message.Command = command;
-                message.Flags = (MessageFlags)reader.ReadByte();
-
-                var payloadLength = reader.ReadUInt32();
+                var payloadLength = buffer.ToInt32(0);
                 if (payloadLength > Message.PayloadMaxSize)
                     throw new FormatException();
 
@@ -84,11 +110,20 @@ namespace NeoSharp.Core.Network.Protocols
                     if (payloadLength == 0)
                         throw new FormatException();
 
-                    _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload);
+                    if (message.Flags.HasFlag(MessageFlags.Compressed))
+                    {
+                        using (MemoryStream ms = new MemoryStream(payloadBuffer))
+                        using (GZipStream gzip = new GZipStream(ms, CompressionMode.Decompress))
+                            _serializer.Deserialize(gzip, messageWithPayload.Payload);
+                    }
+                    else
+                    {
+                        _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload);
+                    }
                 }
-
-                return message;
             }
+
+            return message;
         }
     }
 }
