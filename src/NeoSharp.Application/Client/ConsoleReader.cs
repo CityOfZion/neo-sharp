@@ -249,20 +249,19 @@ namespace NeoSharp.Application.Client
 
                             foreach (KeyValuePair<string, List<ParameterInfo[]>> var in autocomplete)
                             {
-                                if (var.Key.StartsWith(cmd))
+                                if (!var.Key.StartsWith(cmd)) continue;
+
+                                if (founds.Count == 0)
                                 {
-                                    if (founds.Count == 0)
-                                    {
-                                        _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
-                                    }
-
-                                    founds.Add(var.Key);
-
-                                    // Print found
-
-                                    _consoleWriter.Write(var.Key.Substring(0, cmd.Length), ConsoleOutputStyle.AutocompleteMatch);
-                                    _consoleWriter.WriteLine(var.Key.Substring(cmd.Length), ConsoleOutputStyle.Autocomplete);
+                                    _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
                                 }
+
+                                founds.Add(var.Key);
+
+                                // Print found
+
+                                _consoleWriter.Write(var.Key.Substring(0, cmd.Length), ConsoleOutputStyle.AutocompleteMatch);
+                                _consoleWriter.WriteLine(var.Key.Substring(cmd.Length), ConsoleOutputStyle.Autocomplete);
                             }
 
                             if (founds.Count > 0)
@@ -286,11 +285,10 @@ namespace NeoSharp.Application.Client
                                         bool ok = true;
                                         foreach (string s in founds)
                                         {
-                                            if (!s.StartsWith(cmd.Substring(0, x)))
-                                            {
-                                                ok = false;
-                                                break;
-                                            }
+                                            if (s.StartsWith(cmd.Substring(0, x))) continue;
+
+                                            ok = false;
+                                            break;
                                         }
                                         if (ok) max = x;
                                         else break;
@@ -394,6 +392,7 @@ namespace NeoSharp.Application.Client
             _consoleWriter.SetCursorPosition(startX, startY);
 
             // Clean
+
             if (l > 0)
             {
                 _consoleWriter.Write("".PadLeft(l, ' '), ConsoleOutputStyle.Input);
