@@ -35,9 +35,17 @@ namespace NeoSharp.Application.Attributes
         #region Properties
 
         /// <summary>
-        /// Commands
+        /// Command
         /// </summary>
         public readonly string Command;
+        /// <summary>
+        /// Commands
+        /// </summary>
+        public readonly string[] Commands;
+        /// <summary>
+        /// Command Length
+        /// </summary>
+        public readonly int CommandLength;
         /// <summary>
         /// Help
         /// </summary>
@@ -47,30 +55,15 @@ namespace NeoSharp.Application.Attributes
         /// </summary>
         public string Category { get; set; }
         /// <summary>
-        /// Command Length
-        /// </summary>
-        internal int CommandLength;
-        /// <summary>
         /// Parameters
         /// </summary>
         internal ParameterInfo[] Parameters { get; private set; }
         /// <summary>
         /// Method
         /// </summary>
-        internal MethodInfo Method
-        {
-            get { return _method; }
-            set
-            {
-                if (value == null) return;
-
-                _method = value;
-                Parameters = value.GetParameters();
-            }
-        }
+        internal MethodInfo Method => _method;
 
         #endregion
-
 
         /// <summary>
         /// Constructor
@@ -78,7 +71,21 @@ namespace NeoSharp.Application.Attributes
         /// <param name="command">Command</param>
         public PromptCommandAttribute(string command)
         {
-            Command = command;
+            Command = command.ToLowerInvariant();
+            Commands = Command.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            CommandLength = Commands.Length;
+        }
+
+        /// <summary>
+        /// Set Method
+        /// </summary>
+        /// <param name="method">Method</param>
+        internal void SetMethod(MethodInfo method)
+        {
+            if (method == null) return;
+
+            _method = method;
+            Parameters = method.GetParameters();
         }
 
         /// <summary>

@@ -67,24 +67,19 @@ namespace NeoSharp.Application.Client
 
             foreach (var mi in typeof(Prompt).GetMethods
                 (
-                BindingFlags.NonPublic | BindingFlags.Public |
-                BindingFlags.Instance | BindingFlags.Static
+                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance
                 ))
             {
                 var atr = mi.GetCustomAttribute<PromptCommandAttribute>();
                 if (atr == null) continue;
 
-                string cmd = atr.Command.ToLowerInvariant();
-                string[] key = cmd.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                atr.SetMethod(mi);
 
-                atr.Method = mi;
-                atr.CommandLength = key.Length;
+                _commandCache.Add(atr.Commands, atr);
 
-                _commandCache.Add(key, atr);
-
-                if (_commandAutocompleteCache.ContainsKey(cmd))
+                if (_commandAutocompleteCache.ContainsKey(atr.Command))
                 {
-                    _commandAutocompleteCache[cmd].Add(mi.GetParameters());
+                    _commandAutocompleteCache[atr.Command].Add(mi.GetParameters());
                 }
                 else
                 {
@@ -92,7 +87,7 @@ namespace NeoSharp.Application.Client
                     {
                         mi.GetParameters()
                     };
-                    _commandAutocompleteCache.Add(cmd, ls);
+                    _commandAutocompleteCache.Add(atr.Command, ls);
                 }
             }
         }
