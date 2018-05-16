@@ -64,14 +64,13 @@ namespace NeoSharp.Core.Test.Network.Protocols
             var isCompressed = false;
             var tcpProtocol = AutoMockContainer.Create<ProtocolV2>();
             var expectedVersionMessage = new VersionMessage();
-            var r = new Random(Environment.TickCount);
-            expectedVersionMessage.Payload.Version = (uint)r.Next(0, int.MaxValue);
-            expectedVersionMessage.Payload.Services = (ulong)r.Next(0, int.MaxValue);
+            expectedVersionMessage.Payload.Version = (uint)_rand.Next(0, int.MaxValue);
+            expectedVersionMessage.Payload.Services = (ulong)_rand.Next(0, int.MaxValue);
             expectedVersionMessage.Payload.Timestamp = DateTime.UtcNow.ToTimestamp();
-            expectedVersionMessage.Payload.Port = (ushort)r.Next(0, short.MaxValue);
-            expectedVersionMessage.Payload.Nonce = (uint)r.Next(0, int.MaxValue);
-            expectedVersionMessage.Payload.UserAgent = $"/NEO:{r.Next(1, 10)}.{r.Next(1, 100)}.{r.Next(1, 1000)}/" + ("0".PadLeft(length, '0'));
-            expectedVersionMessage.Payload.StartHeight = (uint)r.Next(0, int.MaxValue);
+            expectedVersionMessage.Payload.Port = (ushort)_rand.Next(0, short.MaxValue);
+            expectedVersionMessage.Payload.Nonce = (uint)_rand.Next(0, int.MaxValue);
+            expectedVersionMessage.Payload.UserAgent = $"/NEO:{_rand.Next(1, 10)}.{_rand.Next(1, 100)}.{_rand.Next(1, 1000)}/" + ("0".PadLeft(length, '0'));
+            expectedVersionMessage.Payload.StartHeight = (uint)_rand.Next(0, int.MaxValue);
             expectedVersionMessage.Payload.Relay = false;
             VersionMessage actualVersionMessage;
 

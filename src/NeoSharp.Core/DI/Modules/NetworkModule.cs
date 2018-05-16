@@ -1,11 +1,11 @@
-﻿using System.Linq;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Protocols;
 using NeoSharp.Core.Network.Tcp;
+using System.Linq;
 
 namespace NeoSharp.Core.DI.Modules
 {
@@ -14,9 +14,11 @@ namespace NeoSharp.Core.DI.Modules
         public void Register(IContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterSingleton<NetworkConfig>();
+            containerBuilder.RegisterSingleton<RpcConfig>();
             containerBuilder.RegisterSingleton<ProtocolSelector>();
             containerBuilder.RegisterSingleton<INetworkManager, NetworkManager>();
             containerBuilder.RegisterSingleton<IServer, Server>();
+            containerBuilder.RegisterSingleton<IRpcServer, RpcServer>();
             containerBuilder.RegisterSingleton<IPeerFactory, PeerFactory>();
             containerBuilder.RegisterSingleton<IPeerListener, TcpPeerListener>();
             containerBuilder.RegisterSingleton<ITcpPeerFactory, TcpPeerFactory>();

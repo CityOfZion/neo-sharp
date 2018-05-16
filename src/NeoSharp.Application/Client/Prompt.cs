@@ -5,13 +5,13 @@ using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Types;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using Newtonsoft.Json;
 
 namespace NeoSharp.Application.Client
 {
@@ -43,6 +43,10 @@ namespace NeoSharp.Application.Client
         /// Server
         /// </summary>
         private readonly IServer _server;
+        /// <summary>
+        /// Rpc server
+        /// </summary>
+        private readonly IRpcServer _rpc;
         /// <summary>
         /// Command cache
         /// </summary>
@@ -103,13 +107,17 @@ namespace NeoSharp.Application.Client
         /// <param name="logger">Logger</param>
         /// <param name="networkManagerInit">Network manger init</param>
         /// <param name="serverInit">Server</param>
-        public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit, ILogger<Prompt> logger, INetworkManager networkManagerInit, IServer serverInit)
+        /// <param name="rpcInit">Rpc server</param>
+        public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit,
+            ILogger<Prompt> logger, INetworkManager networkManagerInit,
+            IServer serverInit, IRpcServer rpcInit)
         {
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;
             _logger = logger;
             _networkManager = networkManagerInit;
             _server = serverInit;
+            _rpc = rpcInit;
         }
 
         public void StartPrompt(string[] args)
@@ -295,22 +303,40 @@ namespace NeoSharp.Application.Client
         }
 
         /// <summary>
+        /// Start rpc
+        /// </summary>
+        [PromptCommand("start rpc", Category = "Network")]
+        private void StartRpcCommand()
+        {
+            _rpc?.Start();
+        }
+
+        /// <summary>
+        /// Stop rpc
+        /// </summary>
+        [PromptCommand("stop rpc", Category = "Network")]
+        private void StopRpcCommand()
+        {
+            _rpc?.Stop();
+        }
+
+        /// <summary>
         /// Start network
         /// </summary>
-        [PromptCommand("start", Category = "Network")]
+        [PromptCommand("start network", Category = "Network")]
         // ReSharper disable once UnusedMember.Local
         private void StartCommand()
         {
-            _networkManager.StartNetwork();
+            _networkManager?.StartNetwork();
         }
 
         /// <summary>
         /// Stop network
         /// </summary>
-        [PromptCommand("stop", Category = "Network")]
+        [PromptCommand("stop network", Category = "Network")]
         private void StopCommand()
         {
-            _networkManager.StopNetwork();
+            _networkManager?.StopNetwork();
         }
 
         #endregion
