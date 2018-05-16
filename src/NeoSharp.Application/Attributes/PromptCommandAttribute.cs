@@ -35,9 +35,17 @@ namespace NeoSharp.Application.Attributes
         #region Properties
 
         /// <summary>
-        /// Commands
+        /// Command
         /// </summary>
         public readonly string Command;
+        /// <summary>
+        /// Commands
+        /// </summary>
+        public readonly string[] Commands;
+        /// <summary>
+        /// Command Length
+        /// </summary>
+        public readonly int CommandLength;
         /// <summary>
         /// Help
         /// </summary>
@@ -46,10 +54,6 @@ namespace NeoSharp.Application.Attributes
         /// Category
         /// </summary>
         public string Category { get; set; }
-        /// <summary>
-        /// Command Length
-        /// </summary>
-        internal int CommandLength;
         /// <summary>
         /// Parameters
         /// </summary>
@@ -71,14 +75,15 @@ namespace NeoSharp.Application.Attributes
 
         #endregion
 
-
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="command">Command</param>
         public PromptCommandAttribute(string command)
         {
-            Command = command;
+            Command = command.ToLowerInvariant();
+            Commands = Command.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            CommandLength = Commands.Length;
         }
 
         /// <summary>
