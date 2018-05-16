@@ -86,7 +86,7 @@ namespace NeoSharp.Core.Test.Network
             // Arrange 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
             var peerMock = AutoMockContainer.GetMock<IPeer>();
-
+            
             FakeHandshake(peerMock);
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();

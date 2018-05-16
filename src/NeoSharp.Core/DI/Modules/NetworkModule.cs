@@ -13,6 +13,7 @@ namespace NeoSharp.Core.DI.Modules
     {
         public void Register(IContainerBuilder containerBuilder)
         {
+            containerBuilder.RegisterSingleton<NetworkACLFactory>();
             containerBuilder.RegisterSingleton<NetworkConfig>();
             containerBuilder.RegisterSingleton<RpcConfig>();
             containerBuilder.RegisterSingleton<ProtocolSelector>();

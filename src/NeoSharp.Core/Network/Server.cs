@@ -1,4 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
+using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Network.Tcp;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,20 +12,17 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Messaging;
-using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.Network
 {
     public class Server : IServer, IDisposable
     {
+        private readonly INetworkACL _acl;
+        private readonly ILogger<Server> _logger;
         private readonly IBlockchain _blockchain;
         private readonly IPeerFactory _peerFactory;
         private readonly IPeerListener _peerListener;
         private readonly IMessageHandler<Message> _messageHandler;
-        private readonly ILogger<Server> _logger;
 
         // if we successfully connect with a peer it is inserted into this list
         private readonly ConcurrentBag<IPeer> _connectedPeers;
@@ -42,15 +44,20 @@ namespace NeoSharp.Core.Network
             NetworkConfig config,
             IPeerFactory peerFactory,
             IPeerListener peerListener,
-            IMessageHandler<Message> messageHandler, 
-            ILogger<Server> logger)
+            IMessageHandler<Message> messageHandler,
+            ILogger<Server> logger,
+            NetworkACLFactory aclFactory)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _peerFactory = peerFactory ?? throw new ArgumentNullException(nameof(peerFactory));
             _peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
-            _messageHandler = messageHandler;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            if (aclFactory == null) throw new ArgumentNullException(nameof(aclFactory));
+
+            _messageHandler = messageHandler;
+            _acl = aclFactory.CreateNew();
+            _acl?.Load(config?.ACL);
 
             _peerListener.OnPeerConnected += PeerConnected;
 
@@ -134,6 +141,25 @@ namespace NeoSharp.Core.Network
         {
             try
             {
+                if (_acl != null)
+                {
+                    // Tcp
+
+                    if (peer is TcpPeer tcp && tcp.IPAddress != null && !_acl.IsAllowed(tcp.IPAddress))
+                    {
+                        throw new UnauthorizedAccessException();
+                    }
+                    else
+                    {
+                        // Other protocols
+
+                        if (peer.EndPoint != null && !_acl.IsAllowed(peer.EndPoint.Host))
+                        {
+                            throw new UnauthorizedAccessException();
+                        }
+                    }
+                }
+
                 _connectedPeers.Add(peer);
 
                 ListenForMessages(peer, _messageListenerTokenSource.Token);

@@ -22,11 +22,12 @@ namespace NeoSharp.Core.Network
 
         private const int MaxPostValue = 1024 * 1024 * 2;
 
+        private IWebHost _host;
+        private readonly INetworkACL _acl;
         private readonly RpcConfig _config;
         private readonly IBlockchain _blockchain;
         private readonly ILogger<RpcServer> _logger;
         private readonly IList<IRpcProcessRequest> _callbacks;
-        private IWebHost _host;
 
         #endregion
 
@@ -36,13 +37,19 @@ namespace NeoSharp.Core.Network
         /// <param name="config">Config</param>
         /// <param name="blockchain">Blockchain</param>
         /// <param name="logger">Logger</param>
+        /// <param name="aclFactory">ACL</param>
         public RpcServer(
             RpcConfig config,
-            IBlockchain blockchain, ILogger<RpcServer> logger)
+            IBlockchain blockchain, ILogger<RpcServer> logger,
+            NetworkACLFactory aclFactory)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            if (aclFactory == null) throw new ArgumentNullException(nameof(aclFactory));
+
+            _acl = aclFactory.CreateNew();
+            _acl?.Load(config?.ACL);
             _callbacks = new List<IRpcProcessRequest>();
         }
 
@@ -102,6 +109,18 @@ namespace NeoSharp.Core.Network
 
         private async Task ProcessAsync(HttpContext context)
         {
+            if(_acl != null && !_acl.IsAllowed(context.Connection.RemoteIpAddress))
+            {
+                _logger?.LogWarning("Unauthorized request" + context.Connection.RemoteIpAddress.ToString());
+
+                context.Response.StatusCode = 401;
+                var unathorized_response = CreateErrorResponse(null, 401, "Forbidden");
+                context.Response.ContentType = "application/json-rpc";
+                await context.Response.WriteAsync(unathorized_response.ToString(), Encoding.UTF8);
+
+                return;
+            }
+
             context.Response.Headers["Access-Control-Allow-Origin"] = "*";
             context.Response.Headers["Access-Control-Allow-Methods"] = "GET, POST";
             context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type";

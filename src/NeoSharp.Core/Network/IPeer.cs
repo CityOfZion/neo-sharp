@@ -8,6 +8,8 @@ namespace NeoSharp.Core.Network
     {
         bool IsConnected { get; }
 
+        EndPoint EndPoint { get; }
+
         VersionPayload Version { get; set; }
 
         bool IsReady { get; set; }
