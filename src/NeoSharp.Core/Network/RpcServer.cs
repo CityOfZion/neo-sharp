@@ -71,7 +71,7 @@ namespace NeoSharp.Core.Network
             return response;
         }
 
-        private JObject ProcessRequest(HttpContext context, RpcRequest request)
+        private JObject ProcessRequest(RpcRequest request)
         {
             JObject result = null;
 
@@ -149,7 +149,7 @@ namespace NeoSharp.Core.Network
             }
             else
             {
-                response = ProcessRequest(context, request);
+                response = ProcessRequest(request);
             }
 
             if (response == null || (response as JArray)?.Count == 0) return;
