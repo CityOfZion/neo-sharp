@@ -82,14 +82,18 @@ namespace NeoSharp.Core.Network.Protocols
 
             // TODO: Remove this magic in V2, only for handshake
             if (buffer.ToInt32(0) != _magic)
+            {
                 throw new FormatException();
+            }
 
             var command = (MessageCommand)buffer[4];
 
             if (!Cache.TryGetValue(command, out var type))
+            {
                 throw (new ArgumentException("command"));
+            }
 
-            Message message = (Message)Activator.CreateInstance(type);
+            var message = (Message)Activator.CreateInstance(type);
             message.Command = command;
             message.Flags = (MessageFlags)buffer[5];
 
@@ -99,7 +103,9 @@ namespace NeoSharp.Core.Network.Protocols
 
                 var payloadLength = buffer.ToInt32(0);
                 if (payloadLength > Message.PayloadMaxSize)
+                {
                     throw new FormatException();
+                }
 
                 var payloadBuffer = payloadLength > 0
                     ? await FillBufferAsync(stream, (int)payloadLength, cancellationToken)
@@ -108,13 +114,17 @@ namespace NeoSharp.Core.Network.Protocols
                 if (message is ICarryPayload messageWithPayload)
                 {
                     if (payloadLength == 0)
+                    {
                         throw new FormatException();
+                    }
 
                     if (message.Flags.HasFlag(MessageFlags.Compressed))
                     {
-                        using (MemoryStream ms = new MemoryStream(payloadBuffer))
-                        using (GZipStream gzip = new GZipStream(ms, CompressionMode.Decompress))
+                        using (var ms = new MemoryStream(payloadBuffer))
+                        using (var gzip = new GZipStream(ms, CompressionMode.Decompress))
+                        {
                             _serializer.Deserialize(gzip, messageWithPayload.Payload);
+                        }
                     }
                     else
                     {
