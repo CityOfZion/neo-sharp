@@ -26,7 +26,7 @@ namespace NeoSharp.Core.Network
         private readonly ConcurrentBag<IPeer> _connectedPeers;
         // if we can't connect to a peer it is inserted into this list
         // ReSharper disable once NotAccessedField.Local
-        private IList<IPEndPoint> _failedPeers;
+        private readonly IList<IPEndPoint> _failedPeers;
         private readonly ushort _port;
         private readonly EndPoint[] _peerEndPoints;
         private readonly string _userAgent;

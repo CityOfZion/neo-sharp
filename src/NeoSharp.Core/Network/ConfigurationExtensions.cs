@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Net;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 
@@ -14,27 +15,38 @@ namespace NeoSharp.Core.Network
 
         public static void Bind(this IConfiguration config, NetworkConfig networkConfig)
         {
-            networkConfig.Magic = ParseMagic(config);
-            networkConfig.Port = ParsePort(config);
-            networkConfig.ForceIPv6 = ParseForceIPv6(config);
+            networkConfig.Magic = ParseUInt32(config, "magic");
+            networkConfig.Port = ParseUInt16(config, "port");
+            networkConfig.ForceIPv6 = ParseBool(config, "forceIPv6");
             networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
         }
 
-        private static uint ParseMagic(IConfiguration config)
+        public static void Bind(this IConfiguration config, RpcConfig rpcConfig)
         {
-            var magic = config.GetSection("magic")?.Get<uint>();
+            rpcConfig.ListenEndPoint = ParseIpEndPoint(config, "listenEndPoint");
+
+            rpcConfig.SSL = new RpcConfig.SSLCert();
+
+            var v = config?.GetSection("SSL");
+            rpcConfig.SSL.Path = ParseString(v, "path");
+            rpcConfig.SSL.Password = ParseString(v, "password");
+        }
+
+        private static uint ParseUInt32(IConfiguration config, string section)
+        {
+            var magic = config.GetSection(section)?.Get<uint>();
             return magic ?? DefaultMagic;
         }
 
-        private static ushort ParsePort(IConfiguration config)
+        private static ushort ParseUInt16(IConfiguration config, string section)
         {
-            var port = config.GetSection("port")?.Get<ushort>();
+            var port = config.GetSection(section)?.Get<ushort>();
             return port ?? 0;
         }
 
-        private static bool ParseForceIPv6(IConfiguration config)
+        private static bool ParseBool(IConfiguration config, string section)
         {
-            var forceIPv6 = config.GetSection("forceIPv6")?.Get<bool>();
+            var forceIPv6 = config.GetSection(section)?.Get<bool>();
             return forceIPv6 ?? true;
         }
 
@@ -53,6 +65,22 @@ namespace NeoSharp.Core.Network
                     MatchGroupValue(m.Groups["host"]),
                     MatchGroupValue(m.Groups["port"])))
                 .ToArray();
+        }
+
+        private static string ParseString(IConfiguration config, string section)
+        {
+            return config.GetSection(section)?.Get<string>();
+        }
+
+        private static IPEndPoint ParseIpEndPoint(IConfiguration config, string section)
+        {
+            string host = ParseString(config, section);
+            if (host == null) return null;
+
+            string[] split = host.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            // TODO: More safe parsing
+            return new IPEndPoint(IPAddress.Parse(split[0]), Convert.ToInt32(split[1]));
         }
 
         private static EndPoint ParseEndPoint(string protocol, string host, string port)
