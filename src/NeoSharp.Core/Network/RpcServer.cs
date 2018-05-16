@@ -25,7 +25,7 @@ namespace NeoSharp.Core.Network
         private readonly RpcConfig _config;
         private readonly IBlockchain _blockchain;
         private readonly ILogger<RpcServer> _logger;
-        private readonly IList<IRpcRequest> _callbacks;
+        private readonly IList<IRpcProcessRequest> _callbacks;
         private IWebHost _host;
 
         #endregion
@@ -43,7 +43,7 @@ namespace NeoSharp.Core.Network
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _callbacks = new List<IRpcRequest>();
+            _callbacks = new List<IRpcProcessRequest>();
         }
 
         private static JObject CreateErrorResponse(string id, int code, string message, object error = null)
@@ -77,7 +77,7 @@ namespace NeoSharp.Core.Network
 
             try
             {
-                foreach (IRpcRequest req in _callbacks)
+                foreach (IRpcProcessRequest req in _callbacks)
                 {
                     object ret = req.Process(request);
                     if (ret != null)

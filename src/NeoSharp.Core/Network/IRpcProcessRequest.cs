@@ -1,6 +1,6 @@
 ﻿namespace NeoSharp.Core.Network
 {
-    public interface IRpcRequest
+    public interface IRpcProcessRequest
     {
         /// <summary>
         /// Process request
