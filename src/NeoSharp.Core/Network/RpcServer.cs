@@ -81,7 +81,9 @@ namespace NeoSharp.Core.Network
                 {
                     object ret = req.Process(request);
                     if (ret != null)
+                    {
                         result = JObject.FromObject(ret);
+                    }
                 }
             }
             catch (Exception ex)

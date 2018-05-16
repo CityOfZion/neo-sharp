@@ -31,18 +31,20 @@ namespace NeoSharp.Core.Network
         {
             try
             {
+                Params = JArray.Parse(par);
+            }
+            catch
+            {
                 // Try in base64
 
                 par = Encoding.UTF8.GetString(Convert.FromBase64String(par));
+                Params = JArray.Parse(par);
             }
-            catch { }
-
-            Params = JArray.Parse(par);
         }
 
         /// <summary>
         /// Is valid?
         /// </summary>
-        public bool IsValid => !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Method) && Params != null && Params.HasValues;
+        public bool IsValid => !string.IsNullOrEmpty(Id) && !string.IsNullOrEmpty(Method) && Params != null && Params.Count > 0;
     }
 }
