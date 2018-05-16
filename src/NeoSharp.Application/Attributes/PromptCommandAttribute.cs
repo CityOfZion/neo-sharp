@@ -61,17 +61,7 @@ namespace NeoSharp.Application.Attributes
         /// <summary>
         /// Method
         /// </summary>
-        internal MethodInfo Method
-        {
-            get { return _method; }
-            set
-            {
-                if (value == null) return;
-
-                _method = value;
-                Parameters = value.GetParameters();
-            }
-        }
+        internal MethodInfo Method => _method;
 
         #endregion
 
@@ -84,6 +74,18 @@ namespace NeoSharp.Application.Attributes
             Command = command.ToLowerInvariant();
             Commands = Command.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             CommandLength = Commands.Length;
+        }
+
+        /// <summary>
+        /// Set Method
+        /// </summary>
+        /// <param name="method">Method</param>
+        internal void SetMethod(MethodInfo method)
+        {
+            if (method == null) return;
+
+            _method = method;
+            Parameters = method.GetParameters();
         }
 
         /// <summary>

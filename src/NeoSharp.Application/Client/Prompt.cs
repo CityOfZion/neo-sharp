@@ -73,7 +73,7 @@ namespace NeoSharp.Application.Client
                 var atr = mi.GetCustomAttribute<PromptCommandAttribute>();
                 if (atr == null) continue;
 
-                atr.Method = mi;
+                atr.SetMethod(mi);
 
                 _commandCache.Add(atr.Commands, atr);
 
