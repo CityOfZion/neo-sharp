@@ -15,7 +15,7 @@ namespace NeoSharp.Core.Network
 
         public static void Bind(this IConfiguration config, NetworkConfig networkConfig)
         {
-            networkConfig.Magic = ParseUInt32(config, "magic");
+            networkConfig.Magic = ParseUInt32(config, "magic", DefaultMagic);
             networkConfig.Port = ParseUInt16(config, "port");
             networkConfig.ForceIPv6 = ParseBool(config, "forceIPv6");
             networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
@@ -32,22 +32,22 @@ namespace NeoSharp.Core.Network
             rpcConfig.SSL.Password = ParseString(v, "password");
         }
 
-        private static uint ParseUInt32(IConfiguration config, string section)
+        private static uint ParseUInt32(IConfiguration config, string section, uint def = 0)
         {
             var magic = config.GetSection(section)?.Get<uint>();
-            return magic ?? DefaultMagic;
+            return magic ?? def;
         }
 
-        private static ushort ParseUInt16(IConfiguration config, string section)
+        private static ushort ParseUInt16(IConfiguration config, string section, ushort def = 0)
         {
             var port = config.GetSection(section)?.Get<ushort>();
-            return port ?? 0;
+            return port ?? def;
         }
 
-        private static bool ParseBool(IConfiguration config, string section)
+        private static bool ParseBool(IConfiguration config, string section, bool def = true)
         {
             var forceIPv6 = config.GetSection(section)?.Get<bool>();
-            return forceIPv6 ?? true;
+            return forceIPv6 ?? def;
         }
 
         private static EndPoint[] ParsePeerEndPoints(IConfiguration config)
