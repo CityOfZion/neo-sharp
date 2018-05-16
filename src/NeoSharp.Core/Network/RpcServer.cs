@@ -105,15 +105,12 @@ namespace NeoSharp.Core.Network
             context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type";
             context.Response.Headers["Access-Control-Max-Age"] = "31536000";
 
-            // Allow only GET and POST
-
-            if (context.Request.Method != "GET" && context.Request.Method != "POST")
-                return;
-
             RpcRequest request = new RpcRequest();
 
             try
             {
+                // Allow only GET and POST
+
                 if (context.Request.Method == "GET")
                 {
                     request.JsonRpc = context.Request.Query["jsonrpc"];
@@ -141,6 +138,7 @@ namespace NeoSharp.Core.Network
                     request.Method = ret["method"].Value<string>();
                     request.SetParams(ret["params"].ToString());
                 }
+                else return;
             }
             catch { }
 
