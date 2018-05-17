@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using NeoSharp.Core.Network.Rpc;
 
 namespace NeoSharp.Application.Client
 {

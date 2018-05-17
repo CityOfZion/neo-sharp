@@ -6,6 +6,7 @@ using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Protocols;
 using NeoSharp.Core.Network.Tcp;
 using System.Linq;
+using NeoSharp.Core.Network.Rpc;
 
 namespace NeoSharp.Core.DI.Modules
 {

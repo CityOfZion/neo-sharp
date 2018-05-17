@@ -1,8 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.IO;
+﻿using System.IO;
 using System.Net;
+using Microsoft.Extensions.Configuration;
 
-namespace NeoSharp.Core.Network
+namespace NeoSharp.Core.Network.Rpc
 {
     public class RpcConfig
     {

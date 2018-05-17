@@ -32,7 +32,7 @@ namespace NeoSharp.Core.Messaging.Messages
         public string UserAgent;
 
         [BinaryProperty(6)]
-        public uint StartHeight;
+        public uint CurrentBlockIndex;
 
         [BinaryProperty(7)]
         public bool Relay;
