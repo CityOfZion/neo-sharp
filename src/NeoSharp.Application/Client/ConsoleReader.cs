@@ -100,8 +100,6 @@ namespace NeoSharp.Application.Client
 
             // If have something loaded
 
-            Console.ForegroundColor = ConsoleColor.Green;
-
             if (_manualInputs.Count > 0)
             {
                 // Get first loaded command
@@ -143,7 +141,7 @@ namespace NeoSharp.Application.Client
                     // Accept
                     case ConsoleKey.Enter:
                         {
-                            Console.WriteLine();
+                            _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
                             break;
                         }
                     // Remove
@@ -346,6 +344,7 @@ namespace NeoSharp.Application.Client
             }
             else
             {
+                _consoleWriter.ApplyStyle(ConsoleOutputStyle.Input);
                 ret = Console.ReadLine();
             }
 

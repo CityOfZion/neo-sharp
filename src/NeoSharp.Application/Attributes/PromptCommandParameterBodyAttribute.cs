@@ -6,8 +6,11 @@ namespace NeoSharp.Application.Attributes
     /// This attribute is used for capture all the command line from this point
     /// </summary>
     [AttributeUsage(AttributeTargets.Parameter)]
-    class PromptCommandParameterBodyAttribute : Attribute
+    public class PromptCommandParameterBodyAttribute : Attribute
     {
-
+        /// <summary>
+        /// Convert as json
+        /// </summary>
+        public bool AsJson { get; set; } = false;
     }
 }
