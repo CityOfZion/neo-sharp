@@ -57,6 +57,9 @@ namespace NeoSharp.Application.Client
         private static readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
         private static readonly IDictionary<string, List<ParameterInfo[]>> _commandAutocompleteCache;
 
+        public delegate void delOnCommandRequested(IPrompt prompt, string command);
+        public event delOnCommandRequested OnCommandRequested;
+
         #endregion
 
         #region Cache
@@ -207,6 +210,10 @@ namespace NeoSharp.Application.Client
 
             try
             {
+                // Raise event
+
+                OnCommandRequested?.Invoke(this, command);
+
                 // Parse arguments
 
                 var cmdArgs = new List<CommandToken>();

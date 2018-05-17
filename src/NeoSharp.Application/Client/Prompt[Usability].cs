@@ -71,6 +71,46 @@ namespace NeoSharp.Application.Client
             }
         }
 
+        StreamWriter _record;
+
+        /// <summary>
+        /// Start current recording
+        /// </summary>
+        /// <param name="outputFile">File</param>
+        [PromptCommand("record start", Help = "Record all commands in a file", Category = "Usability")]
+        private void RecordStartCommand(FileInfo outputFile)
+        {
+            if (_record != null) throw (new Exception("Stop record first"));
+            if (outputFile.Exists) throw (new Exception("Output file already exists"));
+
+            _record = new StreamWriter(outputFile.FullName, false, Encoding.UTF8);
+            OnCommandRequested += Prompt_OnCommandRequested;
+        }
+
+        /// <summary>
+        /// Stop current recording
+        /// </summary>
+        [PromptCommand("record stop", Help = "Stop current record", Category = "Usability")]
+        private void RecordStopCommand()
+        {
+            if (_record == null) throw (new Exception("Empty record"));
+
+            OnCommandRequested -= Prompt_OnCommandRequested;
+
+            _record.Flush();
+            _record.Close();
+            _record.Dispose();
+            _record = null;
+        }
+
+        private void Prompt_OnCommandRequested(IPrompt prompt, string command)
+        {
+            if (string.Equals(command, "record stop"))
+                return;
+
+            _record.WriteLine(command);
+        }
+
         /// <summary>
         /// Clear
         /// </summary>
@@ -85,7 +125,6 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="file">File</param>
         [PromptCommand("load", Help = "Play stored commands", Category = "Usability")]
-        // ReSharper disable once UnusedMember.Local
         private void LoadCommand(FileInfo file)
         {
             if (!file.Exists)
@@ -112,7 +151,6 @@ namespace NeoSharp.Application.Client
         /// Exit prompt
         /// </summary>
         [PromptCommand("quit", Category = "Usability")]
-        // ReSharper disable once UnusedMember.Local
         private void QuitCommand()
         {
             NetworkStopCommand();
@@ -123,7 +161,6 @@ namespace NeoSharp.Application.Client
         /// Exit prompt
         /// </summary>
         [PromptCommand("exit", Category = "Usability")]
-        // ReSharper disable once UnusedMember.Local
         private void ExitCommand()
         {
             NetworkStopCommand();
@@ -134,7 +171,6 @@ namespace NeoSharp.Application.Client
         /// Show help
         /// </summary>
         [PromptCommand("help", Category = "Usability", Help = "Show help for commands")]
-        // ReSharper disable once UnusedMember.Local
         private void HelpCommand([PromptCommandParameterBody]string command)
         {
             if (!string.IsNullOrWhiteSpace(command))
@@ -158,7 +194,6 @@ namespace NeoSharp.Application.Client
         /// Show help
         /// </summary>
         [PromptCommand("help", Category = "Usability", Help = "Show help for commands")]
-        // ReSharper disable once UnusedMember.Local
         private void HelpCommand()
         {
             string lastCat = null, lastCom = null;
