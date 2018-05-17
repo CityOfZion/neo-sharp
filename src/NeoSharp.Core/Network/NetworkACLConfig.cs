@@ -24,10 +24,10 @@
         /// <summary>
         /// ACL behaviour
         /// </summary>
-        public ACLType Type { get; internal set; } = ACLType.None;
+        public ACLType Type { get; set; } = ACLType.None;
         /// <summary>
         /// Path of rules file
         /// </summary>
-        public string Path { get; internal set; }
+        public string Path { get; set; }
     }
 }

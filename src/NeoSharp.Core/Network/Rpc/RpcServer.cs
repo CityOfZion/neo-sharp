@@ -111,7 +111,7 @@ namespace NeoSharp.Core.Network.Rpc
         {
             if(_acl != null && !_acl.IsAllowed(context.Connection.RemoteIpAddress))
             {
-                _logger?.LogWarning("Unauthorized request" + context.Connection.RemoteIpAddress.ToString());
+                _logger?.LogWarning("Unauthorized request " + context.Connection.RemoteIpAddress.ToString());
 
                 context.Response.StatusCode = 401;
                 var unathorized_response = CreateErrorResponse(null, 401, "Forbidden");

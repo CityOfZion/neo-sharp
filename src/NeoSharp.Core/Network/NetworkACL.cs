@@ -1,4 +1,5 @@
-﻿using NeoSharp.Core.Types.Json;
+﻿using NeoSharp.Core.Network.Tcp;
+using NeoSharp.Core.Types.Json;
 using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
@@ -72,12 +73,14 @@ namespace NeoSharp.Core.Network
         public NetworkACLConfig.ACLType Type { get; private set; } = NetworkACLConfig.ACLType.None;
 
         /// <summary>
-        /// Allow or denay string Adresses based on rules
+        /// Allow or deny string Adresses based on rules
         /// </summary>
         /// <param name="address">Address to check</param>
         /// <returns>True if pass</returns>
         public bool IsAllowed(string address)
         {
+            if (string.IsNullOrEmpty(address)) return false;
+
             switch (Type)
             {
                 case NetworkACLConfig.ACLType.Blacklist:
@@ -102,13 +105,32 @@ namespace NeoSharp.Core.Network
             }
         }
         /// <summary>
-        /// Allow or denay IP Adresses based on rules
+        /// Allow or deny IP Adresses based on rules
         /// </summary>
         /// <param name="address">Address to check</param>
         /// <returns>True if pass</returns>
         public bool IsAllowed(IPAddress address)
         {
-            return IsAllowed(address.ToString());
+            return IsAllowed(address?.ToString());
+        }
+        /// <summary>
+        /// Allow or deny Peer based on rules
+        /// </summary>
+        /// <param name="peer">Peer to check</param>
+        /// <returns>True if pass</returns>
+        public bool IsAllowed(IPeer peer)
+        {
+            if (peer is TcpPeer tcp)
+            {
+                return IsAllowed(tcp.IPAddress);
+            }
+            else
+            {
+                // TODO: Remove this line when fix mock
+                if (peer.EndPoint == null) return true;
+
+                return IsAllowed(peer?.EndPoint.Host);
+            }
         }
         /// <summary>
         /// Initiate the ACL
@@ -123,7 +145,7 @@ namespace NeoSharp.Core.Network
             if (!string.IsNullOrEmpty(cfg.Path) && File.Exists(cfg.Path))
             {
                 string json = File.ReadAllText(cfg.Path);
-                JObject jo= JObject.Parse(json);
+                JObject jo = JObject.Parse(json);
 
                 if (!(jo is JArray array)) return;
 
