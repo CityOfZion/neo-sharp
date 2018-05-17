@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Types;
 using System;
 using System.Collections.Generic;
