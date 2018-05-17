@@ -1,4 +1,4 @@
-﻿using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 using System;
@@ -93,12 +93,23 @@ namespace NeoSharp.Application.Attributes
             var max = Parameters.Length;
             var ret = new object[max];
 
-            if (args.Length < max)
-                throw (new ArgumentException("Missing parameters"));
+            // Fill default parameters
+
+            for (var x = 0; x < max; x++)
+                if (Parameters[x].HasDefaultValue)
+                {
+                    ret[x] = Parameters[x].DefaultValue;
+                    max = x;
+                }
+
+            // Fill argument values
+
+            max = Math.Max(args.Length, max);
 
             for (var x = 0; x < max; x++)
             {
                 PromptCommandParameterBodyAttribute body = Parameters[x].GetCustomAttribute<PromptCommandParameterBodyAttribute>();
+
                 if (body != null)
                 {
                     // From here to the end
@@ -338,6 +349,14 @@ namespace NeoSharp.Application.Attributes
             }
 
             throw (new ArgumentException());
+        }
+
+        /// <summary>
+        /// String representation
+        /// </summary>
+        public override string ToString()
+        {
+            return string.Join(",", Commands);
         }
     }
 }
