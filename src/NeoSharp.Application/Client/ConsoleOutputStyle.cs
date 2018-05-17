@@ -36,6 +36,11 @@ namespace NeoSharp.Application.Client
         [ConsoleOutputStyle(Foreground = ConsoleColor.Yellow)]
         AutocompleteMatch,
         /// <summary>
+        /// Log
+        /// </summary>
+        [ConsoleOutputStyle(Foreground = ConsoleColor.Blue)]
+        Log,
+        /// <summary>
         /// Error
         /// </summary>
         [ConsoleOutputStyle(Foreground = ConsoleColor.Red)]

@@ -69,9 +69,9 @@ namespace NeoSharp.BinarySerialization.Cache
         private BinarySerializerCacheEntry(BinaryPropertyAttribute atr, Type btype)
         {
             var type = btype;
-            MaxLength = atr.MaxLength;
             var isArray = type.IsArray;
             var isList = _iListType.IsAssignableFrom(type);
+            MaxLength = atr == null ? 0 : atr.MaxLength;
 
             if (type == typeof(byte[]))
             {

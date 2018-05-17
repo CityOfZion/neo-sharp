@@ -230,7 +230,8 @@ namespace NeoSharp.Application.Client
             }
             catch (Exception e)
             {
-                _consoleWriter.WriteLine(e.Message, ConsoleOutputStyle.Error);
+                string msg = e.InnerException != null ? e.InnerException.Message : e.Message;
+                _consoleWriter.WriteLine(msg, ConsoleOutputStyle.Error);
 
                 PrintHelp(cmds);
                 return false;
@@ -253,7 +254,11 @@ namespace NeoSharp.Application.Client
                     }
                 case PromptOutputStyle.raw:
                     {
-                        _consoleWriter.WriteLine(_serializer.Serialize(obj).ToHexString(true));
+                        if (obj is byte[] data)
+                            _consoleWriter.WriteLine(data.ToHexString(true));
+                        else
+                            _consoleWriter.WriteLine(_serializer.Serialize(obj).ToHexString(true));
+
                         break;
                     }
             }
