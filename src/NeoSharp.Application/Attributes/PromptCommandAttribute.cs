@@ -94,23 +94,21 @@ namespace NeoSharp.Application.Attributes
         /// <returns>Return parsed arguments</returns>
         public object[] ConvertToArguments(CommandToken[] args)
         {
-            var max = Parameters.Length;
-            var ret = new object[max];
+            var maxPars = Parameters.Length;
+            var ret = new object[maxPars];
 
             // Fill default parameters
 
-            for (var x = 0; x < max; x++)
+            for (var x = 0; x < maxPars; x++)
                 if (Parameters[x].HasDefaultValue)
                 {
                     ret[x] = Parameters[x].DefaultValue;
-                    max = x;
+                    maxPars = x;
                 }
 
             // Fill argument values
 
-            max = Math.Max(args.Length, max);
-
-            for (var x = 0; x < max; x++)
+            for (int x = 0, amax = Math.Min(args.Length, maxPars); x < amax; x++)
             {
                 PromptCommandParameterBodyAttribute body = Parameters[x].GetCustomAttribute<PromptCommandParameterBodyAttribute>();
 
@@ -138,6 +136,14 @@ namespace NeoSharp.Application.Attributes
                     ret[x] = ParseToArgument(args[x], Parameters[x].ParameterType);
                 }
             }
+
+            // Check null values
+
+            for (int x = 0, max = Parameters.Length; x < max; x++)
+                if (!Parameters[x].HasDefaultValue && ret[x] == null)
+                {
+                    throw (new Exception($"Missing parameter value <{Parameters[x].Name}>"));
+                }
 
             return ret;
         }
