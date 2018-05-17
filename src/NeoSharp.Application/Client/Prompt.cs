@@ -1,9 +1,11 @@
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Types;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,10 +17,16 @@ namespace NeoSharp.Application.Client
     {
         #region Variables
 
+        public enum PromptOutputStyle { json, raw };
+
         /// <summary>
         /// Exit flag
         /// </summary>
         private bool _exit;
+        /// <summary>
+        /// Serializer
+        /// </summary>
+        private readonly IBinarySerializer _serializer;
         /// <summary>
         /// Console Reader
         /// </summary>
@@ -99,15 +107,17 @@ namespace NeoSharp.Application.Client
         /// <param name="networkManagerInit">Network manger init</param>
         /// <param name="serverInit">Server</param>
         /// <param name="rpcInit">Rpc server</param>
+        /// <param name="serializer">Binary serializer</param>
         public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit,
             ILogger<Prompt> logger, INetworkManager networkManagerInit,
-            IServer serverInit, IRpcServer rpcInit)
+            IServer serverInit, IRpcServer rpcInit, IBinarySerializer serializer)
         {
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;
             _logger = logger;
             _networkManager = networkManagerInit;
             _server = serverInit;
+            _serializer = serializer;
             _rpc = rpcInit;
         }
 
@@ -222,6 +232,28 @@ namespace NeoSharp.Application.Client
 
                 PrintHelp(cmds);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Write object
+        /// </summary>
+        /// <param name="obj">Object</param>
+        /// <param name="output">Output</param>
+        private void WriteObject(object obj, PromptOutputStyle output)
+        {
+            switch (output)
+            {
+                case PromptOutputStyle.json:
+                    {
+                        _consoleWriter.WriteLine(JsonConvert.SerializeObject(obj, Formatting.Indented));
+                        break;
+                    }
+                case PromptOutputStyle.raw:
+                    {
+                        _consoleWriter.WriteLine(_serializer.Serialize(obj).ToHexString(true));
+                        break;
+                    }
             }
         }
     }

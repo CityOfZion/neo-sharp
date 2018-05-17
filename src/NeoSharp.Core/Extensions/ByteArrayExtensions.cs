@@ -36,11 +36,18 @@ namespace NeoSharp.Core.Extensions
             return _sha256.Value.ComputeHash(value, offset, count);
         }
 
-        public static string ToHexString(this IEnumerable<byte> value)
+        public static string ToHexString(this IEnumerable<byte> value, bool append0x = false)
         {
             var sb = new StringBuilder();
+
             foreach (var b in value)
                 sb.AppendFormat("{0:x2}", b);
+
+            if (append0x)
+            {
+                if (sb.Length > 0) return "0x" + sb.ToString();
+            }
+
             return sb.ToString();
         }
 

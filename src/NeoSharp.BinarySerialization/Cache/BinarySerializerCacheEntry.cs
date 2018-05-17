@@ -562,9 +562,16 @@ namespace NeoSharp.BinarySerialization.Cache
 
         public static int WriteVarBytes(BinaryWriter writer, byte[] value)
         {
-            var ret = WriteVarInt(writer, value.Length);
-            writer.Write(value);
-            return ret + value.Length;
+            if (value == null)
+            {
+                return WriteVarInt(writer, 0);
+            }
+            else
+            {
+                var ret = WriteVarInt(writer, value.Length);
+                writer.Write(value);
+                return ret + value.Length;
+            }
         }
 
         public static int WriteVarInt(BinaryWriter writer, long value)

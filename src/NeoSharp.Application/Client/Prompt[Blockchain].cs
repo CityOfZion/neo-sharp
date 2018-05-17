@@ -1,4 +1,5 @@
-﻿using NeoSharp.Application.Attributes;
+﻿using System;
+using NeoSharp.Application.Attributes;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
@@ -23,20 +24,22 @@ namespace NeoSharp.Application.Client
         /// Get block by index
         /// </summary>
         /// <param name="blockIndex">Index</param>
+        /// <param name="mode">Mode</param>
+        /// <param name="output">Output</param>
         [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
-        private void BlockCommand(ulong blockIndex, BlockOutputStyle mode = BlockOutputStyle.header)
+        private void BlockCommand(ulong blockIndex, BlockOutputStyle mode = BlockOutputStyle.header, PromptOutputStyle output = PromptOutputStyle.json)
         {
             // TODO: Change this
 
             if (mode == BlockOutputStyle.all)
             {
                 var block = Blockchain.GenesisBlock;
-                _consoleWriter.WriteLine(JsonConvert.SerializeObject(block, Formatting.Indented));
+                WriteObject(block, output);
             }
             else
             {
                 var header = new BlockHeader();
-                _consoleWriter.WriteLine(JsonConvert.SerializeObject(header, Formatting.Indented));
+                WriteObject(header, output);
             }
         }
 
@@ -44,20 +47,22 @@ namespace NeoSharp.Application.Client
         /// Get block by hash
         /// </summary>
         /// <param name="blockHash">Hash</param>
+        /// <param name="mode">Mode</param>
+        /// <param name="output">Output</param>
         [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
-        private void BlockCommand(UInt256 blockHash, BlockOutputStyle mode = BlockOutputStyle.header)
+        private void BlockCommand(UInt256 blockHash, BlockOutputStyle mode = BlockOutputStyle.header, PromptOutputStyle output = PromptOutputStyle.json)
         {
             // TODO: Change this
 
             if (mode == BlockOutputStyle.all)
             {
                 var block = Blockchain.GenesisBlock;
-                _consoleWriter.WriteLine(JsonConvert.SerializeObject(block, Formatting.Indented));
+                WriteObject(block, output);
             }
             else
             {
                 var header = new BlockHeader();
-                _consoleWriter.WriteLine(JsonConvert.SerializeObject(header, Formatting.Indented));
+                WriteObject(header, output);
             }
         }
 
@@ -66,12 +71,13 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="hash">Hash</param>
         [PromptCommand("tx", Category = "Blockchain", Help = "Get tx")]
-        private void TxCommand(UInt256 hash)
+        /// <param name="output">Output</param>
+        private void TxCommand(UInt256 hash, PromptOutputStyle output = PromptOutputStyle.json)
         {
             // TODO: Change this
 
             var tx = new Transaction();
-            _consoleWriter.WriteLine(tx.ToJson(true));
+            WriteObject(tx, output);
         }
 
         /// <summary>
@@ -80,7 +86,8 @@ namespace NeoSharp.Application.Client
         /// <param name="blockIndex">Block Index</param>
         /// <param name="txNumber">TxNumber</param>
         [PromptCommand("tx", Category = "Blockchain", Help = "Get tx by block num/tx number")]
-        private void TxCommand(ulong blockIndex, ushort txNumber)
+        /// <param name="output">Output</param>
+        private void TxCommand(ulong blockIndex, ushort txNumber, PromptOutputStyle output = PromptOutputStyle.json)
         {
             // TODO: Change this
 
@@ -88,7 +95,7 @@ namespace NeoSharp.Application.Client
             //var tx = block.Transactions[txNumber];
 
             var tx = new Transaction();
-            _consoleWriter.WriteLine(tx.ToJson(true));
+            WriteObject(tx, output);
         }
     }
 }

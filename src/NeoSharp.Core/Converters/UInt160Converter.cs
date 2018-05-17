@@ -22,6 +22,11 @@ namespace NeoSharp.Core.Converters
                 if (destinationType == typeof(string)) return uint160.ToString();
             }
 
+            if (value == null)
+            {
+                return null;
+            }
+
             return base.ConvertTo(context, culture, value, destinationType);
         }
 
