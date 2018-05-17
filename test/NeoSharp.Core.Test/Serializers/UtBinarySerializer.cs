@@ -205,7 +205,7 @@ namespace NeoSharp.Core.Test.Serializers
         }
 
         [TestMethod]
-        public void ReadOnly()
+        public void DeserializeReadOnly()
         {
             var readOnly = new DummyReadOnly();
             var copy = _deserializer.Deserialize<DummyReadOnly>(_serializer.Serialize(readOnly));

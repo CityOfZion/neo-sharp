@@ -50,6 +50,10 @@ namespace NeoSharp.Application.Attributes
         /// </summary>
         public string Category { get; set; }
         /// <summary>
+        /// Order
+        /// </summary>
+        public int Order { get; set; }
+        /// <summary>
         /// Parameters
         /// </summary>
         internal ParameterInfo[] Parameters { get; private set; }

@@ -76,8 +76,8 @@ namespace NeoSharp.Application.Client
         /// Get tx by hash
         /// </summary>
         /// <param name="hash">Hash</param>
-        [PromptCommand("tx", Category = "Blockchain", Help = "Get tx")]
         /// <param name="output">Output</param>
+        [PromptCommand("tx", Category = "Blockchain", Help = "Get tx")]
         private void TxCommand(UInt256 hash, PromptOutputStyle output = PromptOutputStyle.json)
         {
             // TODO: Change this
@@ -91,8 +91,8 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="blockIndex">Block Index</param>
         /// <param name="txNumber">TxNumber</param>
-        [PromptCommand("tx", Category = "Blockchain", Help = "Get tx by block num/tx number")]
         /// <param name="output">Output</param>
+        [PromptCommand("tx", Category = "Blockchain", Help = "Get tx by block num/tx number")]
         private void TxCommand(ulong blockIndex, ushort txNumber, PromptOutputStyle output = PromptOutputStyle.json)
         {
             // TODO: Change this
@@ -104,11 +104,60 @@ namespace NeoSharp.Application.Client
             WriteObject(tx, output);
         }
 
-        /*
-        asset {assetId}
-        asset search {query}
-        contract {contract hash}
-        contract search {query} 
-        */
+        /// <summary>
+        /// Get asset by hash
+        /// </summary>
+        /// <param name="hash">Hash</param>
+        /// <param name="output">Output</param>
+        [PromptCommand("asset", Category = "Blockchain", Help = "Get asset", Order = 0)]
+        private void AssetCommand(UInt256 hash, PromptOutputStyle output = PromptOutputStyle.json)
+        {
+            // TODO: Change this
+
+            var tx = new Asset();
+            WriteObject(tx, output);
+        }
+
+        /// <summary>
+        /// Get asset by query
+        /// </summary>
+        /// <param name="query">Query</param>
+        /// <param name="output">Output</param>
+        [PromptCommand("asset", Category = "Blockchain", Help = "Get asset", Order = 1)]
+        private void AssetCommand(string query, PromptOutputStyle output = PromptOutputStyle.json)
+        {
+            // TODO: Change this
+
+            var tx = new Asset();
+            WriteObject(tx, output);
+        }
+
+        /// <summary>
+        /// Get contract by hash
+        /// </summary>
+        /// <param name="hash">Hash</param>
+        /// <param name="output">Output</param>
+        [PromptCommand("contract", Category = "Blockchain", Help = "Get asset", Order = 0)]
+        private void ContractCommand(UInt256 hash, PromptOutputStyle output = PromptOutputStyle.json)
+        {
+            // TODO: Change this
+
+            var tx = new Contract();
+            WriteObject(tx, output);
+        }
+
+        /// <summary>
+        /// Get contract by query
+        /// </summary>
+        /// <param name="query">Query</param>
+        /// <param name="output">Output</param>
+        [PromptCommand("contract", Category = "Blockchain", Help = "Get asset", Order = 1)]
+        private void ContractCommand(string query, PromptOutputStyle output = PromptOutputStyle.json)
+        {
+            // TODO: Change this
+
+            var tx = new Contract();
+            WriteObject(tx, output);
+        }
     }
 }
