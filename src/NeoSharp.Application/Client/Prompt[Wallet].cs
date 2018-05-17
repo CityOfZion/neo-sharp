@@ -24,5 +24,33 @@ namespace NeoSharp.Application.Client
                 return;
             }
         }
+
+        /*
+        TODO:
+        wallet {verbose}
+        wallet claim
+        wallet migrate
+        wallet rebuild {start block}
+        wallet delete_addr {addr}
+        wallet delete_token {token_contract_hash}
+        wallet alias {addr} {title}
+        wallet tkn_send {token symbol} {address_from} {address to} {amount} 
+        wallet tkn_send_from {token symbol} {address_from} {address to} {amount}
+        wallet tkn_approve {token symbol} {address_from} {address to} {amount}
+        wallet tkn_allowance {token symbol} {address_from} {address to}
+        wallet tkn_mint {token symbol} {mint_to_addr} (--attach-neo={amount}, --attach-gas={amount})
+        wallet tkn_register {addr} ({addr}...) (--from-addr={addr})
+        wallet unspent
+        wallet close
+
+        import wif {wif}
+        import nep2 {nep2_encrypted_key}
+        import multisig_addr {pubkey in wallet} {minimum # of signatures required} {signing pubkey 1} {signing pubkey 2}...
+        import watch_addr {address}
+        import token {token_contract_hash}
+        export wif {address}
+        export nep2 {address}
+
+         */
     }
 }

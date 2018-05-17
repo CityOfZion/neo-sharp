@@ -103,5 +103,12 @@ namespace NeoSharp.Application.Client
             var tx = new Transaction();
             WriteObject(tx, output);
         }
+
+        /*
+        asset {assetId}
+        asset search {query}
+        contract {contract hash}
+        contract search {query} 
+        */
     }
 }

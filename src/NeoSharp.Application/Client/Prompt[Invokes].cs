@@ -7,6 +7,9 @@ namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
+        // TODO: attach
+        // testinvoke {contract hash} {params} (--attach-neo={amount}, --attach-gas={amount}) (--from-addr={addr})
+
         /// <summary>
         /// Invoke contract
         /// </summary>

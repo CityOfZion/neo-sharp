@@ -181,5 +181,15 @@ namespace NeoSharp.Application.Client
                 _consoleWriter.WriteLine("  " + command);
             }
         }
+
+        /*
+        TODO
+        notifications {block_number or address}
+        mem
+        config debug {on/off}
+        config sc-events {on/off}
+        config maxpeers {num_peers}
+        debugstorage {on/off/reset} 
+        */
     }
 }
