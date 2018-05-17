@@ -1,16 +1,12 @@
-﻿using System;
-using NeoSharp.Application.Attributes;
+﻿using NeoSharp.Application.Attributes;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
-using Newtonsoft.Json;
 
 namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
-        public enum BlockOutputStyle { all, header };
-
         /// <summary>
         /// Show state
         /// </summary>
@@ -24,46 +20,56 @@ namespace NeoSharp.Application.Client
         /// Get block by index
         /// </summary>
         /// <param name="blockIndex">Index</param>
-        /// <param name="mode">Mode</param>
         /// <param name="output">Output</param>
-        [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
-        private void BlockCommand(ulong blockIndex, BlockOutputStyle mode = BlockOutputStyle.header, PromptOutputStyle output = PromptOutputStyle.json)
+        [PromptCommand("header", Category = "Blockchain", Help = "Get header by index or by hash")]
+        private void HeaderCommand(ulong blockIndex, PromptOutputStyle output = PromptOutputStyle.json)
         {
             // TODO: Change this
 
-            if (mode == BlockOutputStyle.all)
-            {
-                var block = Blockchain.GenesisBlock;
-                WriteObject(block, output);
-            }
-            else
-            {
-                var header = new BlockHeader();
-                WriteObject(header, output);
-            }
+            var header = new BlockHeader();
+            WriteObject(header, output);
         }
 
         /// <summary>
         /// Get block by hash
         /// </summary>
         /// <param name="blockHash">Hash</param>
-        /// <param name="mode">Mode</param>
         /// <param name="output">Output</param>
-        [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
-        private void BlockCommand(UInt256 blockHash, BlockOutputStyle mode = BlockOutputStyle.header, PromptOutputStyle output = PromptOutputStyle.json)
+        [PromptCommand("header", Category = "Blockchain", Help = "Get header by index or by hash")]
+        private void HeaderCommand(UInt256 blockHash, PromptOutputStyle output = PromptOutputStyle.json)
         {
             // TODO: Change this
 
-            if (mode == BlockOutputStyle.all)
-            {
-                var block = Blockchain.GenesisBlock;
-                WriteObject(block, output);
-            }
-            else
-            {
-                var header = new BlockHeader();
-                WriteObject(header, output);
-            }
+            var header = new BlockHeader();
+            WriteObject(header, output);
+        }
+
+        /// <summary>
+        /// Get block by index
+        /// </summary>
+        /// <param name="blockIndex">Index</param>
+        /// <param name="output">Output</param>
+        [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
+        private void BlockCommand(ulong blockIndex, PromptOutputStyle output = PromptOutputStyle.json)
+        {
+            // TODO: Change this
+
+            var block = Blockchain.GenesisBlock;
+            WriteObject(block, output);
+        }
+
+        /// <summary>
+        /// Get block by hash
+        /// </summary>
+        /// <param name="blockHash">Hash</param>
+        /// <param name="output">Output</param>
+        [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
+        private void BlockCommand(UInt256 blockHash, PromptOutputStyle output = PromptOutputStyle.json)
+        {
+            // TODO: Change this
+
+            var block = Blockchain.GenesisBlock;
+            WriteObject(block, output);
         }
 
         /// <summary>

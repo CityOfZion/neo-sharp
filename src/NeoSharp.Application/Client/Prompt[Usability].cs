@@ -111,6 +111,17 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Exit prompt
         /// </summary>
+        [PromptCommand("quit", Category = "Usability")]
+        // ReSharper disable once UnusedMember.Local
+        private void QuitCommand()
+        {
+            StopCommand();
+            _exit = true;
+        }
+
+        /// <summary>
+        /// Exit prompt
+        /// </summary>
         [PromptCommand("exit", Category = "Usability")]
         // ReSharper disable once UnusedMember.Local
         private void ExitCommand()
