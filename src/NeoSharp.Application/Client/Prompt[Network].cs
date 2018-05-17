@@ -30,7 +30,7 @@ namespace NeoSharp.Application.Client
         /// Start rpc
         /// </summary>
         [PromptCommand("rpc start", Category = "Network")]
-        private void StartRpcCommand()
+        private void RpcStartCommand()
         {
             _rpc?.Start();
         }
@@ -39,7 +39,7 @@ namespace NeoSharp.Application.Client
         /// Stop rpc
         /// </summary>
         [PromptCommand("rpc stop", Category = "Network")]
-        private void StopRpcCommand()
+        private void RpcStopCommand()
         {
             _rpc?.Stop();
         }
@@ -49,7 +49,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         [PromptCommand("network start", Category = "Network")]
         // ReSharper disable once UnusedMember.Local
-        private void StartCommand()
+        private void NetworkStartCommand()
         {
             _networkManager?.StartNetwork();
         }
@@ -58,7 +58,7 @@ namespace NeoSharp.Application.Client
         /// Stop network
         /// </summary>
         [PromptCommand("network stop", Category = "Network")]
-        private void StopCommand()
+        private void NetworkStopCommand()
         {
             _networkManager?.StopNetwork();
         }
