@@ -183,7 +183,9 @@ namespace NeoSharp.Application.Client
                             try
                             {
                                 a.ConvertToArguments(args.Skip(a.CommandLength).ToArray());
-                                cmd = a;
+
+                                if (cmd == null || cmd.Order > a.Order)
+                                    cmd = a;
                             }
                             catch { }
                         }

@@ -8,10 +8,10 @@ namespace NeoSharp.Core.Models
     [Serializable]
     public class Contract
     {
-        public string Hash => Code.Hash;
-        public string Script => Code.Script;
-        public string[] Parameters => Code.Parameters;
-        public string ReturnType => Code.ReturnType;
+        public string Hash => Code?.Hash;
+        public string Script => Code?.Script;
+        public string[] Parameters => Code?.Parameters;
+        public string ReturnType => Code?.ReturnType;
 
         [BinaryProperty(1)]
         [JsonProperty("code")]
