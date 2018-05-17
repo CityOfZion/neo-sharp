@@ -141,23 +141,9 @@ namespace NeoSharp.Core.Network
         {
             try
             {
-                if (_acl != null)
+                if (_acl != null && !_acl.IsAllowed(peer))
                 {
-                    // Tcp
-
-                    if (peer is TcpPeer tcp && tcp.IPAddress != null && !_acl.IsAllowed(tcp.IPAddress))
-                    {
-                        throw new UnauthorizedAccessException();
-                    }
-                    else
-                    {
-                        // Other protocols
-
-                        if (peer.EndPoint != null && !_acl.IsAllowed(peer.EndPoint.Host))
-                        {
-                            throw new UnauthorizedAccessException();
-                        }
-                    }
+                    throw new UnauthorizedAccessException();
                 }
 
                 _connectedPeers.Add(peer);
