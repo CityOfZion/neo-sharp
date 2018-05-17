@@ -51,6 +51,17 @@ namespace NeoSharp.Application.Client
         export wif {address}
         export nep2 {address}
 
+        withdraw_request {asset_name} {contract_hash} {to_addr} {amount}
+        withdraw holds # lists all current holds
+        withdraw completed # lists completed holds eligible for cleanup
+        withdraw cancel # cancels current holds
+        withdraw cleanup # cleans up completed holds
+        withdraw # withdraws the first hold availabe
+        withdraw all # withdraw all holds available
+
+        send {assetId or name} {address} {amount} (--from-addr={addr})
+        sign {transaction in JSON format}
+
          */
     }
 }
