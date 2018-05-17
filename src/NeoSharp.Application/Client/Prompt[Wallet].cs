@@ -26,7 +26,7 @@ namespace NeoSharp.Application.Client
         }
 
         [PromptCommand("wallet close", Category = "Wallet", Help = "Close wallet")]
-        private void WalletCloseCommand(FileInfo file)
+        private void WalletCloseCommand()
         {
 
         }
