@@ -1,21 +1,16 @@
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Types;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace NeoSharp.Application.Client
 {
-    public class Prompt : IPrompt
+    public partial class Prompt : IPrompt
     {
         #region Variables
 
@@ -131,6 +126,62 @@ namespace NeoSharp.Application.Client
             _consoleWriter.WriteLine("Exiting", ConsoleOutputStyle.Information);
         }
 
+        IEnumerable<PromptCommandAttribute> SearchCommands(string command, List<CommandToken> cmdArgs)
+        {
+            // Parse arguments
+
+            cmdArgs.AddRange(command.SplitCommandLine());
+            if (cmdArgs.Count <= 0) yield break;
+
+            foreach (KeyValuePair<string[], PromptCommandAttribute> key in _commandCache)
+            {
+                if (key.Key.Length > cmdArgs.Count) continue;
+
+                bool equal = true;
+                for (int x = 0, m = key.Key.Length; x < m; x++)
+                {
+                    CommandToken c = cmdArgs[x];
+                    if (c.Value.ToLowerInvariant() != key.Key[x])
+                    {
+                        equal = false;
+                        break;
+                    }
+                }
+
+                if (equal)
+                {
+                    yield return key.Value;
+                }
+            }
+        }
+
+        PromptCommandAttribute SearchRightCommand(PromptCommandAttribute[] cmds, IEnumerable<CommandToken> args)
+        {
+            switch (cmds.Length)
+            {
+                case 0: return null;
+                case 1: return cmds[0];
+                default:
+                    {
+                        // Multiple commands
+
+                        PromptCommandAttribute cmd = null;
+
+                        foreach (var a in cmds)
+                        {
+                            try
+                            {
+                                a.ConvertToArguments(args.Skip(a.CommandLength).ToArray());
+                                cmd = a;
+                            }
+                            catch { }
+                        }
+
+                        return cmd;
+                    }
+            }
+        }
+
         /// <summary>
         /// Execute command
         /// </summary>
@@ -138,65 +189,23 @@ namespace NeoSharp.Application.Client
         /// <returns>Return false if fail</returns>
         public bool Execute(string command)
         {
-            PromptCommandAttribute cmd = null;
-            List<PromptCommandAttribute> cmds = new List<PromptCommandAttribute>();
+            command = command.Trim();
+            PromptCommandAttribute[] cmds = null;
 
             try
             {
                 // Parse arguments
 
-                var cmdArgs = new List<CommandToken>(command.SplitCommandLine());
-                if (cmdArgs.Count <= 0) return false;
+                var cmdArgs = new List<CommandToken>();
+                cmds = SearchCommands(command, cmdArgs).ToArray();
+                var cmd = SearchRightCommand(cmds, cmdArgs);
 
-                // Search command
-
-                foreach (KeyValuePair<string[], PromptCommandAttribute> key in _commandCache)
+                if (cmd == null)
                 {
-                    if (key.Key.Length > cmdArgs.Count) continue;
+                    if (cmds.Length > 0)
+                        throw (new Exception($"Wrong parameters for <{cmds.FirstOrDefault().Command}>"));
 
-                    bool equal = true;
-                    for (int x = 0, m = key.Key.Length; x < m; x++)
-                    {
-                        CommandToken c = cmdArgs[x];
-                        if (c.Value.ToLowerInvariant() != key.Key[x])
-                        {
-                            equal = false;
-                            break;
-                        }
-                    }
-
-                    if (equal)
-                    {
-                        cmds.Add(key.Value);
-                    }
-                }
-
-                switch (cmds.Count)
-                {
-                    case 0: throw (new Exception($"Command not found <{command}>"));
-                    case 1: cmd = cmds[0]; break;
-                    case 2:
-                        {
-                            // Multiple commands
-
-                            foreach (var a in cmds)
-                            {
-                                try
-                                {
-                                    a.ConvertToArguments(cmdArgs.Skip(a.CommandLength).ToArray());
-                                    cmd = a;
-                                }
-                                catch { }
-                            }
-
-                            if (cmd == null)
-                            {
-                                cmd = cmds[0]; // for help message
-                                goto case 0;
-                            }
-
-                            break;
-                        }
+                    throw (new Exception($"Command not found <{command}>"));
                 }
 
                 // Get command
@@ -210,305 +219,9 @@ namespace NeoSharp.Application.Client
             {
                 _consoleWriter.WriteLine(e.Message, ConsoleOutputStyle.Error);
 
-                // Print help
-
-                if (cmd != null && !string.IsNullOrEmpty(cmd.Help))
-                {
-                    _consoleWriter.WriteLine(cmd.Help, ConsoleOutputStyle.Information);
-
-                    if (cmds.Count > 0)
-                    {
-                        _consoleWriter.WriteLine("Examples:", ConsoleOutputStyle.Information);
-
-                        // How to use?
-
-                        foreach (var v in cmds)
-                        {
-                            string args = "";
-
-                            if (v.Parameters != null && v.Parameters.Length > 0)
-                            {
-                                foreach (var par in v.Parameters)
-                                    args += $" <{par.Name}>";
-                            }
-
-                            _consoleWriter.WriteLine("  " + v.Command + args, ConsoleOutputStyle.Information);
-                        }
-                    }
-                }
-
+                PrintHelp(cmds);
                 return false;
             }
         }
-
-        #region Commands
-
-        #region Invokes
-
-        /// <summary>
-        /// Invoke contract
-        /// </summary>
-        /// <param name="contractHash">Contract</param>
-        /// <param name="body">Body</param>
-        [PromptCommand("invoke", Help = "Invoke a contract", Category = "Invokes")]
-        private void Invoke(UInt160 contractHash, [PromptCommandParameterBody] object[] args)
-        {
-            Contract contract = Contract.GetContract(contractHash);
-            if (contract == null) throw (new ArgumentNullException("Contract not found"));
-
-            var tx = contract.CreateInvokeTransaction(args);
-        }
-
-        /// <summary>
-        /// Invoke contract
-        /// </summary>
-        /// <param name="contractHash">Contract</param>
-        /// <param name="body">Body</param>
-        [PromptCommand("testinvoke", Help = "Test invoke contract", Category = "Invokes")]
-        private void TestInvoke(UInt160 contractHash, [PromptCommandParameterBody] object[] args)
-        {
-            Contract contract = Contract.GetContract(contractHash);
-            if (contract == null) throw (new ArgumentNullException("Contract not found"));
-
-            var tx = contract.CreateInvokeTransaction(args);
-        }
-
-        #endregion
-
-        #region Network
-
-        /// <summary>
-        /// Nodes
-        /// </summary>
-        [PromptCommand("nodes", Category = "Network", Help = "Get nodes information")]
-        // ReSharper disable once UnusedMember.Local
-        private void NodesCommand()
-        {
-            lock (_server.ConnectedPeers)
-            {
-                IPeer[] peers = _server.ConnectedPeers.ToArray();
-
-                _consoleWriter.WriteLine("Connected: " + peers.Length.ToString());
-
-                foreach (IPeer p in peers)
-                {
-                    _consoleWriter.WriteLine(p.ToString());
-                }
-            }
-        }
-
-        /// <summary>
-        /// Start rpc
-        /// </summary>
-        [PromptCommand("start rpc", Category = "Network")]
-        private void StartRpcCommand()
-        {
-            _rpc?.Start();
-        }
-
-        /// <summary>
-        /// Stop rpc
-        /// </summary>
-        [PromptCommand("stop rpc", Category = "Network")]
-        private void StopRpcCommand()
-        {
-            _rpc?.Stop();
-        }
-
-        /// <summary>
-        /// Start network
-        /// </summary>
-        [PromptCommand("start network", Category = "Network")]
-        // ReSharper disable once UnusedMember.Local
-        private void StartCommand()
-        {
-            _networkManager?.StartNetwork();
-        }
-
-        /// <summary>
-        /// Stop network
-        /// </summary>
-        [PromptCommand("stop network", Category = "Network")]
-        private void StopCommand()
-        {
-            _networkManager?.StopNetwork();
-        }
-
-        #endregion
-
-        #region Wallet
-
-        [PromptCommand("create wallet", Category = "Wallet", Help = "Create a new wallet")]
-        private void CreateWalletCommand(FileInfo file)
-        {
-            if (file.Exists)
-            {
-                _consoleWriter.WriteLine($"File '{file.FullName}' already exist, please provide a new one", ConsoleOutputStyle.Error);
-                return;
-            }
-        }
-
-        [PromptCommand("open wallet", Category = "Wallet", Help = "Open wallet")]
-        private void OpenWalletCommand(FileInfo file)
-        {
-            if (!file.Exists)
-            {
-                _consoleWriter.WriteLine($"File not found '{file.FullName}'", ConsoleOutputStyle.Error);
-                return;
-            }
-        }
-
-        #endregion
-
-        #region Blockchain
-
-        /// <summary>
-        /// Show state
-        /// </summary>
-        [PromptCommand("state", Category = "Blockchain", Help = "Show current state")]
-        private void StateCommand()
-        {
-
-        }
-
-        /// <summary>
-        /// Get block by index
-        /// </summary>
-        /// <param name="index">Index</param>
-        [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
-        private void BlockCommand(ulong index)
-        {
-            // TODO: Change this
-
-            var block = Blockchain.GenesisBlock;
-            _consoleWriter.WriteLine(JsonConvert.SerializeObject(block, Formatting.Indented));
-        }
-
-        /// <summary>
-        /// Get block by hash
-        /// </summary>
-        /// <param name="hash">Hash</param>
-        [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
-        private void BlockCommand(UInt256 hash)
-        {
-            // TODO: Change this
-
-            var block = Blockchain.GenesisBlock;
-            _consoleWriter.WriteLine(JsonConvert.SerializeObject(block, Formatting.Indented));
-        }
-
-        /// <summary>
-        /// Get tx by hash
-        /// </summary>
-        /// <param name="hash">Hash</param>
-        [PromptCommand("tx", Category = "Blockchain", Help = "Get tx")]
-        private void TxCommand(UInt256 hash)
-        {
-            // TODO: Change this
-
-            var tx = new Transaction();
-            _consoleWriter.WriteLine(tx.ToJson(true));
-        }
-
-        /// <summary>
-        /// Get tx by block hash/ TxId
-        /// </summary>
-        /// <param name="blockIndex">Block Index</param>
-        /// <param name="txNumber">TxNumber</param>
-        [PromptCommand("tx", Category = "Blockchain", Help = "Get tx by block num/tx number")]
-        private void TxCommand(ulong blockIndex, ushort txNumber)
-        {
-            // TODO: Change this
-
-            //var block = Blockchain.GenesisBlock;
-            //var tx = block.Transactions[txNumber];
-
-            var tx = new Transaction();
-            _consoleWriter.WriteLine(tx.ToJson(true));
-        }
-
-        #endregion
-
-        #region Usability
-
-        /// <summary>
-        /// Clear
-        /// </summary>
-        [PromptCommand("clear", Help = "clear output", Category = "Usability")]
-        private void ClearCommand()
-        {
-            _consoleWriter.Clear();
-        }
-
-        /// <summary>
-        /// Load commands from file
-        /// </summary>
-        /// <param name="file">File</param>
-        [PromptCommand("load", Help = "Play stored commands", Category = "Usability")]
-        // ReSharper disable once UnusedMember.Local
-        private void LoadCommand(FileInfo file)
-        {
-            if (!file.Exists)
-            {
-                _consoleWriter.WriteLine("File not found", ConsoleOutputStyle.Error);
-                return;
-            }
-
-            if (file.Length > 1024 * 1024)
-            {
-                _consoleWriter.WriteLine("The specified file is too large", ConsoleOutputStyle.Error);
-                return;
-            }
-
-            var lines = File.ReadAllLines(file.FullName, Encoding.UTF8);
-            _consoleReader.AppendInputs(lines);
-
-            // Print result
-
-            _consoleWriter.WriteLine($"Loaded inputs: {lines.Length}");
-        }
-
-        /// <summary>
-        /// Exit prompt
-        /// </summary>
-        [PromptCommand("exit", Category = "Usability")]
-        // ReSharper disable once UnusedMember.Local
-        private void ExitCommand()
-        {
-            StopCommand();
-            _exit = true;
-        }
-
-        /// <summary>
-        /// Show help
-        /// </summary>
-        [PromptCommand("help", Category = "Usability")]
-        // ReSharper disable once UnusedMember.Local
-        private void HelpCommand()
-        {
-            string lastCat = null, lastCom = null;
-            foreach (string[] key in _commandCache.Keys.OrderBy(u => _commandCache[u].Category + "\n" + u))
-            {
-                var c = _commandCache[key];
-
-                if (lastCat != c.Category)
-                {
-                    // Print category
-
-                    lastCat = c.Category;
-                    _consoleWriter.WriteLine(lastCat, ConsoleOutputStyle.Information);
-                }
-
-                string command = string.Join(" ", key);
-                if (lastCom == command) continue;
-
-                lastCom = command;
-                _consoleWriter.WriteLine("  " + command);
-            }
-        }
-
-        #endregion
-
-        #endregion
     }
 }
