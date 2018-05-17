@@ -1,11 +1,9 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network.Protocols;
@@ -18,7 +16,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
     public class UtProtocolV2 : TestBase
     {
         [TestMethod]
-        public async Task SendReceiveMessage_VerAckMessageSended_VerAckMessageReveivedIsTheSameAsSended()
+        public async Task SendReceiveMessage_VerAckMessageSent_VerAckMessageReveivedIsEquivalent()
         {
             var sendedVerAckMessage = new VerAckMessage();
             Message receivedMessage;
@@ -43,7 +41,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
         }
 
         [TestMethod]
-        public async Task SendReceiveMessage_ValidVersionMessageWithZeroLengthSended_ReceiveMessageUncompressedAndEqualToSended()
+        public async Task SendReceiveMessage_ValidVersionMessageWithZeroLengthSent_ReceiveMessageUncompressedAndIsEquivalent()
         {
             this.AutoMockContainer.Register<IBinaryConverter>(new BinaryConverter(typeof(VersionMessage).Assembly));
 
@@ -74,7 +72,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
         }
 
         [TestMethod]
-        public async Task SendReceiveMessage_ValidVersionMessageWith200LengthSended_ReceiveMessageCompressedAndEqualToSended()
+        public async Task SendReceiveMessage_ValidVersionMessageWith200LengthSent_ReceiveMessageIsCompressedAndEquivalent()
         {
             this.AutoMockContainer.Register<IBinaryConverter>(new BinaryConverter(typeof(VersionMessage).Assembly));
 
