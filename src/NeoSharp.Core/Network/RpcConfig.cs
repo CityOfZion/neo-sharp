@@ -31,6 +31,10 @@ namespace NeoSharp.Core.Network
         /// SSL config
         /// </summary>
         public SSLCert SSL { get; internal set; }
+        /// <summary>
+        /// ACL Config
+        /// </summary>
+        public NetworkACLConfig ACL { get; internal set; }
 
         /// <summary>
         /// Constructor

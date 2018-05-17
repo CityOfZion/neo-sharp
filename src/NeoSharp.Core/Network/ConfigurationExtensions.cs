@@ -19,6 +19,7 @@ namespace NeoSharp.Core.Network
             networkConfig.Port = ParseUInt16(config, "port");
             networkConfig.ForceIPv6 = ParseBool(config, "forceIPv6");
             networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
+            networkConfig.ACL = ParseACL(config, "ACL");
         }
 
         public static void Bind(this IConfiguration config, RpcConfig rpcConfig)
@@ -30,6 +31,7 @@ namespace NeoSharp.Core.Network
             var v = config?.GetSection("SSL");
             rpcConfig.SSL.Path = ParseString(v, "path");
             rpcConfig.SSL.Password = ParseString(v, "password");
+            rpcConfig.ACL = ParseACL(config, "ACL");
         }
 
         private static uint ParseUInt32(IConfiguration config, string section, uint def = 0)
@@ -72,6 +74,19 @@ namespace NeoSharp.Core.Network
             return config.GetSection(section)?.Get<string>();
         }
 
+        private static TEnum ParseEnum<TEnum>(IConfiguration config, string section, TEnum def) where TEnum : struct
+        {
+            var ret = ParseString(config, section);
+
+            if (string.IsNullOrEmpty(ret))
+                return def;
+
+            if (Enum.TryParse(ret, out TEnum res))
+                return res;
+
+            return def;
+        }
+
         private static IPEndPoint ParseIpEndPoint(IConfiguration config, string section)
         {
             string host = ParseString(config, section);
@@ -95,6 +110,17 @@ namespace NeoSharp.Core.Network
                 Host = host,
                 Port = int.Parse(port)
             };
+        }
+
+        private static NetworkACLConfig ParseACL(IConfiguration config, string section)
+        {
+            var acl = new NetworkACLConfig();
+
+            var v = config?.GetSection(section);
+            acl.Path = ParseString(v, "path");
+            acl.Type = ParseEnum(v, "type", NetworkACLConfig.ACLType.None);
+
+            return acl;
         }
     }
 }

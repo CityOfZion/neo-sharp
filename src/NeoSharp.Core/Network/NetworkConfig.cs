@@ -7,7 +7,7 @@ namespace NeoSharp.Core.Network
         /// <summary>
         /// Magic number
         /// </summary>
-        public uint Magic { get; set; }
+        public uint Magic { get; internal set; }
         /// <summary>
         /// Portt
         /// </summary>
@@ -20,6 +20,10 @@ namespace NeoSharp.Core.Network
         /// Peers
         /// </summary>
         public EndPoint[] PeerEndPoints { get; internal set; }
+        /// <summary>
+        /// ACL Config
+        /// </summary>
+        public NetworkACLConfig ACL { get; internal set; }
 
         /// <summary>
         /// Constructor

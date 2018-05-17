@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Messaging.Messages;
+using System.Net;
 
 namespace NeoSharp.Core.Network.Tcp
 {
@@ -15,6 +16,12 @@ namespace NeoSharp.Core.Network.Tcp
         private const int SocketOperationTimeout = 300_000;
         private const int MessageQueueCheckInterval = 100;
 
+        /// <summary>
+        /// End Point
+        /// </summary>
+        public EndPoint EndPoint { get; }
+
+        public readonly IPAddress IPAddress;
         private readonly Socket _socket;
         private readonly ProtocolSelector _protocolSelector;
         private readonly NetworkStream _stream;
@@ -34,6 +41,12 @@ namespace NeoSharp.Core.Network.Tcp
 
             _stream = new NetworkStream(socket, true);
             _protocol = protocolSelector.DefaultProtocol;
+
+            // Extract address
+
+            IPEndPoint ep=(IPEndPoint)(socket.IsBound ? socket.RemoteEndPoint : socket.LocalEndPoint);
+            IPAddress = ep.Address;
+            EndPoint = new EndPoint() { Protocol = Protocol.Tcp, Host = ep.Address.ToString(), Port = ep.Port };
 
             SendMessages(_messageSenderTokenSource.Token);
         }
