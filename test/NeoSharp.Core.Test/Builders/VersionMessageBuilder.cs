@@ -25,7 +25,7 @@ namespace NeoSharp.Core.Test.Builders
             message.Payload.Port = (ushort)r.Next(0, short.MaxValue);
             message.Payload.Nonce = (uint)r.Next(0, int.MaxValue);
             message.Payload.UserAgent = $"/NEO:{r.Next(1, 10)}.{r.Next(1, 100)}.{r.Next(1, 1000)}/" + ("0".PadLeft(this._length, '0'));
-            message.Payload.StartHeight = (uint)r.Next(0, int.MaxValue);
+            message.Payload.CurrentBlockIndex = (uint)r.Next(0, int.MaxValue);
             message.Payload.Relay = false;
 
             return message;

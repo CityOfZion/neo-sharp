@@ -1,4 +1,4 @@
-﻿using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 using System;

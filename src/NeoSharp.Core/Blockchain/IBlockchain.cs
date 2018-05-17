@@ -8,13 +8,9 @@ namespace NeoSharp.Core.Blockchain
 {
     public interface IBlockchain
     {
-        UInt256 CurrentBlockHash { get; }
+        Block CurrentBlock { get; }
 
-        UInt256 CurrentBlockHeaderHash { get; }
-
-        uint BlockHeaderHeight { get; }
-
-        uint Height { get; }
+        BlockHeader LastBlockHeader { get; }
 
         /// <summary>
         /// Add the specified block to the blockchain
@@ -22,6 +18,12 @@ namespace NeoSharp.Core.Blockchain
         /// <param name="block"></param>
         /// <returns></returns>
         bool AddBlock(Block block);
+
+        /// <summary>
+        /// Add the specified block headers to the blockchain
+        /// </summary>
+        /// <param name="blockHeaders"></param>
+        void AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders);
 
         /// <summary>
         /// Determine whether the specified block is contained in the blockchain
@@ -33,12 +35,14 @@ namespace NeoSharp.Core.Blockchain
         /// <summary>
         /// Determine whether the specified transaction is included in the blockchain
         /// </summary>
-        /// <param name="hash">交易编号</param>
-        /// <returns>如果包含指定交易则返回true</returns>
+        /// <param name="hash">Transaction hash</param>
+        /// <returns>Return true if the specified transaction is included</returns>
         bool ContainsTransaction(UInt256 hash);
 
         bool ContainsUnspent(CoinReference input);
+
         bool ContainsUnspent(UInt256 hash, ushort index);
+
         MetaDataCache<T> GetMetaData<T>() where T : class, ISerializable, new();
 
         /// <summary>
@@ -138,11 +142,5 @@ namespace NeoSharp.Core.Blockchain
         /// <param name="tx"></param>
         /// <returns></returns>
         bool IsDoubleSpend(Transaction tx);
-
-        /// <summary>
-        /// Add the specified block headers to the blockchain
-        /// </summary>
-        /// <param name="blockHeaders"></param>
-        void AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders);
     }
 }

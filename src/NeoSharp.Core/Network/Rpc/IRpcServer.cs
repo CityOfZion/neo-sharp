@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.Core.Network
+﻿namespace NeoSharp.Core.Network.Rpc
 {
     public interface IRpcServer
     {

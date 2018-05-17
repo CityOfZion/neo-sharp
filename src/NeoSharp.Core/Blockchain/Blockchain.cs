@@ -92,15 +92,14 @@ namespace NeoSharp.Core.Blockchain
 
             // TODO: Uncomment when we figure out transactions in genesis block
             // GenesisBlock.MerkleRoot = MerkleTree.ComputeRoot(GenesisBlock.Transactions.Select(p => p.Hash).ToArray());
+
+            CurrentBlock = GenesisBlock;
+            LastBlockHeader = GenesisBlock;
         }
 
-        public UInt256 CurrentBlockHash { get; }
+        public Block CurrentBlock { get; private set; }
 
-        public UInt256 CurrentBlockHeaderHash { get; }
-
-        public uint BlockHeaderHeight { get; }
-
-        public uint Height { get; }
+        public BlockHeader LastBlockHeader { get; private set; }
 
         /// <summary>
         /// Add the specified block to the blockchain
@@ -109,6 +108,9 @@ namespace NeoSharp.Core.Blockchain
         /// <returns></returns>
         public bool AddBlock(Block block)
         {
+            // TODO: hook up persistence here
+            CurrentBlock = block;
+            LastBlockHeader = block;
             return true;
         }
 
@@ -117,7 +119,12 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="blockHeaders"></param>
         public void AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders)
-        {
+        {   
+            // TODO: hook up persistence here
+            if (blockHeaders.Any())
+            {
+                LastBlockHeader = blockHeaders.OrderBy(h => h.Index).Last();
+            }
         }
 
         public static Fixed8 CalculateBonus(IEnumerable<CoinReference> inputs, bool ignoreClaimed = true)
@@ -218,8 +225,8 @@ namespace NeoSharp.Core.Blockchain
         /// <summary>
         /// Determine whether the specified transaction is included in the blockchain
         /// </summary>
-        /// <param name="hash">交易编号</param>
-        /// <returns>如果包含指定交易则返回true</returns>
+        /// <param name="hash">Transaction hash</param>
+        /// <returns>Return true if the specified transaction is included</returns>
         public bool ContainsTransaction(UInt256 hash)
         {
             return false;
