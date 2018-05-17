@@ -6,7 +6,7 @@ namespace NeoSharp.Application.Client
     public partial class Prompt : IPrompt
     {
         [PromptCommand("wallet create", Category = "Wallet", Help = "Create a new wallet")]
-        private void CreateWalletCommand(FileInfo file)
+        private void WalletCreateCommand(FileInfo file)
         {
             if (file.Exists)
             {
@@ -16,13 +16,19 @@ namespace NeoSharp.Application.Client
         }
 
         [PromptCommand("wallet open", Category = "Wallet", Help = "Open wallet")]
-        private void OpenWalletCommand(FileInfo file)
+        private void WalletOpenCommand(FileInfo file)
         {
             if (!file.Exists)
             {
                 _consoleWriter.WriteLine($"File not found '{file.FullName}'", ConsoleOutputStyle.Error);
                 return;
             }
+        }
+
+        [PromptCommand("wallet close", Category = "Wallet", Help = "Close wallet")]
+        private void WalletCloseCommand()
+        {
+
         }
 
         /*
@@ -41,7 +47,6 @@ namespace NeoSharp.Application.Client
         wallet tkn_mint {token symbol} {mint_to_addr} (--attach-neo={amount}, --attach-gas={amount})
         wallet tkn_register {addr} ({addr}...) (--from-addr={addr})
         wallet unspent
-        wallet close
 
         import wif {wif}
         import nep2 {nep2_encrypted_key}

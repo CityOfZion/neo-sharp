@@ -57,6 +57,9 @@ namespace NeoSharp.Application.Client
         private static readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
         private static readonly IDictionary<string, List<ParameterInfo[]>> _commandAutocompleteCache;
 
+        public delegate void delOnCommandRequested(IPrompt prompt, PromptCommandAttribute cmd, string commandLine);
+        public event delOnCommandRequested OnCommandRequested;
+
         #endregion
 
         #region Cache
@@ -224,13 +227,22 @@ namespace NeoSharp.Application.Client
                 // Get command
 
                 lock (_consoleReader) lock (_consoleWriter)
+                    {
+                        // Raise event
+
+                        OnCommandRequested?.Invoke(this, cmd, command);
+
+                        // Invoke
+
                         cmd.Method.Invoke(this, cmd.ConvertToArguments(cmdArgs.Skip(cmd.CommandLength).ToArray()));
+                    }
 
                 return true;
             }
             catch (Exception e)
             {
-                _consoleWriter.WriteLine(e.Message, ConsoleOutputStyle.Error);
+                string msg = e.InnerException != null ? e.InnerException.Message : e.Message;
+                _consoleWriter.WriteLine(msg, ConsoleOutputStyle.Error);
 
                 PrintHelp(cmds);
                 return false;
@@ -253,7 +265,11 @@ namespace NeoSharp.Application.Client
                     }
                 case PromptOutputStyle.raw:
                     {
-                        _consoleWriter.WriteLine(_serializer.Serialize(obj).ToHexString(true));
+                        if (obj is byte[] data)
+                            _consoleWriter.WriteLine(data.ToHexString(true));
+                        else
+                            _consoleWriter.WriteLine(_serializer.Serialize(obj).ToHexString(true));
+
                         break;
                     }
             }
