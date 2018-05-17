@@ -57,7 +57,7 @@ namespace NeoSharp.Application.Client
         private static readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
         private static readonly IDictionary<string, List<ParameterInfo[]>> _commandAutocompleteCache;
 
-        public delegate void delOnCommandRequested(IPrompt prompt, string command);
+        public delegate void delOnCommandRequested(IPrompt prompt, PromptCommandAttribute cmd, string commandLine);
         public event delOnCommandRequested OnCommandRequested;
 
         #endregion
@@ -210,10 +210,6 @@ namespace NeoSharp.Application.Client
 
             try
             {
-                // Raise event
-
-                OnCommandRequested?.Invoke(this, command);
-
                 // Parse arguments
 
                 var cmdArgs = new List<CommandToken>();
@@ -231,7 +227,15 @@ namespace NeoSharp.Application.Client
                 // Get command
 
                 lock (_consoleReader) lock (_consoleWriter)
+                    {
+                        // Raise event
+
+                        OnCommandRequested?.Invoke(this, cmd, command);
+
+                        // Invoke
+
                         cmd.Method.Invoke(this, cmd.ConvertToArguments(cmdArgs.Skip(cmd.CommandLength).ToArray()));
+                    }
 
                 return true;
             }

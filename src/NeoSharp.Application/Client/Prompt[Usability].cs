@@ -103,12 +103,12 @@ namespace NeoSharp.Application.Client
             _record = null;
         }
 
-        private void Prompt_OnCommandRequested(IPrompt prompt, string command)
+        private void Prompt_OnCommandRequested(IPrompt prompt, PromptCommandAttribute cmd, string commandLine)
         {
-            if (string.Equals(command, "record stop"))
+            if (cmd.Command == "record stop")
                 return;
 
-            _record.WriteLine(command);
+            _record.WriteLine(commandLine);
         }
 
         /// <summary>
