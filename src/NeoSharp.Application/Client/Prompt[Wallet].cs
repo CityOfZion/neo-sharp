@@ -5,7 +5,7 @@ namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
-        [PromptCommand("create wallet", Category = "Wallet", Help = "Create a new wallet")]
+        [PromptCommand("wallet create", Category = "Wallet", Help = "Create a new wallet")]
         private void CreateWalletCommand(FileInfo file)
         {
             if (file.Exists)
@@ -15,7 +15,7 @@ namespace NeoSharp.Application.Client
             }
         }
 
-        [PromptCommand("open wallet", Category = "Wallet", Help = "Open wallet")]
+        [PromptCommand("wallet open", Category = "Wallet", Help = "Open wallet")]
         private void OpenWalletCommand(FileInfo file)
         {
             if (!file.Exists)

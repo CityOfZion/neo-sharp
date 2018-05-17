@@ -242,46 +242,38 @@ namespace NeoSharp.Application.Client
                     // Autocomplete
                     case ConsoleKey.Tab:
                         {
-                            List<string> founds = new List<string>();
+                            List<string> matches = new List<string>();
                             string cmd = txt.ToString().ToLowerInvariant();
 
                             foreach (KeyValuePair<string, List<ParameterInfo[]>> var in autocomplete)
                             {
                                 if (!var.Key.StartsWith(cmd)) continue;
 
-                                if (founds.Count == 0)
-                                {
-                                    _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
-                                }
-
-                                founds.Add(var.Key);
-
-                                // Print found
-
-                                _consoleWriter.Write(var.Key.Substring(0, cmd.Length), ConsoleOutputStyle.AutocompleteMatch);
-                                _consoleWriter.WriteLine(var.Key.Substring(cmd.Length), ConsoleOutputStyle.Autocomplete);
+                                matches.Add(var.Key);
                             }
 
-                            if (founds.Count > 0)
+                            if (matches.Count > 0)
                             {
-                                if (founds.Count == 1)
+                                int max = 0;
+
+                                if (matches.Count == 1)
                                 {
                                     // 1 found
 
                                     txt.Clear();
-                                    txt.Append(founds[0] + " ");
+                                    txt.Append(matches[0] + " ");
                                     cursor = txt.Length;
+                                    max = matches[0].Length;
                                 }
                                 else
                                 {
                                     // Search match
 
-                                    cmd = founds[0];
-                                    int max = 0;
+                                    cmd = matches[0];
                                     for (int x = 1, m = cmd.Length; x < m; x++)
                                     {
                                         bool ok = true;
-                                        foreach (string s in founds)
+                                        foreach (string s in matches)
                                         {
                                             if (s.StartsWith(cmd.Substring(0, x))) continue;
 
@@ -295,8 +287,18 @@ namespace NeoSharp.Application.Client
                                     // Take coincidences
 
                                     txt.Clear();
-                                    txt.Append(founds[0].Substring(0, max));
+                                    txt.Append(matches[0].Substring(0, max));
                                     cursor = txt.Length;
+                                }
+
+                                // Print found
+
+                                _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
+
+                                foreach (var var in matches)
+                                {
+                                    _consoleWriter.Write(var.Substring(0, max), ConsoleOutputStyle.AutocompleteMatch);
+                                    _consoleWriter.WriteLine(var.Substring(max), ConsoleOutputStyle.Autocomplete);
                                 }
 
                                 // Prompt
@@ -306,6 +308,12 @@ namespace NeoSharp.Application.Client
 
                                 _consoleWriter.Write(txt.ToString(), ConsoleOutputStyle.Input);
                                 _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                            }
+                            else
+                            {
+                                // No match
+
+                                _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
                             }
 
                             goto READ_LINE;
