@@ -3,6 +3,7 @@ using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using NeoSharp.Core.Network.Rpc;
 
 namespace NeoSharp.Core.Network
 {
@@ -34,22 +35,22 @@ namespace NeoSharp.Core.Network
             rpcConfig.ACL = ParseACL(config, "ACL");
         }
 
-        private static uint ParseUInt32(IConfiguration config, string section, uint def = 0)
+        private static uint ParseUInt32(IConfiguration config, string section, uint defaultValue = 0)
         {
-            var magic = config.GetSection(section)?.Get<uint>();
-            return magic ?? def;
+            var value = config.GetSection(section)?.Get<uint>();
+            return value ?? defaultValue;
         }
 
-        private static ushort ParseUInt16(IConfiguration config, string section, ushort def = 0)
+        private static ushort ParseUInt16(IConfiguration config, string section, ushort defaultValue = 0)
         {
-            var port = config.GetSection(section)?.Get<ushort>();
-            return port ?? def;
+            var value = config.GetSection(section)?.Get<ushort>();
+            return value ?? defaultValue;
         }
 
-        private static bool ParseBool(IConfiguration config, string section, bool def = true)
+        private static bool ParseBool(IConfiguration config, string section, bool defaultValue = true)
         {
-            var forceIPv6 = config.GetSection(section)?.Get<bool>();
-            return forceIPv6 ?? def;
+            var value = config.GetSection(section)?.Get<bool>();
+            return value ?? defaultValue;
         }
 
         private static EndPoint[] ParsePeerEndPoints(IConfiguration config)
@@ -89,10 +90,10 @@ namespace NeoSharp.Core.Network
 
         private static IPEndPoint ParseIpEndPoint(IConfiguration config, string section)
         {
-            string host = ParseString(config, section);
+            var host = ParseString(config, section);
             if (host == null) return null;
 
-            string[] split = host.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            var split = host.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
             // TODO: More safe parsing
             return new IPEndPoint(IPAddress.Parse(split[0]), Convert.ToInt32(split[1]));

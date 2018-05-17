@@ -34,7 +34,7 @@ namespace NeoSharp.Core.Models
 
         [BinaryProperty(7)]
         [JsonProperty("index")]
-        public int Index;
+        public uint Index;
 
         [BinaryProperty(8)]
         [JsonProperty("nonce")]

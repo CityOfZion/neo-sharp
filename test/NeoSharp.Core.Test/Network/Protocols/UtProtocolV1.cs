@@ -48,15 +48,21 @@ namespace NeoSharp.Core.Test.Network.Protocols
         {
             // Arrange 
             var tcpProtocol = AutoMockContainer.Create<ProtocolV1>();
-            var expectedVersionMessage = new VersionMessage();
-            expectedVersionMessage.Payload.Version = (uint)_rand.Next(0, int.MaxValue);
-            expectedVersionMessage.Payload.Services = (ulong)_rand.Next(0, int.MaxValue);
-            expectedVersionMessage.Payload.Timestamp = DateTime.UtcNow.ToTimestamp();
-            expectedVersionMessage.Payload.Port = (ushort)_rand.Next(0, short.MaxValue);
-            expectedVersionMessage.Payload.Nonce = (uint)_rand.Next(0, int.MaxValue);
-            expectedVersionMessage.Payload.UserAgent = $"/NEO:{_rand.Next(1, 10)}.{_rand.Next(1, 100)}.{_rand.Next(1, 1000)}/";
-            expectedVersionMessage.Payload.StartHeight = (uint)_rand.Next(0, int.MaxValue);
-            expectedVersionMessage.Payload.Relay = false;
+            var expectedVersionMessage =
+                new VersionMessage
+                {
+                    Payload =
+                    {
+                        Version = (uint)_rand.Next(0, int.MaxValue),
+                        Services = (ulong)_rand.Next(0, int.MaxValue),
+                        Timestamp = DateTime.UtcNow.ToTimestamp(),
+                        Port = (ushort)_rand.Next(0, short.MaxValue),
+                        Nonce = (uint)_rand.Next(0, int.MaxValue),
+                        UserAgent = $"/NEO:{_rand.Next(1, 10)}.{_rand.Next(1, 100)}.{_rand.Next(1, 1000)}/",
+                        CurrentBlockIndex = (uint)_rand.Next(0, int.MaxValue),
+                        Relay = false
+                    }
+                };
             VersionMessage actualVersionMessage;
 
             // Act
@@ -80,7 +86,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
             actualVersionMessage.Payload.Port.Should().Be(expectedVersionMessage.Payload.Port);
             actualVersionMessage.Payload.Nonce.Should().Be(expectedVersionMessage.Payload.Nonce);
             actualVersionMessage.Payload.UserAgent.Should().Be(expectedVersionMessage.Payload.UserAgent);
-            actualVersionMessage.Payload.StartHeight.Should().Be(expectedVersionMessage.Payload.StartHeight);
+            actualVersionMessage.Payload.CurrentBlockIndex.Should().Be(expectedVersionMessage.Payload.CurrentBlockIndex);
             actualVersionMessage.Payload.Relay.Should().Be(expectedVersionMessage.Payload.Relay);
         }
     }

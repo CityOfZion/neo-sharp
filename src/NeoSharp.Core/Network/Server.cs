@@ -128,7 +128,7 @@ namespace NeoSharp.Core.Network
                         Port = _port,
                         Nonce = Nonce,
                         UserAgent = _userAgent,
-                        StartHeight = _blockchain.Height,
+                        CurrentBlockIndex = _blockchain.CurrentBlock.Index,
                         Relay = true
                     }
                 };

@@ -1,8 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Text;
+using Newtonsoft.Json.Linq;
 
-namespace NeoSharp.Core.Network
+namespace NeoSharp.Core.Network.Rpc
 {
     public class RpcRequest
     {

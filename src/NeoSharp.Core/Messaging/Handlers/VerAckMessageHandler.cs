@@ -22,10 +22,10 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             sender.IsReady = true;
 
-            if (_blockchain.BlockHeaderHeight < sender.Version.StartHeight)
+            if (_blockchain.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
             {
-                _logger.LogInformation($"The peer start height is {sender.Version.StartHeight} but the current start height is {_blockchain.BlockHeaderHeight}");
-                await sender.Send(new GetBlockHeadersMessage(_blockchain.CurrentBlockHeaderHash));
+                _logger.LogInformation($"The peer has {sender.Version.CurrentBlockIndex + 1} blocks but the current number of block headers is {_blockchain.LastBlockHeader.Index + 1}.");
+                await sender.Send(new GetBlockHeadersMessage(_blockchain.LastBlockHeader.Hash));
             }
         }
     }
