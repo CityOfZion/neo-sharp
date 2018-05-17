@@ -1,6 +1,6 @@
-﻿using System.IO;
+﻿using Microsoft.Extensions.Configuration;
+using System.IO;
 using System.Net;
-using Microsoft.Extensions.Configuration;
 
 namespace NeoSharp.Core.Network.Rpc
 {
