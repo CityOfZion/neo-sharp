@@ -123,23 +123,23 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Load commands from file
         /// </summary>
-        /// <param name="file">File</param>
+        /// <param name="commandsFile">File</param>
         [PromptCommand("load", Help = "Play stored commands", Category = "Usability")]
-        private void LoadCommand(FileInfo file)
+        private void LoadCommand(FileInfo commandsFile)
         {
-            if (!file.Exists)
+            if (!commandsFile.Exists)
             {
                 _consoleWriter.WriteLine("File not found", ConsoleOutputStyle.Error);
                 return;
             }
 
-            if (file.Length > 1024 * 1024)
+            if (commandsFile.Length > 1024 * 1024)
             {
                 _consoleWriter.WriteLine("The specified file is too large", ConsoleOutputStyle.Error);
                 return;
             }
 
-            var lines = File.ReadAllLines(file.FullName, Encoding.UTF8);
+            var lines = File.ReadAllLines(commandsFile.FullName, Encoding.UTF8);
             _consoleReader.AppendInputs(lines);
 
             // Print result
