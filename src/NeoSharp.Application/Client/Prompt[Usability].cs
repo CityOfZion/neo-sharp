@@ -115,7 +115,7 @@ namespace NeoSharp.Application.Client
         // ReSharper disable once UnusedMember.Local
         private void QuitCommand()
         {
-            StopCommand();
+            NetworkStopCommand();
             _exit = true;
         }
 
@@ -126,7 +126,7 @@ namespace NeoSharp.Application.Client
         // ReSharper disable once UnusedMember.Local
         private void ExitCommand()
         {
-            StopCommand();
+            NetworkStopCommand();
             _exit = true;
         }
 
