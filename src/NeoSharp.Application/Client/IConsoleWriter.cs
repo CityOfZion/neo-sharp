@@ -11,6 +11,11 @@
         /// </summary>
         void Clear();
         /// <summary>
+        /// Apply style
+        /// </summary>
+        /// <param name="style">Style</param>
+        void ApplyStyle(ConsoleOutputStyle style);
+        /// <summary>
         /// Get current cursor positon
         /// </summary>
         /// <param name="x">X</param>

@@ -1,5 +1,6 @@
 ﻿using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,12 +24,6 @@ namespace NeoSharp.Application.Attributes
         private static readonly Type _objArrayType = typeof(object[]);
 
         private static readonly char[] _splitChars = { ';', ',', '|' };
-
-        #endregion
-
-        #region Variables
-
-        private MethodInfo _method;
 
         #endregion
 
@@ -61,7 +56,7 @@ namespace NeoSharp.Application.Attributes
         /// <summary>
         /// Method
         /// </summary>
-        internal MethodInfo Method => _method;
+        internal MethodInfo Method { get; private set; }
 
         #endregion
 
@@ -84,7 +79,7 @@ namespace NeoSharp.Application.Attributes
         {
             if (method == null) return;
 
-            _method = method;
+            Method = method;
             Parameters = method.GetParameters();
         }
 
@@ -103,11 +98,22 @@ namespace NeoSharp.Application.Attributes
 
             for (var x = 0; x < max; x++)
             {
-                if (Parameters[x].GetCustomAttribute<PromptCommandParameterBodyAttribute>() != null)
+                PromptCommandParameterBodyAttribute body = Parameters[x].GetCustomAttribute<PromptCommandParameterBodyAttribute>();
+                if (body != null)
                 {
                     // From here to the end
 
-                    ret[x] = ParseToArgument(new CommandToken(string.Join(" ", args.Skip(x)), false), Parameters[x].ParameterType);
+                    string join = string.Join(" ", args.Skip(x));
+
+                    if (body.AsJson)
+                    {
+                        ret[x] = JsonConvert.DeserializeObject(join, Parameters[x].ParameterType);
+                    }
+                    else
+                    {
+                        ret[x] = ParseToArgument(new CommandToken(join, false), Parameters[x].ParameterType);
+                    }
+
                     return ret;
                 }
                 else

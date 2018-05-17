@@ -37,7 +37,7 @@ namespace NeoSharp.Application.Client
         /// Apply style
         /// </summary>
         /// <param name="style">Style</param>
-        void ApplyStyle(ConsoleOutputStyle style)
+        public void ApplyStyle(ConsoleOutputStyle style)
         {
             _cache[style]?.Apply();
         }

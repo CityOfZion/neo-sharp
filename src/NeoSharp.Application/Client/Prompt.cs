@@ -380,7 +380,7 @@ namespace NeoSharp.Application.Client
         {
             // TODO: Change this
 
-            Block block = Blockchain.GenesisBlock;
+            var block = Blockchain.GenesisBlock;
             _consoleWriter.WriteLine(JsonConvert.SerializeObject(block, Formatting.Indented));
         }
 
@@ -393,7 +393,7 @@ namespace NeoSharp.Application.Client
         {
             // TODO: Change this
 
-            Block block = Blockchain.GenesisBlock;
+            var block = Blockchain.GenesisBlock;
             _consoleWriter.WriteLine(JsonConvert.SerializeObject(block, Formatting.Indented));
         }
 
@@ -406,7 +406,24 @@ namespace NeoSharp.Application.Client
         {
             // TODO: Change this
 
-            Transaction tx = new Transaction();
+            var tx = new Transaction();
+            _consoleWriter.WriteLine(tx.ToJson(true));
+        }
+
+        /// <summary>
+        /// Get tx by block hash/ TxId
+        /// </summary>
+        /// <param name="blockIndex">Block Index</param>
+        /// <param name="txNumber">TxNumber</param>
+        [PromptCommand("tx", Category = "Blockchain", Help = "Get tx by block num/tx number")]
+        private void TxCommand(ulong blockIndex, ushort txNumber)
+        {
+            // TODO: Change this
+
+            //var block = Blockchain.GenesisBlock;
+            //var tx = block.Transactions[txNumber];
+
+            var tx = new Transaction();
             _consoleWriter.WriteLine(tx.ToJson(true));
         }
 
