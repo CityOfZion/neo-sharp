@@ -13,7 +13,8 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_Pool_RemoveFromEnd()
         {
-            Pool<UInt256, Transaction> pool = new Pool<UInt256, Transaction>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x.Hash, (a, b) => a.Hash.CompareTo(b.Hash));
+            Pool<UInt256, Transaction> pool = new Pool<UInt256, Transaction>(
+                PoolMaxBehaviour.RemoveFromEnd, 3, x => x.Hash, (a, b) => a.Hash.CompareTo(b.Hash));
 
             Assert.AreEqual(PoolMaxBehaviour.RemoveFromEnd, pool.Behaviour);
             Assert.AreEqual((uint)3, pool.Max);
@@ -55,7 +56,8 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_Pool_DontAllowMore()
         {
-            Pool<UInt256, Transaction> pool = new Pool<UInt256, Transaction>(PoolMaxBehaviour.DontAllowMore, 3, x => x.Hash, (a, b) => a.Hash.CompareTo(b.Hash));
+            Pool<UInt256, Transaction> pool = new Pool<UInt256, Transaction>(
+                PoolMaxBehaviour.DontAllowMore, 3, x => x.Hash, (a, b) => a.Hash.CompareTo(b.Hash));
 
             Assert.AreEqual(PoolMaxBehaviour.DontAllowMore, pool.Behaviour);
             Assert.AreEqual((uint)3, pool.Max);
