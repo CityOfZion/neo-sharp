@@ -8,15 +8,19 @@ namespace NeoSharp.Core.Cryptography
     public static class Base58
     {
         /// <summary>
-        /// base58编码的字母表
+        /// base58 Alphabet
         /// </summary>
         public const string Alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+        /// <summary>
+        /// Base
+        /// </summary>
+        private static readonly BigInteger _base = new BigInteger(58);
 
         /// <summary>
-        /// 解码
+        /// Decode
         /// </summary>
-        /// <param name="input">要解码的字符串</param>
-        /// <returns>返回解码后的字节数组</returns>
+        /// <param name="input">String to be decoded</param>
+        /// <returns>Decoded Byte Array</returns>
         public static byte[] Decode(string input)
         {
             BigInteger bi = BigInteger.Zero;
@@ -25,7 +29,7 @@ namespace NeoSharp.Core.Cryptography
                 int index = Alphabet.IndexOf(input[i]);
                 if (index == -1)
                     throw new FormatException();
-                bi += index * BigInteger.Pow(58, input.Length - 1 - i);
+                bi += index * BigInteger.Pow(_base, input.Length - 1 - i);
             }
             byte[] bytes = bi.ToByteArray();
             Array.Reverse(bytes);
@@ -41,19 +45,19 @@ namespace NeoSharp.Core.Cryptography
         }
 
         /// <summary>
-        /// 编码
+        /// Encode
         /// </summary>
-        /// <param name="input">要编码的字节数组</param>
-        /// <returns>返回编码后的字符串</returns>
+        /// <param name="input">Byte Array to encode</param>
+        /// <returns>Encoded string</returns>
         public static string Encode(byte[] input)
         {
             BigInteger value = new BigInteger(new byte[1].Concat(input).Reverse().ToArray());
             StringBuilder sb = new StringBuilder();
-            while (value >= 58)
+            while (value >= _base)
             {
-                BigInteger mod = value % 58;
+                BigInteger mod = value % _base;
                 sb.Insert(0, Alphabet[(int)mod]);
-                value /= 58;
+                value /= _base;
             }
             sb.Insert(0, Alphabet[(int)value]);
             foreach (byte b in input)
