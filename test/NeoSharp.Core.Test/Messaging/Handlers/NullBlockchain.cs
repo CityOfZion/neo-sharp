@@ -14,6 +14,8 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
 
         public BlockHeader LastBlockHeader => CurrentBlock;
 
+        public StampedPool<UInt256, Transaction> MemoryPool => new StampedPool<UInt256, Transaction>(PoolMaxBehaviour.DontAllowMore, 0, x => x.Value.Hash, null);
+
         public bool AddBlock(Block block)
         {
             throw new NotImplementedException();
