@@ -36,8 +36,10 @@ namespace NeoSharp.Core.Types
         {
             if (other == null)
                 return false;
+
             if (ReferenceEquals(this, other))
                 return true;
+
             return _buffer.SequenceEqual(other._buffer);
         }
 
@@ -45,8 +47,15 @@ namespace NeoSharp.Core.Types
         {
             if (obj == null)
                 return false;
+
             if (obj is UInt256 other)
-                return Equals(other);
+            {
+                if (ReferenceEquals(this, other))
+                    return true;
+
+                return _buffer.SequenceEqual(other._buffer);
+            }
+
             return false;
         }
 
