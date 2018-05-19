@@ -32,7 +32,7 @@
         /// </summary>
         /// <param name="maxValue">Maximum value</param>
         /// <returns>Return Console percent writer</returns>
-        ConsolePercentWriter CreatePercent(int maxValue = 100);
+        ConsolePercentWriter CreatePercent(long maxValue = 100);
 
         /// <summary>
         /// Write output into console

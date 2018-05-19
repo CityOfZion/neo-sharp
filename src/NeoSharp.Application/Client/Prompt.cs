@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Rpc;
@@ -47,6 +48,10 @@ namespace NeoSharp.Application.Client
         /// Server
         /// </summary>
         private readonly IServer _server;
+        /// <summary>
+        /// Blockchain
+        /// </summary>
+        private readonly IBlockchain _blockchain;
         /// <summary>
         /// Rpc server
         /// </summary>
@@ -111,9 +116,10 @@ namespace NeoSharp.Application.Client
         /// <param name="serverInit">Server</param>
         /// <param name="rpcInit">Rpc server</param>
         /// <param name="serializer">Binary serializer</param>
+        /// <param name="blockchain">Blockchain</param>
         public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit,
             ILogger<Prompt> logger, INetworkManager networkManagerInit,
-            IServer serverInit, IRpcServer rpcInit, IBinarySerializer serializer)
+            IServer serverInit, IRpcServer rpcInit, IBinarySerializer serializer, IBlockchain blockchain)
         {
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;
@@ -122,6 +128,7 @@ namespace NeoSharp.Application.Client
             _server = serverInit;
             _serializer = serializer;
             _rpc = rpcInit;
+            _blockchain = blockchain;
         }
 
         public void StartPrompt(string[] args)
