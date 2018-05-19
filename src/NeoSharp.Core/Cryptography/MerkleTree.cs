@@ -1,65 +1,116 @@
-﻿using System;
+﻿using NeoSharp.Core.Types;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Cryptography
 {
     /// <summary>
-    /// 哈希树
+    /// Merkle Tree
     /// </summary>
     public class MerkleTree
     {
-        private MerkleTreeNode root;
+        /// <summary>
+        /// Constants
+        /// </summary>
+        const int hash_size = 32;
+        const int hash_2size = 64;
 
-        public int Depth { get; private set; }
+        /// <summary>
+        /// Tree Root
+        /// </summary>
+        public readonly MerkleTreeNode Root;
 
-        internal MerkleTree(UInt256[] hashes)
+        /// <summary>
+        /// Tree Height
+        /// </summary>
+        public readonly int Depth;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="hashes">Hash Array</param>
+        private MerkleTree(UInt256[] hashes)
         {
             if (hashes.Length == 0) throw new ArgumentException();
-            this.root = Build(hashes.Select(p => new MerkleTreeNode { Hash = p }).ToArray());
+
+            this.Root = Build(hashes.Select(p => new MerkleTreeNode(p)).ToArray());
             int depth = 1;
-            for (MerkleTreeNode i = root; i.LeftChild != null; i = i.LeftChild)
+            for (MerkleTreeNode i = Root; i.LeftChild != null; i = i.LeftChild)
                 depth++;
+
             this.Depth = depth;
         }
 
+        /// <summary>
+        /// Build a node
+        /// </summary>
+        /// <param name="leaves">Leaves nodes</param>
+        /// <returns>Node</returns>
         private static MerkleTreeNode Build(MerkleTreeNode[] leaves)
         {
             if (leaves.Length == 0) throw new ArgumentException();
             if (leaves.Length == 1) return leaves[0];
+
+            MerkleTreeNode current;
             MerkleTreeNode[] parents = new MerkleTreeNode[(leaves.Length + 1) / 2];
+
             for (int i = 0; i < parents.Length; i++)
             {
-                parents[i] = new MerkleTreeNode();
-                parents[i].LeftChild = leaves[i * 2];
-                leaves[i * 2].Parent = parents[i];
+                current = new MerkleTreeNode
+                {
+                    LeftChild = leaves[i * 2]
+                };
+
+                parents[i] = current;
+
+                leaves[i * 2].Parent = current;
+
                 if (i * 2 + 1 == leaves.Length)
                 {
-                    parents[i].RightChild = parents[i].LeftChild;
+                    current.RightChild = current.LeftChild;
                 }
                 else
                 {
-                    parents[i].RightChild = leaves[i * 2 + 1];
-                    leaves[i * 2 + 1].Parent = parents[i];
+                    current.RightChild = leaves[i * 2 + 1];
+                    leaves[i * 2 + 1].Parent = current;
                 }
-                parents[i].Hash = new UInt256(Crypto.Default.Hash256(parents[i].LeftChild.Hash.ToArray().Concat(parents[i].RightChild.Hash.ToArray()).ToArray()));
+
+                byte[] hash = new byte[hash_2size];
+                Array.Copy(current.LeftChild.Hash.ToArray(), 0, hash, 0, hash_size);
+                Array.Copy(current.RightChild.Hash.ToArray(), 0, hash, hash_size, hash_size);
+
+                current.Hash = new UInt256(Crypto.Default.Hash256(hash));
             }
+
             return Build(parents); //TailCall
         }
 
         /// <summary>
-        /// 计算根节点的值
+        /// Calculate Root node value
         /// </summary>
-        /// <param name="hashes">子节点列表</param>
-        /// <returns>返回计算的结果</returns>
+        /// <param name="hashes">Hash list</param>
+        /// <returns>Result of the calculation</returns>
         public static UInt256 ComputeRoot(UInt256[] hashes)
         {
-            if (hashes.Length == 0) throw new ArgumentException();
+            if (hashes == null || hashes.Length == 0) throw new ArgumentException();
             if (hashes.Length == 1) return hashes[0];
+
             var tree = new MerkleTree(hashes);
-            return tree.root.Hash;
+            return tree.Root.Hash;
+        }
+
+        /// <summary>
+        /// Calculate Tree
+        /// </summary>
+        /// <param name="hashes">Hash list</param>
+        /// <returns>Result of the calculation</returns>
+        public static MerkleTree ComputeTree(UInt256[] hashes)
+        {
+            if (hashes == null || hashes.Length == 0) throw new ArgumentException();
+
+            return new MerkleTree(hashes);
         }
 
         private static void DepthFirstSearch(MerkleTreeNode node, IList<UInt256> hashes)
@@ -76,19 +127,24 @@ namespace NeoSharp.Core.Cryptography
             }
         }
 
-        // depth-first order
+        /// <summary>
+        /// Depth-first order
+        /// </summary>
+        /// <returns>Hash </returns>
         public UInt256[] ToHashArray()
         {
             List<UInt256> hashes = new List<UInt256>();
-            DepthFirstSearch(root, hashes);
+            DepthFirstSearch(Root, hashes);
             return hashes.ToArray();
         }
 
         public void Trim(BitArray flags)
         {
-            flags = new BitArray(flags);
-            flags.Length = 1 << (Depth - 1);
-            Trim(root, 0, Depth, flags);
+            flags = new BitArray(flags)
+            {
+                Length = 1 << (Depth - 1)
+            };
+            Trim(Root, 0, Depth, flags);
         }
 
         private static void Trim(MerkleTreeNode node, int index, int depth, BitArray flags)
