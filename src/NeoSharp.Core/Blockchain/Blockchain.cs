@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography;
-using NeoSharp.Core.Caching;
-using NeoSharp.Core.Cryptography;
+﻿using NeoSharp.Core.Caching;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
 
 namespace NeoSharp.Core.Blockchain
 {
@@ -15,6 +14,12 @@ namespace NeoSharp.Core.Blockchain
     {
         private readonly IRepository _repository;
         public static event EventHandler<Block> PersistCompleted;
+
+        /// <summary>
+        /// Memory pool
+        /// </summary>
+        public StampedPool<UInt256, Transaction> MemoryPool { get; } =
+            new StampedPool<UInt256, Transaction>(PoolMaxBehaviour.RemoveFromEnd, 50_000, tx => tx.Value.Hash, TransactionComparer);
 
         /// <summary>
         /// The interval at which each block is generated, in seconds
@@ -35,7 +40,7 @@ namespace NeoSharp.Core.Blockchain
         public static readonly ECPoint[] StandbyValidators = new ECPoint[0]; // read from Config.StandbyValidators.OfType<string>().Select(p => ECPoint.DecodePoint(p.HexToBytes(), ECCurve.Secp256r1)).ToArray();
 
         /// <summary>
-        /// 创世区块
+        /// GenesisBlock
         /// </summary>
         public static readonly Block GenesisBlock = new Block
         {
@@ -101,6 +106,19 @@ namespace NeoSharp.Core.Blockchain
 
         public BlockHeader LastBlockHeader { get; private set; }
 
+        static int TransactionComparer(Stamp<Transaction> a, Stamp<Transaction> b)
+        {
+            int c = a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
+            if (c == 0)
+            {
+                // TODO: Check ASC or DESC
+
+                return a.Date.CompareTo(b.Date);
+            }
+
+            return c;
+        }
+
         /// <summary>
         /// Add the specified block to the blockchain
         /// </summary>
@@ -119,7 +137,7 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="blockHeaders"></param>
         public void AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders)
-        {   
+        {
             // TODO: hook up persistence here
             if (blockHeaders.Any())
             {
@@ -328,7 +346,7 @@ namespace NeoSharp.Core.Blockchain
         }
 
         private readonly List<ECPoint> _validators = new List<ECPoint>();
-   
+
         public ECPoint[] GetValidators()
         {
             lock (_validators)

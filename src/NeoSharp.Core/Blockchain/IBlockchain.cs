@@ -1,13 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Security.Cryptography;
-using NeoSharp.Core.Caching;
+﻿using NeoSharp.Core.Caching;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
+using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace NeoSharp.Core.Blockchain
 {
     public interface IBlockchain
     {
+        /// <summary>
+        /// Memory pool
+        /// </summary>
+        StampedPool<UInt256, Transaction> MemoryPool { get; }
+
         Block CurrentBlock { get; }
 
         BlockHeader LastBlockHeader { get; }
