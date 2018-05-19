@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Test.ExtensionMethods;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Core.Test.Network
@@ -81,21 +83,35 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
-        public void Can_disconnect_to_peers_on_stop()
+        public void Stop_SuccessfulPeerConnection_StoppingServerLeadsToDisconnectingPeer()
         {
             // Arrange 
-            AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
+            var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
+
+            this.AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
+
+            var blockchainMock = this.AutoMockContainer.GetMock<IBlockchain>();
+            blockchainMock
+                .SetupGet(x => x.CurrentBlock)
+                .Returns(new Block());
+
             var peerMock = AutoMockContainer.GetMock<IPeer>();
-            
-            FakeHandshake(peerMock);
+            peerMock
+                .SetupFakeHandshake()
+                .Setup(x => x.Send(It.IsAny<VersionMessage>()))
+                .Callback(() => waitPeerIsConnectedResetEvent.Set());
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
-            peerFactoryMock.Setup(x => x.ConnectTo(It.IsAny<EndPoint>())).Returns(Task.FromResult(peerMock.Object));
-            var server = AutoMockContainer.Create<Server>();
+            peerFactoryMock
+                .Setup(x => x.ConnectTo(It.IsAny<EndPoint>()))
+                .Returns(Task.FromResult(peerMock.Object));
 
             // Act
+            var server = AutoMockContainer.Create<Server>();
             server.Start();
-            WaitUntilPeersAreConnected(server);
+
+            waitPeerIsConnectedResetEvent.WaitOne();
+
             server.Stop();
 
             // Asset
@@ -163,42 +179,6 @@ namespace NeoSharp.Core.Test.Network
                 .Build();
 
             return new NetworkConfig(configuration);
-        }
-
-        private static void FakeHandshake(Mock<IPeer> peerMock)
-        {
-            var versionMessage = default(VersionMessage);
-
-            peerMock.Setup(x => x.Send(It.IsAny<VersionMessage>()))
-                .Callback<Message>(msg => versionMessage = (VersionMessage)msg)
-                .Returns(Task.CompletedTask);
-
-            peerMock.Setup(x => x.Receive<VersionMessage>())
-                .Returns(() => Task.FromResult(versionMessage));
-
-            var verAckMessage = new VerAckMessage();
-
-            peerMock.Setup(x => x.Send(new VerAckMessage()))
-                .Returns(Task.CompletedTask);
-
-            peerMock.Setup(x => x.Receive<VerAckMessage>())
-                .Returns(Task.FromResult(verAckMessage));
-        }
-
-        private static void WaitUntilPeersAreConnected(IServer server, int timeout = 1000)
-        {
-            using (var cancellationTokenSource = new CancellationTokenSource())
-            {
-                cancellationTokenSource.CancelAfter(timeout);
-
-                Task.Run(async () =>
-                {
-                    while (server.ConnectedPeers.Count == 0)
-                    {
-                        await Task.Delay(10);
-                    }
-                }).Wait(cancellationTokenSource.Token);
-            }
         }
     }
 }
