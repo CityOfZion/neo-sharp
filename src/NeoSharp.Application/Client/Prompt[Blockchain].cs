@@ -13,7 +13,12 @@ namespace NeoSharp.Application.Client
         [PromptCommand("state", Category = "Blockchain", Help = "Show current state")]
         private void StateCommand()
         {
+            _consoleWriter.WriteLine("Memory pool:");
 
+            using (var pg = _consoleWriter.CreatePercent(_blockchain.MemoryPool.Max))
+            {
+                pg.Value = _blockchain.MemoryPool.Count;
+            }
         }
 
         /// <summary>

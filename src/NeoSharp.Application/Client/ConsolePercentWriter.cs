@@ -6,7 +6,7 @@ namespace NeoSharp.Application.Client
     {
         #region Variables
 
-        int _maxValue, _value;
+        long _maxValue, _value;
         Decimal _lastFactor;
 
         readonly IConsoleWriter _writer;
@@ -19,7 +19,7 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Value
         /// </summary>
-        public int Value
+        public long Value
         {
             get { return _value; }
             set
@@ -34,7 +34,7 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Maximum value
         /// </summary>
-        public int MaxValue
+        public long MaxValue
         {
             get { return _maxValue; }
             set
@@ -69,9 +69,10 @@ namespace NeoSharp.Application.Client
         /// <param name="writer">Writer</param>
         /// <param name="value">Value</param>
         /// <param name="maxValue">Maximum value</param>
-        public ConsolePercentWriter(IConsoleWriter writer, int value = 0, int maxValue = 100)
+        public ConsolePercentWriter(IConsoleWriter writer, long value = 0, long maxValue = 100)
         {
             _writer = writer;
+            _lastFactor = -1;
             _writer.GetCursorPosition(out _x, out _y);
             MaxValue = maxValue;
             Value = value;

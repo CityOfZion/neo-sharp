@@ -80,7 +80,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="maxValue">Maximum value</param>
         /// <returns>Return Console percent writer</returns>
-        public ConsolePercentWriter CreatePercent(int maxValue = 100)
+        public ConsolePercentWriter CreatePercent(long maxValue = 100)
         {
             return new ConsolePercentWriter(this, 0, maxValue);
         }

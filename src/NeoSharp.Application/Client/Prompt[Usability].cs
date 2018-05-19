@@ -10,6 +10,8 @@ namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
+        private StreamWriter _record;
+
         /// <summary>
         /// Print help from Multiple commands
         /// </summary>
@@ -70,8 +72,6 @@ namespace NeoSharp.Application.Client
                 }
             }
         }
-
-        StreamWriter _record;
 
         /// <summary>
         /// Start current recording
