@@ -110,12 +110,12 @@ namespace NeoSharp.Core.Types
 
         public static bool operator ==(UInt256 left, UInt256 right)
         {
-            return left != null ? left.Equals(right) : right == null;
+            return left is null ? right is null : left.Equals(right);
         }
 
         public static bool operator !=(UInt256 left, UInt256 right)
         {
-            return !(left == right);
+            return !(left is null ? right is null : left.Equals(right));
         }
 
         public static bool operator >(UInt256 left, UInt256 right)
