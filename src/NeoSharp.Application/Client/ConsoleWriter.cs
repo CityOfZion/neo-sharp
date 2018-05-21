@@ -1,9 +1,18 @@
-﻿using System;
+﻿using NeoSharp.Application.Attributes;
+using NeoSharp.Core.Caching;
+using System;
 
 namespace NeoSharp.Application.Client
 {
     public class ConsoleWriter : IConsoleWriter
     {
+        #region Variables
+
+        static readonly ReflectionCache<ConsoleOutputStyle, ConsoleOutputStyleAttribute> _cache =
+            ReflectionCache<ConsoleOutputStyle, ConsoleOutputStyleAttribute>.CreateFromEnum();
+
+        #endregion
+
         /// <summary>
         /// Get current cursor positon
         /// </summary>
@@ -28,46 +37,23 @@ namespace NeoSharp.Application.Client
         /// Apply style
         /// </summary>
         /// <param name="style">Style</param>
-        void ApplyStyle(ConsoleOutputStyle style)
+        public void ApplyStyle(ConsoleOutputStyle style)
         {
-            switch (style)
-            {
-                case ConsoleOutputStyle.Output:
-                    {
-                        if (Console.ForegroundColor != ConsoleColor.White)
-                            Console.ForegroundColor = ConsoleColor.White;
-
-                        break;
-                    }
-                case ConsoleOutputStyle.Prompt:
-                    {
-                        if (Console.ForegroundColor != ConsoleColor.DarkGreen)
-                            Console.ForegroundColor = ConsoleColor.DarkGreen;
-
-                        break;
-                    }
-                case ConsoleOutputStyle.Input:
-                    {
-                        if (Console.ForegroundColor != ConsoleColor.Green)
-                            Console.ForegroundColor = ConsoleColor.Green;
-
-                        break;
-                    }
-                case ConsoleOutputStyle.Error:
-                    {
-                        if (Console.ForegroundColor != ConsoleColor.Red)
-                            Console.ForegroundColor = ConsoleColor.Red;
-
-                        break;
-                    }
-                case ConsoleOutputStyle.Information:
-                    {
-                        if (Console.ForegroundColor != ConsoleColor.Yellow)
-                            Console.ForegroundColor = ConsoleColor.Yellow;
-
-                        break;
-                    }
-            }
+            _cache[style]?.Apply();
+        }
+        /// <summary>
+        /// Beep
+        /// </summary>
+        public void Beep()
+        {
+            Console.Beep();
+        }
+        /// <summary>
+        /// Clear
+        /// </summary>
+        public void Clear()
+        {
+            Console.Clear();
         }
         /// <summary>
         /// Write output into console
@@ -94,7 +80,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="maxValue">Maximum value</param>
         /// <returns>Return Console percent writer</returns>
-        public ConsolePercentWriter CreatePercent(int maxValue = 100)
+        public ConsolePercentWriter CreatePercent(long maxValue = 100)
         {
             return new ConsolePercentWriter(this, 0, maxValue);
         }

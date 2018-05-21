@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Core.DI;
@@ -31,14 +32,17 @@ namespace NeoSharp.Core.Test.Messaging
             containerMock
                 .Setup(c => c.Resolve(It.IsAny<Type>()))
                 .Returns(() => new NullVersionMessageHandler());
-            
-            var messageHandlerProxy = new MessageHandlerProxy(containerMock.Object, new []{ typeof(NullVersionMessageHandler) });
+
+            var loggerMock = AutoMockContainer.GetMock<ILogger<MessageHandlerProxy>>();
+
+            var messageHandlerProxy = new MessageHandlerProxy(containerMock.Object, new []{ typeof(NullVersionMessageHandler) }, loggerMock.Object);
 
             // Act
             var task = messageHandlerProxy.Handle(new VersionMessage(), null);
+            task.Wait();
 
             // Assert
-            task.Should().Be(Task.CompletedTask);
+            task.IsCompletedSuccessfully.Should().Be(true);
         }
 
         [TestMethod]
@@ -46,7 +50,8 @@ namespace NeoSharp.Core.Test.Messaging
         {
             // Arrange
             var containerMock = AutoMockContainer.GetMock<IContainer>();
-            var messageHandlerProxy = new MessageHandlerProxy(containerMock.Object, new Type[0]);
+            var loggerMock = AutoMockContainer.GetMock<ILogger<MessageHandlerProxy>>();
+            var messageHandlerProxy = new MessageHandlerProxy(containerMock.Object, new Type[0], loggerMock.Object);
 
             // Act
             Action a = () => messageHandlerProxy.Handle(new VersionMessage(), null);

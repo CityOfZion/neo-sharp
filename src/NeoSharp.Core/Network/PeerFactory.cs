@@ -1,7 +1,7 @@
-﻿using System;
+﻿using NeoSharp.Core.Network.Tcp;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NeoSharp.Core.Network.Tcp;
 
 namespace NeoSharp.Core.Network
 {

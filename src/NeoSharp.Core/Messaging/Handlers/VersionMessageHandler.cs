@@ -19,15 +19,17 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         public async Task Handle(VersionMessage message, IPeer sender)
         {
-            if (_server.Nonce != message.Payload.Nonce)
+            sender.Version = message.Payload;
+
+            if (_server.Nonce == sender.Version.Nonce)
             {
-                throw new InvalidOperationException("The handshake failed.");
+                throw new InvalidOperationException($"The handshake is failed due to \"{nameof(_server.Nonce)}\" value equality.");
             }
 
-            if (_server.Version > message.Payload.Version)
+            if (_server.ProtocolVersion > sender.Version.Version)
             {
-                _logger.LogWarning("Downgraded to lower protocol version.");
-                sender.DowngradeProtocol(message.Payload.Version);
+                _logger.LogWarning("Downgraded to a lower protocol version.");
+                sender.DowngradeProtocol(sender.Version.Version);
             }
 
             await sender.Send<VerAckMessage>();

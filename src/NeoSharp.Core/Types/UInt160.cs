@@ -1,11 +1,14 @@
-﻿using System;
+﻿using NeoSharp.Core.Converters;
+using NeoSharp.Core.Extensions;
+using System;
 using System.Collections;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Types
 {
+    [TypeConverter(typeof(UInt160Converter))]
     public class UInt160 : IEquatable<UInt160>, IComparable<UInt160>, ISerializable
     {
         private static readonly int s_size = 20;
@@ -31,19 +34,28 @@ namespace NeoSharp.Core.Types
 
         public bool Equals(UInt160 other)
         {
-            if (ReferenceEquals(other, null))
+            if (other == null)
                 return false;
+
             if (ReferenceEquals(this, other))
                 return true;
+
             return _buffer.SequenceEqual(other._buffer);
         }
 
         public override bool Equals(object obj)
         {
-            if (ReferenceEquals(obj, null))
+            if (obj == null)
                 return false;
+
+            if (ReferenceEquals(this, obj))
+                return true;
+
             if (obj is UInt160 other)
-                return Equals(other);
+            {
+                return _buffer.SequenceEqual(other._buffer);
+            }
+
             return false;
         }
 
@@ -74,7 +86,7 @@ namespace NeoSharp.Core.Types
 
         public override string ToString()
         {
-            return "0x" + _buffer.Reverse().ToHexString();
+            return _buffer.Reverse().ToHexString(true);
         }
 
         public static UInt160 Parse(string value)
@@ -98,14 +110,12 @@ namespace NeoSharp.Core.Types
 
         public static bool operator ==(UInt160 left, UInt160 right)
         {
-            return ReferenceEquals(left, null) == false
-                ? left.Equals(right)
-                : ReferenceEquals(right, null);
+            return left is null ? right is null : left.Equals(right);
         }
 
         public static bool operator !=(UInt160 left, UInt160 right)
         {
-            return !(left == right);
+            return !(left is null ? right is null : left.Equals(right));
         }
 
         public static bool operator >(UInt160 left, UInt160 right)

@@ -27,7 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.RedisD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.VM.HyperVM", "src\NeoSharp.VM.HyperVM\NeoSharp.VM.HyperVM.csproj", "{32DD19F0-A1B7-4CEE-A26D-85E4DD7B57B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.BinarySerialization", "src\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj", "{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.BinarySerialization", "src\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj", "{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Persistence.RocksDB", "src\NeoSharp.Persistence.RocksDB\NeoSharp.Persistence.RocksDB.csproj", "{24502C1E-AD52-4AC9-A83E-C7BAE373167C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -79,6 +81,10 @@ Global
 		{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24502C1E-AD52-4AC9-A83E-C7BAE373167C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24502C1E-AD52-4AC9-A83E-C7BAE373167C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24502C1E-AD52-4AC9-A83E-C7BAE373167C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24502C1E-AD52-4AC9-A83E-C7BAE373167C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -95,6 +101,7 @@ Global
 		{ED9A45F1-E717-4380-8F59-6F32873EEF69} = {049B9D65-5954-424B-8155-5726A60E24C5}
 		{32DD19F0-A1B7-4CEE-A26D-85E4DD7B57B5} = {049B9D65-5954-424B-8155-5726A60E24C5}
 		{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30} = {049B9D65-5954-424B-8155-5726A60E24C5}
+		{24502C1E-AD52-4AC9-A83E-C7BAE373167C} = {049B9D65-5954-424B-8155-5726A60E24C5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C0EE31A-D025-404A-8D06-FB883C62C9AD}

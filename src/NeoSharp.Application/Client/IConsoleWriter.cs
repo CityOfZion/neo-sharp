@@ -3,6 +3,19 @@
     public interface IConsoleWriter
     {
         /// <summary>
+        /// Beep
+        /// </summary>
+        void Beep();
+        /// <summary>
+        /// Clear
+        /// </summary>
+        void Clear();
+        /// <summary>
+        /// Apply style
+        /// </summary>
+        /// <param name="style">Style</param>
+        void ApplyStyle(ConsoleOutputStyle style);
+        /// <summary>
         /// Get current cursor positon
         /// </summary>
         /// <param name="x">X</param>
@@ -19,7 +32,7 @@
         /// </summary>
         /// <param name="maxValue">Maximum value</param>
         /// <returns>Return Console percent writer</returns>
-        ConsolePercentWriter CreatePercent(int maxValue = 100);
+        ConsolePercentWriter CreatePercent(long maxValue = 100);
 
         /// <summary>
         /// Write output into console

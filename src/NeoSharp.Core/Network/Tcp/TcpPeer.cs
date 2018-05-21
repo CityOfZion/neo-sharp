@@ -1,25 +1,39 @@
 using Microsoft.Extensions.Logging;
+using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Network.Protocols;
 using System;
+using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
+using System.Net;
 
 namespace NeoSharp.Core.Network.Tcp
 {
     public class TcpPeer : IPeer, IDisposable
     {
-        private const int SocketOperationTimeout = 30_000;
+        private const int SocketOperationTimeout = 300_000;
+        private const int MessageQueueCheckInterval = 100;
 
+        /// <summary>
+        /// End Point
+        /// </summary>
+        public EndPoint EndPoint { get; }
+
+        public readonly IPAddress IPAddress;
         private readonly Socket _socket;
-        private readonly TcpProtocolSelector _protocolSelector;
-        private TcpProtocolBase _protocol;
+        private readonly ProtocolSelector _protocolSelector;
         private readonly NetworkStream _stream;
+        private ProtocolBase _protocol;
         private readonly ILogger<TcpPeer> _logger;
         private int _disposed;
         private bool _isReady;
+        private readonly ConcurrentQueue<Message> _highPrioritySendMessageQueue = new ConcurrentQueue<Message>();
+        private readonly ConcurrentQueue<Message> _lowPrioritySendMessageQueue = new ConcurrentQueue<Message>();
+        private readonly CancellationTokenSource _messageSenderTokenSource = new CancellationTokenSource();
 
-        public TcpPeer(Socket socket, TcpProtocolSelector protocolSelector, ILogger<TcpPeer> logger)
+        public TcpPeer(Socket socket, ProtocolSelector protocolSelector, ILogger<TcpPeer> logger)
         {
             _socket = socket ?? throw new ArgumentNullException(nameof(socket));
             _protocolSelector = protocolSelector ?? throw new ArgumentNullException(nameof(protocolSelector));
@@ -27,9 +41,39 @@ namespace NeoSharp.Core.Network.Tcp
 
             _stream = new NetworkStream(socket, true);
             _protocol = protocolSelector.DefaultProtocol;
+
+            // Extract address
+
+            IPEndPoint ep=(IPEndPoint)(socket.IsBound ? socket.RemoteEndPoint : socket.LocalEndPoint);
+            IPAddress = ep.Address;
+            EndPoint = new EndPoint() { Protocol = Protocol.Tcp, Host = ep.Address.ToString(), Port = ep.Port };
+
+            SendMessages(_messageSenderTokenSource.Token);
+        }
+
+        private void SendMessages(CancellationToken cancellationToken)
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                while (IsConnected)
+                {
+                    if (!_highPrioritySendMessageQueue.TryDequeue(out var message))
+                    {
+                        if (!_lowPrioritySendMessageQueue.TryDequeue(out message))
+                        {
+                            await Task.Delay(MessageQueueCheckInterval, cancellationToken);
+                            continue;
+                        }
+                    }
+
+                    await InternalSend(message);
+                }
+            }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         public bool IsConnected => _disposed == 0;
+
+        public VersionPayload Version { get; set; }
 
         public bool IsReady
         {
@@ -39,8 +83,8 @@ namespace NeoSharp.Core.Network.Tcp
 
         public void DowngradeProtocol(uint version)
         {
-            if (version > _protocol.MagicHeader)
-                throw new ArgumentException($"The protocol version must to be lower than \"{_protocol.MagicHeader}\"",
+            if (version > _protocol.Version)
+                throw new ArgumentException($"The protocol version must to be lower than \"{_protocol.Version}\"",
                     nameof(version));
 
             var protocol = _protocolSelector.GetProtocol(version);
@@ -60,6 +104,7 @@ namespace NeoSharp.Core.Network.Tcp
 
             try
             {
+                _messageSenderTokenSource.Cancel();
                 _socket.Shutdown(SocketShutdown.Both);
                 _stream.Dispose();
                 _socket.Dispose();
@@ -70,41 +115,37 @@ namespace NeoSharp.Core.Network.Tcp
             }
         }
 
+        public Task Send(Message message)
+        {
+            if (_protocol.IsHighPriorityMessage(message))
+            {
+                _highPrioritySendMessageQueue.Enqueue(message);
+            }
+            else
+            {
+                _lowPrioritySendMessageQueue.Enqueue(message);
+            }
+
+            // we don't wait until the message will be picked up from the queue and sent over the network
+            return Task.CompletedTask;
+        }
+
         public Task Send<TMessage>() where TMessage : Message, new()
         {
             return Send(new TMessage());
         }
 
-        public async Task Send<TMessage>(TMessage message) where TMessage : Message
-        {
-            if (_disposed > 0) return;
-
-            using (var source = new CancellationTokenSource(SocketOperationTimeout))
-            {
-                source.Token.Register(Disconnect);
-
-                try
-                {
-                    await _protocol.SendMessageAsync(_stream, message, source.Token);
-                }
-                catch (Exception)
-                {
-                    Disconnect();
-                }
-            }
-        }
-
         public async Task<Message> Receive()
         {
-            if (_disposed > 0) return null;
+            if (!IsConnected) return null;
 
-            using (var source = new CancellationTokenSource(SocketOperationTimeout))
+            using (var tokenSource = new CancellationTokenSource(SocketOperationTimeout))
             {
-                source.Token.Register(Disconnect);
+                tokenSource.Token.Register(Disconnect);
 
                 try
                 {
-                    return await _protocol.ReceiveMessageAsync(_stream, source.Token);
+                    return await _protocol.ReceiveMessageAsync(_stream, tokenSource.Token);
                 }
                 catch (Exception)
                 {
@@ -115,18 +156,30 @@ namespace NeoSharp.Core.Network.Tcp
             return null;
         }
 
-        public Task<TMessage> Receive<TMessage>() where TMessage : Message, new()
+        public async Task<TMessage> Receive<TMessage>() where TMessage : Message, new()
         {
-            if (_disposed > 0) return null;
+            if (!IsConnected) return null;
 
-            // TODO: This does not work
-            return new Task<TMessage>(() =>
+            return await Receive() as TMessage;
+        }
+
+        private async Task InternalSend(Message message)
+        {
+            if (!IsConnected) return;
+
+            using (var tokenSource = new CancellationTokenSource(SocketOperationTimeout))
             {
-                var msg = Receive();
-                msg.Wait();
+                tokenSource.Token.Register(Disconnect);
 
-                return new TMessage();
-            });
+                try
+                {
+                    await _protocol.SendMessageAsync(_stream, message, tokenSource.Token);
+                }
+                catch (Exception)
+                {
+                    Disconnect();
+                }
+            }
         }
     }
 }

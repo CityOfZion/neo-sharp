@@ -2,6 +2,7 @@
 using Moq;
 using NeoSharp.Application.DI;
 using NeoSharp.Core.DI;
+using NeoSharp.Core.DI.Modules;
 using NeoSharp.Core.Network;
 using NeoSharp.TestHelpers;
 

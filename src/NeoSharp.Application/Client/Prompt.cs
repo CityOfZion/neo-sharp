@@ -1,24 +1,33 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Network.Rpc;
+using NeoSharp.Core.Types;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace NeoSharp.Application.Client
 {
-    public class Prompt : IPrompt
+    public partial class Prompt : IPrompt
     {
         #region Variables
+
+        public enum PromptOutputStyle { json, raw };
 
         /// <summary>
         /// Exit flag
         /// </summary>
         private bool _exit;
+        /// <summary>
+        /// Serializer
+        /// </summary>
+        private readonly IBinarySerializer _serializer;
         /// <summary>
         /// Console Reader
         /// </summary>
@@ -36,9 +45,25 @@ namespace NeoSharp.Application.Client
         /// </summary>
         private readonly INetworkManager _networkManager;
         /// <summary>
-        /// Command caché
+        /// Server
         /// </summary>
-        private static readonly IDictionary<string, PromptCommandAttribute> _commandCache;
+        private readonly IServer _server;
+        /// <summary>
+        /// Blockchain
+        /// </summary>
+        private readonly IBlockchain _blockchain;
+        /// <summary>
+        /// Rpc server
+        /// </summary>
+        private readonly IRpcServer _rpc;
+        /// <summary>
+        /// Command cache
+        /// </summary>
+        private static readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
+        private static readonly IDictionary<string, List<ParameterInfo[]>> _commandAutocompleteCache;
+
+        public delegate void delOnCommandRequested(IPrompt prompt, PromptCommandAttribute cmd, string commandLine);
+        public event delOnCommandRequested OnCommandRequested;
 
         #endregion
 
@@ -49,21 +74,33 @@ namespace NeoSharp.Application.Client
         /// </summary>
         static Prompt()
         {
-            _commandCache = new Dictionary<string, PromptCommandAttribute>();
+            _commandCache = new Dictionary<string[], PromptCommandAttribute>();
+            _commandAutocompleteCache = new Dictionary<string, List<ParameterInfo[]>>();
 
             foreach (var mi in typeof(Prompt).GetMethods
                 (
-                BindingFlags.NonPublic | BindingFlags.Public |
-                BindingFlags.Instance | BindingFlags.Static
+                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance
                 ))
             {
                 var atr = mi.GetCustomAttribute<PromptCommandAttribute>();
                 if (atr == null) continue;
 
-                atr.Method = mi;
+                atr.SetMethod(mi);
 
-                foreach (var command in atr.Commands)
-                    _commandCache.Add(command.ToLowerInvariant(), atr);
+                _commandCache.Add(atr.Commands, atr);
+
+                if (_commandAutocompleteCache.ContainsKey(atr.Command))
+                {
+                    _commandAutocompleteCache[atr.Command].Add(mi.GetParameters());
+                }
+                else
+                {
+                    var ls = new List<ParameterInfo[]>
+                    {
+                        mi.GetParameters()
+                    };
+                    _commandAutocompleteCache.Add(atr.Command, ls);
+                }
             }
         }
 
@@ -76,12 +113,22 @@ namespace NeoSharp.Application.Client
         /// <param name="consoleWriterInit">Console writer init</param>
         /// <param name="logger">Logger</param>
         /// <param name="networkManagerInit">Network manger init</param>
-        public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit, ILogger<Prompt> logger, INetworkManager networkManagerInit)
+        /// <param name="serverInit">Server</param>
+        /// <param name="rpcInit">Rpc server</param>
+        /// <param name="serializer">Binary serializer</param>
+        /// <param name="blockchain">Blockchain</param>
+        public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit,
+            ILogger<Prompt> logger, INetworkManager networkManagerInit,
+            IServer serverInit, IRpcServer rpcInit, IBinarySerializer serializer, IBlockchain blockchain)
         {
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;
             _logger = logger;
             _networkManager = networkManagerInit;
+            _server = serverInit;
+            _serializer = serializer;
+            _rpc = rpcInit;
+            _blockchain = blockchain;
         }
 
         public void StartPrompt(string[] args)
@@ -91,13 +138,71 @@ namespace NeoSharp.Application.Client
 
             while (!_exit)
             {
-                var fullCmd = _consoleReader.ReadFromConsole();
+                var fullCmd = _consoleReader.ReadFromConsole(_commandAutocompleteCache);
                 if (string.IsNullOrWhiteSpace(fullCmd)) continue;
 
                 Execute(fullCmd);
             }
 
             _consoleWriter.WriteLine("Exiting", ConsoleOutputStyle.Information);
+        }
+
+        IEnumerable<PromptCommandAttribute> SearchCommands(string command, List<CommandToken> cmdArgs)
+        {
+            // Parse arguments
+
+            cmdArgs.AddRange(command.SplitCommandLine());
+            if (cmdArgs.Count <= 0) yield break;
+
+            foreach (KeyValuePair<string[], PromptCommandAttribute> key in _commandCache)
+            {
+                if (key.Key.Length > cmdArgs.Count) continue;
+
+                bool equal = true;
+                for (int x = 0, m = key.Key.Length; x < m; x++)
+                {
+                    CommandToken c = cmdArgs[x];
+                    if (c.Value.ToLowerInvariant() != key.Key[x])
+                    {
+                        equal = false;
+                        break;
+                    }
+                }
+
+                if (equal)
+                {
+                    yield return key.Value;
+                }
+            }
+        }
+
+        PromptCommandAttribute SearchRightCommand(PromptCommandAttribute[] cmds, IEnumerable<CommandToken> args)
+        {
+            switch (cmds.Length)
+            {
+                case 0: return null;
+                case 1: return cmds[0];
+                default:
+                    {
+                        // Multiple commands
+
+                        PromptCommandAttribute cmd = null;
+
+                        foreach (var a in cmds)
+                        {
+                            try
+                            {
+                                a.ConvertToArguments(args.Skip(a.CommandLength).ToArray());
+
+                                if (cmd == null || cmd.Order > a.Order)
+                                    cmd = a;
+                            }
+                            catch { }
+                        }
+
+                        return cmd;
+                    }
+            }
         }
 
         /// <summary>
@@ -107,102 +212,74 @@ namespace NeoSharp.Application.Client
         /// <returns>Return false if fail</returns>
         public bool Execute(string command)
         {
-            PromptCommandAttribute cmd = null;
+            command = command.Trim();
+            PromptCommandAttribute[] cmds = null;
 
             try
             {
                 // Parse arguments
 
-                var cmdArgs = new List<string>(command.SplitCommandLine());
-                if (cmdArgs.Count <= 0) return false;
+                var cmdArgs = new List<CommandToken>();
+                cmds = SearchCommands(command, cmdArgs).ToArray();
+                var cmd = SearchRightCommand(cmds, cmdArgs);
 
-                // Process command
-
-                if (!_commandCache.TryGetValue(cmdArgs.First().ToLowerInvariant(), out cmd))
+                if (cmd == null)
                 {
-                    throw (new Exception("Command not found"));
+                    if (cmds.Length > 0)
+                        throw (new Exception($"Wrong parameters for <{cmds.FirstOrDefault().Command}>"));
+
+                    throw (new Exception($"Command not found <{command}>"));
                 }
 
                 // Get command
 
-                cmd.Method.Invoke(this, cmd.ConvertToArguments(cmdArgs.Skip(1).ToArray()));
+                lock (_consoleReader) lock (_consoleWriter)
+                    {
+                        // Raise event
+
+                        OnCommandRequested?.Invoke(this, cmd, command);
+
+                        // Invoke
+
+                        cmd.Method.Invoke(this, cmd.ConvertToArguments(cmdArgs.Skip(cmd.CommandLength).ToArray()));
+                    }
+
                 return true;
             }
             catch (Exception e)
             {
-                _consoleWriter.WriteLine(e.Message, ConsoleOutputStyle.Error);
+                string msg = e.InnerException != null ? e.InnerException.Message : e.Message;
+                _consoleWriter.WriteLine(msg, ConsoleOutputStyle.Error);
 
-                // Print help
-
-                if (cmd != null && !string.IsNullOrEmpty(cmd.Help))
-                    _consoleWriter.WriteLine(cmd.Help, ConsoleOutputStyle.Information);
-
+                PrintHelp(cmds);
                 return false;
             }
         }
 
-        #region Commands
-
         /// <summary>
-        /// Load commands from file
+        /// Write object
         /// </summary>
-        /// <param name="file">File</param>
-        [PromptCommand("load", Help = "load <filename>\nPlay stored commands")]
-        // ReSharper disable once UnusedMember.Local
-        private void LoadCommand(FileInfo file)
+        /// <param name="obj">Object</param>
+        /// <param name="output">Output</param>
+        private void WriteObject(object obj, PromptOutputStyle output)
         {
-            if (!file.Exists)
+            switch (output)
             {
-                _consoleWriter.WriteLine("File not found", ConsoleOutputStyle.Error);
-                return;
+                case PromptOutputStyle.json:
+                    {
+                        _consoleWriter.WriteLine(JsonConvert.SerializeObject(obj, Formatting.Indented));
+                        break;
+                    }
+                case PromptOutputStyle.raw:
+                    {
+                        if (obj is byte[] data)
+                            _consoleWriter.WriteLine(data.ToHexString(true));
+                        else
+                            _consoleWriter.WriteLine(_serializer.Serialize(obj).ToHexString(true));
+
+                        break;
+                    }
             }
-
-            if (file.Length > 1024 * 1024)
-            {
-                _consoleWriter.WriteLine("The specified file is too large", ConsoleOutputStyle.Error);
-                return;
-            }
-
-            var lines = File.ReadAllLines(file.FullName, Encoding.UTF8);
-            _consoleReader.AppendInputs(lines);
-
-            // Print result
-
-            _consoleWriter.WriteLine($"Loaded inputs: {lines.Length}");
         }
-
-        [PromptCommand("start")]
-        // ReSharper disable once UnusedMember.Local
-        private void StartCommand()
-        {
-            _networkManager.StartNetwork();
-        }
-
-        [PromptCommand("exit", "quit")]
-        // ReSharper disable once UnusedMember.Local
-        private void ExitCommand()
-        {
-            StopCommand();
-            _exit = true;
-        }
-
-        [PromptCommand("stop")]
-        private void StopCommand()
-        {
-            _networkManager.StopNetwork();
-        }
-
-        [PromptCommand("help")]
-        // ReSharper disable once UnusedMember.Local
-        private void HelpCommand()
-        {
-            _consoleWriter.WriteLine("load");
-            _consoleWriter.WriteLine("start");
-            _consoleWriter.WriteLine("stop");
-            _consoleWriter.WriteLine("help");
-            _consoleWriter.WriteLine("exit");
-        }
-
-        #endregion
     }
 }

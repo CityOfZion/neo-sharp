@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.Network
 {
@@ -7,13 +8,17 @@ namespace NeoSharp.Core.Network
     {
         bool IsConnected { get; }
 
+        EndPoint EndPoint { get; }
+
+        VersionPayload Version { get; set; }
+
         bool IsReady { get; set; }
 
         void DowngradeProtocol(uint version);
 
-        Task Send<TMessage>() where TMessage : Message, new();
+        Task Send(Message message);
 
-        Task Send<TMessage>(TMessage message) where TMessage : Message;
+        Task Send<TMessage>() where TMessage : Message, new();
 
         Task<Message> Receive();
 

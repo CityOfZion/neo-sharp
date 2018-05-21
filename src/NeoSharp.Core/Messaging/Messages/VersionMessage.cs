@@ -13,21 +13,28 @@ namespace NeoSharp.Core.Messaging.Messages
 
     public class VersionPayload
     {
-        [BinaryProperty(1)]
+        [BinaryProperty(0)]
         public uint Version;
-        [BinaryProperty(2)]
+
+        [BinaryProperty(1)]
         public ulong Services;
-        [BinaryProperty(3)]
+
+        [BinaryProperty(2)]
         public uint Timestamp;
-        [BinaryProperty(4)]
+
+        [BinaryProperty(3)]
         public ushort Port;
-        [BinaryProperty(5)]
+
+        [BinaryProperty(4)]
         public uint Nonce;
-        [BinaryProperty(6, MaxLength = 255)]
+
+        [BinaryProperty(5, MaxLength = 255)]
         public string UserAgent;
+
+        [BinaryProperty(6)]
+        public uint CurrentBlockIndex;
+
         [BinaryProperty(7)]
-        public uint StartHeight;
-        [BinaryProperty(8)]
         public bool Relay;
     }
 }

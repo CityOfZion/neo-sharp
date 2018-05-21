@@ -1,68 +1,111 @@
-﻿using System.Collections.Generic;
+﻿using NeoSharp.Core.Models;
 
 namespace NeoSharp.Core.Persistence
 {
     public interface IRepository
     {
-        #region IEnumerable
-
+        #region Repository Configuration
         /// <summary>
-        /// Get Keys
+        /// Initializes the repository connection
         /// </summary>
-        /// <param name="entry">Entry</param>
-        /// <param name="startKey">Start Key</param>
-        IEnumerable<byte[]> GetKeys(DataEntryPrefix entry, byte[] startKey);
-        /// <summary>
-        /// Get Key values
-        /// </summary>
-        /// <param name="entry">Entry</param>
-        /// <param name="startKey">Start Key</param>
-        IEnumerable<KeyValuePair<byte[], byte[]>> GetKeyValues(DataEntryPrefix entry, byte[] startKey);
-
+        /// <param name="connection">Connection string</param>
+        /// <param name="database">Database specifier</param>
+        void Initialize(string connection, string database);
         #endregion
+
+
+        #region Blocks
+
+        /// <summary>
+        /// Adds a block header to the repository storage
+        /// </summary>
+        /// <param name="blockHeader"></param>
+        void AddBlockHeader(BlockHeader blockHeader);
+
+        /// <summary>
+        /// Retrieves a block header by identifier
+        /// </summary>
+        /// <param name="id">Block id / hash</param>
+        /// <returns>Block header with specified id</returns>
+        BlockHeader GetBlockHeaderById(byte[] id);
+
+        /// <summary>
+        /// Retrieves a block header by identifier
+        /// </summary>
+        /// <param name="id">Block id / hash</param>
+        /// <returns>Block header with specified id</returns>
+        BlockHeader GetBlockHeaderById(string id);
+
+        /// <summary>
+        /// Retrieves a block header by height / index
+        /// </summary>
+        /// <param name="height">The block height / index to retrieve</param>
+        /// <returns>Block header at specified height / index</returns>
+        BlockHeader GetBlockHeaderByHeight(int height);
+
+        /// <summary>
+        /// Retrieves a block header by timestamp
+        /// </summary>
+        /// <param name="timestamp">The block timestamp to retrieve the block at</param>
+        /// <returns>Block header at the specified timestamp</returns>
+        BlockHeader GetBlockHeaderByTimestamp(int timestamp);
+
+        /// <summary>
+        /// Retrieves the raw bytes for a block by identifier
+        /// </summary>
+        /// <param name="id">Block id / hash</param>
+        /// <returns>Raw bytes for the block</returns>
+        byte[] GetRawBlockBytes(string id);
+
+        /// <summary>
+        /// Retrieves the raw bytes for a block by identifier
+        /// </summary>
+        /// <param name="id">Block id / hash</param>
+        /// <returns>Raw bytes for the block</returns>
+        byte[] GetRawBlockBytes(byte[] id);
+
+        /// <summary>
+        /// Retrieves the total / current block height
+        /// </summary>
+        /// <returns>Total / current block height</returns>
+        long GetTotalBlockHeight();
+        #endregion
+
 
         #region Transactions
-        
         /// <summary>
-        /// Start transaction
+        /// Adds a transaction to the repository
         /// </summary>
-        void StartTransaction();
-        /// <summary>
-        /// Commit
-        /// </summary>
-        void Commit();
-        /// <summary>
-        /// Rollback
-        /// </summary>
-        void Rollback();
-
-        #endregion
-
-        #region Core Repository
+        /// <param name="transaction">Transaction to add</param>
+        void AddTransaction(Transaction transaction);
 
         /// <summary>
-        /// Get Value
+        /// Retrieves a transaction by identifier / hash
         /// </summary>
-        /// <param name="entry">Entry</param>
-        /// <param name="key">Key</param>
-        /// <param name="value">Value</param>
-        /// <returns>Return true if is finded</returns>
-        bool TryGetValue(DataEntryPrefix entry, byte[] key, out byte[] value);
-        /// <summary>
-        /// Remove Key
-        /// </summary>
-        /// <param name="entry">Entry</param>
-        /// <param name="key">Key</param>
-        /// <returns>Return true if is deleted</returns>
-        bool RemoveKey(DataEntryPrefix entry, byte[] key);
-        /// <summary>
-        /// Set Value
-        /// </summary>
-        /// <param name="entry">Entry</param>
-        /// <param name="key">Key</param>
-        /// <param name="value">Value</param>
-        void SetValue(DataEntryPrefix entry, byte[] key, byte[] value);
+        /// <param name="id">Identifier / hash of the transaction</param>
+        /// <returns>Transaction with the specified id / hash</returns>
+        Transaction GetTransaction(byte[] id);
 
+        /// <summary>
+        /// Retrieves a transaction by identifier / hash
+        /// </summary>
+        /// <param name="id">Identifier / hash of the transaction</param>
+        /// <returns>Transaction with the specified id / hash</returns>
+        Transaction GetTransaction(string id);
+
+        /// <summary>
+        /// Retrieves transactions for the specified block
+        /// </summary>
+        /// <param name="id">Identifier / hash of the block to retrieve transactions for</param>
+        /// <returns>Transactions for the specified block</returns>
+        Transaction[] GetTransactionsForBlock(byte[] id);
+
+        /// <summary>
+        /// Retrieves transactions for the specified block
+        /// </summary>
+        /// <param name="id">Identifier / hash of the block to retrieve transactions for</param>
+        /// <returns>Transactions for the specified block</returns>
+        Transaction[] GetTransactionsForBlock(string id);
         #endregion
     }
 }

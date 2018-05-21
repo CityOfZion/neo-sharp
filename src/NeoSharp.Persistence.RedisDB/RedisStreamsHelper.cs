@@ -1,16 +1,21 @@
 ﻿using StackExchange.Redis;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 
 namespace NeoSharp.Persistence.RedisDB
 {
+    /// <summary>
+    /// Wrapper to encapsulate all Redis Streams API implementation
+    /// </summary>
     public class RedisStreamsHelper
     {
-        private IDatabase _redisDb;
+        private readonly IDatabase _redisDb;
 
-        public RedisStreamsHelper(ConnectionMultiplexer redis)
+        public RedisStreamsHelper(IDatabase redisDb)
         {
-            _redisDb = redis.GetDatabase();
+            _redisDb = redisDb;
         }
 
         /// <summary>

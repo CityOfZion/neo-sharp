@@ -13,6 +13,6 @@ namespace NeoSharp.Core.Models
 
         [BinaryProperty(2)]
         [JsonProperty("verification")]
-        public string VerificationScript;
+        public byte[] VerificationScript;
     }
 }
