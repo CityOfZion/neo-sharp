@@ -4,16 +4,6 @@ namespace NeoSharp.Core.Persistence
 {
     public interface IRepository
     {
-        #region Repository Configuration
-        /// <summary>
-        /// Initializes the repository connection
-        /// </summary>
-        /// <param name="connection">Connection string</param>
-        /// <param name="database">Database specifier</param>
-        void Initialize(string connection, string database);
-        #endregion
-
-
         #region Blocks
 
         /// <summary>

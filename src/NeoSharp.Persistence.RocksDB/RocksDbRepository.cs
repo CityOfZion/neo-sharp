@@ -10,16 +10,21 @@ namespace NeoSharp.Persistence.RocksDB
 {
     public class RocksDbRepository : IRepository, IDisposable
     {
+        private RocksDb _rocksDb;
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
 
-        public RocksDbRepository(IBinarySerializer serializer, IBinaryDeserializer deserializer)
+        public RocksDbRepository(IRepositoryConfiguration config, IBinarySerializer serializer, IBinaryDeserializer deserializer)
         {
+            if(config == null)
+                throw new ArgumentNullException(nameof(config));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
-        }
 
-        private RocksDb _rocksDb;
+            //Initialize RocksDB (Connection String is the path to use)
+            var options = new DbOptions().SetCreateIfMissing(true);
+            _rocksDb = RocksDb.Open(options, config.ConnectionString);
+        }
 
         #region IRepository Members
         public void AddBlockHeader(BlockHeader blockHeader)
@@ -89,17 +94,6 @@ namespace NeoSharp.Persistence.RocksDB
         public Transaction[] GetTransactionsForBlock(string id)
         {
             throw new NotImplementedException();
-        }
-
-        public void Initialize(string connection, string database)
-        {
-            if (String.IsNullOrEmpty(connection))
-                throw new ArgumentNullException(nameof(connection), "No connection / path provided for RocksDB");
-
-            //Connection = path in rocksDB, but I don't like this - we need to rethink how we could
-            //Make this signature more generic for all of the varieties of repositories
-            var options = new DbOptions().SetCreateIfMissing(true);
-            _rocksDb = RocksDb.Open(options, connection);
         }
         #endregion
 
