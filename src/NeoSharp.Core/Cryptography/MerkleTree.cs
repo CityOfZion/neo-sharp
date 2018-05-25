@@ -130,7 +130,7 @@ namespace NeoSharp.Core.Cryptography
         /// <summary>
         /// Depth-first order
         /// </summary>
-        /// <returns>Hash </returns>
+        /// <returns>Hash</returns>
         public UInt256[] ToHashArray()
         {
             List<UInt256> hashes = new List<UInt256>();
@@ -169,6 +169,31 @@ namespace NeoSharp.Core.Cryptography
                     node.RightChild = null;
                 }
             }
+        }
+
+        /// <summary>
+        /// Search node by hash
+        /// </summary>
+        /// <param name="hash">Hash</param>
+        /// <param name="node">Start node</param>
+        /// <returns>Node</returns>
+        public MerkleTreeNode Search(UInt256 hash, MerkleTreeNode node = null)
+        {
+            if (node == null) node = Root;
+            if (node.Hash.Equals(hash)) return node;
+
+            if (node.LeftChild != null)
+            {
+                var a = Search(hash, node.LeftChild);
+                if (a != null) return a;
+            }
+            if (node.RightChild != null)
+            {
+                var a = Search(hash, node.RightChild);
+                if (a != null) return a;
+            }
+
+            return null;
         }
     }
 }
