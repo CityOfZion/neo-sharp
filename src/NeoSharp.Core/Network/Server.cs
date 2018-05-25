@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using NeoSharp.Core.Blockchain;
+﻿using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
@@ -17,7 +16,7 @@ namespace NeoSharp.Core.Network
     public class Server : IServer, IDisposable
     {
         private readonly INetworkACL _acl;
-        private readonly ILogger<Server> _logger;
+        private readonly Logging.ILoggerProvider<Server> _logger;
         private readonly IBlockchain _blockchain;
         private readonly IPeerFactory _peerFactory;
         private readonly IPeerListener _peerListener;
@@ -40,7 +39,7 @@ namespace NeoSharp.Core.Network
             IPeerFactory peerFactory,
             IPeerListener peerListener,
             IMessageHandler<Message> messageHandler,
-            ILogger<Server> logger,
+            Logging.ILoggerProvider<Server> logger,
             NetworkACLFactory aclFactory)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
@@ -170,7 +169,8 @@ namespace NeoSharp.Core.Network
                         }
                         else
                         {
-                            this._logger.LogWarning($"Something went wrong with {peerEndPoint}. Exception: {t.Exception}");
+                            var exceptionMessage = $"Something went wrong with {peerEndPoint}. Exception: {t.Exception}";
+                            this._logger.LogWarning(exceptionMessage);
                         }
                     });
             }
