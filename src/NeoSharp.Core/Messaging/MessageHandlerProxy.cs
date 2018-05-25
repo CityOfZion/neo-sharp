@@ -4,8 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using NeoSharp.Core.DI;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging

@@ -1,12 +1,12 @@
-﻿using NeoSharp.Core.Network.Tcp;
-using NeoSharp.Core.Types.Json;
-using System.IO;
+﻿using System.IO;
 using System.Net;
 using System.Text.RegularExpressions;
+using NeoSharp.Core.Network.Tcp;
+using NeoSharp.Core.Types.Json;
 
-namespace NeoSharp.Core.Network
+namespace NeoSharp.Core.Network.Security
 {
-    public class NetworkACL : INetworkACL
+    public class NetworkAcl : INetworkAcl
     {
         public class Entry
         {
@@ -35,7 +35,7 @@ namespace NeoSharp.Core.Network
             /// </summary>
             public override string ToString()
             {
-                return Value.ToString();
+                return Value;
             }
         }
 
@@ -68,9 +68,9 @@ namespace NeoSharp.Core.Network
         /// </summary>
         public Entry[] Entries { get; private set; }
         /// <summary>
-        /// ACL behaviour
+        /// Acl behaviour
         /// </summary>
-        public NetworkACLConfig.ACLType Type { get; private set; } = NetworkACLConfig.ACLType.None;
+        public NetworkAclConfig.AclType Type { get; private set; } = NetworkAclConfig.AclType.None;
 
         /// <summary>
         /// Allow or deny string Adresses based on rules
@@ -83,18 +83,18 @@ namespace NeoSharp.Core.Network
 
             switch (Type)
             {
-                case NetworkACLConfig.ACLType.Blacklist:
+                case NetworkAclConfig.AclType.Blacklist:
                     {
-                        foreach (Entry entry in Entries)
+                        foreach (var entry in Entries)
                         {
                             if (entry.Match(address))
                                 return false;
                         }
                         return true;
                     }
-                case NetworkACLConfig.ACLType.Whitelist:
+                case NetworkAclConfig.AclType.Whitelist:
                     {
-                        foreach (Entry entry in Entries)
+                        foreach (var entry in Entries)
                         {
                             if (entry.Match(address))
                                 return true;
@@ -133,10 +133,10 @@ namespace NeoSharp.Core.Network
             }
         }
         /// <summary>
-        /// Initiate the ACL
+        /// Initiate the Acl
         /// </summary>
         /// <param name="cfg">Config</param>
-        public void Load(NetworkACLConfig cfg)
+        public void Load(NetworkAclConfig cfg)
         {
             if (cfg == null) return;
 
@@ -144,8 +144,8 @@ namespace NeoSharp.Core.Network
 
             if (!string.IsNullOrEmpty(cfg.Path) && File.Exists(cfg.Path))
             {
-                string json = File.ReadAllText(cfg.Path);
-                JObject jo = JObject.Parse(json);
+                var json = File.ReadAllText(cfg.Path);
+                var jo = JObject.Parse(json);
 
                 if (!(jo is JArray array)) return;
 
@@ -153,10 +153,10 @@ namespace NeoSharp.Core.Network
 
                 for (int x = 0, m = array.Count; x < m; x++)
                 {
-                    JObject j = array[x];
+                    var j = array[x];
                     if (!j.ContainsProperty("value")) continue;
 
-                    string value = j.Properties["value"].AsString();
+                    var value = j.Properties["value"].AsString();
 
                     if (j.ContainsProperty("regex") &&  j.Properties["regex"].AsBooleanOrDefault(false))
                         Entries[x] = new RegexEntry(value);

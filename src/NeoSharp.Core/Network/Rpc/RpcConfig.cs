@@ -1,12 +1,13 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System.IO;
 using System.Net;
+using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network.Rpc
 {
     public class RpcConfig
     {
-        public class SSLCert
+        public class SslCert
         {
             /// <summary>
             /// Path
@@ -27,14 +28,16 @@ namespace NeoSharp.Core.Network.Rpc
         /// Listen end point
         /// </summary>
         public IPEndPoint ListenEndPoint { get; internal set; }
+        
         /// <summary>
         /// SSL config
         /// </summary>
-        public SSLCert SSL { get; internal set; }
+        public SslCert Ssl { get; internal set; }
+        
         /// <summary>
-        /// ACL Config
+        /// Acl Config
         /// </summary>
-        public NetworkACLConfig ACL { get; internal set; }
+        public NetworkAclConfig Acl { get; internal set; }
 
         /// <summary>
         /// Constructor

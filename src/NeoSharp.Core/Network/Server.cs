@@ -10,13 +10,15 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.ExtensionMethods;
+using NeoSharp.Core.Logging;
+using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {
     public class Server : IServer, IDisposable
     {
-        private readonly INetworkACL _acl;
-        private readonly Logging.ILoggerProvider<Server> _logger;
+        private readonly INetworkAcl _acl;
+        private readonly ILogger<Server> _logger;
         private readonly IBlockchain _blockchain;
         private readonly IPeerFactory _peerFactory;
         private readonly IPeerListener _peerListener;
@@ -39,39 +41,39 @@ namespace NeoSharp.Core.Network
             IPeerFactory peerFactory,
             IPeerListener peerListener,
             IMessageHandler<Message> messageHandler,
-            Logging.ILoggerProvider<Server> logger,
-            NetworkACLFactory aclFactory)
+            ILogger<Server> logger,
+            NetworkAclFactory aclFactory)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
-            this._blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
-            this._peerFactory = peerFactory ?? throw new ArgumentNullException(nameof(peerFactory));
-            this._peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
-            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
+            _peerFactory = peerFactory ?? throw new ArgumentNullException(nameof(peerFactory));
+            _peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             if (aclFactory == null) throw new ArgumentNullException(nameof(aclFactory));
 
-            this._messageHandler = messageHandler;
-            this._acl = aclFactory.CreateNew();
-            this._acl?.Load(config?.ACL);
+            _messageHandler = messageHandler;
+            _acl = aclFactory.CreateNew();
+            _acl?.Load(config.Acl);
 
-            this._peerListener.OnPeerConnected += PeerConnected;
+            _peerListener.OnPeerConnected += PeerConnected;
 
-            this._connectedPeers = new ConcurrentBag<IPeer>();
-            this._failedPeers = new List<IPEndPoint>();
+            _connectedPeers = new ConcurrentBag<IPeer>();
+            _failedPeers = new List<IPEndPoint>();
 
             // TODO: Change after port forwarding implementation
-            this._port = config.Port;
+            _port = config.Port;
 
             ProtocolVersion = 2;
 
             var r = new Random(Environment.TickCount);
             Nonce = (uint) r.Next();
 
-            this._peerEndPoints = config.PeerEndPoints;
+            _peerEndPoints = config.PeerEndPoints;
 
-            this._userAgent = $"/NEO:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/";
+            _userAgent = $"/NEO:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/";
         }
 
-        public IReadOnlyCollection<IPeer> ConnectedPeers => this._connectedPeers;
+        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers;
 
         public uint ProtocolVersion { get; }
 
@@ -81,29 +83,29 @@ namespace NeoSharp.Core.Network
         {
             Stop();
 
-            this._messageListenerTokenSource = new CancellationTokenSource(1000);
+            _messageListenerTokenSource = new CancellationTokenSource(1000);
 
             // connect to peers
-            this.ConnectToPeers();
+            ConnectToPeers();
 
             // listen for peers
-            this._peerListener.Start();
+            _peerListener.Start();
         }
 
         public void Stop()
         {
-            this._peerListener.Stop();
+            _peerListener.Stop();
 
             // send disconnect to all current Peers
-            this.DisconnectPeers();
+            DisconnectPeers();
 
-            this._messageListenerTokenSource?.Cancel();
+            _messageListenerTokenSource?.Cancel();
         }
 
         public void Dispose()
         {
-            this.Stop();
-            this._peerListener.OnPeerConnected -= PeerConnected;
+            Stop();
+            _peerListener.OnPeerConnected -= PeerConnected;
         }
 
         private VersionMessage VersionMessage
@@ -119,10 +121,10 @@ namespace NeoSharp.Core.Network
                         // TODO: What's it?
                         // Services = NetworkAddressWithTime.NODE_NETWORK;
                         Timestamp = DateTime.UtcNow.ToTimestamp(),
-                        Port = this._port,
+                        Port = _port,
                         Nonce = Nonce,
                         UserAgent = _userAgent,
-                        CurrentBlockIndex = this._blockchain.CurrentBlock.Index,
+                        CurrentBlockIndex = _blockchain.CurrentBlock.Index,
                         Relay = true
                     }
                 };
@@ -135,21 +137,22 @@ namespace NeoSharp.Core.Network
         {
             try
             {
+                // TODO: no need to connect even to such peers
                 if (_acl != null && !_acl.IsAllowed(peer))
                 {
                     throw new UnauthorizedAccessException();
                 }
 
-                this._connectedPeers.Add(peer);
+                _connectedPeers.Add(peer);
 
-                this.ListenForMessages(peer, this._messageListenerTokenSource.Token);
+                ListenForMessages(peer, _messageListenerTokenSource.Token);
 
                 // initiate handshake
-                peer.Send(this.VersionMessage);
+                peer.Send(VersionMessage);
             }
             catch (Exception e)
             {
-                this._logger.LogWarning($"Something went wrong with {peer}. Exception: {e}");
+                _logger.LogWarning($"Something went wrong with {peer}. Exception: {e}");
                 peer.Disconnect();
             }
         }
@@ -157,23 +160,19 @@ namespace NeoSharp.Core.Network
         private void ConnectToPeers()
         {
             // TODO: check if localhot:port in seeding list
-            foreach (var peerEndPoint in _peerEndPoints)
+            Parallel.ForEach(_peerEndPoints, async peerEndPoint =>
             {
-                this._peerFactory
-                    .ConnectTo(peerEndPoint)
-                    .ContinueWith(t =>
-                    {
-                        if (t.IsCompletedSuccessfully)
-                        {
-                            this.PeerConnected(this, t.Result);
-                        }
-                        else
-                        {
-                            var exceptionMessage = $"Something went wrong with {peerEndPoint}. Exception: {t.Exception}";
-                            this._logger.LogWarning(exceptionMessage);
-                        }
-                    });
-            }
+                try
+                {
+                    var peer = await _peerFactory.ConnectTo(peerEndPoint);
+
+                    PeerConnected(this, peer);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"Something went wrong with {peerEndPoint}. Exception: {ex}");
+                }
+            });
         }
 
         private void DisconnectPeers()
@@ -183,7 +182,7 @@ namespace NeoSharp.Core.Network
                 peer.Disconnect();
             }
 
-            this._connectedPeers.Clear();
+            _connectedPeers.Clear();
         }
 
         private void ListenForMessages(IPeer peer, CancellationToken cancellationToken)
@@ -196,7 +195,7 @@ namespace NeoSharp.Core.Network
 
                     if (!peer.IsReady && message.IsNotHandshakeMessage()) continue;
 
-                    await this._messageHandler.Handle(message, peer);
+                    await _messageHandler.Handle(message, peer);
 
                     await Task.Delay(1000, cancellationToken);
                 }

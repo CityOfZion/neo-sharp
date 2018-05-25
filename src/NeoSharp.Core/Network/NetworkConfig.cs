@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
+using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {
@@ -21,9 +22,9 @@ namespace NeoSharp.Core.Network
         /// </summary>
         public EndPoint[] PeerEndPoints { get; internal set; }
         /// <summary>
-        /// ACL Config
+        /// Acl Config
         /// </summary>
-        public NetworkACLConfig ACL { get; internal set; }
+        public NetworkAclConfig Acl { get; internal set; }
 
         /// <summary>
         /// Constructor

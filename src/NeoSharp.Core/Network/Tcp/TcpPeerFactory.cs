@@ -1,9 +1,9 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network.Protocols;
 
 namespace NeoSharp.Core.Network.Tcp

@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
@@ -53,8 +53,6 @@ namespace NeoSharp.Core.Test.Network
             // Arrange 
             const string peerEndPoint = "tcp://localhost:8081";
             var connectionException = new Exception("The network error");
-            var expectedAggregatedException = new AggregateException(connectionException);
-            var expectedConnectionWarningMessage = $"Something went wrong with {peerEndPoint}. Exception: {expectedAggregatedException}";
 
             AutoMockContainer.Register(GetNetworkConfig(peerEndPoint));
 
@@ -63,8 +61,7 @@ namespace NeoSharp.Core.Test.Network
                 .Setup(x => x.ConnectTo(It.IsAny<EndPoint>()))
                 .Returns(Task.FromException<IPeer>(connectionException));
 
-            var loggerMock = AutoMockContainer.GetMock<Logging.ILoggerProvider<Server>>();
-
+            var loggerMock = AutoMockContainer.GetMock<ILogger<Server>>();
             var peerListenerMock = AutoMockContainer.GetMock<IPeerListener>();
 
             // Act
@@ -73,7 +70,7 @@ namespace NeoSharp.Core.Test.Network
 
             // Asset
             peerFactoryMock.Verify(x => x.ConnectTo(It.IsAny<EndPoint>()), Times.Once);
-            loggerMock.Verify(x => x.LogWarning(expectedConnectionWarningMessage));
+            loggerMock.Verify(x => x.LogWarning(It.IsAny<string>()), Times.Once);
 
             peerListenerMock.Verify(x => x.Start(), Times.Once);
         }
@@ -84,9 +81,9 @@ namespace NeoSharp.Core.Test.Network
             // Arrange 
             var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
 
-            this.AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
+            AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
-            var blockchainMock = this.AutoMockContainer.GetMock<IBlockchain>();
+            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
             blockchainMock
                 .SetupGet(x => x.CurrentBlock)
                 .Returns(new Block());
@@ -123,9 +120,9 @@ namespace NeoSharp.Core.Test.Network
             // Arrange 
             var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
 
-            this.AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
+            AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
-            var blockchainMock = this.AutoMockContainer.GetMock<IBlockchain>();
+            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
             blockchainMock
                 .SetupGet(x => x.CurrentBlock)
                 .Returns(new Block());

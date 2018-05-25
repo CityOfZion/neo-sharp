@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using NeoSharp.Core.Blockchain;
 using Newtonsoft.Json.Linq;
 using System;
@@ -13,6 +12,8 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NeoSharp.Core.Logging;
+using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network.Rpc
 {
@@ -23,7 +24,7 @@ namespace NeoSharp.Core.Network.Rpc
         private const int MaxPostValue = 1024 * 1024 * 2;
 
         private IWebHost _host;
-        private readonly INetworkACL _acl;
+        private readonly INetworkAcl _acl;
         private readonly RpcConfig _config;
         private readonly IBlockchain _blockchain;
         private readonly ILogger<RpcServer> _logger;
@@ -37,11 +38,12 @@ namespace NeoSharp.Core.Network.Rpc
         /// <param name="config">Config</param>
         /// <param name="blockchain">Blockchain</param>
         /// <param name="logger">Logger</param>
-        /// <param name="aclFactory">ACL</param>
+        /// <param name="aclFactory">Acl</param>
         public RpcServer(
             RpcConfig config,
-            IBlockchain blockchain, ILogger<RpcServer> logger,
-            NetworkACLFactory aclFactory)
+            IBlockchain blockchain,
+            ILogger<RpcServer> logger,
+            NetworkAclFactory aclFactory)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
@@ -49,7 +51,7 @@ namespace NeoSharp.Core.Network.Rpc
             if (aclFactory == null) throw new ArgumentNullException(nameof(aclFactory));
 
             _acl = aclFactory.CreateNew();
-            _acl?.Load(config?.ACL);
+            _acl?.Load(config?.Acl);
             _callbacks = new List<IRpcProcessRequest>();
         }
 
@@ -196,8 +198,8 @@ namespace NeoSharp.Core.Network.Rpc
             {
                 // Config SSL
 
-                if (_config.SSL != null && _config.SSL.IsValid)
-                    listenOptions.UseHttps(_config.SSL.Path, _config.SSL.Password);
+                if (_config.Ssl != null && _config.Ssl.IsValid)
+                    listenOptions.UseHttps(_config.Ssl.Path, _config.Ssl.Password);
             }))
             .Configure(app =>
             {

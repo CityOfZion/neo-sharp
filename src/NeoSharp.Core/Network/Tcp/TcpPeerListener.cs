@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+using NeoSharp.Core.Logging;
 
 namespace NeoSharp.Core.Network.Tcp
 {

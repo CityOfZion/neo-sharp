@@ -1,23 +1,16 @@
 ﻿using System;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Internal;
 
 namespace NeoSharp.Core.Logging
 {
-    /// <summary>
-    ///  This Adapter class allows us to use Simple Injector with Microsoft.Extensions.Logging and ILogger{T}
-    /// </summary>
-    public class LoggerAdapter<T> : ILogger<T>
+    public class LoggerAdapter<TCategory> : ILogger<TCategory>
     {
         private readonly ILogger _logger;
 
         public LoggerAdapter(ILoggerFactory factory)
         {
-            _logger = factory.CreateLogger<T>();
-        }
-
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return _logger.BeginScope(state);
+            _logger = factory.CreateLogger<TCategory>();
         }
 
         public bool IsEnabled(LogLevel logLevel)
@@ -25,9 +18,115 @@ namespace NeoSharp.Core.Logging
             return _logger.IsEnabled(logLevel);
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        //------------------------------------------DEBUG------------------------------------------//
+
+        /// <inheritdoc />
+        public void LogDebug(Exception exception, string message, params object[] args)
         {
-            _logger.Log(logLevel, eventId, state, exception, formatter);
+            Log(LogLevel.Debug, exception, message, args);
+        }
+
+        /// <inheritdoc />
+        public void LogDebug(string message, params object[] args)
+        {
+            Log(LogLevel.Debug, message, args);
+        }
+
+        //------------------------------------------TRACE------------------------------------------//
+
+        /// <inheritdoc />
+        public void LogTrace(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Trace, exception, message, args);
+        }
+
+        /// <inheritdoc />
+        public void LogTrace(string message, params object[] args)
+        {
+            Log(LogLevel.Trace, message, args);
+        }
+
+        //------------------------------------------INFORMATION------------------------------------------//
+
+        /// <inheritdoc />
+        public void LogInformation(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Information, exception, message, args);
+        }
+
+        /// <inheritdoc />
+        public void LogInformation(string message, params object[] args)
+        {
+            Log(LogLevel.Information, message, args);
+        }
+
+        //------------------------------------------WARNING------------------------------------------//
+
+        /// <inheritdoc />
+        public void LogWarning(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Warning, exception, message, args);
+        }
+
+        /// <inheritdoc />
+        public void LogWarning(string message, params object[] args)
+        {
+            Log(LogLevel.Warning, message, args);
+        }
+
+        //------------------------------------------ERROR------------------------------------------//
+
+        /// <inheritdoc />
+        public void LogError(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Error, exception, message, args);
+        }
+
+        /// <inheritdoc />
+        public void LogError(string message, params object[] args)
+        {
+            Log(LogLevel.Error, message, args);
+        }
+
+        //------------------------------------------CRITICAL------------------------------------------//
+
+        /// <inheritdoc />
+        public void LogCritical(Exception exception, string message, params object[] args)
+        {
+            Log(LogLevel.Critical, exception, message, args);
+        }
+
+        /// <inheritdoc />
+        public void LogCritical(string message, params object[] args)
+        {
+            Log(LogLevel.Critical, message, args);
+        }
+
+        /// <inheritdoc />
+        public void Log(LogLevel logLevel, string message, params object[] args)
+        {
+            Log(logLevel, null, message, args);
+        }
+
+        /// <inheritdoc />
+        public void Log(LogLevel logLevel, Exception exception, string message, params object[] args)
+        {
+            _logger.Log(logLevel, 0, new FormattedLogValues(message, args), exception, MessageFormatter);
+        }
+
+        //------------------------------------------Scope------------------------------------------//
+
+        /// <inheritdoc />
+        public IDisposable BeginScope(string messageFormat, params object[] args)
+        {
+            return _logger.BeginScope(new FormattedLogValues(messageFormat, args));
+        }
+
+        //------------------------------------------HELPERS------------------------------------------//
+
+        private static string MessageFormatter(object state, Exception error)
+        {
+            return state.ToString();
         }
     }
 }

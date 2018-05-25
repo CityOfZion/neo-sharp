@@ -1,8 +1,8 @@
-using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Types;

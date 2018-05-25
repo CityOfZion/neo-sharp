@@ -1,6 +1,5 @@
 ﻿using System;
 using BenchmarkDotNet.Attributes;
-using Microsoft.Extensions.Logging;
 using Moq;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
@@ -25,9 +24,9 @@ namespace NeoSharp.Core.Benchmark
             _uub = () => container.Resolve<IPeer>();
         }
 
-        private static ILoggerFactory ConfigureLogger()
+        private static Microsoft.Extensions.Logging.ILoggerFactory ConfigureLogger()
         {
-            var mockLoggerFactory = new Mock<ILoggerFactory>();
+            var mockLoggerFactory = new Mock<Microsoft.Extensions.Logging.ILoggerFactory>();
             return mockLoggerFactory.Object;
         }
 

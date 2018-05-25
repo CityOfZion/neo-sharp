@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Application.DI;
 using NeoSharp.Core.DI;
@@ -23,7 +22,7 @@ namespace NeoSharp.Application.Test
             module.Register(containerBuilderMock.Object);
 
             // Assert
-            containerBuilderMock.Verify(x => x.RegisterSingleton<ILoggerFactory, NLogLoggerFactory>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<Microsoft.Extensions.Logging.ILoggerFactory, NLogLoggerFactory>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton(typeof(ILogger<>), typeof(LoggerAdapter<>)), Times.Once);
         }
     }

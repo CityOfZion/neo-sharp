@@ -1,13 +1,13 @@
-using Microsoft.Extensions.Logging;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network.Protocols;
 using System;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Messaging.Messages;
-using System.Net;
 
 namespace NeoSharp.Core.Network.Tcp
 {

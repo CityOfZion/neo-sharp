@@ -4,6 +4,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using NeoSharp.Core.Network.Rpc;
+using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {
@@ -20,19 +21,19 @@ namespace NeoSharp.Core.Network
             networkConfig.Port = ParseUInt16(config, "port");
             networkConfig.ForceIPv6 = ParseBool(config, "forceIPv6");
             networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
-            networkConfig.ACL = ParseACL(config, "ACL");
+            networkConfig.Acl = ParseAcl(config, "acl");
         }
 
         public static void Bind(this IConfiguration config, RpcConfig rpcConfig)
         {
             rpcConfig.ListenEndPoint = ParseIpEndPoint(config, "listenEndPoint");
 
-            rpcConfig.SSL = new RpcConfig.SSLCert();
+            rpcConfig.Ssl = new RpcConfig.SslCert();
 
-            var v = config?.GetSection("SSL");
-            rpcConfig.SSL.Path = ParseString(v, "path");
-            rpcConfig.SSL.Password = ParseString(v, "password");
-            rpcConfig.ACL = ParseACL(config, "ACL");
+            var sslSection = config?.GetSection("ssl");
+            rpcConfig.Ssl.Path = ParseString(sslSection, "path");
+            rpcConfig.Ssl.Password = ParseString(sslSection, "password");
+            rpcConfig.Acl = ParseAcl(config, "acl");
         }
 
         private static uint ParseUInt32(IConfiguration config, string section, uint defaultValue = 0)
@@ -53,6 +54,24 @@ namespace NeoSharp.Core.Network
             return value ?? defaultValue;
         }
 
+        private static string ParseString(IConfiguration config, string section)
+        {
+            return config.GetSection(section)?.Get<string>();
+        }
+
+        private static TEnum ParseEnum<TEnum>(IConfiguration config, string section, TEnum defaultValue = default(TEnum)) where TEnum : struct
+        {
+            var str = ParseString(config, section);
+
+            if (string.IsNullOrEmpty(str))
+                return defaultValue;
+
+            if (Enum.TryParse(str, out TEnum res))
+                return res;
+
+            return defaultValue;
+        }
+
         private static EndPoint[] ParsePeerEndPoints(IConfiguration config)
         {
             var peerEndPoints = config.GetSection("peerEndPoints")?.Get<string[]>();
@@ -68,24 +87,6 @@ namespace NeoSharp.Core.Network
                     MatchGroupValue(m.Groups["host"]),
                     MatchGroupValue(m.Groups["port"])))
                 .ToArray();
-        }
-
-        private static string ParseString(IConfiguration config, string section)
-        {
-            return config.GetSection(section)?.Get<string>();
-        }
-
-        private static TEnum ParseEnum<TEnum>(IConfiguration config, string section, TEnum def) where TEnum : struct
-        {
-            var ret = ParseString(config, section);
-
-            if (string.IsNullOrEmpty(ret))
-                return def;
-
-            if (Enum.TryParse(ret, out TEnum res))
-                return res;
-
-            return def;
         }
 
         private static IPEndPoint ParseIpEndPoint(IConfiguration config, string section)
@@ -113,13 +114,14 @@ namespace NeoSharp.Core.Network
             };
         }
 
-        private static NetworkACLConfig ParseACL(IConfiguration config, string section)
+        private static NetworkAclConfig ParseAcl(IConfiguration config, string section)
         {
-            var acl = new NetworkACLConfig();
+            var acl = new NetworkAclConfig();
 
-            var v = config?.GetSection(section);
-            acl.Path = ParseString(v, "path");
-            acl.Type = ParseEnum(v, "type", NetworkACLConfig.ACLType.None);
+            var aclSection = config?.GetSection(section);
+
+            acl.Path = ParseString(aclSection, "path");
+            acl.Type = ParseEnum(aclSection, "type", NetworkAclConfig.AclType.None);
 
             return acl;
         }

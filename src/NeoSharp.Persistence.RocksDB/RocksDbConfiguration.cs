@@ -1,7 +1,5 @@
 ﻿using NeoSharp.Core.Persistence;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NeoSharp.Persistence.RocksDB
 {

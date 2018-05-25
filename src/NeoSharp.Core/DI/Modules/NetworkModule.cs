@@ -1,12 +1,13 @@
-﻿using Microsoft.Extensions.Logging;
-using NeoSharp.Core.Extensions;
+﻿using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Protocols;
 using NeoSharp.Core.Network.Tcp;
 using System.Linq;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network.Rpc;
+using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.DI.Modules
 {
@@ -14,7 +15,7 @@ namespace NeoSharp.Core.DI.Modules
     {
         public void Register(IContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterSingleton<NetworkACLFactory>();
+            containerBuilder.RegisterSingleton<NetworkAclFactory>();
             containerBuilder.RegisterSingleton<NetworkConfig>();
             containerBuilder.RegisterSingleton<RpcConfig>();
             containerBuilder.RegisterSingleton<ProtocolSelector>();

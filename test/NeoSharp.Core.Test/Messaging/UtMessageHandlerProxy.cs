@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Core.DI;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
