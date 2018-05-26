@@ -55,6 +55,7 @@ namespace NeoSharp.Core.Test.Network
             // Arrange 
             const string peerEndPoint = "tcp://localhost:8081";
             var connectionException = new Exception("The network error");
+            var expectedLoggedWarningMessage = $"Something went wrong with {peerEndPoint}. Exception: {connectionException}";
 
             AutoMockContainer.Register(GetNetworkConfig(peerEndPoint));
 
@@ -72,7 +73,7 @@ namespace NeoSharp.Core.Test.Network
 
             // Asset
             peerFactoryMock.Verify(x => x.ConnectTo(It.IsAny<EndPoint>()), Times.Once);
-            loggerMock.Verify(x => x.LogWarning(It.IsAny<string>()), Times.Once);
+            loggerMock.Verify(x => x.LogWarning(It.Is<string>(msg => msg.Contains(expectedLoggedWarningMessage))), Times.Once);
 
             peerListenerMock.Verify(x => x.Start(), Times.Once);
         }
