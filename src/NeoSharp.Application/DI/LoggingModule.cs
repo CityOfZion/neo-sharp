@@ -10,6 +10,8 @@ namespace NeoSharp.Application.DI
         {
             containerBuilder.RegisterSingleton<Microsoft.Extensions.Logging.ILoggerFactory, NLogLoggerFactory>();
             containerBuilder.RegisterSingleton(typeof(ILogger<>), typeof(LoggerAdapter<>));
+
+            containerBuilder.RegisterSingleton(typeof(ILoggerProvider<>), typeof(LoggerProvider<>));
         }
     }
 }

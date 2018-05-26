@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.ExtensionMethods;
+using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network.Security;
 
@@ -19,6 +20,7 @@ namespace NeoSharp.Core.Network
     {
         private readonly INetworkAcl _acl;
         private readonly ILogger<Server> _logger;
+        private readonly IAsyncDelayer _asyncDelayer;
         private readonly IBlockchain _blockchain;
         private readonly IPeerFactory _peerFactory;
         private readonly IPeerListener _peerListener;
@@ -42,6 +44,7 @@ namespace NeoSharp.Core.Network
             IPeerListener peerListener,
             IMessageHandler<Message> messageHandler,
             ILogger<Server> logger,
+            IAsyncDelayer asyncDelayer,
             NetworkAclFactory aclFactory)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
@@ -49,6 +52,7 @@ namespace NeoSharp.Core.Network
             _peerFactory = peerFactory ?? throw new ArgumentNullException(nameof(peerFactory));
             _peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
             if (aclFactory == null) throw new ArgumentNullException(nameof(aclFactory));
 
             _messageHandler = messageHandler;
@@ -197,7 +201,7 @@ namespace NeoSharp.Core.Network
 
                     await _messageHandler.Handle(message, peer);
 
-                    await Task.Delay(1000, cancellationToken);
+                    await _asyncDelayer.Delay(TimeSpan.FromSeconds(1), cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }

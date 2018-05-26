@@ -8,6 +8,7 @@ namespace NeoSharp.Core.DI
         {
             containerBuilder.RegisterModule<BlockchainModule>();
             containerBuilder.RegisterModule<NetworkModule>();
+            containerBuilder.RegisterModule<HelpersModule>();
         }
     }
 }
