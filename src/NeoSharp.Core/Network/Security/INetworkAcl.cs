@@ -1,9 +1,8 @@
-﻿using NeoSharp.Core.Network.Tcp;
-using System.Net;
+﻿using System.Net;
 
-namespace NeoSharp.Core.Network
+namespace NeoSharp.Core.Network.Security
 {
-    public interface INetworkACL
+    public interface INetworkAcl
     {
         /// <summary>
         /// Allow or deny IP Adresses based on rules
@@ -24,9 +23,9 @@ namespace NeoSharp.Core.Network
         /// <returns>True if pass</returns>
         bool IsAllowed(IPeer peer);
         /// <summary>
-        /// Initiate the ACL
+        /// Initiate the Acl
         /// </summary>
         /// <param name="cfg">Config</param>
-        void Load(NetworkACLConfig cfg);
+        void Load(NetworkAclConfig cfg);
     }
 }

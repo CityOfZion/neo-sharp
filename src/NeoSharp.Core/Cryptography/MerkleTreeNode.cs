@@ -1,4 +1,5 @@
 ﻿using NeoSharp.Core.Types;
+using System.Collections.Generic;
 
 namespace NeoSharp.Core.Cryptography
 {
@@ -32,9 +33,7 @@ namespace NeoSharp.Core.Cryptography
         /// <summary>
         /// Constructor
         /// </summary>
-        public MerkleTreeNode()
-        {
-        }
+        public MerkleTreeNode() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -42,6 +41,41 @@ namespace NeoSharp.Core.Cryptography
         public MerkleTreeNode(UInt256 hash)
         {
             Hash = hash;
+        }
+
+        /// <summary>
+        /// Get leafs form node
+        /// </summary>
+        /// <param name="node">Node to start</param>
+        /// <returns>Enumerate leafs</returns>
+        private static IEnumerable<MerkleTreeNode> GetLeafs(MerkleTreeNode node)
+        {
+            if (node == null) yield break;
+            if (node.IsLeaf) yield return node;
+
+            if (node.LeftChild != null)
+            {
+                foreach (var a in GetLeafs(node.LeftChild))
+                {
+                    yield return a;
+                }
+            }
+            if (node.RightChild != null)
+            {
+                foreach (var a in GetLeafs(node.RightChild))
+                {
+                    yield return a;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Get leafs from current node
+        /// </summary>
+        /// <returns>Enumerate leafs</returns>
+        public IEnumerable<MerkleTreeNode> GetLeafs()
+        {
+            return GetLeafs(this);
         }
     }
 }

@@ -8,6 +8,7 @@ namespace NeoSharp.Application.DI
     {
         public void Register(IContainerBuilder containerBuilder)
         {
+            containerBuilder.RegisterSingleton<IRepositoryConfiguration, RocksDbConfiguration>();
             containerBuilder.RegisterSingleton<IRepository, RocksDbRepository>();
         }
     }

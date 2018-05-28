@@ -1,14 +1,14 @@
-﻿namespace NeoSharp.Core.Network
+﻿namespace NeoSharp.Core.Network.Security
 {
-    public class NetworkACLConfig
+    public class NetworkAclConfig
     {
         /// <summary>
-        /// ACL Types
+        /// Acl Types
         /// </summary>
-        public enum ACLType
+        public enum AclType
         {
             /// <summary>
-            /// None ACL
+            /// None Acl
             /// </summary>
             None,
             /// <summary>
@@ -22,9 +22,9 @@
         };
 
         /// <summary>
-        /// ACL behaviour
+        /// Acl behaviour
         /// </summary>
-        public ACLType Type { get; set; } = ACLType.None;
+        public AclType Type { get; set; } = AclType.None;
         /// <summary>
         /// Path of rules file
         /// </summary>

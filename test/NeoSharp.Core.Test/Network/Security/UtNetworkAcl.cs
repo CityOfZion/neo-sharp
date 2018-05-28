@@ -1,27 +1,27 @@
-﻿using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeoSharp.Core.Network;
-using NeoSharp.TestHelpers;
-using System;
+﻿using System;
 using System.IO;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NeoSharp.Core.Network.Security;
+using NeoSharp.TestHelpers;
 
-namespace NeoSharp.Core.Test.Network
+namespace NeoSharp.Core.Test.Network.Security
 {
     [TestClass]
-    public class UtNetworkACL : TestBase
+    public class UtNetworkAcl : TestBase
     {
         [TestMethod]
         public void IsAllowed_Whitelist()
         {
             // Arrange
-            var aclFactory = AutoMockContainer.Create<NetworkACLFactory>();
+            var aclFactory = AutoMockContainer.Create<NetworkAclFactory>();
             var acl = aclFactory.CreateNew();
-            NetworkACLConfig cfg = new NetworkACLConfig();
-            string tmpRules = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".json");
+            var cfg = new NetworkAclConfig();
+            var tmpRules = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
 
             File.WriteAllText(tmpRules, @"[{'value':'192\\.168\\.6\\..*','regex':true},{'value':'192.168.5.1','regex':false}]");
             cfg.Path = tmpRules;
-            cfg.Type = NetworkACLConfig.ACLType.Whitelist;
+            cfg.Type = NetworkAclConfig.AclType.Whitelist;
 
             // Act
             acl?.Load(cfg);
@@ -40,14 +40,14 @@ namespace NeoSharp.Core.Test.Network
         public void IsAllowed_Blacklist()
         {
             // Arrange
-            var aclFactory = AutoMockContainer.Create<NetworkACLFactory>();
+            var aclFactory = AutoMockContainer.Create<NetworkAclFactory>();
             var acl = aclFactory.CreateNew();
-            NetworkACLConfig cfg = new NetworkACLConfig();
-            string tmpRules = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".json");
+            var cfg = new NetworkAclConfig();
+            var tmpRules = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
 
             File.WriteAllText(tmpRules, @"[{'value':'192\\.168\\.8\\..*','regex':true},{'value':'192.168.7.1','regex':false}]");
             cfg.Path = tmpRules;
-            cfg.Type = NetworkACLConfig.ACLType.Blacklist;
+            cfg.Type = NetworkAclConfig.AclType.Blacklist;
 
             // Act
             acl?.Load(cfg);

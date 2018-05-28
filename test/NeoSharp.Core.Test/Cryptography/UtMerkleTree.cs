@@ -4,17 +4,14 @@ using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
 using System;
+using System.Linq;
 
 namespace NeoSharp.Core.Test.Cryptography
 {
     [TestClass]
     public class UtMerkleTree : TestBase
     {
-        [TestMethod]
-        public void MerkleTree_Test()
-        {
-            // Arrange
-            UInt256[] hashes = new UInt256[]
+        UInt256[] _hashes = new UInt256[]
             {
                 new UInt256("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7".HexToBytes()),
                 new UInt256("0d40e64e3455677c1521870d6b732366e2434e18ffc4d2e10140a40131f96d4b".HexToBytes()),
@@ -22,9 +19,12 @@ namespace NeoSharp.Core.Test.Cryptography
                 new UInt256("e69601364bdac76eeebf277bea25b850aa4c7d9f7d28f670084f7ee801560ea5".HexToBytes())
             };
 
+        [TestMethod]
+        public void MerkleTree_Test()
+        {
             // Act
-            var root = MerkleTree.ComputeRoot(hashes);
-            var tree = MerkleTree.ComputeTree(hashes);
+            var root = MerkleTree.ComputeRoot(_hashes);
+            var tree = MerkleTree.ComputeTree(_hashes);
 
             // Asset
             Assert.AreEqual(root.ToString(), "0x04948a9f4b7d5d1c7ed2cbd7f7034cfa095ce08d0b7a25959a083dc446aa8743");
@@ -43,6 +43,33 @@ namespace NeoSharp.Core.Test.Cryptography
 
             // Act
             var tree = MerkleTree.ComputeTree(hashes);
+        }
+
+        [TestMethod]
+        public void MerkleTree_Search()
+        {
+            // Act
+            var tree = MerkleTree.ComputeTree(_hashes);
+            var node = tree.Search(UInt256.Parse("d7578928d3ffde14619ce1ceaecbf0300b303a4f09916c0c62006625ba9d251a"));
+            var node_none = tree.Search(UInt256.Parse("f6049de2a1ce95dc4fbff3c66af5900ff2733d78c0eaab7c723c92f0a1e62f23"));
+
+            // Asset
+            Assert.AreEqual(node.Hash.ToString(), "0xd7578928d3ffde14619ce1ceaecbf0300b303a4f09916c0c62006625ba9d251a");
+            Assert.IsNull(node_none);
+        }
+
+        [TestMethod]
+        public void MerkleTree_Leafs()
+        {
+            // Arrange
+            var tree = MerkleTree.ComputeTree(_hashes);
+
+            // Act
+            var leafs = tree.Root.GetLeafs().Select(u => u.Hash).ToArray();
+
+            // Asset
+            Assert.IsTrue(_hashes.SequenceEqual(leafs));
+            Assert.AreEqual(leafs.Length, (tree.Depth - 1) * 2);
         }
     }
 }

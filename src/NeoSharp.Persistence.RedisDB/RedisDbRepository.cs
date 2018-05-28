@@ -14,10 +14,22 @@ namespace NeoSharp.Persistence.RedisDB
         private readonly IBinaryDeserializer _deserializer;
         private RedisHelper _redis;
 
-        public RedisDbRepository(IBinarySerializer serializer, IBinaryDeserializer deserializer)
+        public RedisDbRepository(IRepositoryConfiguration config, IBinarySerializer serializer, IBinaryDeserializer deserializer)
         {
+            if(config == null)
+                throw new ArgumentNullException(nameof(config));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
+
+            //If no connection string provided, we can just default to localhost
+            if (String.IsNullOrEmpty(config.ConnectionString))
+                config.ConnectionString = "localhost";
+
+            //Default to DB 0
+            int dbId = config.DatabaseId == null ? 0 : (int)config.DatabaseId;
+
+            //Make the connection to the specified server and database
+            _redis = new RedisHelper(ConnectionMultiplexer.Connect(config.ConnectionString), dbId);
         }
 
         #region IRepository Members
@@ -133,18 +145,6 @@ namespace NeoSharp.Persistence.RedisDB
             }
 
             return transactions.ToArray();
-        }
-
-        public void Initialize(string connection, string database)
-        {
-            if (String.IsNullOrEmpty(connection))
-                connection = "localhost";
-
-            int.TryParse(database, out int dbId);
-
-            //TODO: We need to make sure we persist this connection multiplexer, we don't want multiple connections within the app
-            //Implementing now for testability, we will want to blend this into the repository / DI patterns
-            _redis = new RedisHelper(ConnectionMultiplexer.Connect(connection), dbId);
         }
 
         #endregion
