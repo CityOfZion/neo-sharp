@@ -217,7 +217,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
-        public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsHandshake_MessageIsHandled()
+        public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsHandshake_MessageIsNotHandled()
         {
             // Arrange 
             var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
@@ -269,8 +269,8 @@ namespace NeoSharp.Core.Test.Network
             peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
-            messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object));
-            asyncDelayerMock.Verify(x => x.Delay(TimeSpan.FromSeconds(1), It.IsAny<CancellationToken>()));
+            messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object), Times.Never);
+            asyncDelayerMock.Verify(x => x.Delay(TimeSpan.FromSeconds(1), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [TestMethod]

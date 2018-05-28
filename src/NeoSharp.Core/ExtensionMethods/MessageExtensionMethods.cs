@@ -17,10 +17,5 @@ namespace NeoSharp.Core.ExtensionMethods
         {
             return _handshakeMessageTypes.Contains(message.GetType());
         }
-
-        public static bool IsNotHandshakeMessage(this Message message)
-        {
-            return !_handshakeMessageTypes.Contains(message.GetType());
-        }
     }
 }

@@ -197,7 +197,7 @@ namespace NeoSharp.Core.Network
                 {
                     var message = await peer.Receive();
 
-                    if (!peer.IsReady && message.IsNotHandshakeMessage()) continue;
+                    if (peer.IsReady == message.IsHandshakeMessage()) continue;
 
                     await _messageHandler.Handle(message, peer);
 
