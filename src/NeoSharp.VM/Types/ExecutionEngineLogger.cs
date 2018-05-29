@@ -77,7 +77,7 @@
         /// <param name="item">Item</param>
         /// <param name="index">Index</param>
         /// <param name="operation">Operation</param>
-        public virtual void RaiseOnResultStackChange(IStackOfStackItems stack, IStackItem item, int index, ELogStackOperation operation)
+        public virtual void RaiseOnResultStackChange(IStackItemsStack stack, IStackItem item, int index, ELogStackOperation operation)
         {
             OnResultStackChange?.Invoke(stack, item, index, operation);
         }
@@ -88,7 +88,7 @@
         /// <param name="item">Item</param>
         /// <param name="index">Index</param>
         /// <param name="operation">Operation</param>
-        public virtual void RaiseOnAltStackChange(IStackOfStackItems stack, IStackItem item, int index, ELogStackOperation operation)
+        public virtual void RaiseOnAltStackChange(IStackItemsStack stack, IStackItem item, int index, ELogStackOperation operation)
         {
             OnAltStackChange?.Invoke(stack, item, index, operation);
         }
@@ -99,7 +99,7 @@
         /// <param name="item">Item</param>
         /// <param name="index">Index</param>
         /// <param name="operation">Operation</param>
-        public virtual void RaiseOnEvaluationStackChange(IStackOfStackItems stack, IStackItem item, int index, ELogStackOperation operation)
+        public virtual void RaiseOnEvaluationStackChange(IStackItemsStack stack, IStackItem item, int index, ELogStackOperation operation)
         {
             OnEvaluationStackChange?.Invoke(stack, item, index, operation);
         }

@@ -20,5 +20,5 @@
     /// <param name="item">StackItem</param>
     /// <param name="index">Index</param>
     /// <param name="operation">Operation</param>
-    public delegate void delOnStackItemsStackChange(IStackOfStackItems stack, IStackItem item, int index, ELogStackOperation operation);
+    public delegate void delOnStackItemsStackChange(IStackItemsStack stack, IStackItem item, int index, ELogStackOperation operation);
 }

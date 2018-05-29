@@ -22,11 +22,11 @@ namespace NeoSharp.VM
         /// <summary>
         /// Evaluation Stack
         /// </summary>
-        public abstract IStackOfStackItems EvaluationStack { get; }
+        public abstract IStackItemsStack EvaluationStack { get; }
         /// <summary>
         /// Alt Stack
         /// </summary>
-        public abstract IStackOfStackItems AltStack { get; }
+        public abstract IStackItemsStack AltStack { get; }
         /// <summary>
         /// Script Hash
         /// </summary>

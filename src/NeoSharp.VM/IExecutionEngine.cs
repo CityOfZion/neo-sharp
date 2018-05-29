@@ -38,7 +38,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// ResultStack
         /// </summary>
-        public abstract IStackOfStackItems ResultStack { get; }
+        public abstract IStackItemsStack ResultStack { get; }
         /// <summary>
         /// Is disposed
         /// </summary>

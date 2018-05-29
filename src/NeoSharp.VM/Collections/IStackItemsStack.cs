@@ -2,7 +2,7 @@
 
 namespace NeoSharp.VM
 {
-    public abstract class IStackOfStackItems : IStack<IStackItem>
+    public abstract class IStackItemsStack : IStack<IStackItem>
     {
         /// <summary>
         /// Obtain the element at `index` position, without consume them
@@ -42,6 +42,6 @@ namespace NeoSharp.VM
         /// Constructor
         /// </summary>
         /// <param name="engine">Engine</param>
-        protected IStackOfStackItems(IExecutionEngine engine) : base(engine) { }
+        protected IStackItemsStack(IExecutionEngine engine) : base(engine) { }
     }
 }
