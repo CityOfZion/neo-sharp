@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace NeoSharp.VM
 {
@@ -6,10 +6,7 @@ namespace NeoSharp.VM
     {
         public override bool CanConvertToByteArray => false;
 
-        public override byte[] ToByteArray()
-        {
-            throw new NotImplementedException();
-        }
+        public override byte[] ToByteArray() { throw new NotImplementedException(); }
 
         /// <summary>
         /// Constructor
