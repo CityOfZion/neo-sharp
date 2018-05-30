@@ -100,7 +100,7 @@ namespace NeoSharp.VM
         /// Step Into
         /// </summary>
         /// <param name="steps">Steps</param>
-        public abstract void StepInto(int steps = 0);
+        public abstract void StepInto(int steps = 1);
         /// <summary>
         /// Step Out
         /// </summary>
