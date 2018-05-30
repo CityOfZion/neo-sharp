@@ -84,12 +84,32 @@ namespace NeoSharp.VM
 
         #endregion
 
+        #region IDisposable Support
+
         /// <summary>
-        /// Free resources
+        /// Dispose logic
         /// </summary>
-        public virtual void Dispose()
+        /// <param name="disposing">False for cleanup native objects</param>
+        protected virtual void Dispose(bool disposing) { }
+
+        /// <summary>
+        /// Destructor
+        /// </summary>
+        ~IStack()
         {
-            
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(false);
         }
+
+        // This code added to correctly implement the disposable pattern.
+        public void Dispose()
+        {
+            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
+            Dispose(true);
+            // uncomment the following line if the finalizer is overridden above.
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
     }
 }

@@ -15,7 +15,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Type
         /// </summary>
-        public EStackItemType Type { get; }
+        public readonly EStackItemType Type;
         /// <summary>
         /// Is Disposed
         /// </summary>

@@ -147,12 +147,12 @@ namespace NeoSharp.VM
 
         public void CopyTo(Array array, int index)
         {
-            foreach (IStackItem item in this) array.SetValue(item, index++);
+            foreach (var item in this) array.SetValue(item, index++);
         }
 
         public void CopyTo(IStackItem[] array, int index)
         {
-            foreach (IStackItem item in this) array.SetValue(item, index++);
+            foreach (var item in this) array.SetValue(item, index++);
         }
 
         IEnumerator IEnumerable.GetEnumerator()
