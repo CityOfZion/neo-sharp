@@ -1,4 +1,4 @@
-﻿using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.ExtensionMethods;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Helpers;
