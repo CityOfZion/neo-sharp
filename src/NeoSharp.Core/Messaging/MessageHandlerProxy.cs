@@ -13,12 +13,42 @@ namespace NeoSharp.Core.Messaging
 {
     public class MessageHandlerProxy : IMessageHandler<Message>
     {
+        #region Internal cache
+
+        class cache
+        {
+            #region Variables
+
+            public readonly MessageCommand Command;
+            public readonly object MessageHandler;
+            public readonly string MessageHandlerName;
+            public readonly Delegate HandlerInvoker;
+
+            #endregion
+
+            /// <summary>
+            /// Constructor
+            /// </summary>
+            /// <param name="command">Command</param>
+            /// <param name="messageHandler">Message handler</param>
+            /// <param name="messageHandlerInvoker">Message handler</param>
+            public cache(MessageCommand command, object messageHandler, Delegate messageHandlerInvoker)
+            {
+                Command = command;
+                MessageHandler = messageHandler;
+                MessageHandlerName = messageHandler.GetType().Name;
+                HandlerInvoker = messageHandlerInvoker;
+            }
+        }
+
+        #endregion
+
         #region Variables
 
         private readonly IContainer _container;
+        private readonly Type[] _messageHandlerTypes;
         private readonly ILogger<MessageHandlerProxy> _logger;
-        private readonly IReadOnlyDictionary<Type, Delegate> _messageHandlerInvokers;
-        private object[] _reflectionCache;
+        private cache[] _reflectionCache;
 
         #endregion
 
@@ -32,9 +62,7 @@ namespace NeoSharp.Core.Messaging
         {
             _container = container;
             _logger = logger;
-            _messageHandlerInvokers = messageHandlerTypes
-                .Select(CreateMessageHandlerInvoker)
-                .ToDictionary(x => x.MessageType, x => x.MessageHandlerInvoker);
+            _messageHandlerTypes = messageHandlerTypes.ToArray();
         }
 
         /// <summary>
@@ -51,16 +79,26 @@ namespace NeoSharp.Core.Messaging
             {
                 // Create cache
 
+                var messageHandlerInvokers = _messageHandlerTypes.Select(CreateMessageHandlerInvoker)
+                    .ToDictionary(x => x.MessageType, x => x.MessageHandlerInvoker);
+
                 byte max = 0;
                 var cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
-                var r = new object[byte.MaxValue];
+                var r = new cache[byte.MaxValue];
 
                 foreach (MessageCommand v in Enum.GetValues(typeof(MessageCommand)))
                 {
-                    if (!cache.TryGetValue(v, out Type entry)) continue;
+                    if (!cache.TryGetValue(v, out Type centry)) continue;
 
                     byte val = (byte)v;
-                    r[val] = _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(entry));
+
+                    if (!messageHandlerInvokers.TryGetValue(centry, out var messageHandlerInvoker))
+                    {
+                        throw new InvalidOperationException(
+                            $"The message of \"{centry}\" type has no registered handlers.");
+                    }
+
+                    r[val] = new cache(v, _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(centry)), messageHandlerInvoker);
                     max = Math.Max(max, val);
                 }
 
@@ -70,27 +108,19 @@ namespace NeoSharp.Core.Messaging
 
             // Extract handler
 
-            var messageType = message.GetType();
-            var messageHandler = _reflectionCache[(byte)message.Command];
+            var entry = _reflectionCache[(byte)message.Command];
 
-            if (messageHandler == null)
-                throw new InvalidOperationException($"The message of \"{messageType}\" type has no registered handlers.");
-
-            if (!_messageHandlerInvokers.TryGetValue(messageType, out var messageHandlerInvoker))
-            {
-                throw new InvalidOperationException(
-                    $"The message of \"{messageType}\" type has no registered handlers.");
-            }
+            if (entry == null)
+                throw new InvalidOperationException($"The message of \"{ message.GetType()}\" type has no registered handlers.");
 
             // Log start
 
             var startedAt = DateTime.Now;
-            var messageHandlerName = messageHandler.GetType().Name;
-            _logger.LogDebug($"The message handler \"{messageHandlerName}\" started message handling at {startedAt:yyyy-MM-dd HH:mm:ss}.");
+            _logger.LogDebug($"The message handler \"{entry.MessageHandlerName}\" started message handling at {startedAt:yyyy-MM-dd HH:mm:ss}.");
 
             // Execute
 
-            var handleMessageTask = (Task)messageHandlerInvoker.DynamicInvoke(messageHandler, message, sender);
+            var handleMessageTask = (Task)entry.HandlerInvoker.DynamicInvoke(entry.MessageHandler, message, sender);
 
             return handleMessageTask.ContinueWith(t =>
             {
@@ -102,7 +132,7 @@ namespace NeoSharp.Core.Messaging
                 var handledWithin = (completedAt - startedAt).TotalMilliseconds;
 
                 _logger.LogDebug(
-                    $"The message handler \"{messageHandlerName}\" completed message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
+                    $"The message handler \"{entry.MessageHandlerName}\" completed message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
             });
         }
 
