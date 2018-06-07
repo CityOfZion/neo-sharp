@@ -15,7 +15,7 @@ namespace NeoSharp.Core.Messaging
     {
         #region Internal cache
 
-        class cache
+        class Cache
         {
             #region Variables
 
@@ -32,7 +32,7 @@ namespace NeoSharp.Core.Messaging
             /// <param name="command">Command</param>
             /// <param name="messageHandler">Message handler</param>
             /// <param name="messageHandlerInvoker">Message handler</param>
-            public cache(MessageCommand command, object messageHandler, Delegate messageHandlerInvoker)
+            public Cache(MessageCommand command, object messageHandler, Delegate messageHandlerInvoker)
             {
                 Command = command;
                 MessageHandler = messageHandler;
@@ -48,7 +48,7 @@ namespace NeoSharp.Core.Messaging
         private readonly IContainer _container;
         private readonly Type[] _messageHandlerTypes;
         private readonly ILogger<MessageHandlerProxy> _logger;
-        private cache[] _reflectionCache;
+        private Cache[] _reflectionCache;
 
         #endregion
 
@@ -84,7 +84,7 @@ namespace NeoSharp.Core.Messaging
 
                 byte max = 0;
                 var cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
-                var r = new cache[byte.MaxValue];
+                var r = new Cache[byte.MaxValue];
 
                 foreach (MessageCommand v in Enum.GetValues(typeof(MessageCommand)))
                 {
@@ -98,7 +98,7 @@ namespace NeoSharp.Core.Messaging
                             $"The message of \"{centry}\" type has no registered handlers.");
                     }
 
-                    r[val] = new cache(v, _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(centry)), messageHandlerInvoker);
+                    r[val] = new Cache(v, _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(centry)), messageHandlerInvoker);
                     max = Math.Max(max, val);
                 }
 
