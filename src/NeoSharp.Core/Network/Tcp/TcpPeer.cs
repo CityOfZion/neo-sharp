@@ -13,26 +13,64 @@ namespace NeoSharp.Core.Network.Tcp
 {
     public class TcpPeer : IPeer, IDisposable
     {
+        #region Constants
+
         private const int SocketOperationTimeout = 300_000;
         private const int MessageQueueCheckInterval = 100;
+
+        #endregion
+
+        #region Properties
 
         /// <summary>
         /// End Point
         /// </summary>
         public EndPoint EndPoint { get; }
 
+        /// <summary>
+        /// Is connected
+        /// </summary>
+        public bool IsConnected => _disposed == 0;
+
+        /// <summary>
+        /// Version
+        /// </summary>
+        public VersionPayload Version { get; set; }
+
+        /// <summary>
+        /// IsReady
+        /// </summary>
+        public bool IsReady
+        {
+            get => IsConnected && _isReady;
+            set => _isReady = value;
+        }
+
+        #endregion
+
+        #region Variables
+
+        private int _disposed;
+        private bool _isReady;
+        private ProtocolBase _protocol;
+
         public readonly IPAddress IPAddress;
         private readonly Socket _socket;
         private readonly ProtocolSelector _protocolSelector;
         private readonly NetworkStream _stream;
-        private ProtocolBase _protocol;
         private readonly ILogger<TcpPeer> _logger;
-        private int _disposed;
-        private bool _isReady;
         private readonly ConcurrentQueue<Message> _highPrioritySendMessageQueue = new ConcurrentQueue<Message>();
         private readonly ConcurrentQueue<Message> _lowPrioritySendMessageQueue = new ConcurrentQueue<Message>();
         private readonly CancellationTokenSource _messageSenderTokenSource = new CancellationTokenSource();
 
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="socket">Socket</param>
+        /// <param name="protocolSelector">Protocol selector</param>
+        /// <param name="logger">Logger</param>
         public TcpPeer(Socket socket, ProtocolSelector protocolSelector, ILogger<TcpPeer> logger)
         {
             _socket = socket ?? throw new ArgumentNullException(nameof(socket));
@@ -49,36 +87,6 @@ namespace NeoSharp.Core.Network.Tcp
             EndPoint = new EndPoint() { Protocol = Protocol.Tcp, Host = ep.Address.ToString(), Port = ep.Port };
 
             SendMessages(_messageSenderTokenSource.Token);
-        }
-
-        private void SendMessages(CancellationToken cancellationToken)
-        {
-            Task.Factory.StartNew(async () =>
-            {
-                while (IsConnected)
-                {
-                    if (!_highPrioritySendMessageQueue.TryDequeue(out var message))
-                    {
-                        if (!_lowPrioritySendMessageQueue.TryDequeue(out message))
-                        {
-                            await Task.Delay(MessageQueueCheckInterval, cancellationToken);
-                            continue;
-                        }
-                    }
-
-                    await InternalSend(message);
-                }
-            }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
-        }
-
-        public bool IsConnected => _disposed == 0;
-
-        public VersionPayload Version { get; set; }
-
-        public bool IsReady
-        {
-            get => IsConnected && _isReady;
-            set => _isReady = value;
         }
 
         /// <summary>
@@ -103,7 +111,7 @@ namespace NeoSharp.Core.Network.Tcp
         public void Disconnect()
         {
             Dispose();
-            _logger?.LogInformation("The peer was disconnected");
+            _logger.LogInformation("The peer was disconnected");
         }
 
         /// <summary>
@@ -126,6 +134,36 @@ namespace NeoSharp.Core.Network.Tcp
             }
         }
 
+        /// <summary>
+        /// Send message Task
+        /// </summary>
+        /// <param name="cancellationToken">Cancellation token</param>
+        private void SendMessages(CancellationToken cancellationToken)
+        {
+            Task.Factory.StartNew(async () =>
+            {
+                while (IsConnected)
+                {
+                    if (!_highPrioritySendMessageQueue.TryDequeue(out var message))
+                    {
+                        if (!_lowPrioritySendMessageQueue.TryDequeue(out message))
+                        {
+                            await Task.Delay(MessageQueueCheckInterval, cancellationToken);
+                            continue;
+                        }
+                    }
+
+                    await InternalSend(message);
+                }
+            },
+            cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        }
+
+        /// <summary>
+        /// Send message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <returns>Task</returns>
         public Task Send(Message message)
         {
             if (_protocol.IsHighPriorityMessage(message))
@@ -141,11 +179,20 @@ namespace NeoSharp.Core.Network.Tcp
             return Task.CompletedTask;
         }
 
+        /// <summary>
+        /// Send default message
+        /// </summary>
+        /// <typeparam name="TMessage">Message</typeparam>
+        /// <returns>Task</returns>
         public Task Send<TMessage>() where TMessage : Message, new()
         {
             return Send(new TMessage());
         }
 
+        /// <summary>
+        /// Receive message
+        /// </summary>
+        /// <returns>Message</returns>
         public async Task<Message> Receive()
         {
             if (!IsConnected) return null;
@@ -158,7 +205,7 @@ namespace NeoSharp.Core.Network.Tcp
                 {
                     return await _protocol.ReceiveMessageAsync(_stream, tokenSource.Token);
                 }
-                catch (Exception)
+                catch
                 {
                     Disconnect();
                 }
@@ -167,6 +214,11 @@ namespace NeoSharp.Core.Network.Tcp
             return null;
         }
 
+        /// <summary>
+        /// Receive message
+        /// </summary>
+        /// <typeparam name="TMessage">Type</typeparam>
+        /// <returns>Message task</returns>
         public async Task<TMessage> Receive<TMessage>() where TMessage : Message, new()
         {
             if (!IsConnected) return null;
@@ -174,6 +226,11 @@ namespace NeoSharp.Core.Network.Tcp
             return await Receive() as TMessage;
         }
 
+        /// <summary>
+        /// Real send message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <returns>Async task</returns>
         private async Task InternalSend(Message message)
         {
             if (!IsConnected) return;
@@ -186,7 +243,7 @@ namespace NeoSharp.Core.Network.Tcp
                 {
                     await _protocol.SendMessageAsync(_stream, message, tokenSource.Token);
                 }
-                catch (Exception)
+                catch
                 {
                     Disconnect();
                 }

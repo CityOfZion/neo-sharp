@@ -136,6 +136,13 @@ namespace NeoSharp.Application.Client
             _logger.LogInformation("Starting Prompt");
             _consoleWriter.WriteLine("Neo-Sharp");
 
+            if (args != null)
+            {
+                // Append arguments as inputs
+
+                _consoleReader.AppendInputs(args);
+            }
+
             while (!_exit)
             {
                 var fullCmd = _consoleReader.ReadFromConsole(_commandAutocompleteCache);

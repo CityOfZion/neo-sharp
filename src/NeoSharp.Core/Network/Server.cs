@@ -9,6 +9,7 @@ using NeoSharp.Core.Network.Security;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -18,7 +19,13 @@ namespace NeoSharp.Core.Network
 {
     public class Server : IServer, IDisposable
     {
+        #region Constants
+
         private const int DefaultReceiveTimeout = 1000;
+
+        #endregion
+
+        #region Properties
 
         private readonly VersionPayload _version;
         private readonly INetworkAcl _acl;
@@ -39,6 +46,12 @@ namespace NeoSharp.Core.Network
         private readonly EndPoint[] _peerEndPoints;
         private CancellationTokenSource _messageListenerTokenSource;
 
+        #endregion
+
+        #region Properties
+
+        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers;
+
         /// <summary>
         /// Get server version
         /// </summary>
@@ -55,6 +68,19 @@ namespace NeoSharp.Core.Network
             }
         }
 
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="blockchain">Blockchain</param>
+        /// <param name="config">Network config</param>
+        /// <param name="peerFactory">PeerFactory</param>
+        /// <param name="peerListener">PeerListener</param>
+        /// <param name="messageHandler">Mesage Handler</param>
+        /// <param name="logger">Logger</param>
+        /// <param name="asyncDelayer">Async delayer</param>
+        /// <param name="aclFactory">ACL factory</param>
         public Server(
             IBlockchain blockchain,
             NetworkConfig config,
@@ -100,8 +126,9 @@ namespace NeoSharp.Core.Network
             };
         }
 
-        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers;
-
+        /// <summary>
+        /// Start server
+        /// </summary>
         public void Start()
         {
             Stop();
@@ -115,22 +142,32 @@ namespace NeoSharp.Core.Network
             _peerListener.Start();
         }
 
+        /// <summary>
+        /// Stop server
+        /// </summary>
         public void Stop()
         {
             _peerListener.Stop();
 
-            // send disconnect to all current Peers
             DisconnectPeers();
 
             _messageListenerTokenSource?.Cancel();
         }
 
+        /// <summary>
+        /// Free resources
+        /// </summary>
         public void Dispose()
         {
             Stop();
             _peerListener.OnPeerConnected -= PeerConnected;
         }
 
+        /// <summary>
+        /// Peer connected Event
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="peer">Peer</param>
         private void PeerConnected(object sender, IPeer peer)
         {
             try
@@ -146,15 +183,18 @@ namespace NeoSharp.Core.Network
                 ListenForMessages(peer, _messageListenerTokenSource.Token);
 
                 // initiate handshake
-                peer.Send(new VersionMessage(_version));
+                peer.Send(new VersionMessage(Version));
             }
             catch (Exception e)
             {
-                _logger.LogWarning($"Something went wrong with {peer}. Exception: {e}");
+                _logger?.LogWarning($"Something went wrong with {peer}. Exception: {e}");
                 peer.Disconnect();
             }
         }
 
+        /// <summary>
+        /// Connect to peers
+        /// </summary>
         private void ConnectToPeers()
         {
             // TODO: check if localhot:port in seeding list
@@ -163,26 +203,33 @@ namespace NeoSharp.Core.Network
                 try
                 {
                     var peer = await _peerFactory.ConnectTo(peerEndPoint);
-
                     PeerConnected(this, peer);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"Something went wrong with {peerEndPoint}. Exception: {ex}");
+                    _logger?.LogWarning($"Something went wrong with {peerEndPoint}. Exception: {ex}");
                 }
             });
         }
 
+        /// <summary>
+        /// Send disconnect to all current Peers
+        /// </summary>
         private void DisconnectPeers()
         {
-            foreach (var peer in ConnectedPeers)
+            foreach (var peer in ConnectedPeers.ToArray())
             {
-                peer.Disconnect();
+                peer?.Disconnect();
             }
 
             _connectedPeers.Clear();
         }
 
+        /// <summary>
+        /// Listen messages
+        /// </summary>
+        /// <param name="peer">Peer</param>
+        /// <param name="cancellationToken">Cancellation token</param>
         private void ListenForMessages(IPeer peer, CancellationToken cancellationToken)
         {
             Task.Factory.StartNew(async () =>
@@ -191,7 +238,7 @@ namespace NeoSharp.Core.Network
                 {
                     var message = await peer.Receive();
 
-                    if (peer.IsReady == message.IsHandshakeMessage()) continue;
+                    if (message == null || peer.IsReady == message.IsHandshakeMessage()) continue;
 
                     await _messageHandler.Handle(message, peer);
 

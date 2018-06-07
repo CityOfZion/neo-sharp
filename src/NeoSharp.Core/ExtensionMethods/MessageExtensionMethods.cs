@@ -1,21 +1,17 @@
-﻿using System;
-using System.Linq;
-using NeoSharp.Core.Messaging;
-using NeoSharp.Core.Messaging.Messages;
+﻿using NeoSharp.Core.Messaging;
 
 namespace NeoSharp.Core.ExtensionMethods
 {
     public static class MessageExtensionMethods
     {
-        private static readonly Type[] _handshakeMessageTypes =
-        {
-            typeof(VersionMessage),
-            typeof(VerAckMessage)
-        };
-
+        /// <summary>
+        /// Is this message a handshake message?
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <returns>Return true or false</returns>
         public static bool IsHandshakeMessage(this Message message)
         {
-            return _handshakeMessageTypes.Contains(message.GetType());
+            return message.Command == MessageCommand.verack || message.Command == MessageCommand.version;
         }
     }
 }
