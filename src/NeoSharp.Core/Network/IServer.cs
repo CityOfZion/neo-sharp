@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NeoSharp.Core.Messaging.Messages;
+using System.Collections.Generic;
 
 namespace NeoSharp.Core.Network
 {
@@ -10,8 +11,6 @@ namespace NeoSharp.Core.Network
 
         IReadOnlyCollection<IPeer> ConnectedPeers { get; }
 
-        uint ProtocolVersion { get; }
-
-        uint Nonce { get; }
+        VersionPayload Version { get; }
     }
 }
