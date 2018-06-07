@@ -14,7 +14,7 @@ namespace NeoSharp.Core.Network.Protocols
         /// <summary>
         /// Contains the list of the protocols
         /// </summary>
-        private readonly IList<Func<VersionPayload, ProtocolBase>> _protocols;
+        private readonly Func<VersionPayload, ProtocolBase>[] _protocols;
 
         /// <summary>
         /// Constructor
@@ -26,7 +26,7 @@ namespace NeoSharp.Core.Network.Protocols
             var v1 = new ProtocolV1(config, serializer);
             var v2 = new ProtocolV2(config, serializer);
 
-            _protocols = new List<Func<VersionPayload, ProtocolBase>>
+            _protocols = new Func<VersionPayload, ProtocolBase>[]
             {
                 new Func<VersionPayload,ProtocolBase>
                 (
