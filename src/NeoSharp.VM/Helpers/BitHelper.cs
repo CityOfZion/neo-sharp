@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 
 namespace NeoSharp.VM.Helpers
 {
@@ -34,6 +35,26 @@ namespace NeoSharp.VM.Helpers
             }
 
             return new string(sb);
+        }
+        /// <summary>
+        /// Convert string in Hex format to byte array
+        /// </summary>
+        /// <param name="value">Hexadecimal string</param>
+        /// <returns>Return byte array</returns>
+        public static byte[] FromHexString(string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return new byte[0];
+            if (value.StartsWith("0x"))
+                value = value.Substring(2);
+            if (value.Length % 2 == 1)
+                throw new FormatException();
+
+            var result = new byte[value.Length / 2];
+            for (var i = 0; i < result.Length; i++)
+                result[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier);
+
+            return result;
         }
         /// <summary>
         /// Get bytes
