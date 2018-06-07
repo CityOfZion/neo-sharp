@@ -15,9 +15,11 @@ namespace NeoSharp.Core.Messaging
         private readonly IContainer _container;
         private readonly ILogger<MessageHandlerProxy> _logger;
         private readonly IReadOnlyDictionary<Type, Delegate> _messageHandlerInvokers;
+        private readonly Dictionary<Type, object> _reflectionCache;
 
         public MessageHandlerProxy(IContainer container, IEnumerable<Type> messageHandlerTypes, ILogger<MessageHandlerProxy> logger)
         {
+            _reflectionCache = new Dictionary<Type, object>();
             _container = container;
             _logger = logger;
             _messageHandlerInvokers = messageHandlerTypes
@@ -60,14 +62,19 @@ namespace NeoSharp.Core.Messaging
 
         private object ResolveMessageHandler(Type messageType)
         {
-            var messageHandler = _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(messageType));
-            if (messageHandler == null)
-            {
-                throw new InvalidOperationException(
-                    $"The message of \"{messageType}\" type has no registered handlers.");
-            }
+            // TODO: warm cache on static constructor?
 
-            return messageHandler;
+            lock (_reflectionCache)
+            {
+                if (!_reflectionCache.TryGetValue(messageType, out object messageHandler))
+                {
+                    messageHandler = _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(messageType));
+
+                    _reflectionCache[messageType] = messageHandler ?? throw new InvalidOperationException(
+                            $"The message of \"{messageType}\" type has no registered handlers.");
+                }
+                return messageHandler;
+            }
         }
 
         private Delegate GetMessageHandlerInvoker(Type messageType)
