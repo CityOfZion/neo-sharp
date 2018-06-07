@@ -44,7 +44,7 @@ namespace NeoSharp.Core.Network.Tcp
 
             // Extract address
 
-            IPEndPoint ep=(IPEndPoint)(socket.IsBound ? socket.RemoteEndPoint : socket.LocalEndPoint);
+            IPEndPoint ep = (IPEndPoint)(socket.IsBound ? socket.RemoteEndPoint : socket.LocalEndPoint);
             IPAddress = ep.Address;
             EndPoint = new EndPoint() { Protocol = Protocol.Tcp, Host = ep.Address.ToString(), Port = ep.Port };
 
@@ -81,23 +81,34 @@ namespace NeoSharp.Core.Network.Tcp
             set => _isReady = value;
         }
 
-        public void DowngradeProtocol(uint version)
+        /// <summary>
+        /// Replace the current protocol
+        /// </summary>
+        /// <param name="version">Version</param>
+        public bool ChangeProtocol(VersionPayload version)
         {
-            if (version > _protocol.Version)
-                throw new ArgumentException($"The protocol version must to be lower than \"{_protocol.Version}\"",
-                    nameof(version));
+            if (version == null)
+                return false;
 
             var protocol = _protocolSelector.GetProtocol(version);
+            if (protocol == _protocol) return false;
 
-            _protocol = protocol ?? throw new NotSupportedException("The protocol version is not supported.");
+            _protocol = protocol ?? throw new ArgumentException($"The protocol version \"{version}\" is not supported.", nameof(version));
+            return true;
         }
 
+        /// <summary>
+        /// Disconnect
+        /// </summary>
         public void Disconnect()
         {
             Dispose();
-            _logger.LogInformation("The peer was disconnected");
+            _logger?.LogInformation("The peer was disconnected");
         }
 
+        /// <summary>
+        /// Free resources
+        /// </summary>
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, 1) != 0) return;
