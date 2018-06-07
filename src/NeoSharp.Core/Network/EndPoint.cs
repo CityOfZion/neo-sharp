@@ -20,7 +20,7 @@
         /// </summary>
         public override string ToString()
         {
-            return $"{Protocol.ToString().ToLowerInvariant()}://{Host}:{Port}";
+            return $"{Protocol}://{Host}:{Port}".ToLowerInvariant();
         }
     }
 

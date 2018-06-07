@@ -50,7 +50,7 @@ namespace NeoSharp.Core.Network
 
         #region Properties
 
-        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers;
+        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers; // TODO: thread safe?
 
         /// <summary>
         /// Get server version
@@ -178,7 +178,10 @@ namespace NeoSharp.Core.Network
                     throw new UnauthorizedAccessException();
                 }
 
-                _connectedPeers.Add(peer);
+                lock (_connectedPeers)
+                {
+                    _connectedPeers.Add(peer);
+                }
 
                 ListenForMessages(peer, _messageListenerTokenSource.Token);
 
@@ -217,12 +220,15 @@ namespace NeoSharp.Core.Network
         /// </summary>
         private void DisconnectPeers()
         {
-            foreach (var peer in ConnectedPeers.ToArray())
+            lock (_connectedPeers)
             {
-                peer?.Disconnect();
-            }
+                foreach (var peer in _connectedPeers)
+                {
+                    peer.Disconnect();
+                }
 
-            _connectedPeers.Clear();
+                _connectedPeers.Clear();
+            }
         }
 
         /// <summary>

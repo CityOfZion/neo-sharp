@@ -47,7 +47,7 @@ namespace NeoSharp.Core.Network.Protocols
             using (var writer = new BinaryWriter(memory, Encoding.UTF8))
             {
                 writer.Write(_magic);
-                writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString()/*.ToLowerInvariant()*/.PadRight(12, '\0')));
+                writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadRight(12, '\0')));
 
                 var payloadBuffer = message is ICarryPayload messageWithPayload
                     ? _serializer.Serialize(messageWithPayload.Payload)
