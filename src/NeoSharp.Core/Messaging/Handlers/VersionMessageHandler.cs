@@ -21,14 +21,15 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             sender.Version = message.Payload;
 
-            if (_server.Version.Nonce == sender.Version.Nonce)
+            if (_server.Nonce == sender.Version.Nonce)
             {
-                throw new InvalidOperationException($"The handshake is failed due to \"{nameof(_server.Version.Nonce)}\" value equality.");
+                throw new InvalidOperationException($"The handshake is failed due to \"{nameof(_server.Nonce)}\" value equality.");
             }
 
-            if (sender.ChangeProtocol(message.Payload))
+            if (_server.ProtocolVersion > sender.Version.Version)
             {
-                _logger?.LogWarning("Changed protocol.");
+                _logger.LogWarning("Downgraded to a lower protocol version.");
+                sender.DowngradeProtocol(sender.Version.Version);
             }
 
             await sender.Send<VerAckMessage>();

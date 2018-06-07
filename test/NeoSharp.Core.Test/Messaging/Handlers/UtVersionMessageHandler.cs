@@ -18,20 +18,23 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
         {
             public NullServer()
             {
-                Version = new VersionPayload()
-                {
-                    Version = 1,
-                    Services = 1,
-                    UserAgent = nameof(NullServer),
-                    Nonce = (uint)new Random(Environment.TickCount).Next(int.MaxValue),
-                };
+                ProtocolVersion = 1;
+                Nonce = (uint)new Random(Environment.TickCount).Next(int.MaxValue);
             }
 
-            public void Start() { }
-            public void Stop() { }
+            public void Start()
+            {
+            }
+
+            public void Stop()
+            {
+            }
 
             public IReadOnlyCollection<IPeer> ConnectedPeers { get; set; }
-            public VersionPayload Version { get; set; }
+
+            public uint ProtocolVersion { get; set; }
+
+            public uint Nonce { get; }
         }
 
         [TestMethod]
@@ -43,7 +46,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
 
             var versionMessage = GetPeerVersionMessage(server);
 
-            versionMessage.Payload.Nonce = server.Version.Nonce;
+            versionMessage.Payload.Nonce = server.Nonce;
 
             var peerMock = AutoMockContainer.GetMock<IPeer>();
 
@@ -68,7 +71,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             var messageHandler = AutoMockContainer.Get<VersionMessageHandler>();
             var versionMessage = GetPeerVersionMessage(server);
 
-            server.Version.Version = 2;
+            server.ProtocolVersion = 2;
             versionMessage.Payload.Version = 1;
 
             var peerMock = AutoMockContainer.GetMock<IPeer>();
@@ -79,7 +82,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             await messageHandler.Handle(versionMessage, peerMock.Object);
 
             // Assert
-            peerMock.Verify(x => x.ChangeProtocol(It.IsAny<VersionPayload>()), Times.Once);
+            peerMock.Verify(x => x.DowngradeProtocol(It.IsAny<uint>()), Times.Once);
         }
 
 
@@ -105,16 +108,12 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
 
         private static VersionMessage GetPeerVersionMessage(IServer server)
         {
-            var payload = server.Version;
-
             return new VersionMessage
             {
                 Payload =
                 {
-                    Nonce = payload.Nonce + 1,
-                    Version = payload.Version,
-                    UserAgent=payload.UserAgent,
-                    Services=payload.Services,
+                    Nonce = server.Nonce + 1,
+                    Version = server.ProtocolVersion
                 }
             };
         }

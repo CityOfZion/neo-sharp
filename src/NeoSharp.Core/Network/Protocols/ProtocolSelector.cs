@@ -1,20 +1,11 @@
 ﻿using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Messaging.Messages;
-using System;
 using System.Collections.Generic;
 
 namespace NeoSharp.Core.Network.Protocols
 {
     public class ProtocolSelector
     {
-        /// <summary>
-        /// Contains the default protocol
-        /// </summary>
-        public readonly ProtocolBase DefaultProtocol;
-        /// <summary>
-        /// Contains the list of the protocols
-        /// </summary>
-        private readonly IList<Func<VersionPayload, ProtocolBase>> _protocols;
+        private readonly IReadOnlyDictionary<uint, ProtocolBase> _protocols;
 
         /// <summary>
         /// Constructor
@@ -26,18 +17,13 @@ namespace NeoSharp.Core.Network.Protocols
             var v1 = new ProtocolV1(config, serializer);
             var v2 = new ProtocolV2(config, serializer);
 
-            _protocols = new List<Func<VersionPayload, ProtocolBase>>
+            _protocols = new Dictionary<uint, ProtocolBase>
             {
-                new Func<VersionPayload,ProtocolBase>
-                (
-                    // TODO: I don't know if we will use Version or Services
-                    (v) => v.Version == 2 ? v2 : null
-                )
+                { v1.Version, v1 },
+                { v2.Version, v2 }
             };
 
-            // Default protocol, oficial protocol
-
-            DefaultProtocol = v1;
+            DefaultProtocol = v2;
         }
 
         /// <summary>
@@ -45,17 +31,11 @@ namespace NeoSharp.Core.Network.Protocols
         /// </summary>
         /// <param name="version">Version</param>
         /// <returns>Return protocol or NULL</returns>
-        public ProtocolBase GetProtocol(VersionPayload version)
+        public ProtocolBase GetProtocol(uint version)
         {
-            // Search for protocol or return default
-
-            foreach (var query in _protocols)
-            {
-                var proto = query(version);
-                if (proto != null) return proto;
-            }
-
-            return DefaultProtocol;
+            return _protocols.TryGetValue(version, out var protocol) ? protocol : null;
         }
+
+        public ProtocolBase DefaultProtocol { get; }
     }
 }

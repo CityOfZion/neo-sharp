@@ -14,7 +14,7 @@ namespace NeoSharp.Core.Network
 
         bool IsReady { get; set; }
 
-        bool ChangeProtocol(VersionPayload version);
+        void DowngradeProtocol(uint version);
 
         Task Send(Message message);
 

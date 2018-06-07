@@ -4,22 +4,10 @@ namespace NeoSharp.Core.Messaging.Messages
 {
     public class VersionMessage : Message<VersionPayload>
     {
-        /// <summary>
-        /// Constructor
-        /// </summary>
         public VersionMessage()
         {
             Command = MessageCommand.version;
             Payload = new VersionPayload();
-        }
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="payload">Payload</param>
-        public VersionMessage(VersionPayload payload)
-        {
-            Command = MessageCommand.version;
-            Payload = payload;
         }
     }
 

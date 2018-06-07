@@ -1,11 +1,7 @@
 ﻿using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.ExtensionMethods;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Helpers;
-using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Core.Network.Security;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,14 +9,15 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.ExtensionMethods;
+using NeoSharp.Core.Helpers;
+using NeoSharp.Core.Logging;
+using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {
     public class Server : IServer, IDisposable
     {
-        private const int DefaultReceiveTimeout = 1000;
-
-        private readonly VersionPayload _version;
         private readonly INetworkAcl _acl;
         private readonly ILogger<Server> _logger;
         private readonly IAsyncDelayer _asyncDelayer;
@@ -37,23 +34,8 @@ namespace NeoSharp.Core.Network
         private readonly IList<IPEndPoint> _failedPeers;
         private readonly ushort _port;
         private readonly EndPoint[] _peerEndPoints;
+        private readonly string _userAgent;
         private CancellationTokenSource _messageListenerTokenSource;
-
-        /// <summary>
-        /// Get server version
-        /// </summary>
-        public VersionPayload Version
-        {
-            get
-            {
-                // update values
-
-                _version.Timestamp = DateTime.UtcNow.ToTimestamp();
-                _version.CurrentBlockIndex = _blockchain == null ? 0 : _blockchain.CurrentBlock == null ? 0 : _blockchain.CurrentBlock.Index;
-
-                return _version;
-            }
-        }
 
         public Server(
             IBlockchain blockchain,
@@ -84,29 +66,28 @@ namespace NeoSharp.Core.Network
 
             // TODO: Change after port forwarding implementation
             _port = config.Port;
+
+            ProtocolVersion = 2;
+
+            var r = new Random(Environment.TickCount);
+            Nonce = (uint) r.Next();
+
             _peerEndPoints = config.PeerEndPoints;
 
-            _version = new VersionPayload
-            {
-                Version = 2,
-                // TODO: What's it?
-                // Services = NetworkAddressWithTime.NODE_NETWORK;
-                Timestamp = DateTime.UtcNow.ToTimestamp(),
-                Port = _port,
-                Nonce = (uint)new Random(Environment.TickCount).Next(),
-                UserAgent = $"/NEO:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/",
-                CurrentBlockIndex = _blockchain == null ? 0 : _blockchain.CurrentBlock == null ? 0 : _blockchain.CurrentBlock.Index,
-                Relay = true
-            };
+            _userAgent = $"/NEO:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/";
         }
 
         public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers;
+
+        public uint ProtocolVersion { get; }
+
+        public uint Nonce { get; }
 
         public void Start()
         {
             Stop();
 
-            _messageListenerTokenSource = new CancellationTokenSource(DefaultReceiveTimeout);
+            _messageListenerTokenSource = new CancellationTokenSource(1000);
 
             // connect to peers
             ConnectToPeers();
@@ -131,6 +112,31 @@ namespace NeoSharp.Core.Network
             _peerListener.OnPeerConnected -= PeerConnected;
         }
 
+        private VersionMessage VersionMessage
+        {
+            get
+            {
+                // probably we can cache it
+                var version = new VersionMessage
+                {
+                    Payload =
+                    {
+                        Version = ProtocolVersion,
+                        // TODO: What's it?
+                        // Services = NetworkAddressWithTime.NODE_NETWORK;
+                        Timestamp = DateTime.UtcNow.ToTimestamp(),
+                        Port = _port,
+                        Nonce = Nonce,
+                        UserAgent = _userAgent,
+                        CurrentBlockIndex = _blockchain.CurrentBlock.Index,
+                        Relay = true
+                    }
+                };
+
+                return version;
+            }
+        }
+
         private void PeerConnected(object sender, IPeer peer)
         {
             try
@@ -146,7 +152,7 @@ namespace NeoSharp.Core.Network
                 ListenForMessages(peer, _messageListenerTokenSource.Token);
 
                 // initiate handshake
-                peer.Send(new VersionMessage(_version));
+                peer.Send(VersionMessage);
             }
             catch (Exception e)
             {
@@ -195,7 +201,7 @@ namespace NeoSharp.Core.Network
 
                     await _messageHandler.Handle(message, peer);
 
-                    await _asyncDelayer.Delay(TimeSpan.FromMilliseconds(DefaultReceiveTimeout), cancellationToken);
+                    await _asyncDelayer.Delay(TimeSpan.FromSeconds(1), cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
