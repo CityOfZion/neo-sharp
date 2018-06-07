@@ -36,7 +36,7 @@ namespace NeoSharp.Core.Messaging
             {
                 Command = command;
                 MessageHandler = messageHandler;
-                MessageHandlerName = messageHandler.GetType().Name;
+                MessageHandlerName = messageHandler == null ? "" :messageHandler.GetType().Name;
                 HandlerInvoker = messageHandlerInvoker;
             }
         }
@@ -88,16 +88,11 @@ namespace NeoSharp.Core.Messaging
 
                 foreach (MessageCommand v in Enum.GetValues(typeof(MessageCommand)))
                 {
-                    if (!cache.TryGetValue(v, out Type centry)) continue;
+                    if (!cache.TryGetValue(v, out Type centry) ||
+                        !messageHandlerInvokers.TryGetValue(centry, out var messageHandlerInvoker))
+                        continue;
 
                     byte val = (byte)v;
-
-                    if (!messageHandlerInvokers.TryGetValue(centry, out var messageHandlerInvoker))
-                    {
-                        throw new InvalidOperationException(
-                            $"The message of \"{centry}\" type has no registered handlers.");
-                    }
-
                     r[val] = new Cache(v, _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(centry)), messageHandlerInvoker);
                     max = Math.Max(max, val);
                 }
