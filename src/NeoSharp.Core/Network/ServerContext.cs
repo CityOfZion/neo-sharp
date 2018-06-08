@@ -8,6 +8,15 @@ namespace NeoSharp.Core.Network
 {
     public class ServerContext : IServerContext
     {
+        #region Constants
+
+        /// <summary>
+        /// Set default timeout between messages
+        /// </summary>
+        public static readonly TimeSpan DefaultDelayBetweenMessages = TimeSpan.FromMilliseconds(1);
+
+        #endregion
+
         /// <summary>
         /// Blockchain
         /// </summary>

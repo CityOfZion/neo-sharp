@@ -161,7 +161,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsNotHandshake_MessageIsHandled()
         {
-            // Arrange 
+            // Arrange
             var waitNextPeerConnectionLoopResetEvent = new AutoResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
@@ -175,7 +175,7 @@ namespace NeoSharp.Core.Test.Network
 
             var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
             asyncDelayerMock
-                .Setup(x => x.Delay(TimeSpan.FromSeconds(1), It.IsAny<CancellationToken>()))
+                .Setup(x => x.Delay(TimeSpan.FromMilliseconds(1), It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(0))
                 .Callback(() =>
                 {
@@ -214,7 +214,7 @@ namespace NeoSharp.Core.Test.Network
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
             messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object));
-            asyncDelayerMock.Verify(x => x.Delay(TimeSpan.FromSeconds(1), It.IsAny<CancellationToken>()));
+            asyncDelayerMock.Verify(x => x.Delay(ServerContext.DefaultDelayBetweenMessages, It.IsAny<CancellationToken>()));
         }
 
         [TestMethod]
@@ -332,7 +332,7 @@ namespace NeoSharp.Core.Test.Network
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
             messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object), Times.Never);
-            asyncDelayerMock.Verify(x => x.Delay(TimeSpan.FromSeconds(1), It.IsAny<CancellationToken>()), Times.Never);
+            asyncDelayerMock.Verify(x => x.Delay(ServerContext.DefaultDelayBetweenMessages, It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [TestMethod]
@@ -393,7 +393,7 @@ namespace NeoSharp.Core.Test.Network
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
             messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object));
-            asyncDelayerMock.Verify(x => x.Delay(TimeSpan.FromSeconds(1), It.IsAny<CancellationToken>()));
+            asyncDelayerMock.Verify(x => x.Delay(ServerContext.DefaultDelayBetweenMessages, It.IsAny<CancellationToken>()));
         }
 
         private static NetworkConfig GetNetworkConfig(params string[] peerEndPoints)

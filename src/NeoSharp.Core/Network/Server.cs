@@ -238,7 +238,8 @@ namespace NeoSharp.Core.Network
                 {
                     var message = await peer.Receive();
 
-                    if (message == null || peer.IsReady == message.IsHandshakeMessage()) continue;
+                    if (message == null) break;
+                    if (peer.IsReady == message.IsHandshakeMessage()) continue;
 
                     await _messageHandler.Handle(message, peer);
 
@@ -246,8 +247,7 @@ namespace NeoSharp.Core.Network
 
                     // Sleep
 
-                    await _asyncDelayer.Delay(TimeSpan.FromMilliseconds(DefaultReceiveTimeout), cancellationToken);
-                    //Thread.Sleep(1);
+                    await _asyncDelayer.Delay(ServerContext.DefaultDelayBetweenMessages, cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
