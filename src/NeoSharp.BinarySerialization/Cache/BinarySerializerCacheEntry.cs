@@ -515,6 +515,13 @@ namespace NeoSharp.BinarySerialization.Cache
                                 var buffer = reader.ReadBytes(bufferLength);
                                 return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
                             };
+
+                            writeValue = (serializer, writer, value) =>
+                            {
+                                var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
+                                writer.Write(buffer);
+                                return buffer.Length;
+                            };
                         }
                         else
                         {
@@ -523,13 +530,14 @@ namespace NeoSharp.BinarySerialization.Cache
                                 var buffer = ReadVarBytes(reader, 100);
                                 return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
                             };
+
+                            writeValue = (serializer, writer, value) =>
+                            {
+                                var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
+                                return WriteVarBytes(writer, buffer);
+                            };
                         }
 
-                        writeValue = (serializer, writer, value) =>
-                        {
-                            var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
-                            return WriteVarBytes(writer, buffer);
-                        };
                         return true;
                     }
                 }
