@@ -25,7 +25,6 @@ namespace NeoSharp.Core.Network
         #region Properties
 
         private readonly INetworkAcl _acl;
-        private readonly IBlockchain _blockchain;
         private readonly ILogger<Server> _logger;
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly IServerContext _serverContext;
@@ -53,7 +52,6 @@ namespace NeoSharp.Core.Network
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="blockchain">Blockchain</param>
         /// <param name="config">Network config</param>
         /// <param name="peerFactory">PeerFactory</param>
         /// <param name="peerListener">PeerListener</param>
@@ -63,7 +61,6 @@ namespace NeoSharp.Core.Network
         /// <param name="aclFactory">ACL factory</param>
         /// <param name="serverContext">Server context</param>
         public Server(
-            IBlockchain blockchain,
             NetworkConfig config,
             IPeerFactory peerFactory,
             IPeerListener peerListener,
@@ -74,7 +71,6 @@ namespace NeoSharp.Core.Network
             IServerContext serverContext)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
-            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _peerFactory = peerFactory ?? throw new ArgumentNullException(nameof(peerFactory));
             _peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -93,7 +89,7 @@ namespace NeoSharp.Core.Network
 
             // TODO: Change after port forwarding implementation
             _peerEndPoints = config.PeerEndPoints;
-            _serverContext.BuiltVersionPayload(config.Port, blockchain.CurrentBlock?.Index ?? 0);
+            _serverContext.UpdateVersionPayload();
         }
 
         /// <summary>
@@ -157,7 +153,7 @@ namespace NeoSharp.Core.Network
 
                 // Update version payload
 
-                _serverContext.BuiltVersionPayload(_blockchain.CurrentBlock?.Index ?? 0);
+                _serverContext.UpdateVersionPayload();
 
                 // Initiate handshake
 
@@ -223,9 +219,9 @@ namespace NeoSharp.Core.Network
 
                     await _messageHandler.Handle(message, peer);
 
-                    // TODO: Define the sense of this delay, the task is killed because the timeout are the same as the cancellation token
+                    // TODO: Define the sense of this delay, real test don't work with this
 
-                    //await _asyncDelayer.Delay(TimeSpan.FromMilliseconds(DefaultReceiveTimeout), cancellationToken);
+                    await _asyncDelayer.Delay(TimeSpan.FromMilliseconds(DefaultReceiveTimeout), cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
