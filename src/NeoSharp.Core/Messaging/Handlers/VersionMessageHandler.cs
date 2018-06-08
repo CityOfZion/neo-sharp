@@ -41,16 +41,16 @@ namespace NeoSharp.Core.Messaging.Handlers
                 throw new InvalidOperationException($"The handshake is failed due to \"{nameof(_server.Version.Nonce)}\" value equality.");
             }
 
-            // Send Ack
-
-            await sender.Send<VerAckMessage>();
-
             // Change protocol?
 
             if (sender.ChangeProtocol(message.Payload))
             {
                 _logger?.LogWarning("Changed protocol.");
             }
+
+            // Send Ack
+
+            await sender.Send<VerAckMessage>();
         }
     }
 }
