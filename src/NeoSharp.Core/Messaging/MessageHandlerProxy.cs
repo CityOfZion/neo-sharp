@@ -126,7 +126,7 @@ namespace NeoSharp.Core.Messaging
             var cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
             var r = new Cache[byte.MaxValue];
 
-            // Assign the invkers and types to the specific command position in the cache
+            // Assign the invokers and types to the specific command position in the cache
 
             foreach (MessageCommand v in Enum.GetValues(typeof(MessageCommand)))
             {
