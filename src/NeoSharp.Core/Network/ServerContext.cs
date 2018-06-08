@@ -37,7 +37,7 @@ namespace NeoSharp.Core.Network
                 Port = config.Port,
                 Nonce = (uint)new Random(Environment.TickCount).Next(),
                 UserAgent = $"/NEO:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/",
-                CurrentBlockIndex = 0,
+                CurrentBlockIndex = _blockchain.CurrentBlock?.Index ?? 0,
                 Relay = true
             };
         }
