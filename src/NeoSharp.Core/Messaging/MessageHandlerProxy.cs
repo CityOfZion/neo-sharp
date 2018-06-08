@@ -1,13 +1,13 @@
-﻿using NeoSharp.Core.Caching;
-using NeoSharp.Core.DI;
-using NeoSharp.Core.Logging;
-using NeoSharp.Core.Network;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using NeoSharp.Core.Caching;
+using NeoSharp.Core.DI;
+using NeoSharp.Core.Logging;
+using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging
 {
@@ -79,10 +79,7 @@ namespace NeoSharp.Core.Messaging
             if (entry == null)
                 throw new InvalidOperationException($"The message of \"{ message.GetType()}\" type has no registered handlers.");
 
-            // Log start
-
-            var startedAt = DateTime.Now;
-            _logger.LogDebug($"The message handler \"{entry.MessageHandlerName}\" started message handling at {startedAt:yyyy-MM-dd HH:mm:ss}.");
+            var startedAt = LogMessageHandlingStart(entry.MessageHandlerName);
 
             // Execute
 
@@ -92,14 +89,38 @@ namespace NeoSharp.Core.Messaging
             {
                 if (!t.IsCompletedSuccessfully) return;
 
-                // Log end
-
-                var completedAt = DateTime.Now;
-                var handledWithin = (completedAt - startedAt).TotalMilliseconds;
-
-                _logger.LogDebug(
-                    $"The message handler \"{entry.MessageHandlerName}\" completed message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
+                LogMessageHandlingEnd(startedAt, entry.MessageHandlerName);
             });
+        }
+
+        /// <summary>
+        /// Log start
+        /// </summary>
+        /// <param name="messageHandlerName">Message handler name</param>
+        /// <returns>Return start date</returns>
+        private DateTime LogMessageHandlingStart(string messageHandlerName)
+        {
+            var startedAt = DateTime.Now;
+
+            _logger.LogDebug($"The message handler \"{messageHandlerName}\" started message handling at {startedAt:yyyy-MM-dd HH:mm:ss}.");
+
+            return startedAt;
+        }
+
+        /// <summary>
+        /// Log end
+        /// </summary>
+        /// <param name="startedAt">Start date</param>
+        /// <param name="messageHandlerName">Message handler name</param>
+        private void LogMessageHandlingEnd(DateTime startedAt, string messageHandlerName)
+        {
+            // Log end
+
+            var completedAt = DateTime.Now;
+            var handledWithin = (completedAt - startedAt).TotalMilliseconds;
+
+            _logger.LogDebug(
+                $"The message handler \"{messageHandlerName}\" completed message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
         }
 
         /// <summary>

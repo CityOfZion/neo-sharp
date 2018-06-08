@@ -1,15 +1,15 @@
-using NeoSharp.Core.ExtensionMethods;
-using NeoSharp.Core.Helpers;
-using NeoSharp.Core.Logging;
-using NeoSharp.Core.Messaging;
-using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Core.Network.Security;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.ExtensionMethods;
+using NeoSharp.Core.Helpers;
+using NeoSharp.Core.Logging;
+using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {

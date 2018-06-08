@@ -1,8 +1,8 @@
-﻿using NeoSharp.Core.Logging;
+﻿using System;
+using System.Threading.Tasks;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
-using System;
-using System.Threading.Tasks;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {

@@ -1,11 +1,11 @@
-using NeoSharp.Core.Caching;
-using NeoSharp.Core.Messaging;
-using NeoSharp.Core.Messaging.Messages;
 using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.Caching;
+using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.Network.Protocols
 {

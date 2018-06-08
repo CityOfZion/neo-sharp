@@ -1,8 +1,8 @@
-﻿using NeoSharp.Core.Blockchain;
+﻿using System;
+using System.Reflection;
+using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging.Messages;
-using System;
-using System.Reflection;
 
 namespace NeoSharp.Core.Network
 {

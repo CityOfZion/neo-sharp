@@ -1,6 +1,6 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using System;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Messaging.Messages;
-using System;
 
 namespace NeoSharp.Core.Network.Protocols
 {

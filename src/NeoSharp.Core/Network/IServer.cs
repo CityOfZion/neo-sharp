@@ -1,7 +1,7 @@
-﻿using NeoSharp.Core.Messaging;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NeoSharp.Core.Messaging;
 
 namespace NeoSharp.Core.Network
 {
