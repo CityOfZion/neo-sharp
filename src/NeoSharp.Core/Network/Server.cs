@@ -1,4 +1,3 @@
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.ExtensionMethods;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Logging;
@@ -167,6 +166,30 @@ namespace NeoSharp.Core.Network
         }
 
         /// <summary>
+        /// Broadcast a message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <param name="filter">Filter</param>
+        public async Task SendBroadcast(Message message, Func<IPeer, bool> filter = null)
+        {
+            lock (_connectedPeers)
+            {
+                Parallel.ForEach(_connectedPeers, async (peer) =>
+                {
+                    // Check filter
+
+                    if (filter != null && !filter(peer)) return;
+
+                    // Send
+
+                    await peer.Send(message);
+                });
+            }
+
+            await Task.CompletedTask;
+        }
+
+        /// <summary>
         /// Connect to peers
         /// </summary>
         private void ConnectToPeers()
@@ -221,7 +244,10 @@ namespace NeoSharp.Core.Network
 
                     // TODO: Define the sense of this delay, real test don't work with this
 
+                    // Sleep
+
                     await _asyncDelayer.Delay(TimeSpan.FromMilliseconds(DefaultReceiveTimeout), cancellationToken);
+                    //Thread.Sleep(1);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
