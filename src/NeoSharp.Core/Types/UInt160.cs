@@ -11,7 +11,7 @@ namespace NeoSharp.Core.Types
     [TypeConverter(typeof(UInt160Converter))]
     public class UInt160 : IEquatable<UInt160>, IComparable<UInt160>, ISerializable
     {
-        private static readonly int s_size = 20;
+        public static readonly int BufferLength = 20;
 
         public static readonly UInt160 Zero = new UInt160();
 
@@ -30,7 +30,7 @@ namespace NeoSharp.Core.Types
             Array.Copy(value, _buffer, _buffer.Length);
         }
 
-        public int Size => s_size;
+        public int Size => BufferLength;
 
         public bool Equals(UInt160 other)
         {
@@ -91,7 +91,7 @@ namespace NeoSharp.Core.Types
 
         public static UInt160 Parse(string value)
         {
-            return new UInt160(value.HexToBytes(s_size * 2).Reverse().ToArray());
+            return new UInt160(value.HexToBytes(BufferLength * 2).Reverse().ToArray());
         }
 
         public static bool TryParse(string s, out UInt160 result)

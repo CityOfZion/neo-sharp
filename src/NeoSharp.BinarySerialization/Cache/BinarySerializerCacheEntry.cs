@@ -506,11 +506,25 @@ namespace NeoSharp.BinarySerialization.Cache
                 {
                     if (typeConverter.CanConvertTo(typeof(byte[])) && typeConverter.CanConvertFrom(type))
                     {
-                        readValue = (deserializer, reader) =>
+                        if (typeConverter is IFixedBufferConverter fix)
                         {
-                            var buffer = ReadVarBytes(reader, 100);
-                            return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
-                        };
+                            int bufferLength = fix.FixedLength;
+
+                            readValue = (deserializer, reader) =>
+                            {
+                                var buffer = reader.ReadBytes(bufferLength);
+                                return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
+                            };
+                        }
+                        else
+                        {
+                            readValue = (deserializer, reader) =>
+                            {
+                                var buffer = ReadVarBytes(reader, 100);
+                                return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
+                            };
+                        }
+
                         writeValue = (serializer, writer, value) =>
                         {
                             var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));

@@ -15,10 +15,14 @@ namespace NeoSharp.Core.Messaging
         filterclear = 0x06,
         filterload = 0x07,
         getaddr = 0x08,
+        [ReflectionCache(typeof(GetBlockHashesMessage))]
         getblocks = 0x09,
         getdata = 0x0A,
+        [ReflectionCache(typeof(GetBlockHeadersMessage))]
         getheaders = 0x0B,
+        [ReflectionCache(typeof(BlockHeadersMessage))]
         headers = 0x0C,
+        [ReflectionCache(typeof(InventoryMessage))]
         inv = 0x0D,
         mempool = 0x0E,
         merkleblock = 0x0F,
