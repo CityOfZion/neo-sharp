@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -208,7 +209,7 @@ namespace NeoSharp.Core.Test.Network
             server.Stop();
 
             // Asset
-            Assert.IsTrue(waitTimedOut);
+            waitTimedOut.Should().BeTrue();
             peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
@@ -217,7 +218,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
-        public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsHandshake_MessageIsHandled()
+        public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsHandshake_MessageIsNotHandled()
         {
             // Arrange 
             var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
@@ -265,12 +266,12 @@ namespace NeoSharp.Core.Test.Network
             server.Stop();
 
             // Asset
-            Assert.IsTrue(waitTimedOut);
+            waitTimedOut.Should().BeTrue();
             peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
-            messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object));
-            asyncDelayerMock.Verify(x => x.Delay(TimeSpan.FromSeconds(1), It.IsAny<CancellationToken>()));
+            messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object), Times.Never);
+            asyncDelayerMock.Verify(x => x.Delay(TimeSpan.FromSeconds(1), It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [TestMethod]
@@ -322,7 +323,7 @@ namespace NeoSharp.Core.Test.Network
             server.Stop();
 
             // Asset
-            Assert.IsTrue(waitTimedOut);
+            waitTimedOut.Should().BeTrue();
             peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
@@ -379,7 +380,7 @@ namespace NeoSharp.Core.Test.Network
             server.Stop();
 
             // Asset
-            Assert.IsTrue(waitTimedOut);
+            waitTimedOut.Should().BeTrue();
             peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
