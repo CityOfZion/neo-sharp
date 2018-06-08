@@ -36,7 +36,7 @@ namespace NeoSharp.Core.Messaging
             {
                 Command = command;
                 MessageHandler = messageHandler;
-                MessageHandlerName = messageHandler == null ? "" :messageHandler.GetType().Name;
+                MessageHandlerName = messageHandler == null ? "" : messageHandler.GetType().Name;
                 HandlerInvoker = messageHandlerInvoker;
             }
         }
@@ -46,7 +46,6 @@ namespace NeoSharp.Core.Messaging
         #region Variables
 
         private readonly IContainer _container;
-        private readonly Type[] _messageHandlerTypes;
         private readonly ILogger<MessageHandlerProxy> _logger;
         private readonly Cache[] _reflectionCache;
 
@@ -62,8 +61,7 @@ namespace NeoSharp.Core.Messaging
         {
             _container = container;
             _logger = logger;
-            _messageHandlerTypes = messageHandlerTypes.ToArray();
-            _reflectionCache = GenerateCache();
+            _reflectionCache = GenerateCache(messageHandlerTypes.ToArray());
         }
 
         /// <summary>
@@ -109,11 +107,11 @@ namespace NeoSharp.Core.Messaging
         /// <summary>
         /// Generate reflection cache
         /// </summary>
-        private Cache[] GenerateCache()
+        private Cache[] GenerateCache(Type[] messageHandlerTypes)
         {
             // Select Message Handler invokers
 
-            var messageHandlerInvokers = _messageHandlerTypes.Select(CreateMessageHandlerInvoker)
+            var messageHandlerInvokers = messageHandlerTypes.Select(CreateMessageHandlerInvoker)
                 .ToDictionary(x => x.MessageType, x => x.MessageHandlerInvoker);
 
             // Get Message types from the enum
