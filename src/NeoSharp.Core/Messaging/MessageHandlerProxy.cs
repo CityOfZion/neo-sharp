@@ -77,28 +77,7 @@ namespace NeoSharp.Core.Messaging
 
             if (_reflectionCache == null)
             {
-                // Create cache
-
-                var messageHandlerInvokers = _messageHandlerTypes.Select(CreateMessageHandlerInvoker)
-                    .ToDictionary(x => x.MessageType, x => x.MessageHandlerInvoker);
-
-                byte max = 0;
-                var cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
-                var r = new Cache[byte.MaxValue];
-
-                foreach (MessageCommand v in Enum.GetValues(typeof(MessageCommand)))
-                {
-                    if (!cache.TryGetValue(v, out Type centry) ||
-                        !messageHandlerInvokers.TryGetValue(centry, out var messageHandlerInvoker))
-                        continue;
-
-                    byte val = (byte)v;
-                    r[val] = new Cache(v, _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(centry)), messageHandlerInvoker);
-                    max = Math.Max(max, val);
-                }
-
-                Array.Resize(ref r, max + 1);
-                _reflectionCache = r;
+                _reflectionCache = GenerateCache();
             }
 
             // Extract handler
@@ -129,6 +108,41 @@ namespace NeoSharp.Core.Messaging
                 _logger.LogDebug(
                     $"The message handler \"{entry.MessageHandlerName}\" completed message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
             });
+        }
+
+        /// <summary>
+        /// Generate reflection cache
+        /// </summary>
+        private Cache[] GenerateCache()
+        {
+            // Select Message Handler invokers
+
+            var messageHandlerInvokers = _messageHandlerTypes.Select(CreateMessageHandlerInvoker)
+                .ToDictionary(x => x.MessageType, x => x.MessageHandlerInvoker);
+
+            // Get Message types from the enum
+
+            byte max = 0;
+            var cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
+            var r = new Cache[byte.MaxValue];
+
+            // Assign the invkers and types to the specific command position in the cache
+
+            foreach (MessageCommand v in Enum.GetValues(typeof(MessageCommand)))
+            {
+                if (!cache.TryGetValue(v, out Type centry) ||
+                    !messageHandlerInvokers.TryGetValue(centry, out var messageHandlerInvoker))
+                    continue;
+
+                byte val = (byte)v;
+                r[val] = new Cache(v, _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(centry)), messageHandlerInvoker);
+                max = Math.Max(max, val);
+            }
+
+            // Make the cache smaller (<255)
+
+            Array.Resize(ref r, max + 1);
+            return r;
         }
 
         private static (Type MessageType, Delegate MessageHandlerInvoker) CreateMessageHandlerInvoker(Type messageHandlerType)
