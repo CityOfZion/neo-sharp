@@ -190,7 +190,7 @@ namespace NeoSharp.Core.Network
             }
             catch (Exception e)
             {
-                _logger?.LogWarning($"Something went wrong with {peer}. Exception: {e}");
+                _logger.LogWarning($"Something went wrong with {peer}. Exception: {e}");
                 peer.Disconnect();
             }
         }
@@ -210,7 +210,7 @@ namespace NeoSharp.Core.Network
                 }
                 catch (Exception ex)
                 {
-                    _logger?.LogWarning($"Something went wrong with {peerEndPoint}. Exception: {ex}");
+                    _logger.LogWarning($"Something went wrong with {peerEndPoint}. Exception: {ex}");
                 }
             });
         }
@@ -248,7 +248,9 @@ namespace NeoSharp.Core.Network
 
                     await _messageHandler.Handle(message, peer);
 
-                    await _asyncDelayer.Delay(TimeSpan.FromMilliseconds(DefaultReceiveTimeout), cancellationToken);
+                    // TODO: Define the sense of this delay, the task is killed because the timeout are the same as the cancellation token
+
+                    //await _asyncDelayer.Delay(TimeSpan.FromMilliseconds(DefaultReceiveTimeout), cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
