@@ -48,7 +48,7 @@ namespace NeoSharp.Core.Messaging
         private readonly IContainer _container;
         private readonly Type[] _messageHandlerTypes;
         private readonly ILogger<MessageHandlerProxy> _logger;
-        private Cache[] _reflectionCache;
+        private readonly Cache[] _reflectionCache;
 
         #endregion
 
@@ -63,6 +63,7 @@ namespace NeoSharp.Core.Messaging
             _container = container;
             _logger = logger;
             _messageHandlerTypes = messageHandlerTypes.ToArray();
+            _reflectionCache = GenerateCache();
         }
 
         /// <summary>
@@ -74,11 +75,6 @@ namespace NeoSharp.Core.Messaging
         public Task Handle(Message message, IPeer sender)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
-
-            if (_reflectionCache == null)
-            {
-                _reflectionCache = GenerateCache();
-            }
 
             // Extract handler
 
