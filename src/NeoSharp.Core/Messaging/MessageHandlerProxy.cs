@@ -45,7 +45,6 @@ namespace NeoSharp.Core.Messaging
 
         #region Variables
 
-        private readonly IContainer _container;
         private readonly ILogger<MessageHandlerProxy> _logger;
         private readonly Cache[] _reflectionCache;
 
@@ -59,9 +58,8 @@ namespace NeoSharp.Core.Messaging
         /// <param name="logger">Logger</param>
         public MessageHandlerProxy(IContainer container, IEnumerable<Type> messageHandlerTypes, ILogger<MessageHandlerProxy> logger)
         {
-            _container = container;
             _logger = logger;
-            _reflectionCache = GenerateCache(messageHandlerTypes.ToArray());
+            _reflectionCache = GenerateCache(container, messageHandlerTypes.ToArray());
         }
 
         /// <summary>
@@ -107,7 +105,9 @@ namespace NeoSharp.Core.Messaging
         /// <summary>
         /// Generate reflection cache
         /// </summary>
-        private Cache[] GenerateCache(Type[] messageHandlerTypes)
+        /// <param name="container">Container</param>
+        /// <param name="messageHandlerTypes">Message handler types</param>
+        private Cache[] GenerateCache(IContainer container, Type[] messageHandlerTypes)
         {
             // Select Message Handler invokers
 
@@ -129,7 +129,7 @@ namespace NeoSharp.Core.Messaging
                     continue;
 
                 byte val = (byte)v;
-                r[val] = new Cache(v, _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(centry)), messageHandlerInvoker);
+                r[val] = new Cache(v, container.Resolve(typeof(IMessageHandler<>).MakeGenericType(centry)), messageHandlerInvoker);
 
                 // Extract the max value of the command for trim the cache later
 
