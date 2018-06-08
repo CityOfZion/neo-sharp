@@ -25,6 +25,7 @@ namespace NeoSharp.Core.Network
         /// <param name="blockchain">Blockchain</param>
         public ServerContext(NetworkConfig config, IBlockchain blockchain)
         {
+            if (config == null) throw new ArgumentNullException(nameof(config));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
 
             Version = new VersionPayload
