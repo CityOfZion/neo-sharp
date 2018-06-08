@@ -10,19 +10,19 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Variables
 
-        private readonly IServer _server;
         private readonly ILogger<VersionMessageHandler> _logger;
+        private readonly IServerContext _serverContext;
 
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="server">Server</param>
+        /// <param name="serverContext">Server</param>
         /// <param name="logger">Logger</param>
-        public VersionMessageHandler(IServer server, ILogger<VersionMessageHandler> logger)
+        public VersionMessageHandler(IServerContext serverContext, ILogger<VersionMessageHandler> logger)
         {
-            _server = server;
+            _serverContext = serverContext;
             _logger = logger;
         }
 
@@ -36,9 +36,9 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             sender.Version = message.Payload;
 
-            if (_server.Version.Nonce == sender.Version.Nonce)
+            if (_serverContext.Version.Nonce == sender.Version.Nonce)
             {
-                throw new InvalidOperationException($"The handshake is failed due to \"{nameof(_server.Version.Nonce)}\" value equality.");
+                throw new InvalidOperationException($"The handshake is failed due to \"{nameof(_serverContext.Version.Nonce)}\" value equality.");
             }
 
             // Change protocol?

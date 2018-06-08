@@ -15,6 +15,8 @@ namespace NeoSharp.Core.DI.Modules
     {
         public void Register(IContainerBuilder containerBuilder)
         {
+            containerBuilder.RegisterSingleton<IServerContext, ServerContext>();
+
             containerBuilder.RegisterSingleton<NetworkAclFactory>();
             containerBuilder.RegisterSingleton<NetworkConfig>();
             containerBuilder.RegisterSingleton<RpcConfig>();

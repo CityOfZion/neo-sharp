@@ -8,6 +8,7 @@ using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Test.ExtensionMethods;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Core.Test.Messaging
@@ -27,6 +28,10 @@ namespace NeoSharp.Core.Test.Messaging
         public void Can_delegate_message_handling()
         {
             // Arrange
+            var serverContextMock = AutoMockContainer
+                .GetMock<IServerContext>()
+                .SetupDefaultServerContext();
+
             var containerMock = AutoMockContainer.GetMock<IContainer>();
 
             containerMock
@@ -38,7 +43,7 @@ namespace NeoSharp.Core.Test.Messaging
             var messageHandlerProxy = new MessageHandlerProxy(containerMock.Object, new[] { typeof(NullVersionMessageHandler) }, loggerMock.Object);
 
             // Act
-            var task = messageHandlerProxy.Handle(new VersionMessage(), null);
+            var task = messageHandlerProxy.Handle(new VersionMessage(serverContextMock.Object.Version), null);
             task.Wait();
 
             // Assert
@@ -49,12 +54,16 @@ namespace NeoSharp.Core.Test.Messaging
         public void Throw_on_receiving_of_unknown_message()
         {
             // Arrange
+            var serverContextMock = AutoMockContainer
+                .GetMock<IServerContext>()
+                .SetupDefaultServerContext();
+
             var containerMock = AutoMockContainer.GetMock<IContainer>();
             var loggerMock = AutoMockContainer.GetMock<ILogger<MessageHandlerProxy>>();
             var messageHandlerProxy = new MessageHandlerProxy(containerMock.Object, new Type[0], loggerMock.Object);
 
             // Act
-            Action a = () => messageHandlerProxy.Handle(new VersionMessage(), null);
+            Action a = () => messageHandlerProxy.Handle(new VersionMessage(serverContextMock.Object.Version), null);
 
             // Assert
             a.Should().Throw<Exception>();
