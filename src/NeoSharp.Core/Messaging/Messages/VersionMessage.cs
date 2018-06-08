@@ -5,13 +5,14 @@ namespace NeoSharp.Core.Messaging.Messages
     public class VersionMessage : Message<VersionPayload>
     {
         /// <summary>
-        /// Constructor
+        /// Constructor necessary to be used by the serializer
         /// </summary>
         public VersionMessage()
         {
             Command = MessageCommand.version;
             Payload = new VersionPayload();
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
