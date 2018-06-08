@@ -10,7 +10,7 @@ namespace NeoSharp.Core.Network
         VersionPayload Version { get; }
 
         /// <summary>
-        /// Update version paylload
+        /// Update version payload
         /// </summary>
         void UpdateVersionPayload();
     }
