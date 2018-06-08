@@ -137,7 +137,7 @@ namespace NeoSharp.Core.Messaging
 
             // Get Message types from the enum
 
-            byte max = 0;
+            byte maxValue = 0;
             var cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
             var ret = new Cache[byte.MaxValue];
 
@@ -149,18 +149,20 @@ namespace NeoSharp.Core.Messaging
                     !messageHandlerInvokers.TryGetValue(type, out var messageHandlerInvoker))
                     continue;
 
-                byte val = (byte)command;
-                var messageHandler = container.Resolve(typeof(IMessageHandler<>).MakeGenericType(type));
-                ret[val] = new Cache(command, messageHandler, messageHandlerInvoker);
+                byte commandValue = (byte)command;
+                var handlerType = typeof(IMessageHandler<>).MakeGenericType(type);
+                var messageHandler = container.Resolve(handlerType);
+
+                ret[commandValue] = new Cache(command, messageHandler, messageHandlerInvoker);
 
                 // Extract the max value of the command for trim the cache later
 
-                max = Math.Max(max, val);
+                maxValue = Math.Max(maxValue, commandValue);
             }
 
             // Make the cache smaller (<255)
 
-            Array.Resize(ref ret, max + 1);
+            Array.Resize(ref ret, maxValue + 1);
             return ret;
         }
 
