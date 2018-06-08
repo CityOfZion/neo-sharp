@@ -136,6 +136,9 @@ namespace NeoSharp.Core.Messaging
 
                 byte val = (byte)v;
                 r[val] = new Cache(v, _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(centry)), messageHandlerInvoker);
+
+                // Extract the max value of the command for trim the cache later
+
                 max = Math.Max(max, val);
             }
 
