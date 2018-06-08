@@ -1,6 +1,5 @@
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.ExtensionMethods;
-using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
@@ -9,9 +8,7 @@ using NeoSharp.Core.Network.Security;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,11 +24,11 @@ namespace NeoSharp.Core.Network
 
         #region Properties
 
-        private readonly VersionPayload _version;
         private readonly INetworkAcl _acl;
+        private readonly IBlockchain _blockchain;
         private readonly ILogger<Server> _logger;
         private readonly IAsyncDelayer _asyncDelayer;
-        private readonly IBlockchain _blockchain;
+        private readonly IServerContext _serverContext;
         private readonly IPeerFactory _peerFactory;
         private readonly IPeerListener _peerListener;
         private readonly IMessageHandler<Message> _messageHandler;
@@ -42,7 +39,6 @@ namespace NeoSharp.Core.Network
         // if we can't connect to a peer it is inserted into this list
         // ReSharper disable once NotAccessedField.Local
         private readonly IList<IPEndPoint> _failedPeers;
-        private readonly ushort _port;
         private readonly EndPoint[] _peerEndPoints;
         private CancellationTokenSource _messageListenerTokenSource;
 
@@ -51,22 +47,6 @@ namespace NeoSharp.Core.Network
         #region Properties
 
         public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers; // TODO: thread safe?
-
-        /// <summary>
-        /// Get server version
-        /// </summary>
-        public VersionPayload Version
-        {
-            get
-            {
-                // update values
-
-                _version.Timestamp = DateTime.UtcNow.ToTimestamp();
-                _version.CurrentBlockIndex = _blockchain == null ? 0 : _blockchain.CurrentBlock == null ? 0 : _blockchain.CurrentBlock.Index;
-
-                return _version;
-            }
-        }
 
         #endregion
 
@@ -81,6 +61,7 @@ namespace NeoSharp.Core.Network
         /// <param name="logger">Logger</param>
         /// <param name="asyncDelayer">Async delayer</param>
         /// <param name="aclFactory">ACL factory</param>
+        /// <param name="serverContext">Server context</param>
         public Server(
             IBlockchain blockchain,
             NetworkConfig config,
@@ -89,7 +70,8 @@ namespace NeoSharp.Core.Network
             IMessageHandler<Message> messageHandler,
             ILogger<Server> logger,
             IAsyncDelayer asyncDelayer,
-            NetworkAclFactory aclFactory)
+            NetworkAclFactory aclFactory,
+            IServerContext serverContext)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
@@ -97,6 +79,7 @@ namespace NeoSharp.Core.Network
             _peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
+            _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
             if (aclFactory == null) throw new ArgumentNullException(nameof(aclFactory));
 
             _messageHandler = messageHandler;
@@ -109,21 +92,8 @@ namespace NeoSharp.Core.Network
             _failedPeers = new List<IPEndPoint>();
 
             // TODO: Change after port forwarding implementation
-            _port = config.Port;
             _peerEndPoints = config.PeerEndPoints;
-
-            _version = new VersionPayload
-            {
-                Version = 2,
-                // TODO: What's it?
-                // Services = NetworkAddressWithTime.NODE_NETWORK;
-                Timestamp = DateTime.UtcNow.ToTimestamp(),
-                Port = _port,
-                Nonce = (uint)new Random(Environment.TickCount).Next(),
-                UserAgent = $"/NEO:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/",
-                CurrentBlockIndex = _blockchain == null ? 0 : _blockchain.CurrentBlock == null ? 0 : _blockchain.CurrentBlock.Index,
-                Relay = true
-            };
+            _serverContext.BuiltVersionPayload(config.Port, blockchain.CurrentBlock?.Index ?? 0);
         }
 
         /// <summary>
@@ -185,8 +155,13 @@ namespace NeoSharp.Core.Network
 
                 ListenForMessages(peer, _messageListenerTokenSource.Token);
 
-                // initiate handshake
-                peer.Send(new VersionMessage(Version));
+                // Update version payload
+
+                _serverContext.BuiltVersionPayload(_blockchain.CurrentBlock?.Index ?? 0);
+
+                // Initiate handshake
+
+                peer.Send(new VersionMessage(_serverContext.Version));
             }
             catch (Exception e)
             {
