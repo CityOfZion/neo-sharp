@@ -1,4 +1,5 @@
 ﻿using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.ExtensionMethods
 {
@@ -11,7 +12,7 @@ namespace NeoSharp.Core.ExtensionMethods
         /// <returns>Return true or false</returns>
         public static bool IsHandshakeMessage(this Message message)
         {
-            return message.Command == MessageCommand.verack || message.Command == MessageCommand.version;
+            return message is VersionMessage || message is VerAckMessage;
         }
     }
 }
