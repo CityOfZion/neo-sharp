@@ -175,7 +175,7 @@ namespace NeoSharp.Core.Test.Network
 
             var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
             asyncDelayerMock
-                .Setup(x => x.Delay(TimeSpan.FromMilliseconds(1), It.IsAny<CancellationToken>()))
+                .Setup(x => x.Delay(ServerContext.DefaultDelayBetweenMessages, It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(0))
                 .Callback(() =>
                 {
