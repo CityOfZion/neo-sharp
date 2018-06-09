@@ -1,5 +1,5 @@
-﻿using NeoSharp.Core.Types;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Cryptography
 {
