@@ -1,27 +1,27 @@
 ﻿using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Extensions;
+using NeoSharp.Core.ExtensionMethods;
+using NeoSharp.Core.Helpers;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Network.Security;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.ExtensionMethods;
-using NeoSharp.Core.Helpers;
-using NeoSharp.Core.Logging;
-using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {
     public class Server : IServer, IDisposable
     {
+        private const int DefaultReceiveTimeout = 1000;
+
         private readonly INetworkAcl _acl;
         private readonly ILogger<Server> _logger;
         private readonly IAsyncDelayer _asyncDelayer;
-        private readonly IBlockchain _blockchain;
+        private readonly IServerContext _serverContext;
         private readonly IPeerFactory _peerFactory;
         private readonly IPeerListener _peerListener;
         private readonly IMessageHandler<Message> _messageHandler;
@@ -32,9 +32,7 @@ namespace NeoSharp.Core.Network
         // if we can't connect to a peer it is inserted into this list
         // ReSharper disable once NotAccessedField.Local
         private readonly IList<IPEndPoint> _failedPeers;
-        private readonly ushort _port;
         private readonly EndPoint[] _peerEndPoints;
-        private readonly string _userAgent;
         private CancellationTokenSource _messageListenerTokenSource;
 
         public Server(
@@ -45,14 +43,16 @@ namespace NeoSharp.Core.Network
             IMessageHandler<Message> messageHandler,
             ILogger<Server> logger,
             IAsyncDelayer asyncDelayer,
-            NetworkAclFactory aclFactory)
+            NetworkAclFactory aclFactory, 
+            IServerContext serverContext)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
-            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
+            if (blockchain == null) throw new ArgumentNullException(nameof(blockchain));
             _peerFactory = peerFactory ?? throw new ArgumentNullException(nameof(peerFactory));
             _peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
+            _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
             if (aclFactory == null) throw new ArgumentNullException(nameof(aclFactory));
 
             _messageHandler = messageHandler;
@@ -65,29 +65,18 @@ namespace NeoSharp.Core.Network
             _failedPeers = new List<IPEndPoint>();
 
             // TODO: Change after port forwarding implementation
-            _port = config.Port;
-
-            ProtocolVersion = 2;
-
-            var r = new Random(Environment.TickCount);
-            Nonce = (uint) r.Next();
-
             _peerEndPoints = config.PeerEndPoints;
 
-            _userAgent = $"/NEO:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/";
+            _serverContext.BuiltVersionPayload(config.Port, blockchain.CurrentBlock?.Index ?? 0);
         }
 
         public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers;
-
-        public uint ProtocolVersion { get; }
-
-        public uint Nonce { get; }
 
         public void Start()
         {
             Stop();
 
-            _messageListenerTokenSource = new CancellationTokenSource(1000);
+            _messageListenerTokenSource = new CancellationTokenSource(DefaultReceiveTimeout);
 
             // connect to peers
             ConnectToPeers();
@@ -112,31 +101,6 @@ namespace NeoSharp.Core.Network
             _peerListener.OnPeerConnected -= PeerConnected;
         }
 
-        private VersionMessage VersionMessage
-        {
-            get
-            {
-                // probably we can cache it
-                var version = new VersionMessage
-                {
-                    Payload =
-                    {
-                        Version = ProtocolVersion,
-                        // TODO: What's it?
-                        // Services = NetworkAddressWithTime.NODE_NETWORK;
-                        Timestamp = DateTime.UtcNow.ToTimestamp(),
-                        Port = _port,
-                        Nonce = Nonce,
-                        UserAgent = _userAgent,
-                        CurrentBlockIndex = _blockchain.CurrentBlock.Index,
-                        Relay = true
-                    }
-                };
-
-                return version;
-            }
-        }
-
         private void PeerConnected(object sender, IPeer peer)
         {
             try
@@ -152,7 +116,7 @@ namespace NeoSharp.Core.Network
                 ListenForMessages(peer, _messageListenerTokenSource.Token);
 
                 // initiate handshake
-                peer.Send(VersionMessage);
+                peer.Send(new VersionMessage(_serverContext.Version));
             }
             catch (Exception e)
             {
@@ -201,7 +165,7 @@ namespace NeoSharp.Core.Network
 
                     await _messageHandler.Handle(message, peer);
 
-                    await _asyncDelayer.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                    await _asyncDelayer.Delay(TimeSpan.FromMilliseconds(DefaultReceiveTimeout), cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }

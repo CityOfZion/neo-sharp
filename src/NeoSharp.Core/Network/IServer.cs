@@ -9,9 +9,5 @@ namespace NeoSharp.Core.Network
         void Stop();
 
         IReadOnlyCollection<IPeer> ConnectedPeers { get; }
-
-        uint ProtocolVersion { get; }
-
-        uint Nonce { get; }
     }
 }

@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.DI.SimpleInjector"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.RedisDB", "src\NeoSharp.Persistence.RedisDB\NeoSharp.Persistence.RedisDB.csproj", "{ED9A45F1-E717-4380-8F59-6F32873EEF69}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.VM.HyperVM", "src\NeoSharp.VM.HyperVM\NeoSharp.VM.HyperVM.csproj", "{32DD19F0-A1B7-4CEE-A26D-85E4DD7B57B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.VM", "src\NeoSharp.VM\NeoSharp.VM.csproj", "{32DD19F0-A1B7-4CEE-A26D-85E4DD7B57B5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.BinarySerialization", "src\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj", "{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30}"
 EndProject

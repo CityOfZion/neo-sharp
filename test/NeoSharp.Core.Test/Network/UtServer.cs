@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -83,7 +83,7 @@ namespace NeoSharp.Core.Test.Network
         public void Stop_SuccessfulPeerConnection_StoppingServerLeadsToDisconnectingPeer()
         {
             // Arrange 
-            var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
+            var waitSendToPeerVersionMessageResetEvent = new AutoResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -96,7 +96,7 @@ namespace NeoSharp.Core.Test.Network
             peerMock
                 .SetupFakeHandshake()
                 .Setup(x => x.Send(It.IsAny<VersionMessage>()))
-                .Callback(() => waitPeerIsConnectedResetEvent.Set());
+                .Callback(() => waitSendToPeerVersionMessageResetEvent.Set());
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
             peerFactoryMock
@@ -109,7 +109,7 @@ namespace NeoSharp.Core.Test.Network
             var server = AutoMockContainer.Create<Server>();
             server.Start();
 
-            waitPeerIsConnectedResetEvent.WaitOne();
+            waitSendToPeerVersionMessageResetEvent.WaitOne();
 
             server.Stop();
 
@@ -122,7 +122,7 @@ namespace NeoSharp.Core.Test.Network
         public void Dispose_ServerIsRunning_StopListenerAndDisconnectPeer()
         {
             // Arrange 
-            var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
+            var waitSendToPeerVersionMessageResetEvent = new AutoResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -135,7 +135,7 @@ namespace NeoSharp.Core.Test.Network
             peerMock
                 .SetupFakeHandshake()
                 .Setup(x => x.Send(It.IsAny<VersionMessage>()))
-                .Callback(() => waitPeerIsConnectedResetEvent.Set());
+                .Callback(() => waitSendToPeerVersionMessageResetEvent.Set());
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
             peerFactoryMock
@@ -148,7 +148,7 @@ namespace NeoSharp.Core.Test.Network
             var server = AutoMockContainer.Create<Server>();
             server.Start();
 
-            waitPeerIsConnectedResetEvent.WaitOne();
+            waitSendToPeerVersionMessageResetEvent.WaitOne();
 
             server.Dispose();
 
@@ -162,7 +162,7 @@ namespace NeoSharp.Core.Test.Network
         public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsNotHandshake_MessageIsHandled()
         {
             // Arrange 
-            var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
+            var waitNextPeerConnectionLoopResetEvent = new AutoResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -179,7 +179,7 @@ namespace NeoSharp.Core.Test.Network
                 .Returns(Task.FromResult(0))
                 .Callback(() =>
                 {
-                    waitPeerIsConnectedResetEvent.Set();
+                    waitNextPeerConnectionLoopResetEvent.Set();
                 });
 
             var peerMessage = new Message();
@@ -204,7 +204,7 @@ namespace NeoSharp.Core.Test.Network
             var server = AutoMockContainer.Create<Server>();
             server.Start();
 
-            var waitTimedOut = waitPeerIsConnectedResetEvent.WaitOne();
+            var waitTimedOut = waitNextPeerConnectionLoopResetEvent.WaitOne();
 
             server.Stop();
 
@@ -221,7 +221,7 @@ namespace NeoSharp.Core.Test.Network
         public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsHandshake_MessageIsNotHandled()
         {
             // Arrange 
-            var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
+            var waitPeerIsReadyResetEvent = new AutoResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -234,7 +234,11 @@ namespace NeoSharp.Core.Test.Network
 
             var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
 
-            var peerMessage = new VersionMessage();
+            var serverContextMock = AutoMockContainer
+                .GetMock<IServerContext>()
+                .SetupDefaultServerContext();
+
+            var peerMessage = new VersionMessage(serverContextMock.Object.Version);
             var peerMock = AutoMockContainer.GetMock<IPeer>();
             peerMock
                 .Setup(x => x.Receive())
@@ -245,7 +249,7 @@ namespace NeoSharp.Core.Test.Network
                 .Returns(true)
                 .Callback(() =>
                 {
-                    waitPeerIsConnectedResetEvent.Set();
+                    waitPeerIsReadyResetEvent.Set();
                 });
 
             peerMock
@@ -261,7 +265,7 @@ namespace NeoSharp.Core.Test.Network
             var server = AutoMockContainer.Create<Server>();
             server.Start();
 
-            var waitTimedOut = waitPeerIsConnectedResetEvent.WaitOne(TimeSpan.FromSeconds(3));
+            var waitTimedOut = waitPeerIsReadyResetEvent.WaitOne(TimeSpan.FromSeconds(3));
 
             server.Stop();
 
@@ -278,7 +282,7 @@ namespace NeoSharp.Core.Test.Network
         public void ListenerMessagesFromPeer_PeerIsNotReadyAndMessageIsNotHandshake_MessageIsNotHandled()
         {
             // Arrange 
-            var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
+            var waitPeerIsReadyResetEvent = new AutoResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -302,7 +306,7 @@ namespace NeoSharp.Core.Test.Network
                 .Returns(false)
                 .Callback(() =>
                 {
-                    waitPeerIsConnectedResetEvent.Set();
+                    waitPeerIsReadyResetEvent.Set();
                 });
 
             peerMock
@@ -318,7 +322,7 @@ namespace NeoSharp.Core.Test.Network
             var server = AutoMockContainer.Create<Server>();
             server.Start();
 
-            var waitTimedOut = waitPeerIsConnectedResetEvent.WaitOne(TimeSpan.FromSeconds(3));
+            var waitTimedOut = waitPeerIsReadyResetEvent.WaitOne(TimeSpan.FromSeconds(3));
 
             server.Stop();
 
@@ -335,7 +339,7 @@ namespace NeoSharp.Core.Test.Network
         public void ListenerMessagesFromPeer_PeerIsNotReadyAndMessageIsHandshake_MessageIsHandled()
         {
             // Arrange 
-            var waitPeerIsConnectedResetEvent = new AutoResetEvent(false);
+            var waitPeerIsReadyResetEvent = new AutoResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -348,7 +352,11 @@ namespace NeoSharp.Core.Test.Network
 
             var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
 
-            var peerMessage = new VersionMessage();
+            var serverContextMock = AutoMockContainer
+                .GetMock<IServerContext>()
+                .SetupDefaultServerContext();
+
+            var peerMessage = new VersionMessage(serverContextMock.Object.Version);
             var peerMock = AutoMockContainer.GetMock<IPeer>();
             peerMock
                 .Setup(x => x.Receive())
@@ -359,7 +367,7 @@ namespace NeoSharp.Core.Test.Network
                 .Returns(false)
                 .Callback(() =>
                 {
-                    waitPeerIsConnectedResetEvent.Set();
+                    waitPeerIsReadyResetEvent.Set();
                 });
 
             peerMock
@@ -375,7 +383,7 @@ namespace NeoSharp.Core.Test.Network
             var server = AutoMockContainer.Create<Server>();
             server.Start();
 
-            var waitTimedOut = waitPeerIsConnectedResetEvent.WaitOne(TimeSpan.FromSeconds(3));
+            var waitTimedOut = waitPeerIsReadyResetEvent.WaitOne(TimeSpan.FromSeconds(3));
 
             server.Stop();
 
