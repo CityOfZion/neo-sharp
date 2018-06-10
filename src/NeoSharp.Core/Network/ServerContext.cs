@@ -11,9 +11,9 @@ namespace NeoSharp.Core.Network
         #region Constants
 
         /// <summary>
-        /// Set default timeout between messages
+        /// Default interval for message polling
         /// </summary>
-        public static readonly TimeSpan DefaultDelayBetweenMessages = TimeSpan.FromMilliseconds(1);
+        public static readonly TimeSpan MessagePollingInterval = TimeSpan.FromMilliseconds(100);
 
         #endregion
 

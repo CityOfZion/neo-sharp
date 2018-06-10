@@ -173,15 +173,6 @@ namespace NeoSharp.Core.Test.Network
                 .SetupGet(x => x.CurrentBlock)
                 .Returns(new Block());
 
-            var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
-            asyncDelayerMock
-                .Setup(x => x.Delay(ServerContext.DefaultDelayBetweenMessages, It.IsAny<CancellationToken>()))
-                .Returns(Task.FromResult(0))
-                .Callback(() =>
-                {
-                    waitNextPeerConnectionLoopResetEvent.Set();
-                });
-
             var peerMessage = new Message();
             var peerMock = AutoMockContainer.GetMock<IPeer>();
             peerMock
@@ -203,18 +194,13 @@ namespace NeoSharp.Core.Test.Network
             // Act
             var server = AutoMockContainer.Create<Server>();
             server.Start();
-
-            var waitTimedOut = waitNextPeerConnectionLoopResetEvent.WaitOne();
-
             server.Stop();
 
             // Asset
-            waitTimedOut.Should().BeTrue();
             peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
             messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object));
-            asyncDelayerMock.Verify(x => x.Delay(ServerContext.DefaultDelayBetweenMessages, It.IsAny<CancellationToken>()));
         }
 
         [TestMethod]
@@ -293,8 +279,6 @@ namespace NeoSharp.Core.Test.Network
                 .SetupGet(x => x.CurrentBlock)
                 .Returns(new Block());
 
-            var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
-
             var peerMessage = new Message();
             var peerMock = AutoMockContainer.GetMock<IPeer>();
             peerMock
@@ -332,7 +316,6 @@ namespace NeoSharp.Core.Test.Network
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
             messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object), Times.Never);
-            asyncDelayerMock.Verify(x => x.Delay(ServerContext.DefaultDelayBetweenMessages, It.IsAny<CancellationToken>()), Times.Never);
         }
 
         [TestMethod]
@@ -349,8 +332,6 @@ namespace NeoSharp.Core.Test.Network
             blockchainMock
                 .SetupGet(x => x.CurrentBlock)
                 .Returns(new Block());
-
-            var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
 
             var serverContextMock = AutoMockContainer
                 .GetMock<IServerContext>()
@@ -393,7 +374,6 @@ namespace NeoSharp.Core.Test.Network
             peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
             peerMock.Verify(x => x.Receive());
             messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object));
-            asyncDelayerMock.Verify(x => x.Delay(ServerContext.DefaultDelayBetweenMessages, It.IsAny<CancellationToken>()));
         }
 
         private static NetworkConfig GetNetworkConfig(params string[] peerEndPoints)

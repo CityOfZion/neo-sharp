@@ -237,17 +237,16 @@ namespace NeoSharp.Core.Network
                 while (peer.IsConnected)
                 {
                     var message = await peer.Receive();
+                    if (message == null)
+                    {
+                        await _asyncDelayer.Delay(ServerContext.MessagePollingInterval, cancellationToken);
+                        continue;
+                    }
 
-                    if (message == null) break;
+                    // TODO: Peer that sending wrong messages has to be disconnected.
                     if (peer.IsReady == message.IsHandshakeMessage()) continue;
 
                     await _messageHandler.Handle(message, peer);
-
-                    // TODO: Define the sense of this delay, real test don't work with this
-
-                    // Sleep
-
-                    await _asyncDelayer.Delay(ServerContext.DefaultDelayBetweenMessages, cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
