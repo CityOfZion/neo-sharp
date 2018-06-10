@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
