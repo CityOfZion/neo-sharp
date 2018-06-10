@@ -7,31 +7,31 @@ namespace NeoSharp.Core.Extensions
     public static class IntExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int ToInt32(this byte[] value, int startIndex)
+        internal static int ToInt32(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToInt32(value, startIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static long ToInt64(this byte[] value, int startIndex)
+        internal static long ToInt64(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToInt64(value, startIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ushort ToUInt16(this byte[] value, int startIndex)
+        internal static ushort ToUInt16(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToUInt16(value, startIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static uint ToUInt32(this byte[] value, int startIndex)
+        internal static uint ToUInt32(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToUInt32(value, startIndex);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ulong ToUInt64(this byte[] value, int startIndex)
+        internal static ulong ToUInt64(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToUInt64(value, startIndex);
         }

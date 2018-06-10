@@ -5,41 +5,41 @@ using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Cryptography
 {
-    public sealed class Murmur3 : HashAlgorithm
+    sealed class Murmur3 : HashAlgorithm
     {
-        private const uint c1 = 0xcc9e2d51;
-        private const uint c2 = 0x1b873593;
-        private const int r1 = 15;
-        private const int r2 = 13;
-        private const uint m = 5;
-        private const uint n = 0xe6546b64;
+        private const uint _c1 = 0xcc9e2d51;
+        private const uint _c2 = 0x1b873593;
+        private const int _r1 = 15;
+        private const int _r2 = 13;
+        private const uint _m = 5;
+        private const uint _n = 0xe6546b64;
 
-        private readonly uint seed;
-        private uint hash;
-        private int length;
+        private readonly uint _seed;
+        private uint _hash;
+        private int _length;
 
         public override int HashSize => 32;
 
         public Murmur3(uint seed)
         {
-            this.seed = seed;
+            _seed = seed;
             Initialize();
         }
 
         protected override void HashCore(byte[] array, int ibStart, int cbSize)
         {
-            length += cbSize;
+            _length += cbSize;
             int remainder = cbSize & 3;
             int alignedLength = ibStart + (cbSize - remainder);
             for (int i = ibStart; i < alignedLength; i += 4)
             {
                 uint k = array.ToUInt32(i);
-                k *= c1;
-                k = RotateLeft(k, r1);
-                k *= c2;
-                hash ^= k;
-                hash = RotateLeft(hash, r2);
-                hash = hash * m + n;
+                k *= _c1;
+                k = RotateLeft(k, _r1);
+                k *= _c2;
+                _hash ^= k;
+                _hash = RotateLeft(_hash, _r2);
+                _hash = _hash * _m + _n;
             }
             if (remainder > 0)
             {
@@ -50,28 +50,28 @@ namespace NeoSharp.Core.Cryptography
                     case 2: remainingBytes ^= (uint)array[alignedLength + 1] << 8; goto case 1;
                     case 1: remainingBytes ^= array[alignedLength]; break;
                 }
-                remainingBytes *= c1;
-                remainingBytes = RotateLeft(remainingBytes, r1);
-                remainingBytes *= c2;
-                hash ^= remainingBytes;
+                remainingBytes *= _c1;
+                remainingBytes = RotateLeft(remainingBytes, _r1);
+                remainingBytes *= _c2;
+                _hash ^= remainingBytes;
             }
         }
 
         protected override byte[] HashFinal()
         {
-            hash ^= (uint)length;
-            hash ^= hash >> 16;
-            hash *= 0x85ebca6b;
-            hash ^= hash >> 13;
-            hash *= 0xc2b2ae35;
-            hash ^= hash >> 16;
-            return BitConverter.GetBytes(hash);
+            _hash ^= (uint)_length;
+            _hash ^= _hash >> 16;
+            _hash *= 0x85ebca6b;
+            _hash ^= _hash >> 13;
+            _hash *= 0xc2b2ae35;
+            _hash ^= _hash >> 16;
+            return BitConverter.GetBytes(_hash);
         }
 
         public override void Initialize()
         {
-            hash = seed;
-            length = 0;
+            _hash = _seed;
+            _length = 0;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
