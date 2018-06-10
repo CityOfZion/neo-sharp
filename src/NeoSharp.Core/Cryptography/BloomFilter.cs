@@ -1,44 +1,67 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
+using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Cryptography
 {
     public class BloomFilter
     {
-        private readonly uint[] seeds;
-        private readonly BitArray bits;
+        private readonly uint[] _seeds;
+        private readonly BitArray _bits;
+        private readonly ICrypto _crypto;
 
-        public int K => seeds.Length;
+        public int K => _seeds.Length;
+        public int M => _bits.Length;
+        public readonly uint Tweak;
 
-        public int M => bits.Length;
-
-        public uint Tweak { get; private set; }
-
-        public BloomFilter(int m, int k, uint nTweak, byte[] elements = null)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="crypto">ICrypto</param>
+        /// <param name="m">Size</param>
+        /// <param name="k">Hash iterations</param>
+        /// <param name="nTweak">Seed</param>
+        /// <param name="elements">Initial elements</param>
+        public BloomFilter(ICrypto crypto, int m, int k, uint nTweak, byte[] elements = null)
         {
-            this.seeds = Enumerable.Range(0, k).Select(p => (uint)p * 0xFBA4C795 + nTweak).ToArray();
-            this.bits = elements == null ? new BitArray(m) : new BitArray(elements);
-            this.bits.Length = m;
-            this.Tweak = nTweak;
+            _crypto = crypto ?? throw new ArgumentNullException(nameof(crypto));
+            _seeds = Enumerable.Range(0, k).Select(p => (uint)p * 0xFBA4C795 + nTweak).ToArray();
+            _bits = elements == null ? new BitArray(m) : new BitArray(elements);
+            _bits.Length = m;
+            Tweak = nTweak;
         }
 
+        /// <summary>
+        /// Add element to structure
+        /// </summary>
+        /// <param name="element">Element</param>
         public void Add(byte[] element)
         {
-            foreach (uint i in seeds.AsParallel().Select(s => element.Murmur32(s)))
-                bits.Set((int)(i % (uint)bits.Length), true);
+            foreach (uint i in _seeds.AsParallel().Select(s => _crypto.Murmur32(element, s)))
+                _bits.Set((int)(i % (uint)_bits.Length), true);
         }
 
+        /// <summary>
+        /// Check element in structure
+        /// </summary>
+        /// <param name="element">Element</param>
+        /// <returns>If probably present</returns>
         public bool Check(byte[] element)
         {
-            foreach (uint i in seeds.AsParallel().Select(s => element.Murmur32(s)))
-                if (!bits.Get((int)(i % (uint)bits.Length)))
+            foreach (uint i in _seeds.AsParallel().Select(s => _crypto.Murmur32(element, s)))
+                if (!_bits.Get((int)(i % (uint)_bits.Length)))
                     return false;
             return true;
         }
 
+        /// <summary>
+        /// BloomFilter bit structure
+        /// </summary>
+        /// <param name="newBits">Bytearray to store structure</param>
         public void GetBits(byte[] newBits)
         {
-            bits.CopyTo(newBits, 0);
+            _bits.CopyTo(newBits, 0);
         }
     }
 }
