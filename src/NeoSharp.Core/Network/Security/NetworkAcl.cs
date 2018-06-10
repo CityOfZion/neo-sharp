@@ -164,6 +164,10 @@ namespace NeoSharp.Core.Network.Security
                         Entries[x] = new Entry(value);
                 }
             }
+            else
+            {
+                Entries = new Entry[] { };
+            }
         }
     }
 }

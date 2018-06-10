@@ -1,19 +1,37 @@
-﻿using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Messaging;
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Messaging;
 
 namespace NeoSharp.Core.Network.Protocols
 {
     public class ProtocolV1 : ProtocolBase
     {
+        #region Properties
+        
+        /// <summary>
+        /// Protocol version
+        /// </summary>
+        public override uint Version => 1;
+
+        #endregion
+        
+        #region Variables
+
         private readonly IBinaryConverter _serializer;
         private readonly uint _magic;
 
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="serializer">Serializer</param>
         public ProtocolV1(NetworkConfig config, IBinaryConverter serializer)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
@@ -22,8 +40,6 @@ namespace NeoSharp.Core.Network.Protocols
             _magic = config.Magic;
         }
 
-        public override uint Version => 1;
-
         public override async Task SendMessageAsync(Stream stream, Message message,
             CancellationToken cancellationToken)
         {
@@ -31,13 +47,13 @@ namespace NeoSharp.Core.Network.Protocols
             using (var writer = new BinaryWriter(memory, Encoding.UTF8))
             {
                 writer.Write(_magic);
-                writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadRight(12, ' ')));
+                writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadRight(12, '\0')));
 
                 var payloadBuffer = message is ICarryPayload messageWithPayload
                     ? _serializer.Serialize(messageWithPayload.Payload)
                     : new byte[0];
 
-                writer.Write(payloadBuffer.Length);
+                writer.Write((uint)payloadBuffer.Length);
                 writer.Write(CalculateChecksum(payloadBuffer));
                 writer.Write(payloadBuffer);
                 writer.Flush();
@@ -57,7 +73,7 @@ namespace NeoSharp.Core.Network.Protocols
                 if (reader.ReadUInt32() != _magic)
                     throw new FormatException();
 
-                var command = Enum.Parse<MessageCommand>(Encoding.UTF8.GetString(reader.ReadBytes(12)));
+                var command = Enum.Parse<MessageCommand>(Encoding.UTF8.GetString(reader.ReadBytes(12)).TrimEnd('\0'));
 
                 if (!Cache.TryGetValue(command, out var type))
                     throw (new ArgumentException("command"));
@@ -90,6 +106,11 @@ namespace NeoSharp.Core.Network.Protocols
             }
         }
 
+        /// <summary>
+        /// Calculate message checksum
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <returns>Checksum</returns>
         private static uint CalculateChecksum(byte[] value)
         {
             return value.Sha256(0, value.Length).Sha256(0, 32).ToUInt32(0);

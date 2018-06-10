@@ -1,13 +1,19 @@
-﻿using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Types;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Converters
 {
-    class UInt256Converter : TypeConverter
+    class UInt256Converter : TypeConverter, IFixedBufferConverter
     {
+        /// <summary>
+        /// Buffer length
+        /// </summary>
+        public int FixedLength => UInt256.BufferLength;
+
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             return destinationType == typeof(UInt256) || destinationType == typeof(byte[]) || destinationType == typeof(string);

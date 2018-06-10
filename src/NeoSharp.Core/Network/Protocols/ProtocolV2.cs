@@ -1,28 +1,44 @@
-﻿using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Messaging;
-using System;
+﻿using System;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Messaging;
 
 namespace NeoSharp.Core.Network.Protocols
 {
     public class ProtocolV2 : ProtocolBase
     {
+       #region Properties
+        
+        /// <summary>
+        /// Protocol version
+        /// </summary>
+        public override uint Version => 2;
+
+        #endregion
+        
+        #region Variables
+
         private readonly IBinaryConverter _serializer;
         private readonly uint _magic;
 
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="serializer">Serializer</param>
         public ProtocolV2(NetworkConfig config, IBinaryConverter serializer)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _magic = config.Magic;
         }
-
-        public override uint Version => 2;
 
         public override bool IsHighPriorityMessage(Message m)
         {

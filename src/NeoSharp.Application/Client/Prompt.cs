@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using NeoSharp.Application.Attributes;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain;
@@ -7,10 +11,6 @@ using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 
 namespace NeoSharp.Application.Client
 {
@@ -135,6 +135,13 @@ namespace NeoSharp.Application.Client
         {
             _logger.LogInformation("Starting Prompt");
             _consoleWriter.WriteLine("Neo-Sharp");
+
+            if (args != null)
+            {
+                // Append arguments as inputs
+
+                _consoleReader.AppendInputs(args);
+            }
 
             while (!_exit)
             {

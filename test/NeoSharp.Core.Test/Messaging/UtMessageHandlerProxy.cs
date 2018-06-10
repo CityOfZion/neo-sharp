@@ -33,13 +33,14 @@ namespace NeoSharp.Core.Test.Messaging
                 .SetupDefaultServerContext();
 
             var containerMock = AutoMockContainer.GetMock<IContainer>();
+
             containerMock
                 .Setup(c => c.Resolve(It.IsAny<Type>()))
                 .Returns(() => new NullVersionMessageHandler());
 
             var loggerMock = AutoMockContainer.GetMock<ILogger<MessageHandlerProxy>>();
 
-            var messageHandlerProxy = new MessageHandlerProxy(containerMock.Object, new []{ typeof(NullVersionMessageHandler) }, loggerMock.Object);
+            var messageHandlerProxy = new MessageHandlerProxy(containerMock.Object, new[] { typeof(NullVersionMessageHandler) }, loggerMock.Object);
 
             // Act
             var task = messageHandlerProxy.Handle(new VersionMessage(serverContextMock.Object.Version), null);
@@ -65,7 +66,7 @@ namespace NeoSharp.Core.Test.Messaging
             Action a = () => messageHandlerProxy.Handle(new VersionMessage(serverContextMock.Object.Version), null);
 
             // Assert
-            a.Should().Throw<InvalidOperationException>();
+            a.Should().Throw<Exception>();
         }
     }
 }

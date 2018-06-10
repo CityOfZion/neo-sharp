@@ -74,7 +74,7 @@ namespace NeoSharp.Core.Network
 
         private static EndPoint[] ParsePeerEndPoints(IConfiguration config)
         {
-            var peerEndPoints = config.GetSection("peerEndPoints")?.Get<string[]>();
+            var peerEndPoints = config.GetSection("peerEndPoints")?.Get<string[]>().Distinct();
             if (peerEndPoints == null) return new EndPoint[0];
 
             string MatchGroupValue(Group group) => group.Success ? group.Value : null;

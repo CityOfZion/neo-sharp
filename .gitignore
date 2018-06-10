@@ -255,3 +255,4 @@ paket-files/
 *.sln.iml
 
 PublishProfiles
+src/NeoSharp.Application/Properties/launchSettings.json

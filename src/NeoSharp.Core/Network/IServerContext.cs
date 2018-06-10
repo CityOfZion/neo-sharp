@@ -4,8 +4,14 @@ namespace NeoSharp.Core.Network
 {
     public interface IServerContext
     {
+        /// <summary>
+        /// Version
+        /// </summary>
         VersionPayload Version { get; }
 
-        void BuiltVersionPayload(ushort port, uint blockchainCurrentBlockIndex);
+        /// <summary>
+        /// Update version payload
+        /// </summary>
+        void UpdateVersionPayload();
     }
 }

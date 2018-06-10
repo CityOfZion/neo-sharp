@@ -506,16 +506,38 @@ namespace NeoSharp.BinarySerialization.Cache
                 {
                     if (typeConverter.CanConvertTo(typeof(byte[])) && typeConverter.CanConvertFrom(type))
                     {
-                        readValue = (deserializer, reader) =>
+                        if (typeConverter is IFixedBufferConverter fix)
                         {
-                            var buffer = ReadVarBytes(reader, 100);
-                            return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
-                        };
-                        writeValue = (serializer, writer, value) =>
+                            int bufferLength = fix.FixedLength;
+
+                            readValue = (deserializer, reader) =>
+                            {
+                                var buffer = reader.ReadBytes(bufferLength);
+                                return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
+                            };
+
+                            writeValue = (serializer, writer, value) =>
+                            {
+                                var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
+                                writer.Write(buffer);
+                                return buffer.Length;
+                            };
+                        }
+                        else
                         {
-                            var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
-                            return WriteVarBytes(writer, buffer);
-                        };
+                            readValue = (deserializer, reader) =>
+                            {
+                                var buffer = ReadVarBytes(reader, 100);
+                                return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
+                            };
+
+                            writeValue = (serializer, writer, value) =>
+                            {
+                                var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
+                                return WriteVarBytes(writer, buffer);
+                            };
+                        }
+
                         return true;
                     }
                 }

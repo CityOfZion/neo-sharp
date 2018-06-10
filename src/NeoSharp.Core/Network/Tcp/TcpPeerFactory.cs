@@ -10,11 +10,22 @@ namespace NeoSharp.Core.Network.Tcp
 {
     public class TcpPeerFactory : ITcpPeerFactory
     {
+        #region Variables
+
         private readonly bool _forceIPv6;
         private readonly ILogger<TcpPeerFactory> _logger;
         private readonly ILogger<TcpPeer> _peerLogger;
         private readonly ProtocolSelector _protocolSelector;
 
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="config">Configuration</param>
+        /// <param name="protocolSelector">Protocol selector</param>
+        /// <param name="logger">TcpPeerFactory Logger</param>
+        /// <param name="peerLogger">TcpPeer logger</param>
         public TcpPeerFactory(NetworkConfig config, ProtocolSelector protocolSelector, ILogger<TcpPeerFactory> logger, ILogger<TcpPeer> peerLogger)
         {
             _forceIPv6 = config.ForceIPv6;
@@ -23,6 +34,11 @@ namespace NeoSharp.Core.Network.Tcp
             _peerLogger = peerLogger;
         }
 
+        /// <summary>
+        /// Connect to
+        /// </summary>
+        /// <param name="endPoint">Endpoint</param>
+        /// <returns>IPeer</returns>
         public async Task<IPeer> ConnectTo(EndPoint endPoint)
         {
             var ipAddress = await GetIpAddress(endPoint.Host);
@@ -35,16 +51,21 @@ namespace NeoSharp.Core.Network.Tcp
 
             var ipEp = new IPEndPoint(ipAddress, endPoint.Port);
 
-            _logger.LogInformation($"Connecting to {ipEp}");
+            _logger?.LogInformation($"Connecting to {ipEp}");
 
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            await socket.ConnectAsync(ipEp.Address, ipEp.Port); // TODO: thread etc
+            await socket.ConnectAsync(ipEp.Address, ipEp.Port);
 
-            _logger.LogInformation($"Connected to {ipEp}");
+            _logger?.LogInformation($"Connected to {ipEp}");
 
             return CreateFrom(socket);
         }
 
+        /// <summary>
+        /// Get Ip from hostname or address
+        /// </summary>
+        /// <param name="hostNameOrAddress">Host or Address</param>
+        /// <returns>IpAdress</returns>
         private static async Task<IPAddress> GetIpAddress(string hostNameOrAddress)
         {
             if (IPAddress.TryParse(hostNameOrAddress, out var ipAddress))
@@ -57,18 +78,24 @@ namespace NeoSharp.Core.Network.Tcp
             try
             {
                 ipHostEntry = await Dns.GetHostEntryAsync(hostNameOrAddress);
+
+                return ipHostEntry.AddressList
+                    .FirstOrDefault(p => p.AddressFamily == AddressFamily.InterNetwork || p.IsIPv6Teredo);
             }
-            catch (SocketException)
+            catch
             {
                 return null;
             }
-
-            return ipHostEntry.AddressList
-                .FirstOrDefault(p => p.AddressFamily == AddressFamily.InterNetwork || p.IsIPv6Teredo);
         }
 
+        /// <summary>
+        /// Create Peer from socket
+        /// </summary>
+        /// <param name="socket">Socket</param>
+        /// <returns>TcpPeer</returns>
         public TcpPeer CreateFrom(Socket socket)
         {
+            // TODO: thread etc
             return new TcpPeer(socket, _protocolSelector, _peerLogger);
         }
     }

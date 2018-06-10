@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
@@ -8,15 +8,30 @@ namespace NeoSharp.Core.Messaging.Handlers
 {
     public class VersionMessageHandler : IMessageHandler<VersionMessage>
     {
-        private readonly IServerContext _serverContext;
-        private readonly ILogger<VersionMessageHandler> _logger;
+        #region Variables
 
+        private readonly ILogger<VersionMessageHandler> _logger;
+        private readonly IServerContext _serverContext;
+
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="serverContext">Server</param>
+        /// <param name="logger">Logger</param>
         public VersionMessageHandler(IServerContext serverContext, ILogger<VersionMessageHandler> logger)
         {
             _serverContext = serverContext;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Handle message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <param name="sender">Sender</param>
+        /// <returns>Task</returns>
         public async Task Handle(VersionMessage message, IPeer sender)
         {
             sender.Version = message.Payload;
@@ -26,10 +41,14 @@ namespace NeoSharp.Core.Messaging.Handlers
                 throw new InvalidOperationException($"The handshake is failed due to \"{nameof(_serverContext.Version.Nonce)}\" value equality.");
             }
 
+            // Change protocol?
+
             if (sender.ChangeProtocol(message.Payload))
             {
                 _logger?.LogWarning("Changed protocol.");
             }
+
+            // Send Ack
 
             await sender.Send<VerAckMessage>();
         }
