@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.8.2" />
+    <PackageReference Include="Moq" Version="4.8.3" />
     <PackageReference Include="Unity" Version="5.8.6" />
   </ItemGroup>
 

@@ -6,18 +6,18 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Core.Test.Network.Security
 {
     [TestClass]
-    public class UtNetworkAclFactory : TestBase
+    public class UtNetworkAclLoader : TestBase
     {
         [TestMethod]
-        public void CreateNew_CreateNewInstanceOfINetworkAcl()
+        public void Load_LoadNewInstanceOfNetworkAcl()
         {
-            var testee = this.AutoMockContainer.Create<NetworkAclFactory>();
+            var testee = this.AutoMockContainer.Create<NetworkAclLoader>();
 
-            var result = testee.CreateNew();
+            var result = testee.Load(new NetworkAclConfig());
 
             result
                 .Should()
-                .BeAssignableTo<INetworkAcl>();
+                .BeAssignableTo<NetworkAcl>();
         }
 
     }

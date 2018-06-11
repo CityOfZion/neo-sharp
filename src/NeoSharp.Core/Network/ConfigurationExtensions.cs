@@ -15,13 +15,16 @@ namespace NeoSharp.Core.Network
 
         private static readonly Regex _peerEndPointPattern = new Regex(@"^(?<proto>\w+)://(?<host>[^/:]+):?(?<port>\d+)?/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public static void Bind(this IConfiguration config, NetworkConfig networkConfig)
+        public static void Bind(this IConfiguration config, NetworkConfig networkConfig, INetworkAclLoader aclLoader)
         {
             networkConfig.Magic = ParseUInt32(config, "magic", DefaultMagic);
             networkConfig.Port = ParseUInt16(config, "port");
             networkConfig.ForceIPv6 = ParseBool(config, "forceIPv6");
-            networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
-            networkConfig.Acl = ParseAcl(config, "acl");
+
+            var aclConfig = ParseAcl(config, "acl");
+            networkConfig.Acl = aclConfig;
+
+            networkConfig.PeerEndPoints = ParsePeerEndPoints(config, aclLoader.Load(aclConfig) ?? NetworkAcl.Default);
         }
 
         public static void Bind(this IConfiguration config, RpcConfig rpcConfig)
@@ -72,7 +75,7 @@ namespace NeoSharp.Core.Network
             return defaultValue;
         }
 
-        private static EndPoint[] ParsePeerEndPoints(IConfiguration config)
+        private static EndPoint[] ParsePeerEndPoints(IConfiguration config, NetworkAcl acl)
         {
             var peerEndPoints = config.GetSection("peerEndPoints")?.Get<string[]>().Distinct();
             if (peerEndPoints == null) return new EndPoint[0];
@@ -86,6 +89,7 @@ namespace NeoSharp.Core.Network
                     MatchGroupValue(m.Groups["proto"]),
                     MatchGroupValue(m.Groups["host"]),
                     MatchGroupValue(m.Groups["port"])))
+                .Where(acl.IsAllowed)
                 .ToArray();
         }
 
@@ -121,7 +125,7 @@ namespace NeoSharp.Core.Network
             var aclSection = config?.GetSection(section);
 
             acl.Path = ParseString(aclSection, "path");
-            acl.Type = ParseEnum(aclSection, "type", NetworkAclConfig.AclType.None);
+            acl.Type = ParseEnum(aclSection, "type", NetworkAclType.None);
 
             return acl;
         }

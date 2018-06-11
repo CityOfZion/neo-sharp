@@ -54,7 +54,6 @@ namespace NeoSharp.Core.Network.Tcp
         private bool _isReady;
         private ProtocolBase _protocol;
 
-        public readonly IPAddress IPAddress;
         private readonly Socket _socket;
         private readonly ProtocolSelector _protocolSelector;
         private readonly NetworkStream _stream;
@@ -82,9 +81,13 @@ namespace NeoSharp.Core.Network.Tcp
 
             // Extract address
 
-            IPEndPoint ep = (IPEndPoint)(socket.IsBound ? socket.RemoteEndPoint : socket.LocalEndPoint);
-            IPAddress = ep.Address;
-            EndPoint = new EndPoint() { Protocol = Protocol.Tcp, Host = ep.Address.ToString(), Port = ep.Port };
+            var ipEndPoint = (IPEndPoint)(socket.IsBound ? socket.RemoteEndPoint : socket.LocalEndPoint);
+            EndPoint = new EndPoint
+            {
+                Protocol = Protocol.Tcp,
+                Host = ipEndPoint.Address.ToString(),
+                Port = ipEndPoint.Port
+            };
 
             SendMessages(_messageSenderTokenSource.Token);
         }

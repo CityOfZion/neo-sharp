@@ -24,7 +24,7 @@ namespace NeoSharp.Core.Network.Rpc
         private const int MaxPostValue = 1024 * 1024 * 2;
 
         private IWebHost _host;
-        private readonly INetworkAcl _acl;
+        private readonly NetworkAcl _acl;
         private readonly RpcConfig _config;
         private readonly IBlockchain _blockchain;
         private readonly ILogger<RpcServer> _logger;
@@ -38,26 +38,25 @@ namespace NeoSharp.Core.Network.Rpc
         /// <param name="config">Config</param>
         /// <param name="blockchain">Blockchain</param>
         /// <param name="logger">Logger</param>
-        /// <param name="aclFactory">Acl</param>
+        /// <param name="aclLoader">ACL Loader</param>
         public RpcServer(
             RpcConfig config,
             IBlockchain blockchain,
             ILogger<RpcServer> logger,
-            NetworkAclFactory aclFactory)
+            INetworkAclLoader aclLoader)
         {
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            if (aclFactory == null) throw new ArgumentNullException(nameof(aclFactory));
+            if (aclLoader == null) throw new ArgumentNullException(nameof(aclLoader));
 
-            _acl = aclFactory.CreateNew();
-            _acl?.Load(config?.Acl);
+            _acl = aclLoader.Load(config.Acl) ?? NetworkAcl.Default;
             _callbacks = new List<IRpcProcessRequest>();
         }
 
         private static JObject CreateErrorResponse(string id, int code, string message, object error = null)
         {
-            JObject response = CreateResponse(id);
+            var response = CreateResponse(id);
             response["error"] = new JObject
             {
                 ["code"] = code,
@@ -72,7 +71,7 @@ namespace NeoSharp.Core.Network.Rpc
 
         private static JObject CreateResponse(string id)
         {
-            JObject response = new JObject
+            var response = new JObject
             {
                 ["jsonrpc"] = "2.0",
                 ["id"] = id
@@ -86,9 +85,9 @@ namespace NeoSharp.Core.Network.Rpc
 
             try
             {
-                foreach (IRpcProcessRequest req in _callbacks)
+                foreach (var req in _callbacks)
                 {
-                    object ret = req.Process(request);
+                    var ret = req.Process(request);
                     if (ret != null)
                     {
                         result = JObject.FromObject(ret);
@@ -104,21 +103,21 @@ namespace NeoSharp.Core.Network.Rpc
 #endif
             }
 
-            JObject response = CreateResponse(request.Id);
+            var response = CreateResponse(request.Id);
             response["result"] = result;
             return response;
         }
 
         private async Task ProcessAsync(HttpContext context)
         {
-            if(_acl != null && !_acl.IsAllowed(context.Connection.RemoteIpAddress))
+            if(_acl.IsAllowed(context.Connection.RemoteIpAddress) == false)
             {
-                _logger?.LogWarning("Unauthorized request " + context.Connection.RemoteIpAddress.ToString());
+                _logger?.LogWarning("Unauthorized request " + context.Connection.RemoteIpAddress);
 
                 context.Response.StatusCode = 401;
-                var unathorized_response = CreateErrorResponse(null, 401, "Forbidden");
+                var unathorizedResponse = CreateErrorResponse(null, 401, "Forbidden");
                 context.Response.ContentType = "application/json-rpc";
-                await context.Response.WriteAsync(unathorized_response.ToString(), Encoding.UTF8);
+                await context.Response.WriteAsync(unathorizedResponse.ToString(), Encoding.UTF8);
 
                 return;
             }
@@ -128,7 +127,7 @@ namespace NeoSharp.Core.Network.Rpc
             context.Response.Headers["Access-Control-Allow-Headers"] = "Content-Type";
             context.Response.Headers["Access-Control-Max-Age"] = "31536000";
 
-            RpcRequest request = new RpcRequest();
+            var request = new RpcRequest();
 
             try
             {
@@ -145,7 +144,7 @@ namespace NeoSharp.Core.Network.Rpc
                 {
                     string post;
 
-                    using (StreamReader reader = new StreamReader(context.Request.Body))
+                    using (var reader = new StreamReader(context.Request.Body))
                     {
                         if (!context.Request.ContentLength.HasValue ||
                             context.Request.ContentLength > MaxPostValue)
@@ -154,7 +153,7 @@ namespace NeoSharp.Core.Network.Rpc
                         post = reader.ReadToEnd();
                     }
 
-                    JObject ret = JObject.Parse(post);
+                    var ret = JObject.Parse(post);
 
                     request.JsonRpc = ret["jsonrpc"].Value<string>();
                     request.Id = ret["id"].Value<string>();
@@ -166,14 +165,7 @@ namespace NeoSharp.Core.Network.Rpc
             catch { }
 
             JToken response;
-            if (!request.IsValid)
-            {
-                response = CreateErrorResponse(null, -32700, "Parse error");
-            }
-            else
-            {
-                response = ProcessRequest(request);
-            }
+            response = !request.IsValid ? CreateErrorResponse(null, -32700, "Parse error") : ProcessRequest(request);
 
             if (response == null || (response as JArray)?.Count == 0) return;
 

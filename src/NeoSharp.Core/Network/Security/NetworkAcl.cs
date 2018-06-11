@@ -1,12 +1,13 @@
-﻿using System.IO;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text.RegularExpressions;
 using NeoSharp.Core.Network.Tcp;
-using NeoSharp.Core.Types.Json;
 
 namespace NeoSharp.Core.Network.Security
 {
-    public class NetworkAcl : INetworkAcl
+    public class NetworkAcl
     {
         public class Entry
         {
@@ -28,8 +29,9 @@ namespace NeoSharp.Core.Network.Security
             /// <returns>Return true if match</returns>
             public virtual bool Match(string address)
             {
-                return Value == address;
+                return string.Equals(Value, address, StringComparison.OrdinalIgnoreCase);
             }
+
             /// <summary>
             /// String representation
             /// </summary>
@@ -41,39 +43,41 @@ namespace NeoSharp.Core.Network.Security
 
         public class RegexEntry : Entry
         {
-            private readonly Regex _cache;
+            private readonly Regex _pattern;
 
-            /// <summary>
-            /// Constructor
-            /// </summary>
-            /// <param name="value">Value</param>
-            public RegexEntry(string value) : base(value)
+            /// <inheritdoc />
+            public RegexEntry(string pattern) : base(pattern)
             {
-                _cache = new Regex(value);
+                _pattern = new Regex(pattern);
             }
 
-            /// <summary>
-            /// Macth Value
-            /// </summary>
-            /// <param name="address">Address</param>
-            /// <returns>Return true if match</returns>
+            /// <inheritdoc />
             public override bool Match(string address)
             {
-                return _cache.IsMatch(address);
+                return _pattern.IsMatch(address);
             }
         }
 
-        /// <summary>
-        /// File Entries
-        /// </summary>
-        public Entry[] Entries { get; private set; }
+        public NetworkAcl(NetworkAclType type, IReadOnlyCollection<Entry> entries)
+        {
+            Type = type;
+            Entries = entries;
+        }
+
+        public static NetworkAcl Default => new NetworkAcl(NetworkAclType.None, new Entry[0]);
+
         /// <summary>
         /// Acl behaviour
         /// </summary>
-        public NetworkAclConfig.AclType Type { get; private set; } = NetworkAclConfig.AclType.None;
+        public NetworkAclType Type { get; }
 
         /// <summary>
-        /// Allow or deny string Adresses based on rules
+        /// Entries
+        /// </summary>
+        public IReadOnlyCollection<Entry> Entries { get; }
+
+        /// <summary>
+        /// Allow or deny IP Adresses based on rules
         /// </summary>
         /// <param name="address">Address to check</param>
         /// <returns>True if pass</returns>
@@ -83,29 +87,22 @@ namespace NeoSharp.Core.Network.Security
 
             switch (Type)
             {
-                case NetworkAclConfig.AclType.Blacklist:
-                    {
-                        foreach (var entry in Entries)
-                        {
-                            if (entry.Match(address))
-                                return false;
-                        }
-                        return true;
-                    }
-                case NetworkAclConfig.AclType.Whitelist:
-                    {
-                        foreach (var entry in Entries)
-                        {
-                            if (entry.Match(address))
-                                return true;
-                        }
-                        return false;
-                    }
+                case NetworkAclType.Blacklist:
+                {
+                    return Entries.All(entry => entry.Match(address) == false);
+                }
+
+                case NetworkAclType.Whitelist:
+                {
+                    return Entries.Any(entry => entry.Match(address));
+                }
+
                 default: return true;
             }
         }
+
         /// <summary>
-        /// Allow or deny IP Adresses based on rules
+        /// Allow or deny string Adresses based on rules
         /// </summary>
         /// <param name="address">Address to check</param>
         /// <returns>True if pass</returns>
@@ -113,61 +110,15 @@ namespace NeoSharp.Core.Network.Security
         {
             return IsAllowed(address?.ToString());
         }
+
         /// <summary>
-        /// Allow or deny Peer based on rules
+        /// Allow or deny end points based on rules
         /// </summary>
-        /// <param name="peer">Peer to check</param>
+        /// <param name="endPoint">Endpoint to check</param>
         /// <returns>True if pass</returns>
-        public bool IsAllowed(IPeer peer)
+        public bool IsAllowed(EndPoint endPoint)
         {
-            if (peer is TcpPeer tcp)
-            {
-                return IsAllowed(tcp.IPAddress);
-            }
-            else
-            {
-                // TODO: Remove this line when fix mock
-                if (peer.EndPoint == null) return true;
-
-                return IsAllowed(peer?.EndPoint.Host);
-            }
-        }
-        /// <summary>
-        /// Initiate the Acl
-        /// </summary>
-        /// <param name="cfg">Config</param>
-        public void Load(NetworkAclConfig cfg)
-        {
-            if (cfg == null) return;
-
-            Type = cfg.Type;
-
-            if (!string.IsNullOrEmpty(cfg.Path) && File.Exists(cfg.Path))
-            {
-                var json = File.ReadAllText(cfg.Path);
-                var jo = JObject.Parse(json);
-
-                if (!(jo is JArray array)) return;
-
-                Entries = new Entry[array.Count];
-
-                for (int x = 0, m = array.Count; x < m; x++)
-                {
-                    var j = array[x];
-                    if (!j.ContainsProperty("value")) continue;
-
-                    var value = j.Properties["value"].AsString();
-
-                    if (j.ContainsProperty("regex") &&  j.Properties["regex"].AsBooleanOrDefault(false))
-                        Entries[x] = new RegexEntry(value);
-                    else
-                        Entries[x] = new Entry(value);
-                }
-            }
-            else
-            {
-                Entries = new Entry[] { };
-            }
+            return IsAllowed(endPoint.Host);
         }
     }
 }

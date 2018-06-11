@@ -13,6 +13,7 @@ using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Network.Security;
 using NeoSharp.Core.Test.ExtensionMethods;
 using NeoSharp.TestHelpers;
 
@@ -393,7 +394,7 @@ namespace NeoSharp.Core.Test.Network
                 .AddInMemoryCollection(initialData)
                 .Build();
 
-            return new NetworkConfig(configuration);
+            return new NetworkConfig(configuration, new NetworkAclLoader());
         }
     }
 }

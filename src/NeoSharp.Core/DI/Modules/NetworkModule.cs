@@ -17,10 +17,10 @@ namespace NeoSharp.Core.DI.Modules
         {
             containerBuilder.RegisterSingleton<IServerContext, ServerContext>();
 
-            containerBuilder.RegisterSingleton<NetworkAclFactory>();
             containerBuilder.RegisterSingleton<NetworkConfig>();
             containerBuilder.RegisterSingleton<RpcConfig>();
             containerBuilder.RegisterSingleton<ProtocolSelector>();
+            containerBuilder.RegisterSingleton<INetworkAclLoader, NetworkAclLoader>();
             containerBuilder.RegisterSingleton<INetworkManager, NetworkManager>();
             containerBuilder.RegisterSingleton<IServer, Server>();
             containerBuilder.RegisterSingleton<IRpcServer, RpcServer>();

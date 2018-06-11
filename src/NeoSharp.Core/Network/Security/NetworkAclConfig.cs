@@ -3,28 +3,10 @@
     public class NetworkAclConfig
     {
         /// <summary>
-        /// Acl Types
-        /// </summary>
-        public enum AclType
-        {
-            /// <summary>
-            /// None Acl
-            /// </summary>
-            None,
-            /// <summary>
-            /// If match deny
-            /// </summary>
-            Whitelist,
-            /// <summary>
-            /// If match allow
-            /// </summary>
-            Blacklist
-        };
-
-        /// <summary>
         /// Acl behaviour
         /// </summary>
-        public AclType Type { get; set; } = AclType.None;
+        public NetworkAclType Type { get; set; } = NetworkAclType.None;
+
         /// <summary>
         /// Path of rules file
         /// </summary>

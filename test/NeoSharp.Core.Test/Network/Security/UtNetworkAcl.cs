@@ -14,17 +14,16 @@ namespace NeoSharp.Core.Test.Network.Security
         public void IsAllowed_Whitelist()
         {
             // Arrange
-            var aclFactory = AutoMockContainer.Create<NetworkAclFactory>();
-            var acl = aclFactory.CreateNew();
+            var aclLoader = AutoMockContainer.Create<NetworkAclLoader>();
             var cfg = new NetworkAclConfig();
             var tmpRules = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
 
             File.WriteAllText(tmpRules, @"[{'value':'192\\.168\\.6\\..*','regex':true},{'value':'192.168.5.1','regex':false}]");
             cfg.Path = tmpRules;
-            cfg.Type = NetworkAclConfig.AclType.Whitelist;
+            cfg.Type = NetworkAclType.Whitelist;
 
             // Act
-            acl?.Load(cfg);
+            var acl = aclLoader.Load(cfg);
             File.Delete(tmpRules);
 
             // Asset
@@ -40,17 +39,16 @@ namespace NeoSharp.Core.Test.Network.Security
         public void IsAllowed_Blacklist()
         {
             // Arrange
-            var aclFactory = AutoMockContainer.Create<NetworkAclFactory>();
-            var acl = aclFactory.CreateNew();
+            var aclFactory = AutoMockContainer.Create<NetworkAclLoader>();
             var cfg = new NetworkAclConfig();
             var tmpRules = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.json");
 
             File.WriteAllText(tmpRules, @"[{'value':'192\\.168\\.8\\..*','regex':true},{'value':'192.168.7.1','regex':false}]");
             cfg.Path = tmpRules;
-            cfg.Type = NetworkAclConfig.AclType.Blacklist;
+            cfg.Type = NetworkAclType.Blacklist;
 
             // Act
-            acl?.Load(cfg);
+            var acl = aclFactory.Load(cfg);
             File.Delete(tmpRules);
 
             // Asset

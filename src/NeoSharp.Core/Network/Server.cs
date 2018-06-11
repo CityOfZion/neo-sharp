@@ -9,7 +9,6 @@ using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {
@@ -23,7 +22,6 @@ namespace NeoSharp.Core.Network
 
         #region Properties
 
-        private readonly INetworkAcl _acl;
         private readonly ILogger<Server> _logger;
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly IServerContext _serverContext;
@@ -57,7 +55,6 @@ namespace NeoSharp.Core.Network
         /// <param name="messageHandler">Mesage Handler</param>
         /// <param name="logger">Logger</param>
         /// <param name="asyncDelayer">Async delayer</param>
-        /// <param name="aclFactory">ACL factory</param>
         /// <param name="serverContext">Server context</param>
         public Server(
             NetworkConfig config,
@@ -66,7 +63,6 @@ namespace NeoSharp.Core.Network
             IMessageHandler<Message> messageHandler,
             ILogger<Server> logger,
             IAsyncDelayer asyncDelayer,
-            NetworkAclFactory aclFactory,
             IServerContext serverContext)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
@@ -75,11 +71,8 @@ namespace NeoSharp.Core.Network
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
             _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
-            if (aclFactory == null) throw new ArgumentNullException(nameof(aclFactory));
 
             _messageHandler = messageHandler;
-            _acl = aclFactory.CreateNew();
-            _acl?.Load(config.Acl);
 
             _peerListener.OnPeerConnected += PeerConnected;
 
@@ -137,16 +130,7 @@ namespace NeoSharp.Core.Network
         {
             try
             {
-                // TODO: no need to connect even to such peers
-                if (_acl != null && !_acl.IsAllowed(peer))
-                {
-                    throw new UnauthorizedAccessException();
-                }
-
-                lock (_connectedPeers)
-                {
-                    _connectedPeers.Add(peer);
-                }
+                _connectedPeers.Add(peer);
 
                 ListenForMessages(peer, _messageListenerTokenSource.Token);
 
@@ -172,19 +156,16 @@ namespace NeoSharp.Core.Network
         /// <param name="filter">Filter</param>
         public async Task SendBroadcast(Message message, Func<IPeer, bool> filter = null)
         {
-            lock (_connectedPeers)
+            Parallel.ForEach(_connectedPeers, async (peer) =>
             {
-                Parallel.ForEach(_connectedPeers, async (peer) =>
-                {
-                    // Check filter
+                // Check filter
 
-                    if (filter != null && !filter(peer)) return;
+                if (filter != null && !filter(peer)) return;
 
-                    // Send
+                // Send
 
-                    await peer.Send(message);
-                });
-            }
+                await peer.Send(message);
+            });
 
             await Task.CompletedTask;
         }
@@ -194,17 +175,16 @@ namespace NeoSharp.Core.Network
         /// </summary>
         private void ConnectToPeers()
         {
-            // TODO: check if localhot:port in seeding list
-            Parallel.ForEach(_peerEndPoints, async peerEndPoint =>
+            Parallel.ForEach(_peerEndPoints, async ep =>
             {
                 try
                 {
-                    var peer = await _peerFactory.ConnectTo(peerEndPoint);
+                    var peer = await _peerFactory.ConnectTo(ep);
                     PeerConnected(this, peer);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogWarning($"Something went wrong with {peerEndPoint}. Exception: {ex}");
+                    _logger.LogWarning($"Something went wrong with {ep}. Exception: {ex}");
                 }
             });
         }
@@ -214,15 +194,12 @@ namespace NeoSharp.Core.Network
         /// </summary>
         private void DisconnectPeers()
         {
-            lock (_connectedPeers)
+            foreach (var peer in _connectedPeers)
             {
-                foreach (var peer in _connectedPeers)
-                {
-                    peer.Disconnect();
-                }
-
-                _connectedPeers.Clear();
+                peer.Disconnect();
             }
+
+            _connectedPeers.Clear();
         }
 
         /// <summary>
