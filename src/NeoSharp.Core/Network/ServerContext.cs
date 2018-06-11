@@ -8,24 +8,25 @@ namespace NeoSharp.Core.Network
 {
     public class ServerContext : IServerContext
     {
-        #region Constants
-
-        /// <summary>
-        /// Default interval for message polling
-        /// </summary>
-        public static readonly TimeSpan MessagePollingInterval = TimeSpan.FromMilliseconds(100);
-
-        #endregion
-
         /// <summary>
         /// Blockchain
         /// </summary>
         private readonly IBlockchain _blockchain;
 
-        /// <summary>
-        /// Version
-        /// </summary>
-        public VersionPayload Version { get; private set; }
+        private readonly VersionPayload _version;
+
+        /// <inheritdoc />
+        public VersionPayload Version
+        {
+            get
+            {
+                _version.Timestamp = DateTime.UtcNow.ToTimestamp();
+                _version.CurrentBlockIndex = _blockchain.CurrentBlock?.Index ?? 0;
+
+                return _version;
+            }
+
+        }
 
         /// <summary>
         /// Server context
@@ -37,7 +38,7 @@ namespace NeoSharp.Core.Network
             if (config == null) throw new ArgumentNullException(nameof(config));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
 
-            Version = new VersionPayload
+            _version = new VersionPayload
             {
                 Version = 2,
                 // TODO: What's it?
@@ -49,14 +50,6 @@ namespace NeoSharp.Core.Network
                 CurrentBlockIndex = _blockchain.CurrentBlock?.Index ?? 0,
                 Relay = true
             };
-        }
-        /// <summary>
-        /// Update version payload
-        /// </summary>
-        public void UpdateVersionPayload()
-        {
-            Version.Timestamp = DateTime.UtcNow.ToTimestamp();
-            Version.CurrentBlockIndex = _blockchain.CurrentBlock?.Index ?? 0;
         }
     }
 }

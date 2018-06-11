@@ -16,7 +16,8 @@ namespace NeoSharp.Core.Network
     {
         #region Constants
 
-        private const int DefaultReceiveTimeout = 1000;
+        private static readonly TimeSpan DefaultMessagePollingInterval = TimeSpan.FromMilliseconds(100);
+        private static readonly TimeSpan DefaultReceiveTimeout = TimeSpan.FromMilliseconds(1_000);
 
         #endregion
 
@@ -81,7 +82,6 @@ namespace NeoSharp.Core.Network
 
             // TODO: Change after port forwarding implementation
             _peerEndPoints = config.PeerEndPoints;
-            _serverContext.UpdateVersionPayload();
         }
 
         /// <summary>
@@ -134,12 +134,7 @@ namespace NeoSharp.Core.Network
 
                 ListenForMessages(peer, _messageListenerTokenSource.Token);
 
-                // Update version payload
-
-                _serverContext.UpdateVersionPayload();
-
                 // Initiate handshake
-
                 peer.Send(new VersionMessage(_serverContext.Version));
             }
             catch (Exception e)
@@ -216,7 +211,7 @@ namespace NeoSharp.Core.Network
                     var message = await peer.Receive();
                     if (message == null)
                     {
-                        await _asyncDelayer.Delay(ServerContext.MessagePollingInterval, cancellationToken);
+                        await _asyncDelayer.Delay(DefaultMessagePollingInterval, cancellationToken);
                         continue;
                     }
 
