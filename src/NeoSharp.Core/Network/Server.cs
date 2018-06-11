@@ -21,7 +21,7 @@ namespace NeoSharp.Core.Network
 
         #endregion
 
-        #region Properties
+        #region Variables
 
         private readonly ILogger<Server> _logger;
         private readonly IAsyncDelayer _asyncDelayer;

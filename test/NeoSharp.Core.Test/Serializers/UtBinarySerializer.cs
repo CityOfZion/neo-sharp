@@ -1,12 +1,14 @@
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Test.Types;
 using NeoSharp.Core.Types;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 
 namespace NeoSharp.Core.Test.Serializers
 {
@@ -211,6 +213,41 @@ namespace NeoSharp.Core.Test.Serializers
             var copy = _deserializer.Deserialize<DummyReadOnly>(_serializer.Serialize(readOnly));
 
             Assert.AreEqual(readOnly.A, copy.A);
+        }
+
+        [TestMethod]
+        public void AddrPayloadSerialize()
+        {
+            var original = new AddrPayload()
+            {
+                Address = new NetworkAddressWithTime[]
+                {
+                    new NetworkAddressWithTime()
+                    {
+                         EndPoint=new IPEndPoint(IPAddress.Parse("127.0.0.1"),ushort.MaxValue),
+                         Services=ulong.MaxValue,
+                         Timestamp=uint.MaxValue,
+                    },
+                    new NetworkAddressWithTime()
+                    {
+                         EndPoint=new IPEndPoint(IPAddress.Parse("::01"),ushort.MinValue),
+                         Services=ulong.MinValue,
+                         Timestamp=uint.MinValue,
+                    },
+                }
+            };
+
+            var copy = _deserializer.Deserialize<AddrPayload>(_serializer.Serialize(original));
+
+            Assert.AreEqual(copy.Address.Length, original.Address.Length);
+
+            for (int x = 0; x < copy.Address.Length; x++)
+            {
+                Assert.AreEqual(copy.Address[x].EndPoint.Address, original.Address[x].EndPoint.Address.MapToIPv6());
+                Assert.AreEqual(copy.Address[x].EndPoint.Port, original.Address[x].EndPoint.Port);
+                Assert.AreEqual(copy.Address[x].Timestamp, original.Address[x].Timestamp);
+                Assert.AreEqual(copy.Address[x].Services, original.Address[x].Services);
+            }
         }
 
         [TestMethod]

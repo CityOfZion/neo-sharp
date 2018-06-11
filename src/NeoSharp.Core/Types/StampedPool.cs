@@ -41,7 +41,7 @@ namespace NeoSharp.Core.Types
         /// <param name="max">Max</param>
         /// <param name="key">Key</param>
         /// <param name="order">Order</param>
-        public StampedPool(PoolMaxBehaviour behaviour, uint max, Func<Stamp<TValue>, TKey> key, Comparison<Stamp<TValue>> order)
+        public StampedPool(PoolMaxBehaviour behaviour, int max, Func<Stamp<TValue>, TKey> key, Comparison<Stamp<TValue>> order)
             : base(behaviour, max, key, order) { }
     }
 }
