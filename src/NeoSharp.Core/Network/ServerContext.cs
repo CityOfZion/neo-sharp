@@ -8,12 +8,20 @@ namespace NeoSharp.Core.Network
 {
     public class ServerContext : IServerContext
     {
+        #region Variables
+
         /// <summary>
         /// Blockchain
         /// </summary>
         private readonly IBlockchain _blockchain;
-
+        /// <summary>
+        /// Cached version
+        /// </summary>
         private readonly VersionPayload _version;
+
+        #endregion
+
+        #region Properties
 
         /// <inheritdoc />
         public VersionPayload Version
@@ -25,8 +33,9 @@ namespace NeoSharp.Core.Network
 
                 return _version;
             }
-
         }
+
+        #endregion
 
         /// <summary>
         /// Server context
