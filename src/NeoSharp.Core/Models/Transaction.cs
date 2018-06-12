@@ -1,106 +1,70 @@
-﻿using NeoSharp.BinarySerialization;
-using Newtonsoft.Json;
-using System;
-using NeoSharp.Core.Types;
+﻿using System;
 using System.ComponentModel;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
+using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
     [TypeConverter(typeof(TransactionTypeConverter))]
-    public class Transaction
+    public class Transaction : WithHash256
     {
-        [BinaryProperty(1)]
-        [JsonProperty("txid")]
-        public UInt256 Hash;
+        /// <summary>
+        /// Contains the binary output order of the signature for allow to exclude it
+        /// </summary>
+        const byte SignatureOrder = byte.MaxValue;
 
-        [BinaryProperty(2)]
-        [JsonProperty("size")]
-        public int Size;
+        #region Header
 
-        [BinaryProperty(3)]
+        [BinaryProperty(0)]
         [JsonProperty("type")]
         public TransactionType Type;
 
-        [BinaryProperty(4)]
+        [BinaryProperty(1)]
         [JsonProperty("version")]
         public byte Version;
 
-        [BinaryProperty(5)]
-        [JsonProperty("sys_fee")]
-        public long SystemFee;
+        #endregion
 
-        [BinaryProperty(6)]
-        [JsonProperty("net_fee")]
-        public long NetworkFee;
+        // In this point should be serialized the content of the Transaction
 
-        [BinaryProperty(7)]
-        [JsonProperty("blockhash")]
-        public string BlockHash;
+        #region TxData
 
-        [BinaryProperty(8)]
-        [JsonProperty("blockindex")]
-        public int BlockIndex;
-
-        [BinaryProperty(9)]
-        [JsonProperty("timestamp")]
-        public int Timestamp;
-
-        [BinaryProperty(10)]
+        [BinaryProperty(100)]
         [JsonProperty("attributes")]
         public TransactionAttribute[] Attributes = new TransactionAttribute[0];
 
-        [BinaryProperty(11)]
+        [BinaryProperty(101)]
         [JsonProperty("vin")]
         public CoinReference[] Inputs = new CoinReference[0];
 
-        [BinaryProperty(12)]
+        [BinaryProperty(102)]
         [JsonProperty("vout")]
         public TransactionOutput[] Outputs = new TransactionOutput[0];
 
-        [BinaryProperty(13)]
+        #endregion
+
+        #region Signature
+
+        [BinaryProperty(SignatureOrder)]
         [JsonProperty("scripts")]
         public Witness[] Scripts;
 
-        //Enrollment
-        [BinaryProperty(14)]
-        [JsonProperty("pubkey")]
-        public string PublicKey;
+        #endregion
 
-        //Invocation
-        [BinaryProperty(15)]
-        [JsonProperty("script")]
-        public string Script;
-
-        //Invocation
-        [BinaryProperty(16)]
-        [JsonProperty("gas")]
-        public long Gas;
-
-        //Miner
-        [BinaryProperty(17)]
-        [JsonProperty("nonce")]
-        public ulong Nonce;
-
-        //Claim
-        [BinaryProperty(18)]
-        [JsonProperty("claims")]
-        public CoinReference[] Claims = new CoinReference[0];
-
-        //Publish
-        [BinaryProperty(19)]
-        [JsonProperty("contract")]
-        public Contract Contract;
-
-        //Register
-        [BinaryProperty(20)]
-        [JsonProperty("asset")]
-        public Asset Asset;
-
-        public string ToJson(bool indent = false)
+        /// <summary>
+        /// Get hash data
+        /// </summary>
+        /// <returns>Return hash data</returns>
+        public override byte[] GetHashData(IBinarySerializer serializer)
         {
-            return JsonConvert.SerializeObject(this, indent ? Formatting.Indented : Formatting.None);
+            // Exclude signature
+
+            return serializer.Serialize(this, new BinarySerializerSettings()
+            {
+                Filter = (context => context.Order != SignatureOrder)
+            });
         }
     }
 }

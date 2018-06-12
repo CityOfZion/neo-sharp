@@ -268,7 +268,7 @@ namespace NeoSharp.Core.Test.Serializers
                 Version = 4,
                 Script = new Witness
                 {
-                    InvocationScript = "InvocationScript",
+                    InvocationScript = new byte[0],
                     VerificationScript = new byte[0],
                 },
                 TransactionHashes = new[] { "a", "b", "c" }
@@ -287,7 +287,7 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(blockHeader.Timestamp, blockHeaderCopy.Timestamp);
             Assert.AreEqual(blockHeader.Version, blockHeaderCopy.Version);
 
-            Assert.AreEqual(blockHeader.Script.InvocationScript, blockHeaderCopy.Script.InvocationScript);
+            Assert.IsTrue(blockHeader.Script.InvocationScript.SequenceEqual(blockHeaderCopy.Script.InvocationScript));
             Assert.IsTrue(blockHeader.Script.VerificationScript.SequenceEqual(blockHeaderCopy.Script.VerificationScript));
 
             Assert.IsTrue(blockHeader.TransactionHashes.SequenceEqual(blockHeaderCopy.TransactionHashes));

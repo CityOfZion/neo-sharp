@@ -58,8 +58,10 @@ namespace NeoSharp.Persistence.RedisDB
             //Write the redis database with the binary bytes
             _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash.ToString(), transactionBytes);
 
+            // TODO: transaction haven't got BlockIndex
+
             //Add to secondary index to find transactions for a block by block height
-            _redis.Database.AddToIndex(RedisIndex.TransactionBlockHeight, transaction.BlockIndex, transaction.Hash.ToString());
+            //_redis.Database.AddToIndex(RedisIndex.TransactionBlockHeight, transaction.BlockIndex, transaction.Hash.ToString());
         }
 
         public BlockHeader GetBlockHeaderByHeight(int height)

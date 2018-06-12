@@ -36,13 +36,14 @@ namespace NeoSharp.BinarySerialization
         /// Deserialize
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
-        /// <param name="obj">Object</param>
+        /// <param name="data">Data</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return byte array</returns>
-        public T Deserialize<T>(byte[] data) where T : new()
+        public T Deserialize<T>(byte[] data, BinarySerializerSettings settings = null) where T : new()
         {
             using (var ms = new MemoryStream(data))
             {
-                return Deserialize<T>(ms);
+                return Deserialize<T>(ms, settings);
             }
         }
         /// <summary>
@@ -50,12 +51,13 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="data">Data</param>
         /// <param name="type">Type</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return object</returns>
-        public object Deserialize(byte[] data, Type type)
+        public object Deserialize(byte[] data, Type type, BinarySerializerSettings settings = null)
         {
             using (var ms = new MemoryStream(data))
             {
-                return Deserialize(ms, type);
+                return Deserialize(ms, type, settings);
             }
         }
         /// <summary>
@@ -63,8 +65,9 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="stream">Stream</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return object</returns>
-        public T Deserialize<T>(Stream stream) where T : new()
+        public T Deserialize<T>(Stream stream, BinarySerializerSettings settings = null) where T : new()
         {
             // Search in cache
 
@@ -75,7 +78,7 @@ namespace NeoSharp.BinarySerialization
 
             using (var br = new BinaryReader(stream, Encoding.UTF8))
             {
-                var obj = cache.Deserialize<T>(this, br);
+                var obj = cache.Deserialize<T>(this, br, settings);
 
                 if (cache.IsOnPostDeserializable)
                     ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
@@ -88,8 +91,9 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <typeparam name="T">Type</typeparam>
         /// <param name="stream">Stream</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return object</returns>
-        public T Deserialize<T>(BinaryReader stream) where T : new()
+        public T Deserialize<T>(BinaryReader stream, BinarySerializerSettings settings = null) where T : new()
         {
             // Search in cache
 
@@ -98,7 +102,7 @@ namespace NeoSharp.BinarySerialization
 
             // Deserialize
 
-            var obj = cache.Deserialize<T>(this, stream);
+            var obj = cache.Deserialize<T>(this, stream, settings);
 
             if (cache.IsOnPostDeserializable)
                 ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
@@ -110,8 +114,9 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="t">Type</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return object</returns>
-        public object Deserialize(Stream stream, Type t)
+        public object Deserialize(Stream stream, Type t, BinarySerializerSettings settings = null)
         {
             // Search in cache
 
@@ -122,7 +127,7 @@ namespace NeoSharp.BinarySerialization
 
             using (var br = new BinaryReader(stream, Encoding.UTF8, true))
             {
-                var obj = cache.Deserialize(this, br);
+                var obj = cache.Deserialize(this, br, settings);
 
                 if (cache.IsOnPostDeserializable)
                     ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
@@ -135,11 +140,12 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="buffer">Buffer</param>
         /// <param name="obj">Object</param>
-        public void Deserialize(byte[] buffer, object obj)
+        /// <param name="settings">Settings</param>
+        public void Deserialize(byte[] buffer, object obj, BinarySerializerSettings settings = null)
         {
             using (var ms = new MemoryStream(buffer))
             {
-                Deserialize(ms, obj);
+                Deserialize(ms, obj, settings);
             }
         }
         /// <summary>
@@ -147,7 +153,8 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="obj">Object</param>
-        public void Deserialize(Stream stream, object obj)
+        /// <param name="settings">Settings</param>
+        public void Deserialize(Stream stream, object obj, BinarySerializerSettings settings = null)
         {
             // Search in cache
 
@@ -158,7 +165,7 @@ namespace NeoSharp.BinarySerialization
 
             using (var br = new BinaryReader(stream, Encoding.UTF8, true))
             {
-                cache.Deserialize(this, br, obj);
+                cache.Deserialize(this, br, obj, settings);
 
                 if (cache.IsOnPostDeserializable)
                     ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();
@@ -169,8 +176,9 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="stream">Stream</param>
         /// <param name="t">Type</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return object</returns>
-        public object Deserialize(BinaryReader stream, Type t)
+        public object Deserialize(BinaryReader stream, Type t, BinarySerializerSettings settings = null)
         {
             // Search in cache
 
@@ -179,7 +187,7 @@ namespace NeoSharp.BinarySerialization
 
             // Deserialize
 
-            var obj = cache.Deserialize(this, stream);
+            var obj = cache.Deserialize(this, stream, settings);
 
             if (cache.IsOnPostDeserializable)
                 ((IBinaryOnPostDeserializable)obj).OnPostDeserialize();

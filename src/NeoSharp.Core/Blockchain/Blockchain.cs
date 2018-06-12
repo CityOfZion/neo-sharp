@@ -51,7 +51,7 @@ namespace NeoSharp.Core.Blockchain
             NextConsensus = GetConsensusAddress(StandbyValidators),
             Script = new Witness
             {
-                InvocationScript = string.Empty,
+                InvocationScript = new byte[0],
                 VerificationScript = new byte[0] // new[] { (byte)OpCode.PUSHT }
             },
             Transactions = new Transaction[]
@@ -108,7 +108,7 @@ namespace NeoSharp.Core.Blockchain
 
         static int TransactionComparer(Stamp<Transaction> a, Stamp<Transaction> b)
         {
-            int c = a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
+            int c = 0;// TODO: by fee a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
             if (c == 0)
             {
                 // TODO: Check ASC or DESC

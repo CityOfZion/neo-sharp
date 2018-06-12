@@ -1,26 +1,23 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using System;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Types;
 using Newtonsoft.Json;
-using System;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
     public class TransactionOutput
     {
+        [BinaryProperty(0)]
+        [JsonProperty("asset")]
+        public UInt256 AssetId;
+
         [BinaryProperty(1)]
-        [JsonProperty("n")]
-        public string Index;
+        [JsonProperty("value")]
+        public Fixed8 Value;
 
         [BinaryProperty(2)]
-        [JsonProperty("asset")]
-        public string AssetId;
-
-        [BinaryProperty(3)]
-        [JsonProperty("value")]
-        public double Value;
-
-        [BinaryProperty(4)]
         [JsonProperty("address")]
-        public string Address;
+        public UInt160 ScriptHash;
     }
 }

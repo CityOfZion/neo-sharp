@@ -36,12 +36,13 @@ namespace NeoSharp.BinarySerialization
         /// Serialize
         /// </summary>
         /// <param name="obj">Object</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return byte array</returns>
-        public byte[] Serialize(object obj)
+        public byte[] Serialize(object obj, BinarySerializerSettings settings = null)
         {
             using (var ms = new MemoryStream())
             {
-                Serialize(obj, ms);
+                Serialize(obj, ms, settings);
                 return ms.ToArray();
             }
         }
@@ -50,8 +51,9 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="obj">Object</param>
         /// <param name="stream">Stream</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return byte array</returns>
-        public int Serialize(object obj, Stream stream)
+        public int Serialize(object obj, Stream stream, BinarySerializerSettings settings = null)
         {
             // Search in cache
 
@@ -65,7 +67,7 @@ namespace NeoSharp.BinarySerialization
                 if (cache.IsOnPreSerializable)
                     ((IBinaryOnPreSerializable)obj).OnPreSerialize();
 
-                return cache.Serialize(this, bw, obj);
+                return cache.Serialize(this, bw, obj, settings);
             }
         }
         /// <summary>
@@ -73,8 +75,9 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="obj">Object</param>
         /// <param name="stream">Stream</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return byte array</returns>
-        public int Serialize(object obj, BinaryWriter stream)
+        public int Serialize(object obj, BinaryWriter stream, BinarySerializerSettings settings = null)
         {
             // Search in cache
 
@@ -86,7 +89,7 @@ namespace NeoSharp.BinarySerialization
             if (cache.IsOnPreSerializable)
                 ((IBinaryOnPreSerializable)obj).OnPreSerialize();
 
-            return cache.Serialize(this, stream, obj);
+            return cache.Serialize(this, stream, obj, settings);
         }
     }
 }
