@@ -2,10 +2,13 @@
 using Newtonsoft.Json;
 using System;
 using NeoSharp.Core.Types;
+using System.ComponentModel;
+using NeoSharp.Core.Converters;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
+    [TypeConverter(typeof(TransactionTypeConverter))]
     public class Transaction
     {
         [BinaryProperty(1)]

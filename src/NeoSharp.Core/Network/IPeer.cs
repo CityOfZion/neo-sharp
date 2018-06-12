@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
 
@@ -7,6 +8,8 @@ namespace NeoSharp.Core.Network
     public interface IPeer
     {
         bool IsConnected { get; }
+
+        BloomFilter BloomFilter { get; set; }
 
         EndPoint EndPoint { get; }
 

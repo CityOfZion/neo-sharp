@@ -1,4 +1,5 @@
-﻿using NeoSharp.Core.Helpers;
+﻿using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Helpers;
 
 namespace NeoSharp.Core.DI.Modules
 {
@@ -7,6 +8,7 @@ namespace NeoSharp.Core.DI.Modules
         public void Register(IContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterSingleton<IAsyncDelayer, AsyncDelayer>();
+            containerBuilder.RegisterSingleton<ICrypto, BouncyCastleCrypto>();
         }
     }
 }

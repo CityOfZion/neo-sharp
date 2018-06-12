@@ -500,6 +500,7 @@ namespace NeoSharp.BinarySerialization.Cache
         private static bool TryRecursive(Type type, out ReadValueDelegate readValue, out WriteValueDelegate writeValue)
         {
             var cache = BinarySerializerCache.InternalRegisterTypes(type);
+
             if (cache == null)
             {
                 foreach (var typeConverter in BinarySerializerCache.TypeConverterCache.Values)

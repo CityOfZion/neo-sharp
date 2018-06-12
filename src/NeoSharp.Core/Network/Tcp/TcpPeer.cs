@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
@@ -31,6 +32,11 @@ namespace NeoSharp.Core.Network.Tcp
         /// Is connected
         /// </summary>
         public bool IsConnected => _disposed == 0;
+
+        /// <summary>
+        /// BloomFilter
+        /// </summary>
+        public BloomFilter BloomFilter { get; set; }
 
         /// <summary>
         /// Version
