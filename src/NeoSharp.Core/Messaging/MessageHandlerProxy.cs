@@ -63,7 +63,7 @@ namespace NeoSharp.Core.Messaging
         private static (Type MessageType, Delegate MessageHandlerInvoker) CreateMessageHandlerInvoker(Type messageHandlerType)
         {
             const string handleMethodName = nameof(IMessageHandler<Message>.Handle);
-            const BindingFlags bindingFlags = BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public;
+            const BindingFlags bindingFlags = BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public;
 
             var handleMethodInfo = messageHandlerType.GetMethod(handleMethodName, bindingFlags);
             var messageType = handleMethodInfo.GetParameters().First().ParameterType;

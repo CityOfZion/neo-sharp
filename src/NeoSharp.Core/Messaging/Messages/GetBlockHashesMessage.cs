@@ -8,7 +8,7 @@ namespace NeoSharp.Core.Messaging.Messages
         public GetBlockHashesMessage(UInt256 hashStart)
         {
             Command = MessageCommand.getblocks;
-            Payload = new GetBlocksPayload { HashStart = new[] { hashStart } };
+            Payload = new GetBlocksPayload { HashStart = hashStart == null ? new UInt256[] { } : new[] { hashStart } };
         }
     }
 
