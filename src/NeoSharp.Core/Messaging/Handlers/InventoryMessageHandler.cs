@@ -6,21 +6,37 @@ using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class InventoryMessageHandler : IMessageHandler<InventoryMessage>
+    public class InventoryMessageHandler : BroadcastMessageHandler<InventoryMessage>
     {
+        #region Variables
+
         private readonly ILogger<InventoryMessageHandler> _logger;
 
-        public InventoryMessageHandler(ILogger<InventoryMessageHandler> logger)
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="broadcast">Broadcast</param>
+        /// <param name="logger">Logger</param>
+        public InventoryMessageHandler(IBroadcast broadcast, ILogger<InventoryMessageHandler> logger) : base(broadcast)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(InventoryMessage message, IPeer sender)
+        /// <summary>
+        /// Handle Inventory message
+        /// </summary>
+        /// <param name="message">Message</param>
+        /// <param name="sender">sender Peer</param>
+        /// <returns>Task</returns>
+        public override async Task Handle(InventoryMessage message, IPeer sender)
         {
-            // TODO: how to inject server here? we need to send a broadcast and have a circle dependency
+            // TODO: do logic
 
-            //await _server.SendBroadcast(message, (peer) => peer != sender);
-            await Task.CompletedTask;
+            // Send broadcast
+
+            await base.Handle(message, sender);
         }
     }
 }

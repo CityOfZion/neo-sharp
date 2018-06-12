@@ -25,7 +25,7 @@ namespace NeoSharp.Core.Types
 
         public int Count => _list.Count;
         public readonly PoolMaxBehaviour Behaviour;
-        public readonly uint Max;
+        public readonly int Max;
 
         private bool _isSorted;
         private readonly Func<TValue, TKey> _key;
@@ -41,8 +41,10 @@ namespace NeoSharp.Core.Types
         /// <param name="max">Max</param>
         /// <param name="key">Key</param>
         /// <param name="order">Order</param>
-        public Pool(PoolMaxBehaviour behaviour, uint max, Func<TValue, TKey> key, Comparison<TValue> order)
+        public Pool(PoolMaxBehaviour behaviour, int max, Func<TValue, TKey> key, Comparison<TValue> order)
         {
+            if (max <= 0) throw new ArgumentException(nameof(max));
+
             Behaviour = behaviour;
             Max = max;
             _key = key;

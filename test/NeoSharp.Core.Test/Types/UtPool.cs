@@ -17,7 +17,7 @@ namespace NeoSharp.Core.Test.Types
                 PoolMaxBehaviour.RemoveFromEnd, 3, x => x.Hash, (a, b) => a.Hash.CompareTo(b.Hash));
 
             Assert.AreEqual(PoolMaxBehaviour.RemoveFromEnd, pool.Behaviour);
-            Assert.AreEqual((uint)3, pool.Max);
+            Assert.AreEqual(3, pool.Max);
             Assert.AreEqual(0, pool.Count);
 
             Transaction[] add = new Transaction[]
@@ -60,7 +60,7 @@ namespace NeoSharp.Core.Test.Types
                 PoolMaxBehaviour.DontAllowMore, 3, x => x.Hash, (a, b) => a.Hash.CompareTo(b.Hash));
 
             Assert.AreEqual(PoolMaxBehaviour.DontAllowMore, pool.Behaviour);
-            Assert.AreEqual((uint)3, pool.Max);
+            Assert.AreEqual(3, pool.Max);
             Assert.AreEqual(0, pool.Count);
 
             Transaction[] add = new Transaction[]

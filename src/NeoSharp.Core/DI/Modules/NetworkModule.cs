@@ -8,6 +8,7 @@ using System.Linq;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Network.Security;
+using System.Collections.Generic;
 
 namespace NeoSharp.Core.DI.Modules
 {
@@ -28,9 +29,11 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<IPeerListener, TcpPeerListener>();
             containerBuilder.RegisterSingleton<ITcpPeerFactory, TcpPeerFactory>();
 
+            containerBuilder.RegisterSingleton<IBroadcast, Server>();
+
             var messageHandlerTypes = typeof(VersionMessageHandler).Assembly
                 .GetExportedTypes()
-                .Where(t => t.IsClass && t.IsAssignableToGenericType(typeof(IMessageHandler<>)) &&
+                .Where(t => t.IsClass && !t.IsAbstract && t.IsAssignableToGenericType(typeof(IMessageHandler<>)) &&
                             t != typeof(MessageHandlerProxy))
                 .ToArray();
 

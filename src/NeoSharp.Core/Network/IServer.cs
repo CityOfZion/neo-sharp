@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using NeoSharp.Core.Messaging;
+﻿using System.Collections.Generic;
 
 namespace NeoSharp.Core.Network
 {
-    public interface IServer
+    public interface IServer: IBroadcast
     {
         /// <summary>
         /// Connected peers
@@ -21,12 +18,5 @@ namespace NeoSharp.Core.Network
         /// Stop server
         /// </summary>
         void Stop();
-
-        /// <summary>
-        /// Broadcast a message
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="filter">Filter</param>
-        Task SendBroadcast(Message message, Func<IPeer, bool> filter = null);
     }
 }

@@ -252,5 +252,13 @@ namespace NeoSharp.Core.Network.Tcp
                 }
             }
         }
+
+        /// <summary>
+        /// String representation
+        /// </summary>
+        public override string ToString()
+        {
+            return EndPoint.ToString();
+        }
     }
 }
