@@ -1,15 +1,17 @@
-using NeoSharp.BinarySerialization.SerializationHooks;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using NeoSharp.BinarySerialization.SerializationHooks;
 
 namespace NeoSharp.BinarySerialization.Cache
 {
     internal class BinarySerializerCache
     {
+        #region Cache
+
         /// <summary>
         /// Cache
         /// </summary>
@@ -43,7 +45,7 @@ namespace NeoSharp.BinarySerialization.Cache
                 if (Cache.TryGetValue(type, out var cache)) return cache;
 
                 var b = new BinarySerializerCache(type);
-                if (b.Count <= 0) return null;
+                if (b.IsEmpty) return null;
 
                 Cache.Add(b.Type, b);
                 return b;
@@ -60,26 +62,24 @@ namespace NeoSharp.BinarySerialization.Cache
             }
         }
 
+        #endregion
+
         /// <summary>
         /// Type
         /// </summary>
         public readonly Type Type;
         /// <summary>
-        /// Count
+        /// IsEmpty
         /// </summary>
-        public readonly int Count;
-        /// <summary>
-        /// Is OnPreSerializable
-        /// </summary>
-        public readonly bool IsOnPreSerializable;
-        /// <summary>
-        /// Is OnPostDeserializable
-        /// </summary>
-        public readonly bool IsOnPostDeserializable;
+        public readonly bool IsEmpty;
         /// <summary>
         /// Cache entries
         /// </summary>
         private readonly BinarySerializerCacheEntry[] _entries;
+        /// <summary>
+        /// Serializer
+        /// </summary>
+        private readonly IBinarySerializable _serializer;
 
         /// <summary>
         /// Constructor
@@ -91,10 +91,17 @@ namespace NeoSharp.BinarySerialization.Cache
 
             // Check interfaces
 
-            IsOnPreSerializable = typeof(IBinaryOnPreSerializable).IsAssignableFrom(type);
-            IsOnPostDeserializable = typeof(IBinaryOnPostDeserializable).IsAssignableFrom(type);
+            var serializerAttr = type.GetCustomAttribute<BinaryTypeSerializerAttribute>();
 
-            _entries =
+            if (serializerAttr != null)
+            {
+                // By serializer
+                _serializer = serializerAttr.Create();
+                IsEmpty = false;
+            }
+            else
+            {
+                _entries =
 
                 // Properties
 
@@ -115,7 +122,8 @@ namespace NeoSharp.BinarySerialization.Cache
                 )
                 .ToArray();
 
-            Count = _entries.Length;
+                IsEmpty = _entries.Length <= 0;
+            }
         }
 
         /// <summary>
@@ -127,8 +135,13 @@ namespace NeoSharp.BinarySerialization.Cache
         /// <param name="settings">Settings</param>
         public int Serialize(IBinarySerializer serializer, BinaryWriter bw, object obj, BinarySerializerSettings settings = null)
         {
+            if (_serializer != null)
+            {
+                return _serializer.Serialize(serializer, bw, obj, settings);
+            }
+
             var ret = 0;
-            var haveFilter = settings != null && settings.Filter != null; 
+            var haveFilter = settings != null && settings.Filter != null;
 
             foreach (BinarySerializerCacheEntry e in _entries)
             {
@@ -155,38 +168,46 @@ namespace NeoSharp.BinarySerialization.Cache
         /// </summary>
         /// <param name="deserializer">Deserializer</param>
         /// <param name="br">Stream</param>
-        /// <param name="obj">Object</param>
         /// <param name="settings">Settings</param>
-        public void Deserialize(IBinaryDeserializer deserializer, BinaryReader br, object obj, BinarySerializerSettings settings = null)
-        {
-            var haveFilter = settings != null && settings.Filter != null;
-
-            foreach (BinarySerializerCacheEntry e in _entries)
-            {
-                if (haveFilter && !settings.Filter.Invoke(e.Context)) continue;
-
-                if (e.ReadOnly)
-                {
-                    // Consume it
-                    e.ReadValue(deserializer, br);
-                    continue;
-                }
-
-                e.SetValue(obj, e.ReadValue(deserializer, br));
-            }
-        }
-        /// <summary>
-        /// Deserialize
-        /// </summary>
-        /// <param name="deserializer">Deserializer</param>
-        /// <param name="br">Stream</param>
-        /// <param name="settings">Settings</param>
-        /// <returns>Return object</returns>
         public object Deserialize(IBinaryDeserializer deserializer, BinaryReader br, BinarySerializerSettings settings = null)
         {
-            object ret = Activator.CreateInstance(Type);
-            Deserialize(deserializer, br, ret, settings);
-            return ret;
+            if (_serializer != null)
+            {
+                var ret = _serializer.Deserialize(deserializer, br, Type, settings);
+
+                if (ret is IBinaryVerifiable v && !v.Verify())
+                {
+                    throw new FormatException();
+                }
+
+                return ret;
+            }
+            else
+            {
+                object ret = Activator.CreateInstance(Type);
+                var haveFilter = settings != null && settings.Filter != null;
+
+                foreach (BinarySerializerCacheEntry e in _entries)
+                {
+                    if (haveFilter && !settings.Filter.Invoke(e.Context)) continue;
+
+                    if (e.ReadOnly)
+                    {
+                        // Consume it
+                        e.ReadValue(deserializer, br, Type, settings);
+                        continue;
+                    }
+
+                    e.SetValue(ret, e.ReadValue(deserializer, br, Type, settings));
+                }
+
+                if (ret is IBinaryVerifiable v && !v.Verify())
+                {
+                    throw new FormatException();
+                }
+
+                return ret;
+            }
         }
     }
 }

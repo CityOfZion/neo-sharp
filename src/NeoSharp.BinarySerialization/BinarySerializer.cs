@@ -1,10 +1,9 @@
-using NeoSharp.BinarySerialization.Cache;
-using NeoSharp.BinarySerialization.SerializationHooks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using NeoSharp.BinarySerialization.Cache;
 
 namespace NeoSharp.BinarySerialization
 {
@@ -64,9 +63,6 @@ namespace NeoSharp.BinarySerialization
 
             using (var bw = new BinaryWriter(stream, Encoding.UTF8, true))
             {
-                if (cache.IsOnPreSerializable)
-                    ((IBinaryOnPreSerializable)obj).OnPreSerialize();
-
                 return cache.Serialize(this, bw, obj, settings);
             }
         }
@@ -85,9 +81,6 @@ namespace NeoSharp.BinarySerialization
                 throw new NotImplementedException();
 
             // Serialize
-
-            if (cache.IsOnPreSerializable)
-                ((IBinaryOnPreSerializable)obj).OnPreSerialize();
 
             return cache.Serialize(this, stream, obj, settings);
         }

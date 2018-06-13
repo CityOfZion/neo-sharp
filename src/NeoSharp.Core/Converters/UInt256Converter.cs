@@ -1,18 +1,17 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using NeoSharp.BinarySerialization;
+using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Converters
 {
-    class UInt256Converter : TypeConverter, IFixedBufferConverter
+    class UInt256Converter : TypeConverter, IBinaryCustomSerialization
     {
-        /// <summary>
-        /// Buffer length
-        /// </summary>
-        public int FixedLength => UInt256.BufferLength;
+        public static readonly int FixedLength = UInt256.BufferLength;
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
@@ -48,6 +47,25 @@ namespace NeoSharp.Core.Converters
             if (value is string str) return new UInt256(str.HexToBytes());
 
             return base.ConvertFrom(context, culture, value);
+        }
+
+        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        {
+            var val = new byte[FixedLength];
+            reader.Read(val, 0, FixedLength);
+
+            return new UInt256(val);
+        }
+
+        public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
+        {
+            if (value is UInt256 hash)
+            {
+                writer.Write(hash.ToArray(), 0, FixedLength);
+                return FixedLength;
+            }
+
+            throw new ArgumentException(nameof(value));
         }
     }
 }

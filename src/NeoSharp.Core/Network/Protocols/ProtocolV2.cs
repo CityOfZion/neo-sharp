@@ -12,15 +12,15 @@ namespace NeoSharp.Core.Network.Protocols
 {
     public class ProtocolV2 : ProtocolBase
     {
-       #region Properties
-        
+        #region Properties
+
         /// <summary>
         /// Protocol version
         /// </summary>
         public override uint Version => 2;
 
         #endregion
-        
+
         #region Variables
 
         private readonly IBinaryConverter _serializer;
@@ -139,12 +139,16 @@ namespace NeoSharp.Core.Network.Protocols
                         using (var ms = new MemoryStream(payloadBuffer))
                         using (var gzip = new GZipStream(ms, CompressionMode.Decompress))
                         {
-                            _serializer.Deserialize(gzip, messageWithPayload.Payload);
+                            // TODO: Prevent create dummy object
+
+                            messageWithPayload.Payload = _serializer.Deserialize(gzip, messageWithPayload.Payload.GetType());
                         }
                     }
                     else
                     {
-                        _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload);
+                        // TODO: Prevent create dummy object
+
+                        messageWithPayload.Payload = _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
                     }
                 }
             }

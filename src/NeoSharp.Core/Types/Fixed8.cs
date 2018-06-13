@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 
 namespace NeoSharp.Core.Types
@@ -11,6 +12,7 @@ namespace NeoSharp.Core.Types
     /// By controlling the accuracy of the multiplier, rounding errors can be completely eliminated.
     /// </summary>
     [TypeConverter(typeof(Fixed8TypeConverter))]
+    [BinaryTypeSerializer(typeof(Fixed8TypeConverter))]
     public struct Fixed8 : IComparable<Fixed8>, IEquatable<Fixed8>, IFormattable, ISerializable
     {
         #region Private Fields 

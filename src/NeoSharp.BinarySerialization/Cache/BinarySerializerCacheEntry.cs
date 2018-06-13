@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -12,8 +11,8 @@ namespace NeoSharp.BinarySerialization.Cache
     {
         // Delegates
 
-        public delegate object ReadValueDelegate(IBinaryDeserializer deserializer, BinaryReader reader);
-        public delegate int WriteValueDelegate(IBinarySerializer serializer, BinaryWriter writer, object value);
+        public delegate object ReadValueDelegate(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null);
+        public delegate int WriteValueDelegate(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null);
 
         public delegate object GetValueDelegate(object o);
         public delegate void SetValueDelegate(object o, object value);
@@ -103,7 +102,21 @@ namespace NeoSharp.BinarySerialization.Cache
                     type = Enum.GetUnderlyingType(type);
                 }
 
-                if (type == typeof(string))
+                // Try to extract the BinarySerializer
+
+                var serializerAttr = member.GetCustomAttribute<BinaryTypeSerializerAttribute>();
+                if (serializerAttr == null)
+                    serializerAttr = type.GetCustomAttribute<BinaryTypeSerializerAttribute>();
+
+                if (serializerAttr != null)
+                {
+                    // By serializer
+                    var serializer = serializerAttr.Create();
+
+                    ReadValue = serializer.Deserialize;
+                    WriteValue = serializer.Serialize;
+                }
+                else if (type == typeof(string))
                 {
                     ReadValue = GetStringValue;
                     WriteValue = SetStringValue;
@@ -191,12 +204,12 @@ namespace NeoSharp.BinarySerialization.Cache
                 Type = type;
             }
 
-            public int SetRecursiveValue(IBinarySerializer serializer, BinaryWriter writer, object value)
+            public int SetRecursiveValue(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
             {
                 return serializer.Serialize(value, writer);
             }
 
-            public object GetRecursiveValue(IBinaryDeserializer deserializer, BinaryReader reader)
+            public object GetRecursiveValue(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
             {
                 return deserializer.Deserialize(reader, Type);
             }
@@ -206,7 +219,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region ByteArray
 
-        private int SetByteArrayValue(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetByteArrayValue(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             var ar = (byte[])value;
 
@@ -219,7 +232,7 @@ namespace NeoSharp.BinarySerialization.Cache
             return WriteVarBytes(writer, ar);
         }
 
-        private object GetByteArrayValue(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetByteArrayValue(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return ReadVarBytes(reader, MaxLength);
         }
@@ -243,7 +256,7 @@ namespace NeoSharp.BinarySerialization.Cache
                 Type = type;
             }
 
-            public int SetListValue(IBinarySerializer serializer, BinaryWriter writer, object value)
+            public int SetListValue(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
             {
                 var ar = (IList)value;
 
@@ -262,7 +275,7 @@ namespace NeoSharp.BinarySerialization.Cache
                 return x;
             }
 
-            public object GetListValue(IBinaryDeserializer deserializer, BinaryReader reader)
+            public object GetListValue(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
             {
                 var l = (int)ReadVarInt(reader, ushort.MaxValue);
                 if (l > MaxLength) throw new FormatException("MaxLength");
@@ -271,7 +284,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
                 for (var ix = 0; ix < l; ix++)
                 {
-                    a.Add(GetValue(deserializer, reader));
+                    a.Add(GetValue(deserializer, reader, type, settings));
                 }
 
                 return a;
@@ -297,7 +310,7 @@ namespace NeoSharp.BinarySerialization.Cache
                 Type = type;
             }
 
-            public int SetArrayValue(IBinarySerializer serializer, BinaryWriter writer, object value)
+            public int SetArrayValue(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
             {
                 var ar = (Array)value;
 
@@ -316,7 +329,7 @@ namespace NeoSharp.BinarySerialization.Cache
                 return x;
             }
 
-            public object GetArrayValue(IBinaryDeserializer deserializer, BinaryReader reader)
+            public object GetArrayValue(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
             {
                 var l = (int)ReadVarInt(reader, ushort.MaxValue);
                 if (l > MaxLength) throw new FormatException("MaxLength");
@@ -325,7 +338,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
                 for (var ix = 0; ix < l; ix++)
                 {
-                    a.SetValue(GetValue(deserializer, reader), ix);
+                    a.SetValue(GetValue(deserializer, reader, type, settings), ix);
                 }
 
                 return a;
@@ -336,7 +349,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region String
 
-        private int SetStringValue(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetStringValue(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             var data = Encoding.UTF8.GetBytes((string)value);
 
@@ -346,7 +359,7 @@ namespace NeoSharp.BinarySerialization.Cache
             return WriteVarBytes(writer, data);
         }
 
-        private object GetStringValue(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetStringValue(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return ReadVarString(reader, MaxLength);
         }
@@ -355,13 +368,13 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region Int64
 
-        private int SetInt64Value(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetInt64Value(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             writer.Write((long)value);
             return 8;
         }
 
-        private object GetInt64Value(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetInt64Value(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadInt64();
         }
@@ -370,13 +383,13 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region UInt64
 
-        private int SetUInt64Value(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetUInt64Value(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             writer.Write((ulong)value);
             return 8;
         }
 
-        private object GetUInt64Value(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetUInt64Value(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadUInt64();
         }
@@ -385,13 +398,13 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region Int32
 
-        private int SetInt32Value(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetInt32Value(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             writer.Write((int)value);
             return 4;
         }
 
-        private object GetInt32Value(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetInt32Value(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadInt32();
         }
@@ -400,13 +413,13 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region UInt32
 
-        private int SetUInt32Value(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetUInt32Value(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             writer.Write((uint)value);
             return 4;
         }
 
-        private object GetUInt32Value(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetUInt32Value(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadUInt32();
         }
@@ -415,13 +428,13 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region Int16
 
-        private int SetInt16Value(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetInt16Value(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             writer.Write((short)value);
             return 2;
         }
 
-        private object GetInt16Value(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetInt16Value(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadInt16();
         }
@@ -430,13 +443,13 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region UInt16
 
-        private int SetUInt16Value(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetUInt16Value(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             writer.Write((ushort)value);
             return 2;
         }
 
-        private object GetUInt16Value(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetUInt16Value(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadUInt16();
         }
@@ -445,13 +458,13 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region Byte
 
-        private int SetByteValue(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetByteValue(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             writer.Write((byte)value);
             return 1;
         }
 
-        private object GetByteValue(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetByteValue(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadByte();
         }
@@ -460,13 +473,13 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region SByte
 
-        private int SetSByteValue(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetSByteValue(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             writer.Write((sbyte)value);
             return 1;
         }
 
-        private object GetSByteValue(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetSByteValue(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadSByte();
         }
@@ -475,7 +488,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region Bool
 
-        private int SetBoolValue(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetBoolValue(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             if ((bool)value) writer.Write(BTRUE);
             else writer.Write(BFALSE);
@@ -483,7 +496,7 @@ namespace NeoSharp.BinarySerialization.Cache
             return 1;
         }
 
-        private object GetBoolValue(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetBoolValue(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadByte() != 0x00;
         }
@@ -492,13 +505,13 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region Double
 
-        private int SetDoubleValue(IBinarySerializer serializer, BinaryWriter writer, object value)
+        private int SetDoubleValue(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             writer.Write((double)value);
             return 8;
         }
 
-        private object GetDoubleValue(IBinaryDeserializer deserializer, BinaryReader reader)
+        private object GetDoubleValue(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadDouble();
         }
@@ -512,6 +525,7 @@ namespace NeoSharp.BinarySerialization.Cache
         private static bool TryRecursive(Type type, out ReadValueDelegate readValue, out WriteValueDelegate writeValue)
         {
             var cache = BinarySerializerCache.InternalRegisterTypes(type);
+
             if (cache == null)
             {
                 foreach (var typeConverter in BinarySerializerCache.TypeConverterCache.Values)
@@ -522,13 +536,13 @@ namespace NeoSharp.BinarySerialization.Cache
                         {
                             int bufferLength = fix.FixedLength;
 
-                            readValue = (deserializer, reader) =>
+                            readValue = (deserializer, reader, ctype, settings) =>
                             {
                                 var buffer = reader.ReadBytes(bufferLength);
                                 return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
                             };
 
-                            writeValue = (serializer, writer, value) =>
+                            writeValue = (serializer, writer, value, settings) =>
                             {
                                 var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
                                 writer.Write(buffer);
@@ -537,13 +551,13 @@ namespace NeoSharp.BinarySerialization.Cache
                         }
                         else
                         {
-                            readValue = (deserializer, reader) =>
+                            readValue = (deserializer, reader, ctype, settings) =>
                             {
                                 var buffer = ReadVarBytes(reader, 100);
                                 return typeConverter.ConvertFrom(null, CultureInfo.InvariantCulture, buffer);
                             };
 
-                            writeValue = (serializer, writer, value) =>
+                            writeValue = (serializer, writer, value, settings) =>
                             {
                                 var buffer = (byte[])typeConverter.ConvertTo(value, typeof(byte[]));
                                 return WriteVarBytes(writer, buffer);

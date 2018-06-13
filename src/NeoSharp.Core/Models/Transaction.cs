@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 using Newtonsoft.Json;
@@ -7,7 +6,7 @@ using Newtonsoft.Json;
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    [TypeConverter(typeof(TransactionTypeConverter))]
+    [BinaryTypeSerializer(typeof(TransactionTypeSerializer))]
     public class Transaction : WithHash256
     {
         /// <summary>
@@ -52,6 +51,20 @@ namespace NeoSharp.Core.Models
         public Witness[] Scripts;
 
         #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public Transaction() { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="type">Type</param>
+        protected Transaction(TransactionType type)
+        {
+            Type = type;
+        }
 
         /// <summary>
         /// Get hash data
