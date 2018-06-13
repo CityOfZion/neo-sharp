@@ -1,17 +1,14 @@
-﻿using NeoSharp.BinarySerialization;
-using Newtonsoft.Json;
-using System;
+﻿using System;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
+using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    public class BlockHeader
+    public class BlockHeader : NeoEntityBase
     {
-        [BinaryProperty(1)]
-        [JsonProperty("hash")]
-        public UInt256 Hash;
-
         [BinaryProperty(2)]
         [JsonProperty("size")]
         public int Size;

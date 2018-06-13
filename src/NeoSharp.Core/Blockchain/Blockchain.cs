@@ -12,7 +12,9 @@ namespace NeoSharp.Core.Blockchain
 {
     public class Blockchain : IDisposable, IBlockchain
     {
-        private readonly IRepository _repository;
+        private readonly IDbPersistenceRepository _dbPersistenceRepository;
+
+        //private readonly IRepository _repository;
         public static event EventHandler<Block> PersistCompleted;
 
         /// <summary>
@@ -91,9 +93,11 @@ namespace NeoSharp.Core.Blockchain
             }
         };
 
-        public Blockchain(IRepository repository)
+        public Blockchain(IDbPersistenceRepository dbPersistenceRepository)
         {
-            _repository = repository;
+            _dbPersistenceRepository = dbPersistenceRepository;
+
+            //_repository = repository;
 
             // TODO: Uncomment when we figure out transactions in genesis block
             // GenesisBlock.MerkleRoot = MerkleTree.ComputeRoot(GenesisBlock.Transactions.Select(p => p.Hash).ToArray());

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
@@ -13,7 +13,7 @@ namespace NeoSharp.Core.Models
         /// <summary>
         /// Contains the binary output order of the signature for allow to exclude it
         /// </summary>
-        const byte SignatureOrder = byte.MaxValue;
+        private const byte SignatureOrder = byte.MaxValue;
 
         #region Header
 
