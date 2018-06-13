@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 
@@ -30,6 +31,7 @@ namespace NeoSharp.BinarySerialization.Cache
         public readonly string Name;
         public readonly int MaxLength;
         public readonly bool ReadOnly;
+        public readonly BinaryPropertyAttribute Context;
 
         // Cache
 
@@ -42,9 +44,8 @@ namespace NeoSharp.BinarySerialization.Cache
         /// </summary>
         /// <param name="atr">Attribute</param>
         /// <param name="pi">Property</param>
-        public BinarySerializerCacheEntry(BinaryPropertyAttribute atr, PropertyInfo pi) : this(atr, pi.PropertyType)
+        public BinarySerializerCacheEntry(BinaryPropertyAttribute atr, PropertyInfo pi) : this(atr, pi.PropertyType, pi)
         {
-            Name = pi.Name;
             GetValue = pi.GetValue;
             SetValue = pi.SetValue;
             ReadOnly = !pi.CanWrite;
@@ -54,9 +55,8 @@ namespace NeoSharp.BinarySerialization.Cache
         /// </summary>
         /// <param name="atr">Attribute</param>
         /// <param name="fi">Field</param>
-        public BinarySerializerCacheEntry(BinaryPropertyAttribute atr, FieldInfo fi) : this(atr, fi.FieldType)
+        public BinarySerializerCacheEntry(BinaryPropertyAttribute atr, FieldInfo fi) : this(atr, fi.FieldType, fi)
         {
-            Name = fi.Name;
             GetValue = fi.GetValue;
             SetValue = fi.SetValue;
             ReadOnly = false;
@@ -66,12 +66,24 @@ namespace NeoSharp.BinarySerialization.Cache
         /// </summary>
         /// <param name="atr">Attribute</param>
         /// <param name="btype">Type</param>
-        private BinarySerializerCacheEntry(BinaryPropertyAttribute atr, Type btype)
+        /// <param name="member">Member</param>
+        private BinarySerializerCacheEntry(BinaryPropertyAttribute atr, Type btype, MemberInfo member)
         {
+            Name = member.Name;
             var type = btype;
             var isArray = type.IsArray;
             var isList = _iListType.IsAssignableFrom(type);
-            MaxLength = atr == null ? 0 : atr.MaxLength;
+
+            if (atr == null)
+            {
+                Context = null;
+                MaxLength = 0;
+            }
+            else
+            {
+                Context = atr;
+                MaxLength = atr.MaxLength;
+            }
 
             if (type == typeof(byte[]))
             {
@@ -500,7 +512,6 @@ namespace NeoSharp.BinarySerialization.Cache
         private static bool TryRecursive(Type type, out ReadValueDelegate readValue, out WriteValueDelegate writeValue)
         {
             var cache = BinarySerializerCache.InternalRegisterTypes(type);
-
             if (cache == null)
             {
                 foreach (var typeConverter in BinarySerializerCache.TypeConverterCache.Values)

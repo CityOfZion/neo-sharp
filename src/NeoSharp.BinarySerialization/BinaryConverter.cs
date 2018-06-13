@@ -29,17 +29,17 @@ namespace NeoSharp.BinarySerialization
 
         #region Binds
 
-        public T Deserialize<T>(byte[] data) where T : new() => Deserializer.Deserialize<T>(data);
-        public object Deserialize(byte[] data, Type type) => Deserializer.Deserialize(data, type);
-        public T Deserialize<T>(Stream stream) where T : new() => Deserializer.Deserialize<T>(stream);
-        public T Deserialize<T>(BinaryReader stream) where T : new() => Deserializer.Deserialize<T>(stream);
-        public object Deserialize(Stream stream, Type t) => Deserializer.Deserialize(stream, t);
-        public object Deserialize(BinaryReader stream, Type t) => Deserializer.Deserialize(stream, t);
-        public void Deserialize(byte[] buffer, object obj) => Deserializer.Deserialize(buffer, obj);
-        public void Deserialize(Stream stream, object obj) => Deserializer.Deserialize(stream, obj);
-        public byte[] Serialize(object obj) => Serializer.Serialize(obj);
-        public int Serialize(object obj, Stream stream) => Serializer.Serialize(obj, stream);
-        public int Serialize(object obj, BinaryWriter stream) => Serializer.Serialize(obj, stream);
+        public T Deserialize<T>(byte[] data, BinarySerializerSettings settings = null) where T : new() => Deserializer.Deserialize<T>(data, settings);
+        public object Deserialize(byte[] data, Type type, BinarySerializerSettings settings = null) => Deserializer.Deserialize(data, type, settings);
+        public T Deserialize<T>(Stream stream, BinarySerializerSettings settings = null) where T : new() => Deserializer.Deserialize<T>(stream, settings);
+        public T Deserialize<T>(BinaryReader stream, BinarySerializerSettings settings = null) where T : new() => Deserializer.Deserialize<T>(stream, settings);
+        public object Deserialize(Stream stream, Type t, BinarySerializerSettings settings = null) => Deserializer.Deserialize(stream, t, settings);
+        public object Deserialize(BinaryReader stream, Type t, BinarySerializerSettings settings = null) => Deserializer.Deserialize(stream, t, settings);
+        public void Deserialize(byte[] buffer, object obj, BinarySerializerSettings settings = null) => Deserializer.Deserialize(buffer, obj, settings);
+        public void Deserialize(Stream stream, object obj, BinarySerializerSettings settings = null) => Deserializer.Deserialize(stream, obj, settings);
+        public byte[] Serialize(object obj, BinarySerializerSettings settings = null) => Serializer.Serialize(obj, settings);
+        public int Serialize(object obj, Stream stream, BinarySerializerSettings settings = null) => Serializer.Serialize(obj, stream, settings);
+        public int Serialize(object obj, BinaryWriter stream, BinarySerializerSettings settings = null) => Serializer.Serialize(obj, stream, settings);
 
         #endregion
     }

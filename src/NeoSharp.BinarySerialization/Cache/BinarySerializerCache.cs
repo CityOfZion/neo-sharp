@@ -124,11 +124,18 @@ namespace NeoSharp.BinarySerialization.Cache
         /// <param name="serializer">Serializer</param>
         /// <param name="bw">Stream</param>
         /// <param name="obj">Object</param>
-        public int Serialize(IBinarySerializer serializer, BinaryWriter bw, object obj)
+        /// <param name="settings">Settings</param>
+        public int Serialize(IBinarySerializer serializer, BinaryWriter bw, object obj, BinarySerializerSettings settings = null)
         {
-            int ret = 0;
+            var ret = 0;
+            var haveFilter = settings != null && settings.Filter != null; 
+
             foreach (BinarySerializerCacheEntry e in _entries)
+            {
+                if (haveFilter && !settings.Filter.Invoke(e.Context)) continue;
+
                 ret += e.WriteValue(serializer, bw, e.GetValue(obj));
+            }
 
             return ret;
         }
@@ -137,10 +144,11 @@ namespace NeoSharp.BinarySerialization.Cache
         /// </summary>
         /// <param name="deserializer">Deserializer</param>
         /// <param name="br">Stream</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return object</returns>
-        public T Deserialize<T>(IBinaryDeserializer deserializer, BinaryReader br)
+        public T Deserialize<T>(IBinaryDeserializer deserializer, BinaryReader br, BinarySerializerSettings settings = null)
         {
-            return (T)Deserialize(deserializer, br);
+            return (T)Deserialize(deserializer, br, settings);
         }
         /// <summary>
         /// Deserialize without create a new object
@@ -148,10 +156,15 @@ namespace NeoSharp.BinarySerialization.Cache
         /// <param name="deserializer">Deserializer</param>
         /// <param name="br">Stream</param>
         /// <param name="obj">Object</param>
-        public void Deserialize(IBinaryDeserializer deserializer, BinaryReader br, object obj)
+        /// <param name="settings">Settings</param>
+        public void Deserialize(IBinaryDeserializer deserializer, BinaryReader br, object obj, BinarySerializerSettings settings = null)
         {
+            var haveFilter = settings != null && settings.Filter != null;
+
             foreach (BinarySerializerCacheEntry e in _entries)
             {
+                if (haveFilter && !settings.Filter.Invoke(e.Context)) continue;
+
                 if (e.ReadOnly)
                 {
                     // Consume it
@@ -167,11 +180,12 @@ namespace NeoSharp.BinarySerialization.Cache
         /// </summary>
         /// <param name="deserializer">Deserializer</param>
         /// <param name="br">Stream</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return object</returns>
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader br)
+        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader br, BinarySerializerSettings settings = null)
         {
             object ret = Activator.CreateInstance(Type);
-            Deserialize(deserializer, br, ret);
+            Deserialize(deserializer, br, ret, settings);
             return ret;
         }
     }

@@ -1,18 +1,23 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using System;
+using NeoSharp.BinarySerialization;
 using Newtonsoft.Json;
-using System;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    public class Witness
+    public class Witness : WithHash160
     {
-        [BinaryProperty(1)]
+        [BinaryProperty(0, MaxLength = 65536)]
         [JsonProperty("invocation")]
-        public string InvocationScript;
+        public byte[] InvocationScript;
 
-        [BinaryProperty(2)]
+        [BinaryProperty(1, MaxLength = 65536)]
         [JsonProperty("verification")]
         public byte[] VerificationScript;
+
+        public override byte[] GetHashData(IBinarySerializer serializer)
+        {
+            return VerificationScript;
+        }
     }
 }

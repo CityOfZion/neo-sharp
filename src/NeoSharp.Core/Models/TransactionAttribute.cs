@@ -1,18 +1,20 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using System;
+using NeoSharp.BinarySerialization;
 using Newtonsoft.Json;
-using System;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
     public class TransactionAttribute
     {
-        [BinaryProperty(1)]
+        [BinaryProperty(0)]
         [JsonProperty("usage")]
         public TransactionAttributeUsage Usage;
 
-        [BinaryProperty(2)]
+        [BinaryProperty(1)]
         [JsonProperty("data")]
-        public string Data;
+        public byte[] Data;
+
+        // TODO: https://github.com/neo-project/neo/blob/master/neo/Core/TransactionAttribute.cs
     }
 }

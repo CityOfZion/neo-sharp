@@ -84,7 +84,7 @@ namespace NeoSharp.Core.Test.Network
         public void Stop_SuccessfulPeerConnection_StoppingServerLeadsToDisconnectingPeer()
         {
             // Arrange 
-            var waitSendToPeerVersionMessageResetEvent = new AutoResetEvent(false);
+            var waitSendToPeerVersionMessageResetEvent = new ManualResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -123,7 +123,7 @@ namespace NeoSharp.Core.Test.Network
         public void Dispose_ServerIsRunning_StopListenerAndDisconnectPeer()
         {
             // Arrange 
-            var waitSendToPeerVersionMessageResetEvent = new AutoResetEvent(false);
+            var waitSendToPeerVersionMessageResetEvent = new ManualResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -163,7 +163,7 @@ namespace NeoSharp.Core.Test.Network
         public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsNotHandshake_MessageIsHandled()
         {
             // Arrange
-            var waitNextPeerConnectionLoopResetEvent = new AutoResetEvent(false);
+            var waitNextPeerConnectionLoopResetEvent = new ManualResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -208,7 +208,7 @@ namespace NeoSharp.Core.Test.Network
         public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsHandshake_MessageIsNotHandled()
         {
             // Arrange 
-            var waitPeerIsReadyResetEvent = new AutoResetEvent(false);
+            var waitPeerIsReadyResetEvent = new ManualResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -269,7 +269,7 @@ namespace NeoSharp.Core.Test.Network
         public void ListenerMessagesFromPeer_PeerIsNotReadyAndMessageIsNotHandshake_MessageIsNotHandled()
         {
             // Arrange 
-            var waitPeerIsReadyResetEvent = new AutoResetEvent(false);
+            var waitPeerIsReadyResetEvent = new ManualResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 
@@ -323,7 +323,7 @@ namespace NeoSharp.Core.Test.Network
         public void ListenerMessagesFromPeer_PeerIsNotReadyAndMessageIsHandshake_MessageIsHandled()
         {
             // Arrange 
-            var waitPeerIsReadyResetEvent = new AutoResetEvent(false);
+            var waitPeerIsReadyResetEvent = new ManualResetEvent(false);
 
             AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
 

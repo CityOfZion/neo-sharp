@@ -12,7 +12,9 @@ namespace NeoSharp.Core.Blockchain
 {
     public class Blockchain : IDisposable, IBlockchain
     {
-        private readonly IRepository _repository;
+        private readonly IDbPersistenceRepository _dbPersistenceRepository;
+
+        //private readonly IRepository _repository;
         public static event EventHandler<Block> PersistCompleted;
 
         /// <summary>
@@ -51,7 +53,7 @@ namespace NeoSharp.Core.Blockchain
             NextConsensus = GetConsensusAddress(StandbyValidators),
             Script = new Witness
             {
-                InvocationScript = string.Empty,
+                InvocationScript = new byte[0],
                 VerificationScript = new byte[0] // new[] { (byte)OpCode.PUSHT }
             },
             Transactions = new Transaction[]
@@ -91,9 +93,11 @@ namespace NeoSharp.Core.Blockchain
             }
         };
 
-        public Blockchain(IRepository repository)
+        public Blockchain(IDbPersistenceRepository dbPersistenceRepository)
         {
-            _repository = repository;
+            _dbPersistenceRepository = dbPersistenceRepository;
+
+            //_repository = repository;
 
             // TODO: Uncomment when we figure out transactions in genesis block
             // GenesisBlock.MerkleRoot = MerkleTree.ComputeRoot(GenesisBlock.Transactions.Select(p => p.Hash).ToArray());
@@ -108,7 +112,7 @@ namespace NeoSharp.Core.Blockchain
 
         static int TransactionComparer(Stamp<Transaction> a, Stamp<Transaction> b)
         {
-            int c = a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
+            int c = 0;// TODO: by fee a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
             if (c == 0)
             {
                 // TODO: Check ASC or DESC
