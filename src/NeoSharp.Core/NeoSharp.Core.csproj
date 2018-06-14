@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj" />
+    <ProjectReference Include="..\NeoSharp.VM\NeoSharp.VM.csproj" />
   </ItemGroup>
 
 </Project>

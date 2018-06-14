@@ -75,9 +75,9 @@ namespace System.IO
             }
         }
 
-        public static void WriteVarString(this BinaryWriter writer, string value)
+        public static int WriteVarString(this BinaryWriter writer, string value)
         {
-            writer.WriteVarBytes(Encoding.UTF8.GetBytes(value));
+            return writer.WriteVarBytes(Encoding.UTF8.GetBytes(value));
         }
     }
 }
