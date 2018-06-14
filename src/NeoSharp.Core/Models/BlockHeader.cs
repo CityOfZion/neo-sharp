@@ -9,6 +9,10 @@ namespace NeoSharp.Core.Models
     [Serializable]
     public class BlockHeader : NeoEntityBase
     {
+        [BinaryProperty(0)]
+        [JsonProperty("txid")]
+        public override UInt256 Hash { get; set; }
+
         [BinaryProperty(2)]
         [JsonProperty("size")]
         public int Size;
