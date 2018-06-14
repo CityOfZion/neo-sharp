@@ -4,7 +4,7 @@ using NeoSharp.BinarySerialization.SerializationHooks;
 
 namespace NeoSharp.BinarySerialization.Serializers
 {
-    public class BinaryBoolSerializer : IBinaryCustomSerialization
+    public class BinaryBoolSerializer : IBinaryCustomSerializable
     {
         private const byte BTRUE = 0x01;
         private const byte BFALSE = 0x00;

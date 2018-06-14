@@ -13,7 +13,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="type">Type</param>
         public BinaryTypeSerializerAttribute(Type type)
         {
-            if (!typeof(IBinaryCustomSerialization).IsAssignableFrom(type))
+            if (!typeof(IBinaryCustomSerializable).IsAssignableFrom(type))
                 throw new ArgumentException(nameof(type));
 
             Type = type;
@@ -22,9 +22,9 @@ namespace NeoSharp.BinarySerialization
         /// <summary>
         /// Create serializer
         /// </summary>
-        public IBinaryCustomSerialization Create()
+        public IBinaryCustomSerializable Create()
         {
-            return (IBinaryCustomSerialization)Activator.CreateInstance(Type);
+            return (IBinaryCustomSerializable)Activator.CreateInstance(Type);
         }
     }
 }

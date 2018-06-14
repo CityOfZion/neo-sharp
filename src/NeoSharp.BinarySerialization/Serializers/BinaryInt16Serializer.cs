@@ -4,7 +4,7 @@ using NeoSharp.BinarySerialization.SerializationHooks;
 
 namespace NeoSharp.BinarySerialization.Serializers
 {
-    public class BinaryInt16Serializer : IBinaryCustomSerialization
+    public class BinaryInt16Serializer : IBinaryCustomSerializable
     {
         public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {

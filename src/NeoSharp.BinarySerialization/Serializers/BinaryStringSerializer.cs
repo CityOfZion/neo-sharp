@@ -1,12 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using NeoSharp.BinarySerialization.Extensions;
 using NeoSharp.BinarySerialization.SerializationHooks;
 
 namespace NeoSharp.BinarySerialization.Serializers
 {
-    public class BinaryStringSerializer : IBinaryCustomSerialization
+    public class BinaryStringSerializer : IBinaryCustomSerializable
     {
         /// <summary>
         /// Max length

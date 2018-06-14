@@ -8,7 +8,7 @@ using NeoSharp.Core.Models;
 
 namespace NeoSharp.Core.Converters
 {
-    public class TransactionAttributeConverter : IBinaryCustomSerialization
+    public class TransactionAttributeConverter : IBinaryCustomSerializable
     {
         /// <summary>
         /// Deserialize logic

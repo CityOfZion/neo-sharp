@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +7,7 @@ using NeoSharp.BinarySerialization.SerializationHooks;
 
 namespace NeoSharp.BinarySerialization.Cache
 {
-    internal class BinarySerializerCache: IBinaryCustomSerialization
+    internal class BinarySerializerCache: IBinaryCustomSerializable
     {
         #region Cache
 
@@ -16,7 +15,6 @@ namespace NeoSharp.BinarySerialization.Cache
         /// Cache
         /// </summary>
         internal static readonly IDictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
-        internal static readonly IDictionary<Type, TypeConverter> TypeConverterCache = new Dictionary<Type, TypeConverter>();
 
         /// <summary>
         /// Cache types (call me if you load a new plugin or module)
@@ -26,10 +24,7 @@ namespace NeoSharp.BinarySerialization.Cache
         {
             foreach (Assembly asm in asms)
             {
-                foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t)))
-                    InternalRegisterTypeConverter(t);
-
-                foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t) == false))
+                foreach (var t in asm.GetTypes())
                     InternalRegisterTypes(t);
             }
         }
@@ -52,16 +47,6 @@ namespace NeoSharp.BinarySerialization.Cache
             }
         }
 
-        internal static void InternalRegisterTypeConverter(Type type)
-        {
-            lock (TypeConverterCache)
-            {
-                if (TypeConverterCache.ContainsKey(type)) return;
-
-                TypeConverterCache.Add(type, (TypeConverter)Activator.CreateInstance(type));
-            }
-        }
-
         #endregion
 
         /// <summary>
@@ -79,7 +64,7 @@ namespace NeoSharp.BinarySerialization.Cache
         /// <summary>
         /// Serializer
         /// </summary>
-        private readonly IBinaryCustomSerialization _serializer;
+        private readonly IBinaryCustomSerializable _serializer;
 
         /// <summary>
         /// Constructor

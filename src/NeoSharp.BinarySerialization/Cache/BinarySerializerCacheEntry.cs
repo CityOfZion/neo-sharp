@@ -15,7 +15,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
         // Callbacks
 
-        public readonly IBinaryCustomSerialization Serializer;
+        public readonly IBinaryCustomSerializable Serializer;
 
         public readonly GetValueDelegate GetValue;
         public readonly SetValueDelegate SetValue;
@@ -134,7 +134,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region Helpers
 
-        private static bool TryRecursive(Type type, out IBinaryCustomSerialization serializer)
+        private static bool TryRecursive(Type type, out IBinaryCustomSerializable serializer)
         {
             var cache = BinarySerializerCache.InternalRegisterTypes(type);
 

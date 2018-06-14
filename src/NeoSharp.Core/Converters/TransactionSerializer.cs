@@ -7,7 +7,7 @@ using NeoSharp.Core.Models;
 
 namespace NeoSharp.Core.Converters
 {
-    public class TransactionSerializer : IBinaryCustomSerialization
+    public class TransactionSerializer : IBinaryCustomSerializable
     {
         /// <summary>
         /// Cache

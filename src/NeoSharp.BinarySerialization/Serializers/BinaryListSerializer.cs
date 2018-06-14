@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using NeoSharp.BinarySerialization.Extensions;
 using NeoSharp.BinarySerialization.SerializationHooks;
 
 namespace NeoSharp.BinarySerialization.Serializers
 {
-    public class BinaryListSerializer : IBinaryCustomSerialization
+    public class BinaryListSerializer : IBinaryCustomSerializable
     {
         private readonly Type Type;
-        private readonly IBinaryCustomSerialization Serializer;
+        private readonly IBinaryCustomSerializable Serializer;
 
         /// <summary>
         /// Max length
@@ -22,7 +21,7 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="type">Type</param>
         /// <param name="maxLength">Max length</param>
         /// <param name="serializer">Serializer</param>
-        public BinaryListSerializer(Type type, int maxLength, IBinaryCustomSerialization serializer)
+        public BinaryListSerializer(Type type, int maxLength, IBinaryCustomSerializable serializer)
         {
             MaxLength = maxLength;
             Serializer = serializer;

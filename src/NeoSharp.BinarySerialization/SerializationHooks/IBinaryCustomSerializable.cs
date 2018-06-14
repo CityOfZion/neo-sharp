@@ -3,7 +3,7 @@ using System.IO;
 
 namespace NeoSharp.BinarySerialization.SerializationHooks
 {
-    public interface IBinaryCustomSerialization
+    public interface IBinaryCustomSerializable
     {
         /// <summary>
         /// Deserialize logic

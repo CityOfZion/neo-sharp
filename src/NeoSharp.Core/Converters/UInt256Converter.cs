@@ -9,7 +9,7 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Converters
 {
-    class UInt256Converter : TypeConverter, IBinaryCustomSerialization
+    class UInt256Converter : TypeConverter, IBinaryCustomSerializable
     {
         public static readonly int FixedLength = UInt256.BufferLength;
 

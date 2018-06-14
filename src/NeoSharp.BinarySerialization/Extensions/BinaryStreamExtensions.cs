@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 
-namespace NeoSharp.BinarySerialization.Extensions
+namespace System.IO
 {
     public static class BinaryStreamExtensions
     {

@@ -4,7 +4,7 @@ using NeoSharp.BinarySerialization.SerializationHooks;
 
 namespace NeoSharp.BinarySerialization.Serializers
 {
-    public class RecursiveCustomSerializer : IBinaryCustomSerialization
+    public class RecursiveCustomSerializer : IBinaryCustomSerializable
     {
         /// <summary>
         /// Type
