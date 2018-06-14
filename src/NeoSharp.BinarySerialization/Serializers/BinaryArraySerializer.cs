@@ -39,7 +39,7 @@ namespace NeoSharp.BinarySerialization.Serializers
 
             var x = writer.WriteVarInt(ar.Length);
 
-            if (x > MaxLength) throw new FormatException("MaxLength");
+            if (x > MaxLength) throw new FormatException(nameof(MaxLength));
 
             foreach (var o in ar)
             {
@@ -52,7 +52,7 @@ namespace NeoSharp.BinarySerialization.Serializers
         public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             var l = (int)reader.ReadVarInt(ushort.MaxValue);
-            if (l > MaxLength) throw new FormatException("MaxLength");
+            if (l > MaxLength) throw new FormatException(nameof(MaxLength));
 
             var a = (Array)Activator.CreateInstance(Type, l);
 

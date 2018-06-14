@@ -28,7 +28,7 @@ namespace NeoSharp.BinarySerialization.Serializers
                 return writer.WriteVarInt(0);
 
             if (ar.Length > MaxLength)
-                throw new FormatException("MaxLength");
+                throw new FormatException(nameof(MaxLength));
 
             return writer.WriteVarBytes(ar);
         }

@@ -94,17 +94,20 @@ namespace NeoSharp.Core.Models
             // Deserialize shared content
 
             Attributes = deserializer.Deserialize<TransactionAttribute[]>(reader, settings);
-            Inputs = deserializer.Deserialize<CoinReference[]>(reader, settings);
-            Outputs = deserializer.Deserialize<TransactionOutput[]>(reader, settings);
+            if (Attributes.Length > ushort.MaxValue) throw new FormatException(nameof(Attributes));
 
-            if (Outputs.Length > ushort.MaxValue) throw new FormatException();
+            Inputs = deserializer.Deserialize<CoinReference[]>(reader, settings);
+            if (Inputs.Length > ushort.MaxValue) throw new FormatException(nameof(Inputs));
+
+            Outputs = deserializer.Deserialize<TransactionOutput[]>(reader, settings);
+            if (Outputs.Length > ushort.MaxValue) throw new FormatException(nameof(Outputs));
 
             // Deserialize signature
 
             if (settings == null || settings.Filter == null || settings.Filter.Invoke(SignatureOrder))
             {
                 Scripts = deserializer.Deserialize<Witness[]>(reader, settings);
-                if (Scripts.Length > ushort.MaxValue) throw new FormatException();
+                if (Scripts.Length > ushort.MaxValue) throw new FormatException(nameof(Scripts));
             }
         }
 

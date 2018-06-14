@@ -26,7 +26,7 @@ namespace NeoSharp.BinarySerialization.Serializers
             var data = Encoding.UTF8.GetBytes((string)value);
 
             if (data.Length >= MaxLength)
-                throw new FormatException("MaxLength");
+                throw new FormatException(nameof(MaxLength));
 
             return writer.WriteVarBytes(data);
         }
