@@ -8,7 +8,7 @@ using NeoSharp.BinarySerialization.SerializationHooks;
 
 namespace NeoSharp.BinarySerialization.Cache
 {
-    internal class BinarySerializerCache
+    internal class BinarySerializerCache: IBinaryCustomSerialization
     {
         #region Cache
 
@@ -147,7 +147,7 @@ namespace NeoSharp.BinarySerialization.Cache
             {
                 if (haveFilter && !settings.Filter.Invoke(e.Context.Order)) continue;
 
-                ret += e.WriteValue(serializer, bw, e.GetValue(obj));
+                ret += e.Serializer.Serialize(serializer, bw, e.GetValue(obj));
             }
 
             return ret;
@@ -158,22 +158,36 @@ namespace NeoSharp.BinarySerialization.Cache
         /// <param name="deserializer">Deserializer</param>
         /// <param name="br">Stream</param>
         /// <param name="settings">Settings</param>
-        /// <returns>Return object</returns>
+        /// <returns>Deserialized object</returns>
         public T Deserialize<T>(IBinaryDeserializer deserializer, BinaryReader br, BinarySerializerSettings settings = null)
         {
             return (T)Deserialize(deserializer, br, settings);
         }
         /// <summary>
-        /// Deserialize without create a new object
+        /// Deserialize object
         /// </summary>
         /// <param name="deserializer">Deserializer</param>
         /// <param name="reader">Reader</param>
         /// <param name="settings">Settings</param>
+        /// <returns>Deserialized object</returns>
         public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        {
+            return Deserialize(deserializer, reader, Type, settings);
+        }
+
+        /// <summary>
+        /// Deserialize object
+        /// </summary>
+        /// <param name="deserializer">Deserializer</param>
+        /// <param name="reader">Reader</param>
+        /// <param name="type">Type</param>
+        /// <param name="settings">Settings</param>
+        /// <returns>Deserialized object</returns>
+        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             if (_serializer != null)
             {
-                var ret = _serializer.Deserialize(deserializer, reader, Type, settings);
+                var ret = _serializer.Deserialize(deserializer, reader, type, settings);
 
                 if (ret is IBinaryVerifiable v && !v.Verify())
                 {
@@ -187,7 +201,7 @@ namespace NeoSharp.BinarySerialization.Cache
                 object ret;
                 var haveFilter = settings != null && settings.Filter != null;
 
-                ret = Activator.CreateInstance(Type);
+                ret = Activator.CreateInstance(type);
 
                 foreach (BinarySerializerCacheEntry e in _entries)
                 {
@@ -196,11 +210,11 @@ namespace NeoSharp.BinarySerialization.Cache
                     if (e.ReadOnly)
                     {
                         // Consume it
-                        e.ReadValue(deserializer, reader, Type, settings);
+                        e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
                         continue;
                     }
 
-                    e.SetValue(ret, e.ReadValue(deserializer, reader, Type, settings));
+                    e.SetValue(ret, e.Serializer.Deserialize(deserializer, reader, e.Type, settings));
                 }
 
                 if (ret is IBinaryVerifiable v && !v.Verify())
