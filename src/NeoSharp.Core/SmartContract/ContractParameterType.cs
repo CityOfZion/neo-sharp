@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.VM.Enums
+﻿namespace NeoSharp.Core.SmartContract
 {
     /// <summary>
     /// Represents the smart contract parameter type

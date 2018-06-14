@@ -4,8 +4,8 @@ using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
-using NeoSharp.VM.Enums;
 
 namespace NeoSharp.Core.Models
 {
