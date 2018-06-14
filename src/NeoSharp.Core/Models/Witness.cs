@@ -50,7 +50,27 @@ namespace NeoSharp.Core.Models
         /// <returns>Return hashcode</returns>
         public override int GetHashCode()
         {
-            return BitConverter.ToInt32(InvocationScript, 0) + BitConverter.ToInt32(VerificationScript, 0);
+            var l = 0;
+
+            if (InvocationScript.Length >= 4)
+            {
+                l += BitConverter.ToInt32(InvocationScript, 0);
+            }
+            else
+            {
+                l += InvocationScript.Length;
+            }
+
+            if (VerificationScript.Length >= 4)
+            {
+                l += BitConverter.ToInt32(VerificationScript, 0);
+            }
+            else
+            {
+                l += VerificationScript.Length;
+            }
+
+            return l;
         }
 
         public override byte[] GetHashData(IBinarySerializer serializer)
