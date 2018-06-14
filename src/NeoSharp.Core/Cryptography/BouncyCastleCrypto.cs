@@ -171,6 +171,22 @@ namespace NeoSharp.Core.Cryptography
         }
 
         /// <summary>
+        /// Derive Public Key from private
+        /// </summary>
+        /// <param name="privateKey">Private Key</param>
+        /// <param name="compress">Compress pubkey</param>
+        /// <returns>Bytearray Public Key</returns>
+        public override byte[] ComputePublicKey(byte[] privateKey, bool compress = false)
+        {
+            if (privateKey == null) throw new ArgumentException(nameof(privateKey));
+
+            var q = _domain.G.Multiply(new BigInteger(1, privateKey.ToArray()));
+            var publicParams = new ECPublicKeyParameters(q, _domain);
+
+            return publicParams.Q.GetEncoded(compress);
+        }
+
+        /// <summary>
         /// Encrypt using ECB
         /// </summary>
         /// <param name="data">Data</param>
@@ -178,8 +194,8 @@ namespace NeoSharp.Core.Cryptography
         /// <returns>Bytearray</returns>
         public override byte[] AesEncrypt(byte[] data, byte[] key)
         {
-            if (data == null || key == null) throw new ArgumentNullException();
-            if (data.Length % 16 != 0 || key.Length != 32) throw new ArgumentException();
+            if (data == null || data.Length % 16 != 0) throw new ArgumentException(nameof(data));
+            if (key == null || key.Length != 32) throw new ArgumentException(nameof(key));
 
             var cipher = CipherUtilities.GetCipher("AES/ECB/NoPadding");
             cipher.Init(true, ParameterUtilities.CreateKeyParameter("AES", key));
@@ -195,8 +211,8 @@ namespace NeoSharp.Core.Cryptography
         /// <returns>Bytearray</returns>
         public override byte[] AesDecrypt(byte[] data, byte[] key)
         {
-            if (data == null || key == null) throw new ArgumentNullException();
-            if (data.Length % 16 != 0 || key.Length != 32) throw new ArgumentException();
+            if (data == null || data.Length % 16 != 0) throw new ArgumentException(nameof(data));
+            if (key == null || key.Length != 32) throw new ArgumentException(nameof(key));
 
             var cipher = CipherUtilities.GetCipher("AES/ECB/NoPadding");
             cipher.Init(false, ParameterUtilities.CreateKeyParameter("AES", key));
@@ -213,8 +229,9 @@ namespace NeoSharp.Core.Cryptography
         /// <returns>Bytearray</returns>
         public override byte[] AesEncrypt(byte[] data, byte[] key, byte[] iv)
         {
-            if (data == null || key == null || iv == null) throw new ArgumentNullException();
-            if (data.Length % 16 != 0 || key.Length != 32 || iv.Length != 16) throw new ArgumentException();
+            if (data == null || data.Length % 16 != 0) throw new ArgumentException(nameof(data));
+            if (key == null || key.Length != 32) throw new ArgumentException(nameof(key));
+            if (iv == null || iv.Length != 16) throw new ArgumentException(nameof(iv));
 
             var cipher = CipherUtilities.GetCipher("AES/CBC/NoPadding");
             cipher.Init(true, new ParametersWithIV(ParameterUtilities.CreateKeyParameter("AES", key), iv));
@@ -231,8 +248,9 @@ namespace NeoSharp.Core.Cryptography
         /// <returns>Bytearray</returns>
         public override byte[] AesDecrypt(byte[] data, byte[] key, byte[] iv)
         {
-            if (data == null || key == null || iv == null) throw new ArgumentNullException();
-            if (data.Length % 16 != 0 || key.Length != 32 || iv.Length != 16) throw new ArgumentException();
+            if (data == null || data.Length % 16 != 0) throw new ArgumentException(nameof(data));
+            if (key == null || key.Length != 32) throw new ArgumentException(nameof(key));
+            if (iv == null || iv.Length != 16) throw new ArgumentException(nameof(iv));
 
             var cipher = CipherUtilities.GetCipher("AES/CBC/NoPadding");
             cipher.Init(false, new ParametersWithIV(ParameterUtilities.CreateKeyParameter("AES", key), iv));
@@ -245,12 +263,19 @@ namespace NeoSharp.Core.Cryptography
         /// </summary>
         /// <param name="P">Password</param>
         /// <param name="S">Salt</param>
-        /// <param name="N">Cost</param>
-        /// <param name="r">Block size</param>
-        /// <param name="p">Parallelization</param>
+        /// <param name="N">CPU/Memory cost parameter. Must be larger than 1, a power of 2 and less than 2^(128 * r / 8).</param>
+        /// <param name="r">Block size, must be >= 1.</param>
+        /// <param name="p">Parallelization. Must be a positive integer less than or equal to Int32.MaxValue / (128 * r * 8).</param>
         /// <param name="dkLen">Generate key length</param>
         public override byte[] SCrypt(byte[] P, byte[] S, int N, int r, int p, int dkLen)
         {
+            if (P == null) throw new ArgumentException(nameof(P));
+            if (S == null) throw new ArgumentException(nameof(S));
+            if ((N & (N - 1)) != 0 || N < 2 || N >= Math.Pow(2, (128 * r / 8))) throw new ArgumentException(nameof(N));
+            if (r < 1) throw new ArgumentException(nameof(r));
+            if (p < 1 || p > Int32.MaxValue / (128 * r * 8)) throw new ArgumentException(nameof(p));
+            if (dkLen < 1) throw new ArgumentException(nameof(dkLen));
+
             return Org.BouncyCastle.Crypto.Generators.SCrypt.Generate(P, S, N, r, p, dkLen);
         }
     }
