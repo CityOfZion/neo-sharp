@@ -1,16 +1,17 @@
 ﻿using System;
+using System.IO;
 using NeoSharp.BinarySerialization;
-using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Converters;
 
 namespace NeoSharp.Core.Models
 {
-    [BinaryTypeSerializer(typeof(TransactionTypeSerializer))]
-    public class ClaimTransaction : Transaction, IBinaryVerifiable
+    [BinaryTypeSerializer(typeof(TransactionSerializer))]
+    public class ClaimTransaction : Transaction
     {
         /// <summary>
         /// Claims
         /// </summary>
+        [BinaryProperty(100)]
         public CoinReference[] Claims;
 
         /// <summary>
@@ -18,15 +19,25 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public ClaimTransaction() : base(TransactionType.ClaimTransaction) { }
 
+        protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        {
+            Claims = deserializer.Deserialize<CoinReference[]>(reader, settings);
+        }
+
+        protected override int SerializeExclusiveData(IBinarySerializer serializer, BinaryWriter writer, BinarySerializerSettings settings = null)
+        {
+            return serializer.Serialize(Claims, writer, settings);
+        }
+
         /// <summary>
         /// Verify
         /// </summary>
-        public bool Verify()
+        public override bool Verify()
         {
             if (Version != 0) throw new ArgumentException(nameof(Version));
             if (Claims == null || Claims.Length == 0) throw new ArgumentException(nameof(Claims));
 
-            return true;
+            return base.Verify();
         }
     }
 }

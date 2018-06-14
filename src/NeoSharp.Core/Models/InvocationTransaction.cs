@@ -3,7 +3,7 @@ using NeoSharp.Core.Converters;
 
 namespace NeoSharp.Core.Models
 {
-    [BinaryTypeSerializer(typeof(TransactionTypeSerializer))]
+    [BinaryTypeSerializer(typeof(TransactionSerializer))]
     public class InvocationTransaction : Transaction
     {
         /// <summary>

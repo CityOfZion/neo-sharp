@@ -12,7 +12,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="data">Data</param>
         /// <param name="settings">Settings</param>
         /// <returns>Return byte array</returns>
-        T Deserialize<T>(byte[] data, BinarySerializerSettings settings = null) where T : new();
+        T Deserialize<T>(byte[] data, BinarySerializerSettings settings = null);
         /// <summary>
         /// Deserialize
         /// </summary>
@@ -20,7 +20,7 @@ namespace NeoSharp.BinarySerialization
         /// <param name="stream">Stream</param>
         /// <param name="settings">Settings</param>
         /// <returns>Return object</returns>
-        T Deserialize<T>(Stream stream, BinarySerializerSettings settings = null) where T : new();
+        T Deserialize<T>(Stream stream, BinarySerializerSettings settings = null);
         /// <summary>
         /// Deserialize
         /// </summary>
@@ -28,8 +28,8 @@ namespace NeoSharp.BinarySerialization
         /// <param name="stream">Stream</param>
         /// <param name="settings">Settings</param>
         /// <returns>Return object</returns>
-        T Deserialize<T>(BinaryReader stream, BinarySerializerSettings settings = null) where T : new();
-        
+        T Deserialize<T>(BinaryReader stream, BinarySerializerSettings settings = null);
+
         /// <summary>
         /// Deserialize
         /// </summary>

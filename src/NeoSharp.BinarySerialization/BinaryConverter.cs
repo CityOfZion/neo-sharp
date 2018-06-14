@@ -33,9 +33,9 @@ namespace NeoSharp.BinarySerialization
         public object Deserialize(Stream stream, Type type, BinarySerializerSettings settings = null) => Deserializer.Deserialize(stream, type, settings);
         public object Deserialize(BinaryReader stream, Type type, BinarySerializerSettings settings = null) => Deserializer.Deserialize(stream, type, settings);
 
-        public T Deserialize<T>(byte[] data, BinarySerializerSettings settings = null) where T : new() => Deserializer.Deserialize<T>(data, settings);
-        public T Deserialize<T>(Stream stream, BinarySerializerSettings settings = null) where T : new() => Deserializer.Deserialize<T>(stream, settings);
-        public T Deserialize<T>(BinaryReader stream, BinarySerializerSettings settings = null) where T : new() => Deserializer.Deserialize<T>(stream, settings);
+        public T Deserialize<T>(byte[] data, BinarySerializerSettings settings = null) => Deserializer.Deserialize<T>(data, settings);
+        public T Deserialize<T>(Stream stream, BinarySerializerSettings settings = null) => Deserializer.Deserialize<T>(stream, settings);
+        public T Deserialize<T>(BinaryReader stream, BinarySerializerSettings settings = null) => Deserializer.Deserialize<T>(stream, settings);
 
         public byte[] Serialize(object obj, BinarySerializerSettings settings = null) => Serializer.Serialize(obj, settings);
         public int Serialize(object obj, Stream stream, BinarySerializerSettings settings = null) => Serializer.Serialize(obj, stream, settings);

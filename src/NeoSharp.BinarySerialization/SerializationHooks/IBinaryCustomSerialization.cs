@@ -18,7 +18,7 @@ namespace NeoSharp.BinarySerialization.SerializationHooks
         /// Serialize logic
         /// </summary>
         /// <param name="serializer">Serializer</param>
-        /// <param name="writer">Writter</param>
+        /// <param name="writer">Writer</param>
         /// <param name="value">Value</param>
         /// <param name="settings">Settings</param>
         /// <returns>How many bytes have been written</returns>

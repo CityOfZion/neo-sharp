@@ -79,7 +79,7 @@ namespace NeoSharp.BinarySerialization.Cache
         /// <summary>
         /// Serializer
         /// </summary>
-        private readonly IBinarySerializable _serializer;
+        private readonly IBinaryCustomSerialization _serializer;
 
         /// <summary>
         /// Constructor
@@ -145,7 +145,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
             foreach (BinarySerializerCacheEntry e in _entries)
             {
-                if (haveFilter && !settings.Filter.Invoke(e.Context)) continue;
+                if (haveFilter && !settings.Filter.Invoke(e.Context.Order)) continue;
 
                 ret += e.WriteValue(serializer, bw, e.GetValue(obj));
             }
@@ -167,13 +167,13 @@ namespace NeoSharp.BinarySerialization.Cache
         /// Deserialize without create a new object
         /// </summary>
         /// <param name="deserializer">Deserializer</param>
-        /// <param name="br">Stream</param>
+        /// <param name="reader">Reader</param>
         /// <param name="settings">Settings</param>
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader br, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             if (_serializer != null)
             {
-                var ret = _serializer.Deserialize(deserializer, br, Type, settings);
+                var ret = _serializer.Deserialize(deserializer, reader, Type, settings);
 
                 if (ret is IBinaryVerifiable v && !v.Verify())
                 {
@@ -184,21 +184,23 @@ namespace NeoSharp.BinarySerialization.Cache
             }
             else
             {
-                object ret = Activator.CreateInstance(Type);
+                object ret;
                 var haveFilter = settings != null && settings.Filter != null;
+
+                ret = Activator.CreateInstance(Type);
 
                 foreach (BinarySerializerCacheEntry e in _entries)
                 {
-                    if (haveFilter && !settings.Filter.Invoke(e.Context)) continue;
+                    if (haveFilter && !settings.Filter.Invoke(e.Context.Order)) continue;
 
                     if (e.ReadOnly)
                     {
                         // Consume it
-                        e.ReadValue(deserializer, br, Type, settings);
+                        e.ReadValue(deserializer, reader, Type, settings);
                         continue;
                     }
 
-                    e.SetValue(ret, e.ReadValue(deserializer, br, Type, settings));
+                    e.SetValue(ret, e.ReadValue(deserializer, reader, Type, settings));
                 }
 
                 if (ret is IBinaryVerifiable v && !v.Verify())

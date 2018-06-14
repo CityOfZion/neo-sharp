@@ -11,7 +11,7 @@ using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Converters
 {
-    class IPEndPointConverter : TypeConverter, IBinarySerializable
+    class IPEndPointConverter : TypeConverter, IBinaryCustomSerialization
     {
         public static readonly int FixedLength = 18;
 

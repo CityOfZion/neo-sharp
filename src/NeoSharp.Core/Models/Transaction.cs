@@ -1,18 +1,20 @@
 using System;
+using System.IO;
 using NeoSharp.BinarySerialization;
+using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Converters;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    [BinaryTypeSerializer(typeof(TransactionTypeSerializer))]
-    public class Transaction : WithHash256
+    [BinaryTypeSerializer(typeof(TransactionSerializer))]
+    public class Transaction : WithHash256, IBinaryVerifiable
     {
         /// <summary>
         /// Contains the binary output order of the signature for allow to exclude it
         /// </summary>
-        private const byte SignatureOrder = byte.MaxValue;
+        private const int SignatureOrder = int.MaxValue;
 
         #region Header
 
@@ -30,21 +32,21 @@ namespace NeoSharp.Core.Models
 
         #region TxData
 
-        [BinaryProperty(100)]
+        [BinaryProperty(SignatureOrder - 3)]
         [JsonProperty("attributes")]
         public TransactionAttribute[] Attributes = new TransactionAttribute[0];
 
-        [BinaryProperty(101)]
+        [BinaryProperty(SignatureOrder - 2)]
         [JsonProperty("vin")]
         public CoinReference[] Inputs = new CoinReference[0];
 
-        [BinaryProperty(102)]
+        [BinaryProperty(SignatureOrder - 1)]
         [JsonProperty("vout")]
         public TransactionOutput[] Outputs = new TransactionOutput[0];
 
         #endregion
 
-        #region Signature
+        #region Signatures
 
         [BinaryProperty(SignatureOrder)]
         [JsonProperty("scripts")]
@@ -66,6 +68,108 @@ namespace NeoSharp.Core.Models
             Type = type;
         }
 
+        #region Serialization
+
+        /// <summary>
+        /// Deserialize logic
+        /// </summary>
+        /// <param name="deserializer">Deserializer</param>
+        /// <param name="reader">Reader</param>
+        /// <param name="settings">Settings</param>
+        public void Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        {
+            // Check type
+
+            if ((byte)Type != reader.ReadByte())
+                throw new FormatException();
+
+            // Read version
+
+            Version = reader.ReadByte();
+
+            // Deserialize exclusive data
+
+            DeserializeExclusiveData(deserializer, reader, settings);
+
+            // Deserialize shared content
+
+            Attributes = deserializer.Deserialize<TransactionAttribute[]>(reader, settings);
+            Inputs = deserializer.Deserialize<CoinReference[]>(reader, settings);
+            Outputs = deserializer.Deserialize<TransactionOutput[]>(reader, settings);
+
+            if (Outputs.Length > ushort.MaxValue) throw new FormatException();
+
+            // Deserialize signature
+
+            if (settings == null || settings.Filter == null || settings.Filter.Invoke(SignatureOrder))
+            {
+                Scripts = deserializer.Deserialize<Witness[]>(reader, settings);
+                if (Scripts.Length > ushort.MaxValue) throw new FormatException();
+            }
+        }
+
+        /// <summary>
+        /// Serialize logic
+        /// </summary>
+        /// <param name="serializer">Serializer</param>
+        /// <param name="writer">Writer</param>
+        /// <param name="settings">Settings</param>
+        /// <returns>How many bytes have been written</returns>
+        public int Serialize(IBinarySerializer serializer, BinaryWriter writer, BinarySerializerSettings settings = null)
+        {
+            // Write type and version
+
+            var ret = 2;
+
+            writer.Write((byte)Type);
+            writer.Write(Version);
+
+            // Serialize exclusive data
+
+            ret += SerializeExclusiveData(serializer, writer, settings);
+
+            // Serialize shared content
+
+            ret += serializer.Serialize(Attributes, writer, settings);
+            ret += serializer.Serialize(Inputs, writer, settings);
+            ret += serializer.Serialize(Outputs, writer, settings);
+
+            // Serialize sign
+
+            if (settings == null || settings.Filter == null || settings.Filter.Invoke(SignatureOrder))
+            {
+                ret += serializer.Serialize(Scripts, writer, settings);
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Deserialize logic
+        /// </summary>
+        /// <param name="deserializer">Deserializer</param>
+        /// <param name="reader">Reader</param>
+        /// <param name="settings">Settings</param>
+        /// <returns>How many bytes have been written</returns>
+        protected virtual void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        {
+
+        }
+
+        /// <summary>
+        /// Serialize logic
+        /// </summary>
+        /// <param name="serializer">Serializer</param>
+        /// <param name="writer">Writer</param>
+        /// <param name="settings">Settings</param>
+        /// <returns>How many bytes have been written</returns>
+        protected virtual int SerializeExclusiveData(IBinarySerializer serializer, BinaryWriter writer, BinarySerializerSettings settings = null)
+        {
+            return 0;
+        }
+
+        #endregion
+
         /// <summary>
         /// Get hash data
         /// </summary>
@@ -76,8 +180,17 @@ namespace NeoSharp.Core.Models
 
             return serializer.Serialize(this, new BinarySerializerSettings()
             {
-                Filter = (context => context.Order != SignatureOrder)
+                Filter = (order => order != SignatureOrder)
             });
+        }
+
+        /// <summary>
+        /// Verify
+        /// </summary>
+        /// <returns></returns>
+        public virtual bool Verify()
+        {
+            return true;
         }
     }
 }

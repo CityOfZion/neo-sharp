@@ -8,7 +8,7 @@ using NeoSharp.Core.Models;
 
 namespace NeoSharp.Core.Converters
 {
-    public class TransactionAttributeBinarySerializer : IBinaryCustomSerialization
+    public class TransactionAttributeConverter : IBinaryCustomSerialization
     {
         /// <summary>
         /// Deserialize logic
@@ -60,7 +60,7 @@ namespace NeoSharp.Core.Converters
         /// Serialize logic
         /// </summary>
         /// <param name="serializer">Serializer</param>
-        /// <param name="writer">Writter</param>
+        /// <param name="writer">Writer</param>
         /// <param name="value">Value</param>
         /// <param name="settings">Settigns</param>
         public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)

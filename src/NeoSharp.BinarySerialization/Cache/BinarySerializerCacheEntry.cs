@@ -66,9 +66,10 @@ namespace NeoSharp.BinarySerialization.Cache
         /// <param name="atr">Attribute</param>
         /// <param name="btype">Type</param>
         /// <param name="member">Member</param>
-        private BinarySerializerCacheEntry(BinaryPropertyAttribute atr, Type btype, MemberInfo member)
+        public BinarySerializerCacheEntry(BinaryPropertyAttribute atr, Type btype, MemberInfo member)
         {
-            Name = member.Name;
+            Name = member.Name ?? null;
+
             var type = btype;
             var isArray = type.IsArray;
             var isList = _iListType.IsAssignableFrom(type);

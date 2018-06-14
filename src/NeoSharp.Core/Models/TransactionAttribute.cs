@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    [BinaryTypeSerializer(typeof(TransactionAttributeBinarySerializer))]
+    [BinaryTypeSerializer(typeof(TransactionAttributeConverter))]
     public class TransactionAttribute
     {
         [BinaryProperty(0)]
