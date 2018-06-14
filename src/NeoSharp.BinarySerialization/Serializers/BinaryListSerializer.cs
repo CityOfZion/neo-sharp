@@ -7,7 +7,7 @@ namespace NeoSharp.BinarySerialization.Serializers
 {
     public class BinaryListSerializer : IBinaryCustomSerializable
     {
-        private readonly Type Type;
+        private readonly Type Type, ItemType;
         private readonly IBinaryCustomSerializable Serializer;
 
         /// <summary>
@@ -18,14 +18,15 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="type">Type</param>
-        /// <param name="maxLength">Max length</param>
+        /// <param name="typeList">Type list</param>
         /// <param name="serializer">Serializer</param>
-        public BinaryListSerializer(Type type, int maxLength, IBinaryCustomSerializable serializer)
+        /// <param name="maxLength">Max length</param>
+        public BinaryListSerializer(Type typeList, IBinaryCustomSerializable serializer, int maxLength = ushort.MaxValue)
         {
-            MaxLength = maxLength;
+            Type = typeList;
+            ItemType = typeList.GetElementType();
             Serializer = serializer;
-            Type = type;
+            MaxLength = maxLength;
         }
 
         public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
@@ -58,7 +59,7 @@ namespace NeoSharp.BinarySerialization.Serializers
 
             for (var ix = 0; ix < l; ix++)
             {
-                a.Add(Serializer.Deserialize(deserializer, reader, type, settings));
+                a.Add(Serializer.Deserialize(deserializer, reader, ItemType, settings));
             }
 
             return a;

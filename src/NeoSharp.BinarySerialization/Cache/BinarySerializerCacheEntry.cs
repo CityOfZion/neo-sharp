@@ -118,11 +118,11 @@ namespace NeoSharp.BinarySerialization.Cache
 
                 if (isArray)
                 {
-                    Serializer = new BinaryArraySerializer(Type, MaxLength, Serializer);
+                    Serializer = new BinaryArraySerializer(Type, Serializer, MaxLength);
                 }
                 else if (isList)
                 {
-                    Serializer = new BinaryListSerializer(Type, MaxLength, Serializer);
+                    Serializer = new BinaryListSerializer(Type, Serializer, MaxLength);
                 }
 
                 if (Serializer == null)

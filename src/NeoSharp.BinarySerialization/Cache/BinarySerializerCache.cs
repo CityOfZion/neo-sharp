@@ -4,10 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using NeoSharp.BinarySerialization.SerializationHooks;
+using NeoSharp.BinarySerialization.Serializers;
 
 namespace NeoSharp.BinarySerialization.Cache
 {
-    internal class BinarySerializerCache: IBinaryCustomSerializable
+    internal class BinarySerializerCache : IBinaryCustomSerializable
     {
         #region Cache
 
@@ -43,6 +44,14 @@ namespace NeoSharp.BinarySerialization.Cache
                 if (b.IsEmpty) return null;
 
                 Cache.Add(b.Type, b);
+
+                if (!b.Type.IsArray)
+                {
+                    // Register array too
+
+                    Type array = b.Type.MakeArrayType();
+                    Cache.Add(array, new BinarySerializerCache(array, new BinaryArraySerializer(array, b)));
+                }
                 return b;
             }
         }
@@ -57,6 +66,7 @@ namespace NeoSharp.BinarySerialization.Cache
         /// IsEmpty
         /// </summary>
         public readonly bool IsEmpty;
+
         /// <summary>
         /// Cache entries
         /// </summary>
@@ -65,6 +75,18 @@ namespace NeoSharp.BinarySerialization.Cache
         /// Serializer
         /// </summary>
         private readonly IBinaryCustomSerializable _serializer;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="type">Type</param>
+        /// <param name="serializer">Serializer</param>
+        public BinarySerializerCache(Type type, IBinaryCustomSerializable serializer)
+        {
+            Type = type;
+            _serializer = serializer;
+            IsEmpty = false;
+        }
 
         /// <summary>
         /// Constructor
@@ -141,12 +163,12 @@ namespace NeoSharp.BinarySerialization.Cache
         /// Deserialize
         /// </summary>
         /// <param name="deserializer">Deserializer</param>
-        /// <param name="br">Stream</param>
+        /// <param name="reader">Reader</param>
         /// <param name="settings">Settings</param>
         /// <returns>Deserialized object</returns>
-        public T Deserialize<T>(IBinaryDeserializer deserializer, BinaryReader br, BinarySerializerSettings settings = null)
+        public T Deserialize<T>(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
-            return (T)Deserialize(deserializer, br, settings);
+            return (T)Deserialize(deserializer, reader, Type, settings);
         }
         /// <summary>
         /// Deserialize object

@@ -67,18 +67,18 @@ namespace NeoSharp.Core.Test.Serializers
 
             FillRandomSharedTxData(rand, original);
 
-            /*
             var ret = _serializer.Serialize(original);
             var copy = _deserializer.Deserialize<Transaction>(ret);
             var copy2 = _deserializer.Deserialize<ClaimTransaction>(ret);
 
-            EqualTx(original, copy, copy2);
-
-            // Check other data
+            // Check exclusive data
 
             CollectionAssert.AreEqual(original.Claims, ((ClaimTransaction)copy).Claims);
             CollectionAssert.AreEqual(original.Claims, copy2.Claims);
-            */
+
+            // Check base data
+
+            EqualTx(original, copy, copy2);
         }
 
         private void FillRandomSharedTxData(Random rand, Transaction tx)
@@ -114,7 +114,7 @@ namespace NeoSharp.Core.Test.Serializers
                      VerificationScript = randomHash.Reverse().ToArray()
                 }
             };
-            tx.Version = (byte)rand.Next(byte.MinValue, byte.MaxValue);
+            tx.Version = 0;
         }
 
         void EqualTx(Transaction original, params Transaction[] copies)
@@ -125,12 +125,18 @@ namespace NeoSharp.Core.Test.Serializers
 
                 Assert.AreEqual(original.Type, copy.Type);
                 Assert.AreEqual(original.Version, copy.Version);
-                Assert.AreEqual(original.Hash, copy.Hash);
 
                 CollectionAssert.AreEqual(original.Attributes, copy.Attributes);
                 CollectionAssert.AreEqual(original.Inputs, copy.Inputs);
                 CollectionAssert.AreEqual(original.Outputs, copy.Outputs);
                 CollectionAssert.AreEqual(original.Scripts, copy.Scripts);
+
+                // Recompute hash
+
+                original.Hash = null;
+                copy.Hash = null;
+
+                Assert.AreEqual(original.Hash, copy.Hash);
             }
         }
 
