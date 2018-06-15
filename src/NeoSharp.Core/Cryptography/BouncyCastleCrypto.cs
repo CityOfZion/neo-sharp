@@ -140,31 +140,25 @@ namespace NeoSharp.Core.Cryptography
             var signature = signer.GenerateSignature(message);
             var r = signature[0].ToByteArray();
             var s = signature[1].ToByteArray();
+            var rLen = r.Length;
+            var sLen = s.Length;
 
             // Buid Signature ensuring Neo expected format. 32byte r + 32byte s.
-            if (r.Length > 32)
+            if (rLen < 32)
             {
-                Array.Copy(r, 1, fullsign, 0, 32);
-            }
-            else if (r.Length < 32)
-            {
-                Array.Copy(r, 0, fullsign, 1, 31);
+                Array.Copy(r, 0, fullsign, 32 - rLen, rLen);
             }
             else
             {
-                Array.Copy(r, 0, fullsign, 0, 32);
+                Array.Copy(r, rLen - 32, fullsign, 0, 32);
             }
-            if (s.Length > 32)
+            if (sLen < 32)
             {
-                Array.Copy(s, 1, fullsign, 32, 32);
-            }
-            else if (s.Length < 32)
-            {
-                Array.Copy(s, 0, fullsign, 33, 31);
+                Array.Copy(s, 0, fullsign, 64 - sLen, sLen);
             }
             else
             {
-                Array.Copy(s, 0, fullsign, 32, 32);
+                Array.Copy(s, sLen - 32, fullsign, 32, 32);
             }
 
             return fullsign;
