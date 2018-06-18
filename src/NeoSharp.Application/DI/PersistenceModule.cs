@@ -1,5 +1,6 @@
 ﻿using NeoSharp.Core.DI;
 using NeoSharp.Core.Persistence;
+using NeoSharp.Core.Persistence.Contexts;
 using NeoSharp.Persistence.RocksDB;
 
 namespace NeoSharp.Application.DI
@@ -10,10 +11,12 @@ namespace NeoSharp.Application.DI
         {
             containerBuilder.RegisterSingleton<IRepositoryConfiguration, RocksDbConfiguration>();
 
+            containerBuilder.RegisterSingleton<IBlockHeaderContext, BlockHeaderContext>();
+            containerBuilder.RegisterSingleton<ITransactionContext, TransactionContext>();
+
             // TODO: if RocksDb is configured, register this objects for DI
-            containerBuilder.RegisterSingleton<IDbPersistenceRepository, RocksDbPersistenceRepository>();
-            containerBuilder.RegisterSingleton<IBlockHeaderRepository, BlockHeaderRepository>();
-            containerBuilder.RegisterSingleton<ITransactionRepository, TransactionRepository>();
+            containerBuilder.RegisterSingleton<IDbModel, RocksDbModel>();
+            containerBuilder.RegisterSingleton<IDbContext, RocksDbContext>();
 
             // TODO: else, if RedisDb is configured, register this objets for DI
 
