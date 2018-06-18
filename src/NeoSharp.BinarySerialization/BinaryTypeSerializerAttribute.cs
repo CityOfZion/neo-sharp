@@ -14,7 +14,9 @@ namespace NeoSharp.BinarySerialization
         public BinaryTypeSerializerAttribute(Type type)
         {
             if (!typeof(IBinaryCustomSerializable).IsAssignableFrom(type))
+            {
                 throw new ArgumentException(nameof(type));
+            }
 
             Type = type;
         }
