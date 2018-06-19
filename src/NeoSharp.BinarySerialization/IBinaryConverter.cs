@@ -1,6 +1,4 @@
 ﻿namespace NeoSharp.BinarySerialization
 {
-    public interface IBinaryConverter : IBinarySerializer, IBinaryDeserializer
-    {
-    }
+    public interface IBinaryConverter : IBinarySerializer, IBinaryDeserializer { }
 }

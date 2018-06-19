@@ -1,17 +1,16 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using NeoSharp.BinarySerialization;
+using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Converters
 {
-    class Fixed8TypeConverter : TypeConverter, IFixedBufferConverter
+    class Fixed8TypeConverter : TypeConverter, IBinaryCustomSerializable
     {
-        /// <summary>
-        /// Buffer length
-        /// </summary>
-        public int FixedLength => 8;
+        public static readonly int FixedLength = 8;
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
@@ -61,6 +60,24 @@ namespace NeoSharp.Core.Converters
             }
 
             return base.ConvertFrom(context, culture, value);
+        }
+
+        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        {
+            var val = reader.ReadInt64();
+
+            return new Fixed8(val);
+        }
+
+        public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
+        {
+            if (value is Fixed8 f8)
+            {
+                writer.Write(f8.Value);
+                return FixedLength;
+            }
+
+            throw new ArgumentException(nameof(value));
         }
     }
 }

@@ -7,12 +7,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using NeoSharp.Core.Persistence.Contexts;
 
 namespace NeoSharp.Core.Blockchain
 {
     public class Blockchain : IDisposable, IBlockchain
     {
-        private readonly IDbPersistenceRepository _dbPersistenceRepository;
+        private readonly IBlockHeaderContext _blockHeaderContext;
 
         //private readonly IRepository _repository;
         public static event EventHandler<Block> PersistCompleted;
@@ -93,11 +94,9 @@ namespace NeoSharp.Core.Blockchain
             }
         };
 
-        public Blockchain(IDbPersistenceRepository dbPersistenceRepository)
+        public Blockchain(IBlockHeaderContext blockHeaderContext)
         {
-            _dbPersistenceRepository = dbPersistenceRepository;
-
-            //_repository = repository;
+            _blockHeaderContext = blockHeaderContext;
 
             // TODO: Uncomment when we figure out transactions in genesis block
             // GenesisBlock.MerkleRoot = MerkleTree.ComputeRoot(GenesisBlock.Transactions.Select(p => p.Hash).ToArray());
@@ -180,7 +179,7 @@ namespace NeoSharp.Core.Blockchain
             //List<SpentCoin> unclaimed = new List<SpentCoin>();
             //foreach (var group in inputs.GroupBy(p => p.PrevHash))
             //{
-            //    Transaction tx = Default.GetTransaction(group.Key, out int height_start);
+            //    Transaction tx = Default.GetTransactionByHash(group.Key, out int height_start);
             //    if (tx == null) throw new ArgumentException();
             //    if (height_start == height_end) continue;
             //    foreach (CoinReference claim in group)
@@ -387,7 +386,7 @@ namespace NeoSharp.Core.Blockchain
             //    }
             //    foreach (var group in tx.Inputs.GroupBy(p => p.PrevHash))
             //    {
-            //        Transaction tx_prev = GetTransaction(group.Key, out int height);
+            //        Transaction tx_prev = GetTransactionByHash(group.Key, out int height);
             //        foreach (CoinReference input in group)
             //        {
             //            TransactionOutput out_prev = tx_prev.Outputs[input.PrevIndex];
