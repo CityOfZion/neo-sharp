@@ -5,7 +5,7 @@
         /// <summary>
         /// Verify after deserialization
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Return true if is verified</returns>
         bool Verify();
     }
 }
