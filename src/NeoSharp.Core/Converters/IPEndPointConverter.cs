@@ -1,20 +1,19 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using NeoSharp.BinarySerialization;
+using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Converters
 {
-    class IPEndPointConverter : TypeConverter, IFixedBufferConverter
+    class IPEndPointConverter : TypeConverter, IBinaryCustomSerializable
     {
-        /// <summary>
-        /// Buffer length
-        /// </summary>
-        public int FixedLength => 18;
+        public static readonly int FixedLength = 18;
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
@@ -83,6 +82,41 @@ namespace NeoSharp.Core.Converters
             }
 
             return base.ConvertFrom(context, culture, value);
+        }
+
+        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        {
+            var bytes = new byte[FixedLength];
+            reader.Read(bytes, 0, FixedLength);
+
+            // Reverse port
+
+            IPAddress address = new IPAddress(bytes.Take(16).ToArray());
+            ushort port = BitConverter.ToUInt16(bytes, 16);
+
+            return new IPEndPoint(address, port);
+        }
+
+        public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
+        {
+            if (value is IPEndPoint ep)
+            {
+                var ip = ep.Address;
+
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    ip = ip.MapToIPv6();
+
+                byte[] address = ip.GetAddressBytes();
+                byte[] port = BitConverter.GetBytes((ushort)ep.Port);
+                Array.Reverse(port);
+
+                writer.Write(address, 0, 16);
+                writer.Write(port, 0, 2);
+
+                return FixedLength;
+            }
+
+            throw new ArgumentException(nameof(value));
         }
     }
 }

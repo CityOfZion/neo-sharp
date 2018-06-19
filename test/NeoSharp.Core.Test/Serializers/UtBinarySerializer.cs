@@ -5,6 +5,7 @@ using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Test.Types;
 using NeoSharp.Core.Types;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -248,6 +249,59 @@ namespace NeoSharp.Core.Test.Serializers
                 Assert.AreEqual(copy.Address[x].Timestamp, original.Address[x].Timestamp);
                 Assert.AreEqual(copy.Address[x].Services, original.Address[x].Services);
             }
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_Fixed8()
+        {
+            var original = new Fixed8(long.MaxValue);
+            var copy = _deserializer.Deserialize<Fixed8>(_serializer.Serialize(original));
+
+            Assert.AreEqual(original, copy);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_NetworkAddressWithTime()
+        {
+            var original = new NetworkAddressWithTime()
+            {
+                EndPoint = new IPEndPoint(IPAddress.Any, 0),
+                Services = ulong.MaxValue,
+                Timestamp = uint.MaxValue
+            };
+
+            var copy = _deserializer.Deserialize<NetworkAddressWithTime>(_serializer.Serialize(original));
+
+            Assert.AreEqual(original.Timestamp, copy.Timestamp);
+            Assert.AreEqual(original.Services, copy.Services);
+            Assert.AreEqual(original.EndPoint.Address.MapToIPv6(), copy.EndPoint.Address);
+            Assert.AreEqual(original.EndPoint.Port, copy.EndPoint.Port);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_UInt256()
+        {
+            var rand = new Random(Environment.TickCount);
+            var hash = new byte[UInt256.BufferLength];
+            rand.NextBytes(hash);
+
+            var original = new UInt256(hash);
+            var copy = _deserializer.Deserialize<UInt256>(_serializer.Serialize(original));
+
+            Assert.AreEqual(original, copy);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_UInt160()
+        {
+            var rand = new Random(Environment.TickCount);
+            var hash = new byte[UInt160.BufferLength];
+            rand.NextBytes(hash);
+
+            var original = new UInt160(hash);
+            var copy = _deserializer.Deserialize<UInt160>(_serializer.Serialize(original));
+
+            Assert.AreEqual(original, copy);
         }
 
         [TestMethod]

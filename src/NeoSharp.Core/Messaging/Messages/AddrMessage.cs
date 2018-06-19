@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Net;
@@ -28,7 +29,7 @@ namespace NeoSharp.Core.Messaging.Messages
         public NetworkAddressWithTime[] Address;
     }
 
-    public class NetworkAddressWithTime
+    public class NetworkAddressWithTime : IEquatable<NetworkAddressWithTime>
     {
         [BinaryProperty(0)]
         public uint Timestamp;
@@ -38,6 +39,44 @@ namespace NeoSharp.Core.Messaging.Messages
 
         [BinaryProperty(2)]
         [TypeConverter(typeof(IPEndPointConverter))]
+        [BinaryTypeSerializer(typeof(IPEndPointConverter))]
         public IPEndPoint EndPoint;
+
+        /// <summary>
+        /// Check if is equal to other
+        /// </summary>
+        /// <param name="other">Other</param>
+        /// <returns>Return true if equal</returns>
+        public bool Equals(NetworkAddressWithTime other)
+        {
+            if (ReferenceEquals(this, other)) return true;
+            if (other is null) return false;
+
+            return Timestamp == other.Timestamp && Services == other.Services && EndPoint.Equals(other.EndPoint);
+        }
+
+        /// <summary>
+        /// Check if is equal to other
+        /// </summary>
+        /// <param name="other">Other</param>
+        /// <returns>Return true if equal</returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj is null) return false;
+
+            if (!(obj is NetworkAddressWithTime other)) return false;
+
+            return Timestamp == other.Timestamp && Services == other.Services && EndPoint.Equals(other.EndPoint);
+        }
+
+        /// <summary>
+        /// Get HashCode
+        /// </summary>
+        /// <returns>Return hashcode</returns>
+        public override int GetHashCode()
+        {
+            return BitConverter.ToInt32(EndPoint.Address.GetAddressBytes(), 0);
+        }
     }
 }

@@ -87,7 +87,7 @@ namespace NeoSharp.Application.Client
         {
             // TODO: Change this
 
-            var tx = new Transaction();
+            var tx = new InvocationTransaction();
             WriteObject(tx, output);
         }
 
@@ -105,7 +105,7 @@ namespace NeoSharp.Application.Client
             //var block = Blockchain.GenesisBlock;
             //var tx = block.Transactions[txNumber];
 
-            var tx = new Transaction();
+            var tx = new InvocationTransaction();
             WriteObject(tx, output);
         }
 

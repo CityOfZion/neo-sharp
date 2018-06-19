@@ -27,6 +27,10 @@ namespace NeoSharp.Core.Models
 
                 return _hash;
             }
+            set
+            {
+                _hash = value;
+            }
         }
 
         public abstract byte[] GetHashData(IBinarySerializer serializer);

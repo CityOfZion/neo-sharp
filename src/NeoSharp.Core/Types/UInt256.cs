@@ -3,12 +3,14 @@ using System.Collections;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Types
 {
     [TypeConverter(typeof(UInt256Converter))]
+    [BinaryTypeSerializer(typeof(UInt256Converter))]
     public class UInt256 : IEquatable<UInt256>, IComparable<UInt256>, ISerializable
     {
         public static readonly int BufferLength = 32;
