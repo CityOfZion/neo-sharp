@@ -63,7 +63,7 @@ namespace NeoSharp.BinarySerialization
 
             using (var br = new BinaryReader(stream, Encoding.UTF8))
             {
-                return cache.Deserialize<T>(this, br, settings);
+                return (T)cache.Deserialize(this, br, typeof(T), settings);
             }
         }
         /// <summary>
@@ -82,7 +82,7 @@ namespace NeoSharp.BinarySerialization
 
             // Deserialize
 
-            return cache.Deserialize<T>(this, stream, settings);
+            return (T)cache.Deserialize(this, stream, typeof(T), settings);
         }
         /// <summary>
         /// Deserialize without create a new object
@@ -116,7 +116,7 @@ namespace NeoSharp.BinarySerialization
 
             using (var br = new BinaryReader(stream, Encoding.UTF8, true))
             {
-                return cache.Deserialize(this, br, settings);
+                return cache.Deserialize(this, br, type, settings);
             }
         }
         /// <summary>
@@ -135,7 +135,7 @@ namespace NeoSharp.BinarySerialization
 
             // Deserialize
 
-            return cache.Deserialize(this, stream, settings);
+            return cache.Deserialize(this, stream, type, settings);
         }
     }
 }
