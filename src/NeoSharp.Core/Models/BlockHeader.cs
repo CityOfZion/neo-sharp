@@ -7,11 +7,11 @@ using Newtonsoft.Json;
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    public class BlockHeader : NeoEntityBase
+    public class BlockHeader : Entity
     {
-        [BinaryProperty(0)]
-        [JsonProperty("txid")]
-        public override UInt256 Hash { get; set; }
+        [BinaryProperty(1)]
+        [JsonProperty("hash")]
+        public UInt256 Hash { get; set; }
 
         [BinaryProperty(2)]
         [JsonProperty("size")]

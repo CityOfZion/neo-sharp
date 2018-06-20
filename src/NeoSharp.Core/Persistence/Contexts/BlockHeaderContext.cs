@@ -21,12 +21,12 @@ namespace NeoSharp.Core.Persistence.Contexts
         #region IBlockHeaderContext implementation
         public Task Add(BlockHeader blockHeader)
         {
-            return _model.Create(blockHeader, DataEntryPrefix.DataBlock);
+            return _model.Create(DataEntryPrefix.DataBlock, blockHeader.Hash, blockHeader);
         }
 
-        public Task<BlockHeader> GetBlockHeaderByHash(UInt256 blockHash)
+        public Task<BlockHeader> GetBlockHeaderByHash(UInt256 blockHeaderHash)
         {
-            return _model.GetByHash<BlockHeader>(blockHash, DataEntryPrefix.DataBlock);
+            return _model.GetByHash<BlockHeader>(DataEntryPrefix.DataBlock, blockHeaderHash);
         }
 
         // Is there any use case where this method is need???

@@ -3,26 +3,27 @@ using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Converters;
+using NeoSharp.Core.Persistence;
+using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
     [BinaryTypeSerializer(typeof(TransactionSerializer))]
-    public class Transaction : WithHash256, IBinaryVerifiable
+    public class Transaction : Entity, IBinaryVerifiable
     {
-        /// <summary>
-        /// Contains the binary output order of the signature for allow to exclude it
-        /// </summary>
-        private const int SignatureOrder = int.MaxValue;
-
         #region Header
 
         [BinaryProperty(0)]
+        [JsonProperty("hash")]
+        public UInt256 Hash { get; set; }
+
+        [BinaryProperty(1)]
         [JsonProperty("type")]
         public TransactionType Type;
 
-        [BinaryProperty(1)]
+        [BinaryProperty(2)]
         [JsonProperty("version")]
         public byte Version;
 
@@ -32,23 +33,23 @@ namespace NeoSharp.Core.Models
 
         #region TxData
 
-        [BinaryProperty(SignatureOrder - 3)]
+        [BinaryProperty(100)]
         [JsonProperty("attributes")]
         public TransactionAttribute[] Attributes = new TransactionAttribute[0];
 
-        [BinaryProperty(SignatureOrder - 2)]
+        [BinaryProperty(101)]
         [JsonProperty("vin")]
         public CoinReference[] Inputs = new CoinReference[0];
 
-        [BinaryProperty(SignatureOrder - 1)]
+        [BinaryProperty(102)]
         [JsonProperty("vout")]
         public TransactionOutput[] Outputs = new TransactionOutput[0];
 
         #endregion
 
-        #region Signatures
+        #region Signature
 
-        [BinaryProperty(SignatureOrder)]
+        [BinaryProperty(255)]
         [JsonProperty("scripts")]
         public Witness[] Scripts;
 
@@ -104,7 +105,7 @@ namespace NeoSharp.Core.Models
 
             // Deserialize signature
 
-            if (settings == null || settings.Filter == null || settings.Filter.Invoke(SignatureOrder))
+            if (settings?.Filter?.Invoke(nameof(Scripts)) != false)
             {
                 Scripts = deserializer.Deserialize<Witness[]>(reader, settings);
                 if (Scripts.Length > ushort.MaxValue) throw new FormatException(nameof(Scripts));
@@ -139,7 +140,7 @@ namespace NeoSharp.Core.Models
 
             // Serialize sign
 
-            if (settings == null || settings.Filter == null || settings.Filter.Invoke(SignatureOrder))
+            if (settings?.Filter?.Invoke(nameof(Scripts)) != false)
             {
                 ret += serializer.Serialize(Scripts, writer, settings);
             }
@@ -172,20 +173,6 @@ namespace NeoSharp.Core.Models
         }
 
         #endregion
-
-        /// <summary>
-        /// Get hash data
-        /// </summary>
-        /// <returns>Return hash data</returns>
-        public override byte[] GetHashData(IBinarySerializer serializer)
-        {
-            // Exclude signature
-
-            return serializer.Serialize(this, new BinarySerializerSettings()
-            {
-                Filter = (order => order != SignatureOrder)
-            });
-        }
 
         /// <summary>
         /// Verify

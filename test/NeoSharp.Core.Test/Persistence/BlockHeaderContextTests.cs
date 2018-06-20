@@ -24,7 +24,7 @@ namespace NeoSharp.Core.Test.Persistence
             var testee = this.AutoMockContainer.Create<BlockHeaderContext>();
             testee.Add(blockHeader);
 
-            dbModelMock.Verify(x => x.Create(blockHeader, DataEntryPrefix.DataBlock));
+            dbModelMock.Verify(x => x.Create(DataEntryPrefix.DataBlock, blockHeader.Hash, blockHeader));
         }
     }
 }

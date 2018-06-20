@@ -5,8 +5,8 @@ namespace NeoSharp.BinarySerialization
     public class BinarySerializerSettings
     {
         /// <summary>
-        /// Filter by order
+        /// Filter
         /// </summary>
-        public Func<int, bool> Filter { get; set; }
+        public Predicate<string> Filter { get; set; }
     }
 }

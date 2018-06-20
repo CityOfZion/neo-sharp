@@ -62,17 +62,9 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="settings">Settings</param>
         public int Serialize(IBinarySerializer serializer, BinaryWriter bw, object obj, BinarySerializerSettings settings = null)
         {
-            var ret = 0;
-            var haveFilter = settings != null && settings.Filter != null;
-
-            foreach (BinarySerializerCacheEntry e in _entries)
-            {
-                if (haveFilter && !settings.Filter.Invoke(e.Context.Order)) continue;
-
-                ret += e.Serializer.Serialize(serializer, bw, e.GetValue(obj));
-            }
-
-            return ret;
+            return _entries
+                .Where(e => settings?.Filter?.Invoke(e.Name) != false)
+                .Sum(e => e.Serializer.Serialize(serializer, bw, e.GetValue(obj)));
         }
         /// <summary>
         /// Deserialize
@@ -107,14 +99,11 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <returns>Deserialized object</returns>
         public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
-            object ret;
-            var haveFilter = settings != null && settings.Filter != null;
+            var ret = Activator.CreateInstance(type);
 
-            ret = Activator.CreateInstance(type);
-
-            foreach (BinarySerializerCacheEntry e in _entries)
+            foreach (var e in _entries)
             {
-                if (haveFilter && !settings.Filter.Invoke(e.Context.Order)) continue;
+                if (settings?.Filter?.Invoke(e.Name) == false) continue;
 
                 if (e.ReadOnly)
                 {

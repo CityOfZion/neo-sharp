@@ -8,7 +8,7 @@ namespace NeoSharp.Core.Persistence.Contexts
     {
         Task Add(BlockHeader blockHeader);
 
-        Task<BlockHeader> GetBlockHeaderByHash(UInt256 blockHash);
+        Task<BlockHeader> GetBlockHeaderByHash(UInt256 blockHeaderHash);
 
         // Is there any use case where this method is need???
         //Task<byte[]> GetRawBlockHeader(UInt256 blockHash);
