@@ -29,7 +29,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             var dbContextMock = this.AutoMockContainer.GetMock<IDbContext>();
 
             var testee = this.AutoMockContainer.Create<RocksDbModel>();
-            testee.Create(entity, DataEntryPrefix.DataBlock);
+            testee.Create(DataEntryPrefix.DataBlock, entity.Hash, entity);
 
             dbContextMock.Verify(x => x.Create(key, serializedTEntity));
         }

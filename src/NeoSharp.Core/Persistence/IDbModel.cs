@@ -5,16 +5,15 @@ namespace NeoSharp.Core.Persistence
 {
     public interface IDbModel
     {
-        Task Create<TEntity>(TEntity entity, DataEntryPrefix dataEntryPrefix)
-            where TEntity : NeoEntityBase;
+        Task Create<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash, TEntity entity)
+            where TEntity : Entity;
 
-        Task Delete<TEntity>(TEntity entity)
-            where TEntity : NeoEntityBase;
+        Task Update<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash, TEntity entity)
+            where TEntity : Entity;
 
-        Task Update<TEntity>(TEntity entity)
-            where TEntity : NeoEntityBase;
+        Task DeleteByHash(DataEntryPrefix dataEntryPrefix, UInt256 hash);
 
-        Task<TEntity> GetByHash<TEntity>(UInt256 hash, DataEntryPrefix dataEntryPrefix)
-            where TEntity : NeoEntityBase;
+        Task<TEntity> GetByHash<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash)
+            where TEntity : Entity;
     }
 }

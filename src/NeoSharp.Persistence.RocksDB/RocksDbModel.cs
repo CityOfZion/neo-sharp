@@ -27,35 +27,43 @@ namespace NeoSharp.Persistence.RocksDB
         #endregion
 
         #region IDbModel Implementation
-        public Task Create<TEntity>(TEntity entity, DataEntryPrefix dataEntryPrefix) 
-            where TEntity : NeoEntityBase
+        public Task Create<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash, TEntity entity) 
+            where TEntity : Entity
         {
-            var key = entity.Hash.BuildKey(dataEntryPrefix);
-            var content = _serializer.Serialize(entity);
+            var key = BuildKey(dataEntryPrefix, hash);
+            var buffer = _serializer.Serialize(entity);
 
-            return _dbContext.Create(key, content);
+            return _dbContext.Create(key, buffer);
         }
 
-        public Task Delete<TEntity>(TEntity entity) 
-            where TEntity : NeoEntityBase
+        public Task Update<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash, TEntity entity) 
+            where TEntity : Entity
         {
+            var key = BuildKey(dataEntryPrefix, hash);
+
             throw new NotImplementedException();
         }
 
-        public Task Update<TEntity>(TEntity entity) 
-            where TEntity : NeoEntityBase
+        public Task DeleteByHash(DataEntryPrefix dataEntryPrefix, UInt256 hash)
         {
+            var key = BuildKey(dataEntryPrefix, hash);
+
             throw new NotImplementedException();
         }
 
-        public async Task<TEntity> GetByHash<TEntity>(UInt256 hash, DataEntryPrefix dataEntryPrefix) 
-            where TEntity : NeoEntityBase
+        public async Task<TEntity> GetByHash<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash) 
+            where TEntity : Entity
         {
-            var rawBlockHeader = await _dbContext.GetByHash(hash.BuildKey(dataEntryPrefix));
-            var deserializedBlockHeader = _deserializer.Deserialize(rawBlockHeader, typeof(TEntity)) as TEntity;
+            var key = BuildKey(dataEntryPrefix, hash);
+            var buffer = await _dbContext.GetByHash(key);
 
-            return deserializedBlockHeader;
+            return (TEntity)_deserializer.Deserialize(buffer, typeof(TEntity));
         }
         #endregion
+
+        private static byte[] BuildKey(DataEntryPrefix dataEntryPrefix, UInt256 hash)
+        {
+            return hash.BuildKey(dataEntryPrefix);
+        }
     }
 }

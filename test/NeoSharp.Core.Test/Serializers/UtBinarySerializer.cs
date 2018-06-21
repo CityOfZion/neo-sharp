@@ -234,7 +234,7 @@ namespace NeoSharp.Core.Test.Serializers
                          EndPoint=new IPEndPoint(IPAddress.Parse("::01"),ushort.MinValue),
                          Services=ulong.MinValue,
                          Timestamp=uint.MinValue,
-                    },
+                    }
                 }
             };
 

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,28 +16,12 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <summary>
         /// IsEmpty
         /// </summary>
-        public readonly bool IsEmpty;
+        public bool IsEmpty => _entries.Length == 0;
 
         /// <summary>
         /// Cache entries
         /// </summary>
         private readonly BinarySerializerCacheEntry[] _entries;
-        /// <summary>
-        /// Serializer
-        /// </summary>
-        private readonly IBinaryCustomSerializable _serializer;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="type">Type</param>
-        /// <param name="serializer">Serializer</param>
-        public BinaryAutoSerializer(Type type, IBinaryCustomSerializable serializer)
-        {
-            Type = type;
-            _serializer = serializer;
-            IsEmpty = false;
-        }
 
         /// <summary>
         /// Constructor
@@ -47,41 +31,26 @@ namespace NeoSharp.BinarySerialization.Serializers
         {
             Type = type;
 
-            // Check interfaces
+            _entries =
 
-            var serializerAttr = type.GetCustomAttribute<BinaryTypeSerializerAttribute>();
+            // Properties
 
-            if (serializerAttr != null)
-            {
-                // By serializer
-                _serializer = serializerAttr.Create();
-                IsEmpty = false;
-            }
-            else
-            {
-                _entries =
+            type.GetProperties()
+            .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
+            .Where(u => u.atr != null)
+            .OrderBy(u => u.atr.Order)
+            .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
+            .Concat
+            (
+                // Fields
 
-                // Properties
-
-                type.GetProperties()
+                type.GetFields()
                 .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
                 .Where(u => u.atr != null)
                 .OrderBy(u => u.atr.Order)
                 .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
-                .Concat
-                (
-                    // Fields
-
-                    type.GetFields()
-                    .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
-                    .Where(u => u.atr != null)
-                    .OrderBy(u => u.atr.Order)
-                    .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
-                )
-                .ToArray();
-
-                IsEmpty = _entries.Length <= 0;
-            }
+            )
+            .ToArray();
         }
 
         /// <summary>
@@ -93,22 +62,8 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="settings">Settings</param>
         public int Serialize(IBinarySerializer serializer, BinaryWriter bw, object obj, BinarySerializerSettings settings = null)
         {
-            if (_serializer != null)
-            {
-                return _serializer.Serialize(serializer, bw, obj, settings);
-            }
-
-            var ret = 0;
-            var haveFilter = settings != null && settings.Filter != null;
-
-            foreach (BinarySerializerCacheEntry e in _entries)
-            {
-                if (haveFilter && !settings.Filter.Invoke(e.Context.Order)) continue;
-
-                ret += e.Serializer.Serialize(serializer, bw, e.GetValue(obj));
-            }
-
-            return ret;
+            return _entries.Where(e => settings?.Filter?.Invoke(e.Name) != false)
+                       .Sum(e => e.Serializer.Serialize(serializer, bw, e.GetValue(obj)));
         }
         /// <summary>
         /// Deserialize
@@ -143,45 +98,28 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <returns>Deserialized object</returns>
         public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
-            if (_serializer != null)
+            var ret = Activator.CreateInstance(type);
+
+            foreach (var e in _entries)
             {
-                var ret = _serializer.Deserialize(deserializer, reader, type, settings);
+                if (settings?.Filter?.Invoke(e.Name) == false) continue;
 
-                if (ret is IBinaryVerifiable v && !v.Verify())
+                if (e.ReadOnly)
                 {
-                    throw new FormatException();
+                    // Consume it
+                    e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
+                    continue;
                 }
 
-                return ret;
+                e.SetValue(ret, e.Serializer.Deserialize(deserializer, reader, e.Type, settings));
             }
-            else
+
+            if (ret is IBinaryVerifiable v && !v.Verify())
             {
-                object ret;
-                var haveFilter = settings != null && settings.Filter != null;
-
-                ret = Activator.CreateInstance(type);
-
-                foreach (BinarySerializerCacheEntry e in _entries)
-                {
-                    if (haveFilter && !settings.Filter.Invoke(e.Context.Order)) continue;
-
-                    if (e.ReadOnly)
-                    {
-                        // Consume it
-                        e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
-                        continue;
-                    }
-
-                    e.SetValue(ret, e.Serializer.Deserialize(deserializer, reader, e.Type, settings));
-                }
-
-                if (ret is IBinaryVerifiable v && !v.Verify())
-                {
-                    throw new FormatException();
-                }
-
-                return ret;
+                throw new FormatException();
             }
+
+            return ret;
         }
     }
 }

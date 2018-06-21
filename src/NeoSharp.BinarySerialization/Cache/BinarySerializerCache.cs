@@ -24,7 +24,9 @@ namespace NeoSharp.BinarySerialization.Cache
             foreach (Assembly asm in asms)
             {
                 foreach (var t in asm.GetTypes())
+                {
                     InternalRegisterTypes(t);
+                }
             }
         }
 
@@ -38,19 +40,35 @@ namespace NeoSharp.BinarySerialization.Cache
             {
                 if (Cache.TryGetValue(type, out var cache)) return cache;
 
-                var b = new BinaryAutoSerializer(type);
-                if (b.IsEmpty) return null;
+                IBinaryCustomSerializable serializer;
+                var serializerAttr = type.GetCustomAttribute<BinaryTypeSerializerAttribute>();
 
-                Cache.Add(b.Type, b);
+                if (serializerAttr != null)
+                {
+                    // Looking for a serializer
 
-                if (!b.Type.IsArray)
+                    serializer = serializerAttr.Create();
+                }
+                else
+                {
+                    // Create one by his fields and properties
+
+                    serializer = new BinaryAutoSerializer(type);
+
+                    if (((BinaryAutoSerializer)serializer).IsEmpty) return null;
+                }
+
+                Cache.Add(type, serializer);
+
+                if (!type.IsArray)
                 {
                     // Register array too
 
-                    Type array = b.Type.MakeArrayType();
-                    Cache.Add(array, new BinaryAutoSerializer(array, new BinaryArraySerializer(array, b)));
+                    Type array = type.MakeArrayType();
+                    Cache.Add(array, new BinaryArraySerializer(array, serializer));
                 }
-                return b;
+
+                return serializer;
             }
         }
 
