@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -62,9 +62,8 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="settings">Settings</param>
         public int Serialize(IBinarySerializer serializer, BinaryWriter bw, object obj, BinarySerializerSettings settings = null)
         {
-            return _entries
-                .Where(e => settings?.Filter?.Invoke(e.Name) != false)
-                .Sum(e => e.Serializer.Serialize(serializer, bw, e.GetValue(obj)));
+            return _entries.Where(e => settings?.Filter?.Invoke(e.Name) != false)
+                       .Sum(e => e.Serializer.Serialize(serializer, bw, e.GetValue(obj)));
         }
         /// <summary>
         /// Deserialize
