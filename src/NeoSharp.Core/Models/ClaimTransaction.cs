@@ -19,6 +19,8 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public ClaimTransaction() : base(TransactionType.ClaimTransaction) { }
 
+        #region Exclusive serialization
+
         protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             Claims = deserializer.Deserialize<CoinReference[]>(reader, settings);
@@ -28,6 +30,8 @@ namespace NeoSharp.Core.Models
         {
             return serializer.Serialize(Claims, writer, settings);
         }
+
+        #endregion
 
         /// <summary>
         /// Verify

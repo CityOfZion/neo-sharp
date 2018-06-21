@@ -12,11 +12,13 @@ namespace NeoSharp.Core.Models
         /// Descriptors
         /// </summary>
         public StateDescriptor[] Descriptors;
-        
+
         /// <summary>
         /// Constructor
         /// </summary>
         public StateTransaction() : base(TransactionType.StateTransaction) { }
+
+        #region Exclusive data
 
         protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
@@ -27,6 +29,8 @@ namespace NeoSharp.Core.Models
         {
             return serializer.Serialize(Descriptors, writer, settings);
         }
+
+        #endregion
 
         public override bool Verify()
         {

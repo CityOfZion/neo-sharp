@@ -20,6 +20,8 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public MinerTransaction() : base(TransactionType.MinerTransaction) { }
 
+        #region Exclusive serialization
+
         protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             Nonce = reader.ReadUInt32();
@@ -30,6 +32,8 @@ namespace NeoSharp.Core.Models
             writer.Write(Nonce);
             return 4;
         }
+
+        #endregion
 
         public override bool Verify()
         {

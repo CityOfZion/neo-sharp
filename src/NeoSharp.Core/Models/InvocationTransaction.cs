@@ -36,6 +36,8 @@ namespace NeoSharp.Core.Models
             return gas.Ceiling();
         }
 
+        #region Exclusive serialization
+
         protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             if (Version > 1) throw new FormatException(nameof(Version));
@@ -58,7 +60,7 @@ namespace NeoSharp.Core.Models
 
         protected override int SerializeExclusiveData(IBinarySerializer serializer, BinaryWriter writer, BinarySerializerSettings settings = null)
         {
-            int l = writer.WriteVarBytes(Script);
+            var l = writer.WriteVarBytes(Script);
 
             if (Version >= 1)
             {
@@ -67,6 +69,8 @@ namespace NeoSharp.Core.Models
 
             return l;
         }
+
+        #endregion
 
         public override bool Verify()
         {

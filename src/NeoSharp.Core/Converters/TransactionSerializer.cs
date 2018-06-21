@@ -18,7 +18,7 @@ namespace NeoSharp.Core.Converters
         {
             // Read transaction Type
 
-            var tx = _cache.CreateInstance<Transaction>((byte)reader.PeekChar());
+            var tx = _cache.CreateInstance<Transaction>(reader.ReadByte());
 
             tx.Deserialize(deserializer, reader, settings);
 
