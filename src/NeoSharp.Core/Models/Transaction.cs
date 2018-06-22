@@ -175,12 +175,22 @@ namespace NeoSharp.Core.Models
         /// <summary>
         /// Update Hash
         /// </summary>
+        /// <param name="serializer">Serializer</param>
+        /// <param name="crypto">Crypto</param>
         public void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
         {
             Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
             {
                 Filter = (a) => a != nameof(Scripts)
             })));
+
+            if (Scripts != null)
+            {
+                foreach (var script in Scripts)
+                {
+                    script.UpdateHash(serializer, crypto);
+                }
+            }
         }
 
         /// <summary>

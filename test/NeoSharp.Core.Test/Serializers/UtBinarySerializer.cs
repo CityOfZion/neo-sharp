@@ -1,27 +1,30 @@
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Core.Models;
-using NeoSharp.Core.Test.Types;
-using NeoSharp.Core.Types;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Models;
+using NeoSharp.Core.Test.Types;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Test.Serializers
 {
     [TestClass]
     public class UtBinarySerializer
     {
+        private ICrypto _crypto;
         private IBinarySerializer _serializer;
         private IBinaryDeserializer _deserializer;
 
         [TestInitialize]
         public void WarmUpSerializer()
         {
+            _crypto = new BouncyCastleCrypto();
             _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
             _deserializer = new BinaryDeserializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
         }
@@ -309,15 +312,12 @@ namespace NeoSharp.Core.Test.Serializers
         {
             var blockHeader = new BlockHeader()
             {
-                Confirmations = 1,
                 ConsensusData = 100_000_000,
                 Hash = UInt256.Zero,
                 Index = 0,
                 MerkleRoot = UInt256.Zero,
-                NextBlockHash = UInt256.Zero,
                 NextConsensus = UInt160.Zero,
                 PreviousBlockHash = UInt256.Zero,
-                Size = 2,
                 Timestamp = 3,
                 Version = 4,
                 Script = new Witness
@@ -325,26 +325,25 @@ namespace NeoSharp.Core.Test.Serializers
                     InvocationScript = new byte[0],
                     VerificationScript = new byte[0],
                 },
-                TransactionHashes = new[] { "a", "b", "c" }
             };
+
+            blockHeader.UpdateHash(_serializer, _crypto);
 
             var blockHeaderCopy = _deserializer.Deserialize<BlockHeader>(_serializer.Serialize(blockHeader));
 
-            Assert.AreEqual(blockHeader.Confirmations, blockHeaderCopy.Confirmations);
+            blockHeaderCopy.UpdateHash(_serializer, _crypto);
+
             Assert.AreEqual(blockHeader.ConsensusData, blockHeaderCopy.ConsensusData);
             Assert.AreEqual(blockHeader.Hash, blockHeaderCopy.Hash);
             Assert.AreEqual(blockHeader.Index, blockHeaderCopy.Index);
             Assert.AreEqual(blockHeader.MerkleRoot, blockHeaderCopy.MerkleRoot);
             Assert.AreEqual(blockHeader.NextConsensus, blockHeaderCopy.NextConsensus);
             Assert.AreEqual(blockHeader.PreviousBlockHash, blockHeaderCopy.PreviousBlockHash);
-            Assert.AreEqual(blockHeader.Size, blockHeaderCopy.Size);
             Assert.AreEqual(blockHeader.Timestamp, blockHeaderCopy.Timestamp);
             Assert.AreEqual(blockHeader.Version, blockHeaderCopy.Version);
 
             Assert.IsTrue(blockHeader.Script.InvocationScript.SequenceEqual(blockHeaderCopy.Script.InvocationScript));
             Assert.IsTrue(blockHeader.Script.VerificationScript.SequenceEqual(blockHeaderCopy.Script.VerificationScript));
-
-            Assert.IsTrue(blockHeader.TransactionHashes.SequenceEqual(blockHeaderCopy.TransactionHashes));
         }
     }
 }
