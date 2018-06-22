@@ -58,11 +58,11 @@ namespace NeoSharp.Core.Test.Serializers
 
             // Check exclusive data
 
-            Assert.AreEqual(original.Gas, ((InvocationTransaction)copy).Gas);
-            CollectionAssert.AreEqual(original.Script, ((InvocationTransaction)copy).Script);
-
-            Assert.AreEqual(original.Gas, ((InvocationTransaction)copy).Gas);
-            CollectionAssert.AreEqual(original.Script, ((InvocationTransaction)copy2).Script);
+            foreach (var check in new InvocationTransaction[] { (InvocationTransaction)copy, copy2 })
+            {
+                Assert.AreEqual(original.Gas, check.Gas);
+                CollectionAssert.AreEqual(original.Script, check.Script);
+            }
 
             // Check base data
 
@@ -86,8 +86,74 @@ namespace NeoSharp.Core.Test.Serializers
 
             // Check exclusive data
 
-            Assert.AreEqual(original.Nonce, ((MinerTransaction)copy).Nonce);
-            Assert.AreEqual(original.Nonce, ((MinerTransaction)copy2).Nonce);
+            foreach (var check in new MinerTransaction[] { (MinerTransaction)copy, copy2 })
+            {
+                Assert.AreEqual(original.Nonce, check.Nonce);
+            }
+
+            // Check base data
+
+            EqualTx(original, copy, copy2);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_RegisterTransaction()
+        {
+            var original = new RegisterTransaction()
+            {
+                Version = 0x00,
+                Name = RandomString(byte.MaxValue),
+                Admin = RandomUInt60(1).FirstOrDefault(),
+                Amount = RandomFixed8(true, 1).FirstOrDefault(),
+                AssetType = RandomEnum<AssetType>(),
+                Owner = ECPoint.Infinity,
+                Precision = (byte)_random.Next(byte.MinValue, byte.MaxValue),
+            };
+
+            FillRandomTx(original);
+
+            var ret = _serializer.Serialize(original);
+            var copy = _deserializer.Deserialize<Transaction>(ret);
+            var copy2 = _deserializer.Deserialize<RegisterTransaction>(ret);
+
+            // Check exclusive data
+
+            foreach (var check in new RegisterTransaction[] { (RegisterTransaction)copy, copy2 })
+            {
+                Assert.AreEqual(original.Name, check.Name);
+                Assert.AreEqual(original.Amount, check.Amount);
+                Assert.AreEqual(original.AssetType, check.AssetType);
+                Assert.AreEqual(original.Precision, check.Precision);
+                Assert.AreEqual(original.Owner, check.Owner);
+                Assert.AreEqual(original.Admin, check.Admin);
+            }
+
+            // Check base data
+
+            EqualTx(original, copy, copy2);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_EnrollmentTransaction()
+        {
+            var original = new EnrollmentTransaction()
+            {
+                Version = 0x00,
+                PublicKey = ECPoint.Infinity,
+            };
+
+            FillRandomTx(original);
+
+            var ret = _serializer.Serialize(original);
+            var copy = _deserializer.Deserialize<Transaction>(ret);
+            var copy2 = _deserializer.Deserialize<EnrollmentTransaction>(ret);
+
+            // Check exclusive data
+
+            foreach (var check in new EnrollmentTransaction[] { (EnrollmentTransaction)copy, copy2 })
+            {
+                CollectionAssert.AreEqual(original.PublicKey.Data, check.PublicKey.Data);
+            }
 
             // Check base data
 
@@ -132,8 +198,16 @@ namespace NeoSharp.Core.Test.Serializers
 
             foreach (var check in new StateTransaction[] { (StateTransaction)copy, copy2 })
             {
-                //Assert.AreEqual(original.ReturnType, check.ReturnType);
-                //CollectionAssert.AreEqual(original.ParameterList, check.ParameterList);
+                Assert.AreEqual(original.Descriptors.Length, check.Descriptors.Length);
+
+                for (int x = 0; x < original.Descriptors.Length; x++)
+                {
+                    Assert.AreEqual(original.Descriptors[0].Field, check.Descriptors[0].Field);
+                    Assert.AreEqual(original.Descriptors[0].SystemFee, check.Descriptors[0].SystemFee);
+                    Assert.AreEqual(original.Descriptors[0].Type, check.Descriptors[0].Type);
+                    CollectionAssert.AreEqual(original.Descriptors[0].Key, check.Descriptors[0].Key);
+                    CollectionAssert.AreEqual(original.Descriptors[0].Value, check.Descriptors[0].Value);
+                }
             }
 
             // Check base data
@@ -221,8 +295,10 @@ namespace NeoSharp.Core.Test.Serializers
 
             // Check exclusive data
 
-            CollectionAssert.AreEqual(original.Claims, ((ClaimTransaction)copy).Claims);
-            CollectionAssert.AreEqual(original.Claims, copy2.Claims);
+            foreach (var check in new ClaimTransaction[] { (ClaimTransaction)copy, copy2 })
+            {
+                CollectionAssert.AreEqual(original.Claims, check.Claims);
+            }
 
             // Check base data
 

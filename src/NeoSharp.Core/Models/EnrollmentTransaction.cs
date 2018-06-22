@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
+using NeoSharp.Core.Cryptography;
 
 namespace NeoSharp.Core.Models
 {
@@ -10,20 +11,7 @@ namespace NeoSharp.Core.Models
         /// <summary>
         /// PublicKey
         /// </summary>
-        //public ECPoint PublicKey;
-
-        //private UInt160 _script_hash = null;
-        //private UInt160 ScriptHash
-        //{
-        //    get
-        //    {
-        //        if (_script_hash == null)
-        //        {
-        //            _script_hash = Contract.CreateSignatureRedeemScript(PublicKey).ToScriptHash();
-        //        }
-        //        return _script_hash;
-        //    }
-        //}
+        public ECPoint PublicKey;
 
         /// <summary>
         /// Constructor
@@ -32,13 +20,12 @@ namespace NeoSharp.Core.Models
 
         protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
-            //PublicKey = ECPoint.DeserializeFrom(reader, ECCurve.Secp256r1);
+            PublicKey = deserializer.Deserialize<ECPoint>(reader, settings);
         }
 
         protected override int SerializeExclusiveData(IBinarySerializer serializer, BinaryWriter writer, BinarySerializerSettings settings = null)
         {
-            //writer.Write(PublicKey);
-            return 0;
+            return serializer.Serialize(PublicKey, writer, settings);
         }
     }
 }

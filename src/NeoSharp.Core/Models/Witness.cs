@@ -1,13 +1,20 @@
 ﻿using System;
 using System.Linq;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    public class Witness : WithHash160, IEquatable<Witness>
+    public class Witness : IEquatable<Witness>
     {
+        private UInt160 _hash = null;
+
+        [JsonProperty("txid")]
+        public UInt160 Hash => _hash;
+
         [BinaryProperty(0, MaxLength = 65536)]
         [JsonProperty("invocation")]
         public byte[] InvocationScript;
@@ -73,7 +80,17 @@ namespace NeoSharp.Core.Models
             return l;
         }
 
-        public override byte[] GetHashData(IBinarySerializer serializer)
+        /// <summary>
+        /// Update Hash
+        /// </summary>
+        /// <param name="serializer">Serializer</param>
+        /// <param name="crypto">Crypto</param>
+        public void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
+        {
+            _hash = new UInt160(crypto.Hash160(GetHashData(serializer)));
+        }
+
+        byte[] GetHashData(IBinarySerializer serializer)
         {
             return VerificationScript;
         }
