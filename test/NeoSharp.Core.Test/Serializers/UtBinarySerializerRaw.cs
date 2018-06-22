@@ -56,6 +56,8 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(tx.Attributes.Length, 0);
             Assert.AreEqual(tx.Inputs.Length, 0);
             Assert.AreEqual(tx.Outputs.Length, 0);
+
+            CollectionAssert.AreEqual(data, _serializer.Serialize(block));
         }
 
         [TestMethod]
@@ -88,6 +90,8 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(tx.Outputs[0].Value.ToString(), "0.01144");
 
             Assert.AreEqual(tx.Version, 0);
+
+            CollectionAssert.AreEqual(data, _serializer.Serialize(tx));
         }
 
         [TestMethod]
@@ -133,6 +137,7 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(tx.Outputs[0].Value.ToString(), "50000000");
 
             Assert.AreEqual(tx.Version, 0);
+            CollectionAssert.AreEqual(data, _serializer.Serialize(tx));
         }
 
         [TestMethod]
@@ -172,6 +177,7 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(tx.Outputs[2].Value.ToString(), "23834.98856");
 
             Assert.AreEqual(tx.Version, 0);
+            CollectionAssert.AreEqual(data, _serializer.Serialize(tx));
         }
 
         [TestMethod]
@@ -191,51 +197,45 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(tx.Inputs.Length, 0);
             Assert.AreEqual(tx.Outputs.Length, 0);
             Assert.AreEqual(tx.Version, 0);
+
+            CollectionAssert.AreEqual(data, _serializer.Serialize(tx));
         }
 
-        /*
         [TestMethod]
         public void SerializeDeserialize_InvocationTransaction()
         {
-            // Mainnet Block= / Tx=
+            // Mainnet Block=2421128 / Tx=7
 
-            var data = "".HexToBytes();
+            var data = "d1015e0800e1f50500000000209b7cffdaa674beae0f930ebe6085af9093e5fe56b34a5c220ccdcf6efc336fc5141e542e30389997d4c076ed65d0a7438719969cd653c1076465706f73697467bd097b2fcf70e1fd30a5c3ef51e662feeafeba0100000000000000000001a50be4db475e02e665229d22e82d8820e5bf8b4022c60a5806d9f1c801672cb10100019b7cffdaa674beae0f930ebe6085af9093e5fe56b34a5c220ccdcf6efc336fc500e1f50500000000bd097b2fcf70e1fd30a5c3ef51e662feeafeba010141409d689aa663e04da2b74d1eba6608e4a3bacdd416a68b0102df7072e25263b63a7bfd1de1d2d3c951efa3c10c456ab41f6e3a6edaa021a309c6e31e12604132922321021958d772f0cb49220752c74c8ff6e873b8b3f69905d32c2d688cfae570fb98e0ac".HexToBytes();
             var tx = (InvocationTransaction)_deserializer.Deserialize<Transaction>(data);
 
             tx.UpdateHash(_serializer, _crypto);
 
-            Assert.AreEqual(tx.Hash.ToString(true), "0xf1ec2baf76c47bb3460369a0f962321d30423e1329d0c0734d9cd7fce8ed89c2");
+            Assert.AreEqual(tx.Hash.ToString(true), "0xf76206631e9664c3251790ee362039a253bb6763a43343e852499d182883b32b");
             Assert.AreEqual(tx.Attributes.Length, 0);
 
-            Assert.AreEqual(tx.Script.ToHexString(true), "");
-            Assert.AreEqual(tx.Gas.ToString(), "");
+            Assert.AreEqual(tx.Script.ToHexString(true), "0x0800e1f50500000000209b7cffdaa674beae0f930ebe6085af9093e5fe56b34a5c220ccdcf6efc336fc5141e542e30389997d4c076ed65d0a7438719969cd653c1076465706f73697467bd097b2fcf70e1fd30a5c3ef51e662feeafeba01");
+            Assert.AreEqual(tx.Gas.ToString(), "0");
 
             Assert.AreEqual(tx.Scripts.Length, 1);
-            Assert.AreEqual(tx.Scripts[0].Hash.ToString(true), "0xbcce7e9d00e0ddf86ba33f444718c47e4bdd1cf4");
-            Assert.AreEqual(tx.Scripts[0].InvocationScript.ToHexString(true), "0x40420d9cdc020c525f95ae8464f7c51d0b84ee820e0073536a658f35428bd44e1941f4b1697a27cbdf3975da3366db6d3e6ec8e4aef3c50eff376a330bf728b5b4");
-            Assert.AreEqual(tx.Scripts[0].VerificationScript.ToHexString(true), "0x21039f07df7861c216de3b78c647b77f8b01404b400a437302b651cdf206ec1af626ac");
+            Assert.AreEqual(tx.Scripts[0].Hash.ToString(true), "0xd69c96198743a7d065ed76c0d4979938302e541e");
+            Assert.AreEqual(tx.Scripts[0].InvocationScript.ToHexString(true), "0x409d689aa663e04da2b74d1eba6608e4a3bacdd416a68b0102df7072e25263b63a7bfd1de1d2d3c951efa3c10c456ab41f6e3a6edaa021a309c6e31e1260413292");
+            Assert.AreEqual(tx.Scripts[0].VerificationScript.ToHexString(true), "0x21021958d772f0cb49220752c74c8ff6e873b8b3f69905d32c2d688cfae570fb98e0ac");
 
             Assert.AreEqual(tx.Inputs.Length, 1);
-            Assert.AreEqual(tx.Inputs[0].PrevHash.ToString(true), "0x439af8273fbe25fec2f5f2066679e82314fe0776d52a8c1c87e863bd831ced7d");
-            Assert.AreEqual(tx.Inputs[0].PrevIndex, 0);
+            Assert.AreEqual(tx.Inputs[0].PrevHash.ToString(true), "0xb12c6701c8f1d906580ac622408bbfe520882de8229d2265e6025e47dbe40ba5");
+            Assert.AreEqual(tx.Inputs[0].PrevIndex, 1);
 
-            Assert.AreEqual(tx.Outputs.Length, 3);
+            Assert.AreEqual(tx.Outputs.Length, 1);
 
-            Assert.AreEqual(tx.Outputs[0].AssetId.ToString(true), "0x439af8273fbe25fec2f5f2066679e82314fe0776d52a8c1c87e863bd831ced7d");
-            Assert.AreEqual(tx.Outputs[0].ScriptHash.ToString(true), "0xbcce7e9d00e0ddf86ba33f444718c47e4bdd1cf4");
-            Assert.AreEqual(tx.Outputs[0].Value.ToString(), "1023");
+            Assert.AreEqual(tx.Outputs[0].AssetId.ToString(true), "0xc56f33fc6ecfcd0c225c4ab356fee59390af8560be0e930faebe74a6daff7c9b");
+            Assert.AreEqual(tx.Outputs[0].ScriptHash.ToString(true), "0x01bafeeafe62e651efc3a530fde170cf2f7b09bd");
+            Assert.AreEqual(tx.Outputs[0].Value.ToString(), "1");
 
-            Assert.AreEqual(tx.Outputs[1].AssetId.ToString(true), "0x439af8273fbe25fec2f5f2066679e82314fe0776d52a8c1c87e863bd831ced7d");
-            Assert.AreEqual(tx.Outputs[1].ScriptHash.ToString(true), "0x09b6b7fbe1d2d1034e34f24d899c135a2cbcd655");
-            Assert.AreEqual(tx.Outputs[1].Value.ToString(), "1");
+            Assert.AreEqual(tx.Version, 1);
 
-            Assert.AreEqual(tx.Outputs[2].AssetId.ToString(true), "0x602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7");
-            Assert.AreEqual(tx.Outputs[2].ScriptHash.ToString(true), "0xbcce7e9d00e0ddf86ba33f444718c47e4bdd1cf4");
-            Assert.AreEqual(tx.Outputs[2].Value.ToString(), "23834.98856");
-
-            Assert.AreEqual(tx.Version, 0);
+            CollectionAssert.AreEqual(data, _serializer.Serialize(tx));
         }
-        */
 
         [TestMethod]
         public void SerializeDeserialize_RegisterTransaction()
@@ -273,9 +273,10 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(tx.Outputs[0].Value.ToString(), "24334.98856");
 
             Assert.AreEqual(tx.Version, 0);
+
+            CollectionAssert.AreEqual(data, _serializer.Serialize(tx));
         }
 
-        /*
         [TestMethod]
         public void SerializeDeserialize_StateTransaction()
         {
@@ -299,7 +300,6 @@ namespace NeoSharp.Core.Test.Serializers
             tx.UpdateHash(_serializer, _crypto);
 
         }
-        */
 
         [TestMethod]
         public void SerializeDeserialize_EnrollmentTransaction()
@@ -332,6 +332,8 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(tx.Outputs[0].Value.ToString(), "1");
 
             Assert.AreEqual(tx.Version, 0);
+
+            CollectionAssert.AreEqual(data, _serializer.Serialize(tx));
         }
     }
 }
