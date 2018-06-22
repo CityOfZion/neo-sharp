@@ -277,6 +277,7 @@ namespace NeoSharp.Core.Test.Serializers
             CollectionAssert.AreEqual(data, _serializer.Serialize(tx));
         }
 
+        /*
         [TestMethod]
         public void SerializeDeserialize_StateTransaction()
         {
@@ -300,6 +301,7 @@ namespace NeoSharp.Core.Test.Serializers
             tx.UpdateHash(_serializer, _crypto);
 
         }
+        */
 
         [TestMethod]
         public void SerializeDeserialize_EnrollmentTransaction()
