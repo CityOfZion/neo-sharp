@@ -193,6 +193,7 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(tx.Version, 0);
         }
 
+        /*
         [TestMethod]
         public void SerializeDeserialize_InvocationTransaction()
         {
@@ -234,6 +235,7 @@ namespace NeoSharp.Core.Test.Serializers
 
             Assert.AreEqual(tx.Version, 0);
         }
+        */
 
         [TestMethod]
         public void SerializeDeserialize_RegisterTransaction()
