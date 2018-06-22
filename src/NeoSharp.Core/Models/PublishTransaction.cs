@@ -42,6 +42,8 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public PublishTransaction() : base(TransactionType.PublishTransaction) { }
 
+        #region Exclusive serialization
+
         protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             Script = reader.ReadVarBytes();
@@ -62,14 +64,16 @@ namespace NeoSharp.Core.Models
 
         protected override int SerializeExclusiveData(IBinarySerializer serializer, BinaryWriter writer, BinarySerializerSettings settings = null)
         {
-            int l = writer.WriteVarBytes(Script);
+            var l = writer.WriteVarBytes(Script);
             l += writer.WriteVarBytes(ParameterList.Cast<byte>().ToArray());
             writer.Write((byte)ReturnType); l++;
+
             if (Version >= 1)
             {
                 writer.Write(NeedStorage);
                 l++;
             }
+
             l += writer.WriteVarString(Name);
             l += writer.WriteVarString(CodeVersion);
             l += writer.WriteVarString(Author);
@@ -78,6 +82,8 @@ namespace NeoSharp.Core.Models
 
             return l;
         }
+
+        #endregion
 
         public override bool Verify()
         {

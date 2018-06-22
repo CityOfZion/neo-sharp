@@ -3,6 +3,7 @@ using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Converters;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
@@ -21,7 +22,7 @@ namespace NeoSharp.Core.Models
 
         [BinaryProperty(1)]
         [JsonProperty("type")]
-        public TransactionType Type;
+        public readonly TransactionType Type;
 
         [BinaryProperty(2)]
         [JsonProperty("version")]
@@ -58,11 +59,6 @@ namespace NeoSharp.Core.Models
         /// <summary>
         /// Constructor
         /// </summary>
-        public Transaction() { }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
         /// <param name="type">Type</param>
         protected Transaction(TransactionType type)
         {
@@ -81,8 +77,10 @@ namespace NeoSharp.Core.Models
         {
             // Check type
 
-            if ((byte)Type != reader.ReadByte())
-                throw new FormatException();
+            // Byte already readed
+
+            // if ((byte)Type != reader.ReadByte())
+            //    throw new FormatException();
 
             // Read version
 
@@ -173,6 +171,17 @@ namespace NeoSharp.Core.Models
         }
 
         #endregion
+
+        /// <summary>
+        /// Update Hash
+        /// </summary>
+        public void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
+        {
+            Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
+            {
+                Filter = (a) => a != nameof(Scripts)
+            })));
+        }
 
         /// <summary>
         /// Verify

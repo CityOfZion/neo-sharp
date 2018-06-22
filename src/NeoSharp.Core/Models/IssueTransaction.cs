@@ -12,6 +12,10 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public IssueTransaction() : base(TransactionType.IssueTransaction) { }
 
+        /// <summary>
+        /// Verify
+        /// </summary>
+        /// <returns>Return true if is verified</returns>
         public override bool Verify()
         {
             if (Version > 1) throw new FormatException(nameof(Version));
