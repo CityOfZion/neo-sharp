@@ -91,6 +91,11 @@ namespace NeoSharp.Core.Types
             return _buffer.Reverse().ToHexString(true);
         }
 
+        public string ToString(bool append0x)
+        {
+            return _buffer.Reverse().ToHexString(append0x);
+        }
+
         public static UInt256 Parse(string value)
         {
             return new UInt256(value.HexToBytes(BufferLength * 2).Reverse().ToArray());

@@ -74,6 +74,7 @@ namespace NeoSharp.Core.Models
 
             if (AssetType == AssetType.GoverningToken && !Hash.Equals(TransactionContext.GoverningTokenHash))
                 throw new FormatException();
+
             if (AssetType == AssetType.UtilityToken && !Hash.Equals(TransactionContext.UtilityTokenHash))
                 throw new FormatException();
 
