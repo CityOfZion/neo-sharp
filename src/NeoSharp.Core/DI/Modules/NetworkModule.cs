@@ -8,7 +8,6 @@ using System.Linq;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Network.Security;
-using System.Collections.Generic;
 
 namespace NeoSharp.Core.DI.Modules
 {
@@ -17,6 +16,7 @@ namespace NeoSharp.Core.DI.Modules
         public void Register(IContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterSingleton<IServerContext, ServerContext>();
+            containerBuilder.RegisterSingleton<IPeerMessageListener, PeerMessageListener>();
 
             containerBuilder.RegisterSingleton<NetworkConfig>();
             containerBuilder.RegisterSingleton<RpcConfig>();

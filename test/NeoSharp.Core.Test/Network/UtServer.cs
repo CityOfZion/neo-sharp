@@ -26,7 +26,11 @@ namespace NeoSharp.Core.Test.Network
         public void Start_ValidNetworkConfiguration_ConnectToPeerAsStartListeningForPeers()
         {
             // Arrange 
-            AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
+            const Protocol expectedProtocol = Protocol.Tcp;
+            const string expectedHost = "localhost";
+            const string expectedPort = "8081";
+
+            AutoMockContainer.Register(GetNetworkConfig($"tcp://{expectedHost}:{expectedPort}"));
 
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
             blockchainMock
@@ -34,6 +38,8 @@ namespace NeoSharp.Core.Test.Network
                 .Returns(new Block());
 
             var peerListenerMock = AutoMockContainer.GetMock<IPeerListener>();
+
+            var peerMessageListenerMock = AutoMockContainer.GetMock<IPeerMessageListener>();
 
             var peerMock = AutoMockContainer.GetMock<IPeer>();
 
@@ -47,19 +53,25 @@ namespace NeoSharp.Core.Test.Network
             server.Start();
 
             // Asset
-            peerFactoryMock.Verify(x => x.ConnectTo(It.IsAny<EndPoint>()), Times.Once);
+            peerFactoryMock.Verify(x => x.ConnectTo(It.Is<EndPoint>(ep => ep.Host == "localhost" && ep.Port == 8081 && ep.Protocol == expectedProtocol)), Times.Once);
             peerListenerMock.Verify(x => x.Start(), Times.Once);
+            peerMessageListenerMock.Verify(x => x.StartListen(peerMock.Object), Times.Once);
+            peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
         }
 
         [TestMethod]
         public void Start_PeerConnectionThrowException_WarningMessageIsLoggedServerKeepListeningForPeers()
         {
             // Arrange 
-            const string peerEndPoint = "tcp://localhost:8081";
-            var connectionException = new Exception("The network error");
-            var expectedLoggedWarningMessage = $"Something went wrong with {peerEndPoint}. Exception: {connectionException}";
+            const Protocol expectedProtocol = Protocol.Tcp;
+            const string expectedHost = "localhost";
+            const string expectedPort = "8081";
+            var peerEndPoint = $"tcp://{expectedHost}:{expectedPort}";
 
             AutoMockContainer.Register(GetNetworkConfig(peerEndPoint));
+            
+            var connectionException = new Exception("The network error");
+            var expectedLoggedWarningMessage = $"Something went wrong with {peerEndPoint}. Exception: {connectionException}";
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
             peerFactoryMock
@@ -74,10 +86,10 @@ namespace NeoSharp.Core.Test.Network
             server.Start();
 
             // Asset
-            peerFactoryMock.Verify(x => x.ConnectTo(It.IsAny<EndPoint>()), Times.Once);
+            peerFactoryMock.Verify(x => x.ConnectTo(It.Is<EndPoint>(ep => ep.Host == "localhost" && ep.Port == 8081 && ep.Protocol == expectedProtocol)), Times.Once);
             loggerMock.Verify(x => x.LogWarning(It.Is<string>(msg => msg.Contains(expectedLoggedWarningMessage))), Times.Once);
 
-            peerListenerMock.Verify(x => x.Start(), Times.Once);
+            peerListenerMock.Verify(x => x.Start(), Times.Once);        
         }
 
         [TestMethod]
@@ -157,224 +169,6 @@ namespace NeoSharp.Core.Test.Network
             peerMock.Verify(x => x.Disconnect(), Times.Once);
             peerListenerMock.Verify(x => x.Stop(), Times.AtLeastOnce);
 
-        }
-
-        [TestMethod]
-        public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsNotHandshake_MessageIsHandled()
-        {
-            // Arrange
-            var waitNextPeerConnectionLoopResetEvent = new ManualResetEvent(false);
-
-            AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
-
-            var messageHandlerMock = this.AutoMockContainer.GetMock<IMessageHandler<Message>>();
-
-            var blockchainMock = this.AutoMockContainer.GetMock<IBlockchain>();
-            blockchainMock
-                .SetupGet(x => x.CurrentBlock)
-                .Returns(new Block());
-
-            var peerMessage = new Message();
-            var peerMock = AutoMockContainer.GetMock<IPeer>();
-            peerMock
-                .Setup(x => x.Receive())
-                .Returns(() => Task.FromResult(peerMessage));
-            peerMock
-                .SetupGet(x => x.IsReady)
-                .Returns(true);
-
-            peerMock
-                .SetupGet(x => x.IsConnected)
-                .Returns(true);
-
-            var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
-            peerFactoryMock
-                .Setup(x => x.ConnectTo(It.IsAny<EndPoint>()))
-                .Returns(Task.FromResult(peerMock.Object));
-
-            // Act
-            var server = AutoMockContainer.Create<Server>();
-            server.Start();
-            server.Stop();
-
-            // Asset
-            peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
-            peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
-            peerMock.Verify(x => x.Receive());
-            messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object));
-        }
-
-        [TestMethod]
-        public void ListenerMessagesFromPeer_PeerIsReadyAndMessageIsHandshake_MessageIsNotHandled()
-        {
-            // Arrange 
-            var waitPeerIsReadyResetEvent = new ManualResetEvent(false);
-
-            AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
-
-            var messageHandlerMock = this.AutoMockContainer.GetMock<IMessageHandler<Message>>();
-
-            var blockchainMock = this.AutoMockContainer.GetMock<IBlockchain>();
-            blockchainMock
-                .SetupGet(x => x.CurrentBlock)
-                .Returns(new Block());
-
-            var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
-
-            var serverContextMock = AutoMockContainer
-                .GetMock<IServerContext>()
-                .SetupDefaultServerContext();
-
-            var peerMessage = new VersionMessage(serverContextMock.Object.Version);
-            var peerMock = AutoMockContainer.GetMock<IPeer>();
-            peerMock
-                .Setup(x => x.Receive())
-                .Returns(() => Task.FromResult((Message)peerMessage));
-
-            peerMock
-                .SetupGet(x => x.IsReady)
-                .Returns(true)
-                .Callback(() =>
-                {
-                    waitPeerIsReadyResetEvent.Set();
-                });
-
-            peerMock
-                .SetupGet(x => x.IsConnected)
-                .Returns(true);
-
-            var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
-            peerFactoryMock
-                .Setup(x => x.ConnectTo(It.IsAny<EndPoint>()))
-                .Returns(Task.FromResult(peerMock.Object));
-
-            // Act
-            var server = AutoMockContainer.Create<Server>();
-            server.Start();
-
-            var waitTimedOut = waitPeerIsReadyResetEvent.WaitOne(TimeSpan.FromSeconds(3));
-
-            server.Stop();
-
-            // Asset
-            waitTimedOut.Should().BeTrue();
-            peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
-            peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
-            peerMock.Verify(x => x.Receive());
-            messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object), Times.Never);
-            asyncDelayerMock.Verify(x => x.Delay(TimeSpan.FromSeconds(1), It.IsAny<CancellationToken>()), Times.Never);
-        }
-
-        [TestMethod]
-        public void ListenerMessagesFromPeer_PeerIsNotReadyAndMessageIsNotHandshake_MessageIsNotHandled()
-        {
-            // Arrange 
-            var waitPeerIsReadyResetEvent = new ManualResetEvent(false);
-
-            AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
-
-            var messageHandlerMock = this.AutoMockContainer.GetMock<IMessageHandler<Message>>();
-
-            var blockchainMock = this.AutoMockContainer.GetMock<IBlockchain>();
-            blockchainMock
-                .SetupGet(x => x.CurrentBlock)
-                .Returns(new Block());
-
-            var peerMessage = new Message();
-            var peerMock = AutoMockContainer.GetMock<IPeer>();
-            peerMock
-                .Setup(x => x.Receive())
-                .Returns(() => Task.FromResult(peerMessage));
-
-            peerMock
-                .SetupGet(x => x.IsReady)
-                .Returns(false)
-                .Callback(() =>
-                {
-                    waitPeerIsReadyResetEvent.Set();
-                });
-
-            peerMock
-                .SetupGet(x => x.IsConnected)
-                .Returns(true);
-
-            var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
-            peerFactoryMock
-                .Setup(x => x.ConnectTo(It.IsAny<EndPoint>()))
-                .Returns(Task.FromResult(peerMock.Object));
-
-            // Act
-            var server = AutoMockContainer.Create<Server>();
-            server.Start();
-
-            var waitTimedOut = waitPeerIsReadyResetEvent.WaitOne(TimeSpan.FromSeconds(3));
-
-            server.Stop();
-
-            // Asset
-            waitTimedOut.Should().BeTrue();
-            peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
-            peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
-            peerMock.Verify(x => x.Receive());
-            messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object), Times.Never);
-        }
-
-        [TestMethod]
-        public void ListenerMessagesFromPeer_PeerIsNotReadyAndMessageIsHandshake_MessageIsHandled()
-        {
-            // Arrange 
-            var waitPeerIsReadyResetEvent = new ManualResetEvent(false);
-
-            AutoMockContainer.Register(GetNetworkConfig("tcp://localhost:8081"));
-
-            var messageHandlerMock = this.AutoMockContainer.GetMock<IMessageHandler<Message>>();
-
-            var blockchainMock = this.AutoMockContainer.GetMock<IBlockchain>();
-            blockchainMock
-                .SetupGet(x => x.CurrentBlock)
-                .Returns(new Block());
-
-            var serverContextMock = AutoMockContainer
-                .GetMock<IServerContext>()
-                .SetupDefaultServerContext();
-
-            var peerMessage = new VersionMessage(serverContextMock.Object.Version);
-            var peerMock = AutoMockContainer.GetMock<IPeer>();
-            peerMock
-                .Setup(x => x.Receive())
-                .Returns(() => Task.FromResult((Message)peerMessage));
-
-            peerMock
-                .SetupGet(x => x.IsReady)
-                .Returns(false)
-                .Callback(() =>
-                {
-                    waitPeerIsReadyResetEvent.Set();
-                });
-
-            peerMock
-                .SetupGet(x => x.IsConnected)
-                .Returns(true);
-
-            var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
-            peerFactoryMock
-                .Setup(x => x.ConnectTo(It.IsAny<EndPoint>()))
-                .Returns(Task.FromResult(peerMock.Object));
-
-            // Act
-            var server = AutoMockContainer.Create<Server>();
-            server.Start();
-
-            var waitTimedOut = waitPeerIsReadyResetEvent.WaitOne(TimeSpan.FromSeconds(3));
-
-            server.Stop();
-
-            // Asset
-            waitTimedOut.Should().BeTrue();
-            peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
-            peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
-            peerMock.Verify(x => x.Receive());
-            messageHandlerMock.Verify(x => x.Handle(peerMessage, peerMock.Object));
         }
 
         private static NetworkConfig GetNetworkConfig(params string[] peerEndPoints)

@@ -13,7 +13,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
         [TestMethod]
         public void Create_ValidTEntity_KeyAndTEntitySerializedAndSendToContext()
         {
-            var entity = new BlockHeader()
+            var entity = new BlockHeader
             {
                 Hash = UInt256.Zero
             };
