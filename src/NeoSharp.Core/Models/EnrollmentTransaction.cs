@@ -1,10 +1,12 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 using NeoSharp.Core.Cryptography;
 
 namespace NeoSharp.Core.Models
 {
+    [Obsolete]
     [BinaryTypeSerializer(typeof(TransactionSerializer))]
     public class EnrollmentTransaction : Transaction
     {

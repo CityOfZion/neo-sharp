@@ -221,13 +221,13 @@ namespace NeoSharp.Core.Test.Serializers
             var original = new PublishTransaction()
             {
                 Version = 0x01,
-                Author = RandomString(1, 255),
-                Email = RandomString(1, 255),
-                Description = RandomString(1, 255),
-                Name = RandomString(1, 255),
-                CodeVersion = RandomString(1, 255),
+                Author = RandomString(1, 250),
+                Email = RandomString(1, 250),
+                Description = RandomString(1, 250),
+                Name = RandomString(1, 250),
+                CodeVersion = RandomString(1, 250),
                 NeedStorage = _random.Next() % 2 == 0,
-                Script = RandomBytes(_random.Next(1, ushort.MaxValue)),
+                Script = RandomBytes(_random.Next(1, short.MaxValue)),
                 ParameterList = RandomParameterList(_random.Next(1, 10)).ToArray(),
                 ReturnType = RandomParameterList(1).FirstOrDefault(),
             };

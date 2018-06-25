@@ -7,6 +7,7 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Models
 {
+    [Obsolete]
     [BinaryTypeSerializer(typeof(TransactionSerializer))]
     public class RegisterTransaction : Transaction
     {
