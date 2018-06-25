@@ -17,7 +17,7 @@ namespace NeoSharp.Core.Caching
             {
                 Key = key;
                 Value = value;
-                Time = DateTime.Now;
+                Time = DateTime.UtcNow;
             }
         }
 
