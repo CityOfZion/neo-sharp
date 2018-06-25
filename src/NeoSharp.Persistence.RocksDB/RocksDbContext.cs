@@ -14,10 +14,12 @@ namespace NeoSharp.Persistence.RocksDB
         #endregion
 
         #region Constructor 
-        protected RocksDbContext(IRepositoryConfiguration config)
+
+        public RocksDbContext(IRepositoryConfiguration config)
         {
             _config = config;
         }
+        
         #endregion
 
         #region IRepository Implementation 

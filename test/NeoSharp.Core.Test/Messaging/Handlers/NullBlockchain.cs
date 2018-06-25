@@ -10,7 +10,9 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
 {
     class NullBlockchain : IBlockchain
     {
-        public Block CurrentBlock => new Block();
+        Block _current = new Block();
+
+        public Block CurrentBlock => _current;
 
         public BlockHeader LastBlockHeader => CurrentBlock;
 

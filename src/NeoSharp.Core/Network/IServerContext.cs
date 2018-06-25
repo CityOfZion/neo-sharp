@@ -1,4 +1,5 @@
-﻿using NeoSharp.Core.Messaging.Messages;
+﻿using System.Collections.Concurrent;
+using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.Network
 {
