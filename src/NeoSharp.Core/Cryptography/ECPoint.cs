@@ -1,40 +1,75 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using System;
+using System.Numerics;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Cryptography
 {
     [BinaryTypeSerializer(typeof(ECPointBinarySerializer))]
-    public class ECPoint
+    public class ECPoint : IComparable<ECPoint>
     {
+        /// <summary>
+        /// Infinity
+        /// </summary>
         public readonly static ECPoint Infinity = new ECPoint();
 
         /// <summary>
-        /// Data
+        /// Encoded data
         /// </summary>
-        public readonly byte[] Data;
+        public readonly byte[] EncodedData;
+        /// <summary>
+        /// Decoded data
+        /// </summary>
+        public readonly byte[] DecodedData;
         /// <summary>
         /// Is infinite
         /// </summary>
         public readonly bool IsInfinity;
 
         /// <summary>
+        /// X,Y
+        /// </summary>
+        public readonly BigInteger X, Y;
+
+        /// <summary>
         /// Infinite constructor
         /// </summary>
-        public ECPoint()
+        private ECPoint()
         {
             IsInfinity = true;
-            Data = new byte[] { 0x00 };
+
+            DecodedData = EncodedData = new byte[] { 0x00 };
+
+            X = BigInteger.Zero;
+            Y = BigInteger.Zero;
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="data">Data</param>
-        public ECPoint(byte[] data)
+        /// <param name="compressedPoint">Compressed Point</param>
+        public ECPoint(byte[] compressedPoint)
         {
             IsInfinity = false;
-            Data = data;
+
+            EncodedData = compressedPoint;
+            DecodedData = ICrypto.Default.DecodePublicKey(EncodedData, false, out X, out Y);
+        }
+
+        /// <summary>
+        /// Compare ECPoint
+        /// </summary>
+        /// <param name="other">Other</param>
+        /// <returns>Return compare value</returns>
+        public int CompareTo(ECPoint other)
+        {
+            if (other == this) return 0;
+
+            int result = X.CompareTo(other.X);
+            if (result != 0) return result;
+
+            return Y.CompareTo(other.Y);
         }
 
         /// <summary>
@@ -42,7 +77,7 @@ namespace NeoSharp.Core.Cryptography
         /// </summary>
         public override string ToString()
         {
-            return Data.ToHexString();
+            return EncodedData.ToHexString();
         }
         /// <summary>
         /// String representation
@@ -50,7 +85,7 @@ namespace NeoSharp.Core.Cryptography
         /// <param name="append0x">Append 0x</param>
         public string ToString(bool append0x)
         {
-            return Data.ToHexString(append0x);
+            return EncodedData.ToHexString(append0x);
         }
     }
 }

@@ -310,7 +310,7 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void BlockSerialize()
         {
-            var blockHeader = new BlockHeader()
+            var blockHeader = new Block()
             {
                 ConsensusData = 100_000_000,
                 Hash = UInt256.Zero,
@@ -325,11 +325,21 @@ namespace NeoSharp.Core.Test.Serializers
                     InvocationScript = new byte[0],
                     VerificationScript = new byte[0],
                 },
+                Transactions = new Transaction[] { new InvocationTransaction()
+                    {
+                    Attributes=new TransactionAttribute[]{ },
+                    Inputs=new CoinReference[]{ },
+                    Outputs=new TransactionOutput[]{},
+                    Scripts=new Witness[]{ },
+                    Script=new byte[]{ 0x01 },
+                    Version=0
+                    }
+                }
             };
 
             blockHeader.UpdateHash(_serializer, _crypto);
 
-            var blockHeaderCopy = _deserializer.Deserialize<BlockHeader>(_serializer.Serialize(blockHeader));
+            var blockHeaderCopy = _deserializer.Deserialize<Block>(_serializer.Serialize(blockHeader));
 
             blockHeaderCopy.UpdateHash(_serializer, _crypto);
 

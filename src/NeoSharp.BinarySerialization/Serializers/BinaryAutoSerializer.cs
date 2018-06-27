@@ -62,8 +62,15 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="settings">Settings</param>
         public int Serialize(IBinarySerializer serializer, BinaryWriter bw, object obj, BinarySerializerSettings settings = null)
         {
-            return _entries.Where(e => settings?.Filter?.Invoke(e.Name) != false)
-                       .Sum(e => e.Serializer.Serialize(serializer, bw, e.GetValue(obj)));
+            if (settings != null && settings.Filter != null)
+            {
+                return _entries.Where(e => settings.Filter.Invoke(e.Name) != false)
+                           .Sum(e => e.Serializer.Serialize(serializer, bw, e.GetValue(obj)));
+            }
+            else
+            {
+                return _entries.Sum(e => e.Serializer.Serialize(serializer, bw, e.GetValue(obj)));
+            }
         }
         /// <summary>
         /// Deserialize

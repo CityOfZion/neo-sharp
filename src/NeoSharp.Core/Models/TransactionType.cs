@@ -18,10 +18,14 @@ namespace NeoSharp.Core.Models
         [ReflectionCache(typeof(ClaimTransaction))]
         ClaimTransaction = 0x02,
 
+#pragma warning disable CS0612 // Type or member is obsolete
         [ReflectionCache(typeof(EnrollmentTransaction))]
+#pragma warning restore CS0612 // Type or member is obsolete
         EnrollmentTransaction = 0x20,
 
+#pragma warning disable CS0612 // Type or member is obsolete
         [ReflectionCache(typeof(RegisterTransaction))]
+#pragma warning restore CS0612 // Type or member is obsolete
         RegisterTransaction = 0x40,
 
         [ReflectionCache(typeof(ContractTransaction))]
@@ -30,7 +34,9 @@ namespace NeoSharp.Core.Models
         [ReflectionCache(typeof(StateTransaction))]
         StateTransaction = 0x90,
 
+#pragma warning disable CS0612 // Type or member is obsolete
         [ReflectionCache(typeof(PublishTransaction))]
+#pragma warning restore CS0612 // Type or member is obsolete
         PublishTransaction = 0xd0,
 
         [ReflectionCache(typeof(InvocationTransaction))]

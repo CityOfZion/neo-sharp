@@ -8,6 +8,10 @@ namespace NeoSharp.Core.Cryptography
 {
     public abstract class ICrypto
     {
+        // TODO: When we solve the injection problem we can remove this
+
+        public static readonly ICrypto Default = new BouncyCastleCrypto();
+
         /// <summary>
         /// base58 Alphabet
         /// </summary>
@@ -142,6 +146,15 @@ namespace NeoSharp.Core.Cryptography
         /// <param name="compress">Compress pubkey</param>
         /// <returns>Bytearray Public Key</returns>
         public abstract byte[] ComputePublicKey(byte[] privateKey, bool compress);
+
+        /// <summary>
+        /// Decode Public key
+        /// </summary>
+        /// <param name="encodedPK">Data</param>
+        /// <param name="compress">Compress</param>
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        public abstract byte[] DecodePublicKey(byte[] encodedPK, bool compress, out BigInteger x, out BigInteger y);
 
         /// <summary>
         /// Encrypt using ECB

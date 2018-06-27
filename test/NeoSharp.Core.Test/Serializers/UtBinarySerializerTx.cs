@@ -97,6 +97,7 @@ namespace NeoSharp.Core.Test.Serializers
         }
 
         [TestMethod]
+#pragma warning disable CS0612 // Type or member is obsolete
         public void SerializeDeserialize_RegisterTransaction()
         {
             var original = new RegisterTransaction()
@@ -132,8 +133,10 @@ namespace NeoSharp.Core.Test.Serializers
 
             EqualTx(original, copy, copy2);
         }
+#pragma warning restore CS0612 // Type or member is obsolete
 
         [TestMethod]
+#pragma warning disable CS0612 // Type or member is obsolete
         public void SerializeDeserialize_EnrollmentTransaction()
         {
             var original = new EnrollmentTransaction()
@@ -152,13 +155,14 @@ namespace NeoSharp.Core.Test.Serializers
 
             foreach (var check in new EnrollmentTransaction[] { (EnrollmentTransaction)copy, copy2 })
             {
-                CollectionAssert.AreEqual(original.PublicKey.Data, check.PublicKey.Data);
+                CollectionAssert.AreEqual(original.PublicKey.EncodedData, check.PublicKey.EncodedData);
             }
 
             // Check base data
 
             EqualTx(original, copy, copy2);
         }
+#pragma warning restore CS0612 // Type or member is obsolete
 
         [TestMethod]
         public void SerializeDeserialize_ContractTransaction()
@@ -216,6 +220,7 @@ namespace NeoSharp.Core.Test.Serializers
         }
 
         [TestMethod]
+#pragma warning disable CS0612 // Type or member is obsolete
         public void SerializeDeserialize_PublishTransaction()
         {
             var original = new PublishTransaction()
@@ -258,6 +263,7 @@ namespace NeoSharp.Core.Test.Serializers
 
             EqualTx(original, copy, copy2);
         }
+#pragma warning restore CS0612 // Type or member is obsolete
 
         [TestMethod]
         public void SerializeDeserialize_IssueTransaction()

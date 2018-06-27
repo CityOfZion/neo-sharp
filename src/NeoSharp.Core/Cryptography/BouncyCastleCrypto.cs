@@ -181,6 +181,28 @@ namespace NeoSharp.Core.Cryptography
         }
 
         /// <summary>
+        /// Decode Public key
+        /// </summary>
+        /// <param name="encodedPK">Data</param>
+        /// <param name="compress">Compress</param>
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        public override byte[] DecodePublicKey(byte[] encodedPK, bool compress, out System.Numerics.BigInteger x, out System.Numerics.BigInteger y)
+        {
+            if (encodedPK == null) throw new ArgumentException(nameof(encodedPK));
+
+            var ret = new ECPublicKeyParameters("ECDSA", _curve.Curve.DecodePoint(encodedPK), _domain).Q;
+
+            var x0 = ret.XCoord.ToBigInteger();
+            var y0 = ret.YCoord.ToBigInteger();
+
+            x = System.Numerics.BigInteger.Parse(x0.ToString());
+            y = System.Numerics.BigInteger.Parse(y0.ToString());
+
+            return ret.GetEncoded(compress);
+        }
+
+        /// <summary>
         /// Encrypt using ECB
         /// </summary>
         /// <param name="data">Data</param>

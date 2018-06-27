@@ -45,8 +45,8 @@ namespace NeoSharp.Core.Converters
         {
             var ec = (ECPoint)value;
 
-            writer.Write(ec.Data, 0, ec.Data.Length);
-            return ec.Data.Length;
+            writer.Write(ec.EncodedData, 0, ec.EncodedData.Length);
+            return ec.EncodedData.Length;
         }
     }
 }

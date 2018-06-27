@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Types;
@@ -21,6 +22,14 @@ namespace NeoSharp.Core.Models
         /// <param name="crypto">Crypto</param>
         public override void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
         {
+            foreach (var tx in Transactions)
+            {
+                tx.UpdateHash(serializer, crypto);
+            }
+
+            TransactionHashes = Transactions.Select(u => u.Hash).ToArray();
+            MerkleRoot = MerkleTree.ComputeRoot(crypto, TransactionHashes);
+
             Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
             {
                 Filter = (a) => a != nameof(Script) && a != nameof(ScriptPrefix) && a != nameof(Transactions)

@@ -78,6 +78,8 @@ namespace NeoSharp.Core.Models
         /// <param name="crypto">Crypto</param>
         public virtual void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
         {
+            MerkleRoot = MerkleTree.ComputeRoot(crypto, TransactionHashes);
+
             Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
             {
                 Filter = (a) => a != nameof(Script) && a != nameof(ScriptPrefix)
