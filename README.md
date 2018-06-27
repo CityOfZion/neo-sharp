@@ -41,8 +41,8 @@ This project is not about adding new features to NEO, it is about establishing a
 * Application - Composition Route and entry point
 	* Client - Console based client
 * BinarySerialization - Binary serialization and deserialization of NEO entities
+* Consensus - NEO Consensus implementation (TODO)
 * Core - Configuration Management, Dependency Injection Framework, Logging Management and Models
-	* Consensus - NEO Consensus implementation (TODO)
 	* Cryptography - all crypto based functions
 	* Network - Neo p2p protocol
 * DI - Dependency Injection framework
