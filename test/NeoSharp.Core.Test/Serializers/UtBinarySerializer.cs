@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Network;
 using NeoSharp.Core.Test.Types;
 using NeoSharp.Core.Types;
 
@@ -123,10 +123,10 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void SerializeRecursive()
         {
-            var parent = new DummyParent()
+            var parent = new DummyParent
             {
                 A = 1,
-                B = new Dummy()
+                B = new Dummy
                 {
                     A = 1,
                     B = 2,
@@ -178,7 +178,7 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void Serialize()
         {
-            var actual = new Dummy()
+            var actual = new Dummy
             {
                 A = 1,
                 B = 2,
@@ -222,21 +222,21 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void AddrPayloadSerialize()
         {
-            var original = new AddrPayload()
+            var original = new AddrPayload
             {
-                Address = new NetworkAddressWithTime[]
+                Address = new[]
                 {
-                    new NetworkAddressWithTime()
+                    new NetworkAddressWithTime
                     {
-                         EndPoint=new IPEndPoint(IPAddress.Parse("127.0.0.1"),ushort.MaxValue),
-                         Services=ulong.MaxValue,
-                         Timestamp=uint.MaxValue,
+                        EndPoint = new EndPoint { Protocol = Protocol.Tcp, Host = "127.0.0.1", Port = ushort.MaxValue },
+                        Services = ulong.MaxValue,
+                        Timestamp = uint.MaxValue,
                     },
-                    new NetworkAddressWithTime()
+                    new NetworkAddressWithTime
                     {
-                         EndPoint=new IPEndPoint(IPAddress.Parse("::01"),ushort.MinValue),
-                         Services=ulong.MinValue,
-                         Timestamp=uint.MinValue,
+                        EndPoint= new EndPoint { Protocol = Protocol.Tcp, Host = "::01", Port = ushort.MinValue },
+                        Services = ulong.MinValue,
+                        Timestamp = uint.MinValue,
                     }
                 }
             };
@@ -247,8 +247,7 @@ namespace NeoSharp.Core.Test.Serializers
 
             for (int x = 0; x < copy.Address.Length; x++)
             {
-                Assert.AreEqual(copy.Address[x].EndPoint.Address, original.Address[x].EndPoint.Address.MapToIPv6());
-                Assert.AreEqual(copy.Address[x].EndPoint.Port, original.Address[x].EndPoint.Port);
+                Assert.AreEqual(copy.Address[x].EndPoint.ToString(), original.Address[x].EndPoint.ToString());
                 Assert.AreEqual(copy.Address[x].Timestamp, original.Address[x].Timestamp);
                 Assert.AreEqual(copy.Address[x].Services, original.Address[x].Services);
             }
@@ -266,9 +265,9 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void SerializeDeserialize_NetworkAddressWithTime()
         {
-            var original = new NetworkAddressWithTime()
+            var original = new NetworkAddressWithTime
             {
-                EndPoint = new IPEndPoint(IPAddress.Any, 0),
+                EndPoint = new EndPoint { Protocol = Protocol.Tcp, Host = "*", Port = 0 },
                 Services = ulong.MaxValue,
                 Timestamp = uint.MaxValue
             };
@@ -277,8 +276,7 @@ namespace NeoSharp.Core.Test.Serializers
 
             Assert.AreEqual(original.Timestamp, copy.Timestamp);
             Assert.AreEqual(original.Services, copy.Services);
-            Assert.AreEqual(original.EndPoint.Address.MapToIPv6(), copy.EndPoint.Address);
-            Assert.AreEqual(original.EndPoint.Port, copy.EndPoint.Port);
+            Assert.AreEqual(original.EndPoint.ToString(), copy.EndPoint.ToString());
         }
 
         [TestMethod]

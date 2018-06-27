@@ -62,9 +62,10 @@ namespace NeoSharp.Core.Network
         }
         #endregion
 
-        #region IServer implementation 
+        #region IServer implementation
+
         /// <inheritdoc />
-        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers; // TODO: thread safe?
+        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers.ToArray();
 
         /// <inheritdoc />
         public void Start()
@@ -72,7 +73,7 @@ namespace NeoSharp.Core.Network
             Stop();
 
             // connect to peers
-            ConnectToPeers();
+            ConnectToPeers(_peerEndPoints);
 
             // listen for peers
             _peerListener.Start();
@@ -86,6 +87,23 @@ namespace NeoSharp.Core.Network
             DisconnectPeers();
 
             _peerMessageListener.StopListenAllPeers();
+        }
+
+        /// <inheritdoc />
+        public void ConnectToPeers(params EndPoint[] endPoints)
+        {
+            Parallel.ForEach(endPoints, async ep =>
+            {
+                try
+                {
+                    var peer = await _peerFactory.ConnectTo(ep);
+                    PeerConnected(this, peer);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning($"Something went wrong with {ep}. Exception: {ex}");
+                }
+            });
         }
 
         /// <inheritdoc />
@@ -140,25 +158,6 @@ namespace NeoSharp.Core.Network
         }
 
         /// <summary>
-        /// Connect to peers
-        /// </summary>
-        private void ConnectToPeers()
-        {
-            Parallel.ForEach(_peerEndPoints, async ep =>
-            {
-                try
-                {
-                    var peer = await _peerFactory.ConnectTo(ep);
-                    PeerConnected(this, peer);
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning($"Something went wrong with {ep}. Exception: {ex}");
-                }
-            });
-        }
-
-        /// <summary>
         /// Send disconnect to all current Peers
         /// </summary>
         private void DisconnectPeers()
@@ -170,6 +169,7 @@ namespace NeoSharp.Core.Network
 
             _connectedPeers.Clear();
         }
+
         #endregion
     }
 }

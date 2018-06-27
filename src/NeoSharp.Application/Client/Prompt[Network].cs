@@ -1,6 +1,4 @@
 ﻿using NeoSharp.Application.Attributes;
-using NeoSharp.Core.Network;
-using System.Linq;
 
 namespace NeoSharp.Application.Client
 {
@@ -13,16 +11,13 @@ namespace NeoSharp.Application.Client
         // ReSharper disable once UnusedMember.Local
         private void NodesCommand()
         {
-            lock (_server.ConnectedPeers)
+            var peers = _server.ConnectedPeers;
+
+            _consoleWriter.WriteLine("Connected: " + peers.Count);
+
+            foreach (var peer in peers)
             {
-                IPeer[] peers = _server.ConnectedPeers.ToArray();
-
-                _consoleWriter.WriteLine("Connected: " + peers.Length.ToString());
-
-                foreach (IPeer p in peers)
-                {
-                    _consoleWriter.WriteLine(p.ToString());
-                }
+                _consoleWriter.WriteLine(peer.ToString());
             }
         }
 

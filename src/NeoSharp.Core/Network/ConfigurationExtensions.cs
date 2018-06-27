@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Network.Security;
@@ -11,9 +10,6 @@ namespace NeoSharp.Core.Network
     public static class ConfigurationExtensions
     {
         private const int DefaultMagic = 7630401;
-        private const string DefaultProtocol = "tcp";
-
-        private static readonly Regex _peerEndPointPattern = new Regex(@"^(?<proto>\w+)://(?<host>[^/:]+):?(?<port>\d+)?/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         public static void Bind(this IConfiguration config, NetworkConfig networkConfig, INetworkAclLoader aclLoader)
         {
@@ -80,15 +76,8 @@ namespace NeoSharp.Core.Network
             var peerEndPoints = config.GetSection("peerEndPoints")?.Get<string[]>().Distinct();
             if (peerEndPoints == null) return new EndPoint[0];
 
-            string MatchGroupValue(Group group) => group.Success ? group.Value : null;
-
             return peerEndPoints
-                .Select(pep => _peerEndPointPattern.Match(pep))
-                .Where(m => m.Success)
-                .Select(m => ParseEndPoint(
-                    MatchGroupValue(m.Groups["proto"]),
-                    MatchGroupValue(m.Groups["host"]),
-                    MatchGroupValue(m.Groups["port"])))
+                .Select(EndPoint.Parse)
                 .Where(acl.IsAllowed)
                 .ToArray();
         }
@@ -102,20 +91,6 @@ namespace NeoSharp.Core.Network
 
             // TODO: More safe parsing
             return new IPEndPoint(IPAddress.Parse(split[0]), Convert.ToInt32(split[1]));
-        }
-
-        private static EndPoint ParseEndPoint(string protocol, string host, string port)
-        {
-            if (protocol == null) protocol = DefaultProtocol;
-            if (host == null) return null;
-
-            // TODO: More safe parsing
-            return new EndPoint
-            {
-                Protocol = Enum.Parse<Protocol>(protocol, true),
-                Host = host,
-                Port = int.Parse(port)
-            };
         }
 
         private static NetworkAclConfig ParseAcl(IConfiguration config, string section)

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
@@ -10,55 +10,32 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Variables
 
-        private readonly IPeerFactory _factory;
+        private readonly IServer _server;
 
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="factory">Factory</param>
-        public AddrMessageMessageHandler(IPeerFactory factory)
+        public AddrMessageMessageHandler(IServer server)
         {
-            _factory = factory ?? throw new ArgumentNullException(nameof(factory));
+            _server = server ?? throw new ArgumentNullException(nameof(server));
         }
 
-        public async Task Handle(AddrMessage message, IPeer sender)
+        public Task Handle(AddrMessage message, IPeer sender)
         {
-            // TODO: INJECT IServer
+            var connectedEndPoints = _server.ConnectedPeers
+                .Select(p => p.EndPoint)
+                .ToArray();
 
-            IPEndPoint[] peers = null;
+            var endPointsToConnect = message.Payload.Address
+                .Select(nat => nat.EndPoint)
+                .Where(ep => connectedEndPoints.Contains(ep) == false) 
+                .ToArray();
 
-            //    message.Payload.Address
-            //    .Select(p => p.EndPoint)
-            //    .Where(
-            //        p =>
-            //        //p.Port != _context.ListenEndPoint.Port || // TODO: Check this
-            //        !_context.ConnectedPeers
-            //        .Where(u => u is TcpPeer)
-            //        .Cast<TcpPeer>()
-            //        .Any(u => u.IPEndPoint.Equals(p.Address))
-            //        )
-            //    .ToArray();
+            _server.ConnectToPeers(endPointsToConnect);
 
-            if (peers.Length > 0)
-            {
-                // TODO: How can we connect here?
-
-                //Parallel.ForEach(peers, async (peer) =>
-                //{
-                //    var connected = await _factory.ConnectTo(new Network.EndPoint()
-                //    {
-                //        Host = peer.Address.ToString(),
-                //        Port = peer.Port,
-                //        Protocol = Protocol.Tcp
-                //    });
-
-                //    _context.ConnectedPeers.Add(connected);
-                //});
-            }
-
-            await Task.CompletedTask;
+            return Task.CompletedTask;
         }
     }
 }
