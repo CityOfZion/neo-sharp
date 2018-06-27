@@ -44,6 +44,7 @@ This project is not about adding new features to NEO, it is about establishing a
 * Core - Configuration Management, Dependency Injection Framework, Logging Management and Models
 	* Cryptography - all crypto based functions
 	* Network - Neo p2p protocol
+* Consensus - NEO Consensus implementation (TODO)
 * DI - Dependency Injection framework
 	* SimpleInjector - Module to implement Simple Injector as the DI framework
 * Logging - Logging framework implementation
