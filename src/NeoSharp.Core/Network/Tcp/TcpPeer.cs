@@ -29,6 +29,11 @@ namespace NeoSharp.Core.Network.Tcp
         public EndPoint EndPoint { get; }
 
         /// <summary>
+        /// IpEndPoint
+        /// </summary>
+        public readonly IPEndPoint IPEndPoint;
+
+        /// <summary>
         /// Is connected
         /// </summary>
         public bool IsConnected => _disposed == 0;
@@ -87,12 +92,12 @@ namespace NeoSharp.Core.Network.Tcp
 
             // Extract address
 
-            var ipEndPoint = (IPEndPoint)(socket.IsBound ? socket.RemoteEndPoint : socket.LocalEndPoint);
+            IPEndPoint = (IPEndPoint)(socket.IsBound ? socket.RemoteEndPoint : socket.LocalEndPoint);
             EndPoint = new EndPoint
             {
                 Protocol = Protocol.Tcp,
-                Host = ipEndPoint.Address.ToString(),
-                Port = ipEndPoint.Port
+                Host = IPEndPoint.Address.ToString(),
+                Port = IPEndPoint.Port
             };
 
             SendMessages(_messageSenderTokenSource.Token);
@@ -250,7 +255,7 @@ namespace NeoSharp.Core.Network.Tcp
 
                 try
                 {
-                    await _protocol.SendMessageAsync(_stream, message, tokenSource.Token);
+                   await _protocol.SendMessageAsync(_stream, message, tokenSource.Token);
                 }
                 catch
                 {

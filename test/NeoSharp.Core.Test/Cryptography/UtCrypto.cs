@@ -118,7 +118,7 @@ namespace NeoSharp.Core.Test.Cryptography
             var message = "00000000bf4421c88776c53b43ce1dc45463bfd2028e322fdfb60064be150ed3e36125d418f98ec3ed2c2d1c9427385e7b85d0d1a366e29c4e399693a59718380f8bbad6d6d90358010000004490d0bb7170726c59e75d652b5d3827bf04c165bbe9ef95cca4bf55".HexToBytes();
             var signaturebad = new byte[64];
 
-            for (int i = 0; i < 200; i++)
+            for (int i = 0; i < 50; i++)
             {
                 // Act
                 var signature = _bccrypto.Sign(message, privkey);
@@ -133,6 +133,23 @@ namespace NeoSharp.Core.Test.Cryptography
                 Assert.IsTrue(verify);
                 Assert.IsFalse(verifybad);
             }
+        }
+
+        [TestMethod]
+        public void PubKey_Generation()
+        {
+            // Arrange
+            var privkey = "d422260f1d97788bd0ee4d089e57a9bd20356a4013492cafd4d0dcf9efc68968".HexToBytes();
+            var expected_pubkey_comp = "0238356c74a1ab4d40df857b790e4232180e2f99f5c78468c150d0903a3e5d2b6f".HexToBytes();
+            var expected_pubkey_uncomp = "0438356c74a1ab4d40df857b790e4232180e2f99f5c78468c150d0903a3e5d2b6fc88c3095b1b688d3d027477dfad0deb1ab94cb08db2de5abb79c1482aa1ea2fc".HexToBytes();
+
+            // Act
+            var pubkey_compressed = _bccrypto.ComputePublicKey(privkey, true);
+            var pubkey_uncompressed = _bccrypto.ComputePublicKey(privkey, false);
+
+            // Asset
+            CollectionAssert.AreEqual(expected_pubkey_comp, pubkey_compressed);
+            CollectionAssert.AreEqual(expected_pubkey_uncomp, pubkey_uncompressed);
         }
 
         [TestMethod]

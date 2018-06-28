@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
@@ -11,27 +10,32 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Variables
 
-        private readonly IServerContext _context;
+        private readonly IServer _server;
 
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="context">Context</param>
-        public AddrMessageMessageHandler(IServerContext context)
+        public AddrMessageMessageHandler(IServer server)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _server = server ?? throw new ArgumentNullException(nameof(server));
         }
 
-        public async Task Handle(AddrMessage message, IPeer sender)
+        public Task Handle(AddrMessage message, IPeer sender)
         {
-            // TODO: do logic
+            var connectedEndPoints = _server.ConnectedPeers
+                .Select(p => p.EndPoint)
+                .ToArray();
 
-            // IPEndPoint[] peers = message.Payload.Address.Select(p => p.EndPoint).Where(p => p.Port != localNode.Port || !LocalNode.LocalAddresses.Contains(p.Address)).ToArray();
-            // if (peers.Length > 0) PeersReceived?.Invoke(this, peers);
+            var endPointsToConnect = message.Payload.Address
+                .Select(nat => nat.EndPoint)
+                .Where(ep => connectedEndPoints.Contains(ep) == false) 
+                .ToArray();
 
-            await Task.CompletedTask;
+            _server.ConnectToPeers(endPointsToConnect);
+
+            return Task.CompletedTask;
         }
     }
 }

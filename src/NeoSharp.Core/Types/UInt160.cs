@@ -3,12 +3,14 @@ using System.Collections;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Types
 {
     [TypeConverter(typeof(UInt160Converter))]
+    [BinaryTypeSerializer(typeof(UInt160Converter))]
     public class UInt160 : IEquatable<UInt160>, IComparable<UInt160>, ISerializable
     {
         public static readonly int BufferLength = 20;
@@ -87,6 +89,11 @@ namespace NeoSharp.Core.Types
         public override string ToString()
         {
             return _buffer.Reverse().ToHexString(true);
+        }
+
+        public string ToString(bool append0x)
+        {
+            return _buffer.Reverse().ToHexString(append0x);
         }
 
         public static UInt160 Parse(string value)

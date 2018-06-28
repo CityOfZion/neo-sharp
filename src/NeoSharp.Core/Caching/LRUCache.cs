@@ -11,7 +11,7 @@ namespace NeoSharp.Core.Caching
 
         protected override void OnAccess(CacheItem item)
         {
-            item.Time = DateTime.Now;
+            item.Time = DateTime.UtcNow;
         }
     }
 }

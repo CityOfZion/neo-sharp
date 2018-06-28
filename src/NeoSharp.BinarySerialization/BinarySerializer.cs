@@ -1,15 +1,18 @@
-using NeoSharp.BinarySerialization.Cache;
-using NeoSharp.BinarySerialization.SerializationHooks;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using NeoSharp.BinarySerialization.Cache;
 
 namespace NeoSharp.BinarySerialization
 {
     public class BinarySerializer : IBinarySerializer
     {
+        // TODO: When we solve the injection problem we can remove this
+
+        public static readonly IBinarySerializer Default = new BinarySerializer();
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -36,12 +39,13 @@ namespace NeoSharp.BinarySerialization
         /// Serialize
         /// </summary>
         /// <param name="obj">Object</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return byte array</returns>
-        public byte[] Serialize(object obj)
+        public byte[] Serialize(object obj, BinarySerializerSettings settings = null)
         {
             using (var ms = new MemoryStream())
             {
-                Serialize(obj, ms);
+                Serialize(obj, ms, settings);
                 return ms.ToArray();
             }
         }
@@ -50,8 +54,9 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="obj">Object</param>
         /// <param name="stream">Stream</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return byte array</returns>
-        public int Serialize(object obj, Stream stream)
+        public int Serialize(object obj, Stream stream, BinarySerializerSettings settings = null)
         {
             // Search in cache
 
@@ -62,10 +67,7 @@ namespace NeoSharp.BinarySerialization
 
             using (var bw = new BinaryWriter(stream, Encoding.UTF8, true))
             {
-                if (cache.IsOnPreSerializable)
-                    ((IBinaryOnPreSerializable)obj).OnPreSerialize();
-
-                return cache.Serialize(this, bw, obj);
+                return cache.Serialize(this, bw, obj, settings);
             }
         }
         /// <summary>
@@ -73,8 +75,9 @@ namespace NeoSharp.BinarySerialization
         /// </summary>
         /// <param name="obj">Object</param>
         /// <param name="stream">Stream</param>
+        /// <param name="settings">Settings</param>
         /// <returns>Return byte array</returns>
-        public int Serialize(object obj, BinaryWriter stream)
+        public int Serialize(object obj, BinaryWriter stream, BinarySerializerSettings settings = null)
         {
             // Search in cache
 
@@ -83,10 +86,7 @@ namespace NeoSharp.BinarySerialization
 
             // Serialize
 
-            if (cache.IsOnPreSerializable)
-                ((IBinaryOnPreSerializable)obj).OnPreSerialize();
-
-            return cache.Serialize(this, stream, obj);
+            return cache.Serialize(this, stream, obj, settings);
         }
     }
 }

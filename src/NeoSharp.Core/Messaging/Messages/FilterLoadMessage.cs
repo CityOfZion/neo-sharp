@@ -21,7 +21,7 @@ namespace NeoSharp.Core.Messaging.Messages
         }
     }
 
-    public class FilterLoadPayload: IBinaryOnPostDeserializable
+    public class FilterLoadPayload : IBinaryVerifiable
     {
         [BinaryProperty(0, MaxLength = 36000)]
         public byte[] Filter;
@@ -33,11 +33,13 @@ namespace NeoSharp.Core.Messaging.Messages
         public uint Tweak;
 
         /// <summary>
-        /// Validate
+        /// Verificable
         /// </summary>
-        public void OnPostDeserialize()
+        public bool Verify()
         {
-            if (K > 50) throw new FormatException();
+            if (K > 50) throw new ArgumentException(nameof(K));
+
+            return true;
         }
     }
 }

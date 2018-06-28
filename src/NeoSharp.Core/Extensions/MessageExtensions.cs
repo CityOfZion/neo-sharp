@@ -1,9 +1,9 @@
 ﻿using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
 
-namespace NeoSharp.Core.ExtensionMethods
+namespace NeoSharp.Core.Extensions
 {
-    public static class MessageExtensionMethods
+    public static class MessageExtensions
     {
         /// <summary>
         /// Is this message a handshake message?

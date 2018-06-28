@@ -85,8 +85,12 @@ namespace NeoSharp.Core.Messaging.Messages
 
         // Serialize sign
 
+#pragma warning disable CS0414
+
         [BinaryProperty(1)]
         private readonly byte ScriptPreffix = 1;
+
+#pragma warning restore CS0414
 
         [BinaryProperty(2)]
         public Witness Script;

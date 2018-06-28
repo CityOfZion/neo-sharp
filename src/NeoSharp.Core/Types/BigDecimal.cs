@@ -12,12 +12,22 @@ namespace NeoSharp.Core.Types
         public byte Decimals => _decimals;
         public int Sign => _value.Sign;
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <param name="decimals">Number of decimals</param>
         public BigDecimal(BigInteger value, byte decimals)
         {
             _value = value;
             _decimals = decimals;
         }
 
+        /// <summary>
+        /// Change the numbero of decimals
+        /// </summary>
+        /// <param name="decimals">New decimals</param>
+        /// <returns>Returns a new BigDecimal with the decimals desired</returns>
         public BigDecimal ChangeDecimals(byte decimals)
         {
             if (_decimals == decimals) return this;
@@ -36,6 +46,12 @@ namespace NeoSharp.Core.Types
             return new BigDecimal(value, decimals);
         }
 
+        /// <summary>
+        /// Parse string to BigDecimal
+        /// </summary>
+        /// <param name="s">String to parse</param>
+        /// <param name="decimals">Number of decimals</param>
+        /// <returns>Returns a new BigDecimal</returns>
         public static BigDecimal Parse(string s, byte decimals)
         {
             if (!TryParse(s, decimals, out var result))
@@ -43,6 +59,10 @@ namespace NeoSharp.Core.Types
             return result;
         }
 
+        /// <summary>
+        /// Convert to Fixed8 type
+        /// </summary>
+        /// <returns>Returns a new Fixed8</returns>
         public Fixed8 ToFixed8()
         {
             try
@@ -55,6 +75,10 @@ namespace NeoSharp.Core.Types
             }
         }
 
+        /// <summary>
+        /// Convert to String 
+        /// </summary>
+        /// <returns>Returns a string with the number representation</returns>
         public override string ToString()
         {
             var divisor = BigInteger.Pow(10, _decimals);
@@ -63,6 +87,13 @@ namespace NeoSharp.Core.Types
             return $"{result}.{remainder.ToString("d" + _decimals)}".TrimEnd('0');
         }
 
+        /// <summary>
+        /// Try to parse string to BigDecimal
+        /// </summary>
+        /// <param name="s">String to parse</param>
+        /// <param name="decimals">Number of decimals</param>
+        /// <param name="result">Receives the BigDecimal created</param>
+        /// <returns>Returns True if operation performed right</returns>
         public static bool TryParse(string s, byte decimals, out BigDecimal result)
         {
             var e = 0;

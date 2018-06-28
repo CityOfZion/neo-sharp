@@ -6,6 +6,7 @@ using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Core.Test.Messaging.Handlers
@@ -55,6 +56,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             peerMock.SetupProperty(x => x.Version, version);
 
             blockchain.LastBlockHeader.Index = 1;
+            blockchain.LastBlockHeader.Hash = UInt256.Zero;
             version.CurrentBlockIndex = 2;
 
             var messageHandler = AutoMockContainer.Get<VerAckMessageHandler>();

@@ -1,66 +1,91 @@
-﻿using NeoSharp.BinarySerialization;
-using Newtonsoft.Json;
-using System;
+﻿using System;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
+using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    public class BlockHeader
+    public class BlockHeader : Entity
     {
-        [BinaryProperty(1)]
-        [JsonProperty("hash")]
-        public UInt256 Hash;
+        #region Serializable data
 
-        [BinaryProperty(2)]
-        [JsonProperty("size")]
-        public int Size;
-
-        [BinaryProperty(3)]
+        [BinaryProperty(0)]
         [JsonProperty("version")]
-        public byte Version;
+        public uint Version;
 
-        [BinaryProperty(4)]
+        [BinaryProperty(1)]
         [JsonProperty("previousblockhash")]
         public UInt256 PreviousBlockHash;
 
-        [BinaryProperty(5)]
+        [BinaryProperty(2)]
         [JsonProperty("merkleroot")]
         public UInt256 MerkleRoot;
 
-        [BinaryProperty(6)]
+        [BinaryProperty(3)]
         [JsonProperty("time")]
         public uint Timestamp;
 
-        [BinaryProperty(7)]
+        [BinaryProperty(4)]
         [JsonProperty("index")]
         public uint Index;
 
-        [BinaryProperty(8)]
+        [BinaryProperty(5)]
         [JsonProperty("nonce")]
         public ulong ConsensusData;
 
-        [BinaryProperty(9)]
+        [BinaryProperty(6)]
         [JsonProperty("nextconsensus")]
         public UInt160 NextConsensus;
 
-        [BinaryProperty(10)]
-        [JsonProperty("nextblockhash")]
-        public UInt256 NextBlockHash;
+        /// <summary>
+        /// Required for NEO serialization, without sense
+        /// </summary>
+        [BinaryProperty(6)]
+        public byte ScriptPrefix;
 
-        [BinaryProperty(12)]
+        [BinaryProperty(7)]
         [JsonProperty("script")]
         public Witness Script;
 
-        [BinaryProperty(13)]
-        [JsonProperty("confirmations")]
-        public int Confirmations;
+        #endregion
+
+        #region Non serializable data
+
+        [JsonProperty("hash")]
+        public UInt256 Hash { get; set; }
+
+        //[JsonProperty("size")]
+        //public int Size;
+
+        //[JsonProperty("nextblockhash")]
+        //public UInt256 NextBlockHash;
 
         [JsonProperty("txcount")]
         public int TransactionCount => TransactionHashes?.Length ?? 0;
 
-        [BinaryProperty(14)]
         [JsonProperty("txhashes")]
-        public string[] TransactionHashes { get; set; }
+        public UInt256[] TransactionHashes { get; set; }
+
+        #endregion
+
+        /// <summary>
+        /// Update hash
+        /// </summary>
+        /// <param name="serializer">Serializer</param>
+        /// <param name="crypto">Crypto</param>
+        public virtual void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
+        {
+            MerkleRoot = MerkleTree.ComputeRoot(crypto, TransactionHashes);
+
+            Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
+            {
+                Filter = (a) => a != nameof(Script) && a != nameof(ScriptPrefix)
+            })));
+
+            Script?.UpdateHash(serializer, crypto);
+        }
     }
 }

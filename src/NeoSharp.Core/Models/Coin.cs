@@ -1,37 +1,57 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using System;
+using NeoSharp.BinarySerialization;
 using Newtonsoft.Json;
-using System;
 
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    public class Coin : TransactionOutput
+    public class Coin : IEquatable<Coin>
     {
+        private string _address = null;
+
+        [BinaryProperty(0)]
+        [JsonProperty("reference")]
+        public CoinReference Reference;
+
         [BinaryProperty(1)]
-        [JsonProperty("id")]
-        public string Id
-        {
-            get { return $"{TxId}_{Index}"; }
-        }
+        [JsonProperty("vout")]
+        public TransactionOutput Output;
 
         [BinaryProperty(2)]
-        [JsonProperty("txid")]
-        public string TxId;
+        [JsonProperty("state")]
+        public CoinState State;
 
-        [BinaryProperty(3)]
-        [JsonProperty("assetname")]
-        public string AssetName;
+        [JsonProperty("address")]
+        public string Address
+        {
+            get
+            {
+                if (_address == null)
+                {
+                    //_address = Wallet.ToAddress(Output.ScriptHash);
+                }
+                return _address;
+            }
+        }
 
-        [BinaryProperty(4)]
-        [JsonProperty("precision")]
-        public byte AssetPrecision;
+        public bool Equals(Coin other)
+        {
+            if (ReferenceEquals(this, other)) return true;
+            if (other is null) return false;
 
-        [BinaryProperty(5)]
-        [JsonProperty("tracedhash")]
-        public string TracedHash;
+            return Reference.Equals(other.Reference);
+        }
 
-        [BinaryProperty(6)]
-        [JsonProperty("coinstate")]
-        public CoinState CoinState;
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Coin other)) return false;
+
+            return Reference.Equals(other.Reference);
+        }
+
+        public override int GetHashCode()
+        {
+            return Reference.GetHashCode();
+        }
     }
 }

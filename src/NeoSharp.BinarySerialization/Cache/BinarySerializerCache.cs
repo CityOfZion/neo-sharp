@@ -1,20 +1,19 @@
-using NeoSharp.BinarySerialization.SerializationHooks;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.IO;
-using System.Linq;
 using System.Reflection;
+using NeoSharp.BinarySerialization.SerializationHooks;
+using NeoSharp.BinarySerialization.Serializers;
 
 namespace NeoSharp.BinarySerialization.Cache
 {
     internal class BinarySerializerCache
     {
+        #region Cache
+
         /// <summary>
         /// Cache
         /// </summary>
-        internal static readonly IDictionary<Type, BinarySerializerCache> Cache = new Dictionary<Type, BinarySerializerCache>();
-        internal static readonly IDictionary<Type, TypeConverter> TypeConverterCache = new Dictionary<Type, TypeConverter>();
+        internal static readonly IDictionary<Type, IBinaryCustomSerializable> Cache = new Dictionary<Type, IBinaryCustomSerializable>();
 
         /// <summary>
         /// Cache types (call me if you load a new plugin or module)
@@ -24,11 +23,10 @@ namespace NeoSharp.BinarySerialization.Cache
         {
             foreach (Assembly asm in asms)
             {
-                foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t)))
-                    InternalRegisterTypeConverter(t);
-
-                foreach (var t in asm.GetTypes().Where(t => typeof(TypeConverter).IsAssignableFrom(t) == false))
+                foreach (var t in asm.GetTypes())
+                {
                     InternalRegisterTypes(t);
+                }
             }
         }
 
@@ -36,143 +34,44 @@ namespace NeoSharp.BinarySerialization.Cache
         /// Cache type
         /// </summary>
         /// <param name="type">Type</param>
-        internal static BinarySerializerCache InternalRegisterTypes(Type type)
+        internal static IBinaryCustomSerializable InternalRegisterTypes(Type type)
         {
             lock (Cache)
             {
                 if (Cache.TryGetValue(type, out var cache)) return cache;
 
-                var b = new BinarySerializerCache(type);
-                if (b.Count <= 0) return null;
+                IBinaryCustomSerializable serializer;
+                var serializerAttr = type.GetCustomAttribute<BinaryTypeSerializerAttribute>();
 
-                Cache.Add(b.Type, b);
-                return b;
-            }
-        }
-
-        internal static void InternalRegisterTypeConverter(Type type)
-        {
-            lock (TypeConverterCache)
-            {
-                if (TypeConverterCache.ContainsKey(type)) return;
-
-                TypeConverterCache.Add(type, (TypeConverter)Activator.CreateInstance(type));
-            }
-        }
-
-        /// <summary>
-        /// Type
-        /// </summary>
-        public readonly Type Type;
-        /// <summary>
-        /// Count
-        /// </summary>
-        public readonly int Count;
-        /// <summary>
-        /// Is OnPreSerializable
-        /// </summary>
-        public readonly bool IsOnPreSerializable;
-        /// <summary>
-        /// Is OnPostDeserializable
-        /// </summary>
-        public readonly bool IsOnPostDeserializable;
-        /// <summary>
-        /// Cache entries
-        /// </summary>
-        private readonly BinarySerializerCacheEntry[] _entries;
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="type">Type</param>
-        public BinarySerializerCache(Type type)
-        {
-            Type = type;
-
-            // Check interfaces
-
-            IsOnPreSerializable = typeof(IBinaryOnPreSerializable).IsAssignableFrom(type);
-            IsOnPostDeserializable = typeof(IBinaryOnPostDeserializable).IsAssignableFrom(type);
-
-            _entries =
-
-                // Properties
-
-                type.GetProperties()
-                .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
-                .Where(u => u.atr != null)
-                .OrderBy(u => u.atr.Order)
-                .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
-                .Concat
-                (
-                    // Fields
-
-                    type.GetFields()
-                    .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
-                    .Where(u => u.atr != null)
-                    .OrderBy(u => u.atr.Order)
-                    .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
-                )
-                .ToArray();
-
-            Count = _entries.Length;
-        }
-
-        /// <summary>
-        /// Serialize
-        /// </summary>
-        /// <param name="serializer">Serializer</param>
-        /// <param name="bw">Stream</param>
-        /// <param name="obj">Object</param>
-        public int Serialize(IBinarySerializer serializer, BinaryWriter bw, object obj)
-        {
-            int ret = 0;
-            foreach (BinarySerializerCacheEntry e in _entries)
-                ret += e.WriteValue(serializer, bw, e.GetValue(obj));
-
-            return ret;
-        }
-        /// <summary>
-        /// Deserialize
-        /// </summary>
-        /// <param name="deserializer">Deserializer</param>
-        /// <param name="br">Stream</param>
-        /// <returns>Return object</returns>
-        public T Deserialize<T>(IBinaryDeserializer deserializer, BinaryReader br)
-        {
-            return (T)Deserialize(deserializer, br);
-        }
-        /// <summary>
-        /// Deserialize without create a new object
-        /// </summary>
-        /// <param name="deserializer">Deserializer</param>
-        /// <param name="br">Stream</param>
-        /// <param name="obj">Object</param>
-        public void Deserialize(IBinaryDeserializer deserializer, BinaryReader br, object obj)
-        {
-            foreach (BinarySerializerCacheEntry e in _entries)
-            {
-                if (e.ReadOnly)
+                if (serializerAttr != null)
                 {
-                    // Consume it
-                    e.ReadValue(deserializer, br);
-                    continue;
+                    // Looking for a serializer
+
+                    serializer = serializerAttr.Create();
+                }
+                else
+                {
+                    // Create one by his fields and properties
+
+                    serializer = new BinaryAutoSerializer(type);
+
+                    if (((BinaryAutoSerializer)serializer).IsEmpty) return null;
                 }
 
-                e.SetValue(obj, e.ReadValue(deserializer, br));
+                Cache.Add(type, serializer);
+
+                if (!type.IsArray)
+                {
+                    // Register array too
+
+                    Type array = type.MakeArrayType();
+                    Cache.Add(array, new BinaryArraySerializer(array, serializer));
+                }
+
+                return serializer;
             }
         }
-        /// <summary>
-        /// Deserialize
-        /// </summary>
-        /// <param name="deserializer">Deserializer</param>
-        /// <param name="br">Stream</param>
-        /// <returns>Return object</returns>
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader br)
-        {
-            object ret = Activator.CreateInstance(Type);
-            Deserialize(deserializer, br, ret);
-            return ret;
-        }
+
+        #endregion
     }
 }

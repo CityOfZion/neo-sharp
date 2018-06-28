@@ -1,26 +1,30 @@
-using FluentAssertions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Core.Models;
-using NeoSharp.Core.Test.Types;
-using NeoSharp.Core.Types;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Models;
+using NeoSharp.Core.Network;
+using NeoSharp.Core.Test.Types;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Test.Serializers
 {
     [TestClass]
     public class UtBinarySerializer
     {
+        private ICrypto _crypto;
         private IBinarySerializer _serializer;
         private IBinaryDeserializer _deserializer;
 
         [TestInitialize]
         public void WarmUpSerializer()
         {
+            _crypto = new BouncyCastleCrypto();
             _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
             _deserializer = new BinaryDeserializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
         }
@@ -119,10 +123,10 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void SerializeRecursive()
         {
-            var parent = new DummyParent()
+            var parent = new DummyParent
             {
                 A = 1,
-                B = new Dummy()
+                B = new Dummy
                 {
                     A = 1,
                     B = 2,
@@ -174,7 +178,7 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void Serialize()
         {
-            var actual = new Dummy()
+            var actual = new Dummy
             {
                 A = 1,
                 B = 2,
@@ -218,22 +222,22 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void AddrPayloadSerialize()
         {
-            var original = new AddrPayload()
+            var original = new AddrPayload
             {
-                Address = new NetworkAddressWithTime[]
+                Address = new[]
                 {
-                    new NetworkAddressWithTime()
+                    new NetworkAddressWithTime
                     {
-                         EndPoint=new IPEndPoint(IPAddress.Parse("127.0.0.1"),ushort.MaxValue),
-                         Services=ulong.MaxValue,
-                         Timestamp=uint.MaxValue,
+                        EndPoint = new EndPoint { Protocol = Protocol.Tcp, Host = "127.0.0.1", Port = ushort.MaxValue },
+                        Services = ulong.MaxValue,
+                        Timestamp = uint.MaxValue,
                     },
-                    new NetworkAddressWithTime()
+                    new NetworkAddressWithTime
                     {
-                         EndPoint=new IPEndPoint(IPAddress.Parse("::01"),ushort.MinValue),
-                         Services=ulong.MinValue,
-                         Timestamp=uint.MinValue,
-                    },
+                        EndPoint= new EndPoint { Protocol = Protocol.Tcp, Host = "::01", Port = ushort.MinValue },
+                        Services = ulong.MinValue,
+                        Timestamp = uint.MinValue,
+                    }
                 }
             };
 
@@ -243,54 +247,111 @@ namespace NeoSharp.Core.Test.Serializers
 
             for (int x = 0; x < copy.Address.Length; x++)
             {
-                Assert.AreEqual(copy.Address[x].EndPoint.Address, original.Address[x].EndPoint.Address.MapToIPv6());
-                Assert.AreEqual(copy.Address[x].EndPoint.Port, original.Address[x].EndPoint.Port);
+                Assert.AreEqual(copy.Address[x].EndPoint.ToString(), original.Address[x].EndPoint.ToString());
                 Assert.AreEqual(copy.Address[x].Timestamp, original.Address[x].Timestamp);
                 Assert.AreEqual(copy.Address[x].Services, original.Address[x].Services);
             }
         }
 
         [TestMethod]
+        public void SerializeDeserialize_Fixed8()
+        {
+            var original = new Fixed8(long.MaxValue);
+            var copy = _deserializer.Deserialize<Fixed8>(_serializer.Serialize(original));
+
+            Assert.AreEqual(original, copy);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_NetworkAddressWithTime()
+        {
+            var original = new NetworkAddressWithTime
+            {
+                EndPoint = new EndPoint { Protocol = Protocol.Tcp, Host = "*", Port = 0 },
+                Services = ulong.MaxValue,
+                Timestamp = uint.MaxValue
+            };
+
+            var copy = _deserializer.Deserialize<NetworkAddressWithTime>(_serializer.Serialize(original));
+
+            Assert.AreEqual(original.Timestamp, copy.Timestamp);
+            Assert.AreEqual(original.Services, copy.Services);
+            Assert.AreEqual(original.EndPoint.ToString(), copy.EndPoint.ToString());
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_UInt256()
+        {
+            var rand = new Random(Environment.TickCount);
+            var hash = new byte[UInt256.BufferLength];
+            rand.NextBytes(hash);
+
+            var original = new UInt256(hash);
+            var copy = _deserializer.Deserialize<UInt256>(_serializer.Serialize(original));
+
+            Assert.AreEqual(original, copy);
+        }
+
+        [TestMethod]
+        public void SerializeDeserialize_UInt160()
+        {
+            var rand = new Random(Environment.TickCount);
+            var hash = new byte[UInt160.BufferLength];
+            rand.NextBytes(hash);
+
+            var original = new UInt160(hash);
+            var copy = _deserializer.Deserialize<UInt160>(_serializer.Serialize(original));
+
+            Assert.AreEqual(original, copy);
+        }
+
+        [TestMethod]
         public void BlockSerialize()
         {
-            var blockHeader = new BlockHeader()
+            var blockHeader = new Block()
             {
-                Confirmations = 1,
                 ConsensusData = 100_000_000,
                 Hash = UInt256.Zero,
                 Index = 0,
                 MerkleRoot = UInt256.Zero,
-                NextBlockHash = UInt256.Zero,
                 NextConsensus = UInt160.Zero,
                 PreviousBlockHash = UInt256.Zero,
-                Size = 2,
                 Timestamp = 3,
                 Version = 4,
                 Script = new Witness
                 {
-                    InvocationScript = "InvocationScript",
+                    InvocationScript = new byte[0],
                     VerificationScript = new byte[0],
                 },
-                TransactionHashes = new[] { "a", "b", "c" }
+                Transactions = new Transaction[] { new InvocationTransaction()
+                    {
+                    Attributes=new TransactionAttribute[]{ },
+                    Inputs=new CoinReference[]{ },
+                    Outputs=new TransactionOutput[]{},
+                    Scripts=new Witness[]{ },
+                    Script=new byte[]{ 0x01 },
+                    Version=0
+                    }
+                }
             };
 
-            var blockHeaderCopy = _deserializer.Deserialize<BlockHeader>(_serializer.Serialize(blockHeader));
+            blockHeader.UpdateHash(_serializer, _crypto);
 
-            Assert.AreEqual(blockHeader.Confirmations, blockHeaderCopy.Confirmations);
+            var blockHeaderCopy = _deserializer.Deserialize<Block>(_serializer.Serialize(blockHeader));
+
+            blockHeaderCopy.UpdateHash(_serializer, _crypto);
+
             Assert.AreEqual(blockHeader.ConsensusData, blockHeaderCopy.ConsensusData);
             Assert.AreEqual(blockHeader.Hash, blockHeaderCopy.Hash);
             Assert.AreEqual(blockHeader.Index, blockHeaderCopy.Index);
             Assert.AreEqual(blockHeader.MerkleRoot, blockHeaderCopy.MerkleRoot);
             Assert.AreEqual(blockHeader.NextConsensus, blockHeaderCopy.NextConsensus);
             Assert.AreEqual(blockHeader.PreviousBlockHash, blockHeaderCopy.PreviousBlockHash);
-            Assert.AreEqual(blockHeader.Size, blockHeaderCopy.Size);
             Assert.AreEqual(blockHeader.Timestamp, blockHeaderCopy.Timestamp);
             Assert.AreEqual(blockHeader.Version, blockHeaderCopy.Version);
 
-            Assert.AreEqual(blockHeader.Script.InvocationScript, blockHeaderCopy.Script.InvocationScript);
+            Assert.IsTrue(blockHeader.Script.InvocationScript.SequenceEqual(blockHeaderCopy.Script.InvocationScript));
             Assert.IsTrue(blockHeader.Script.VerificationScript.SequenceEqual(blockHeaderCopy.Script.VerificationScript));
-
-            Assert.IsTrue(blockHeader.TransactionHashes.SequenceEqual(blockHeaderCopy.TransactionHashes));
         }
     }
 }

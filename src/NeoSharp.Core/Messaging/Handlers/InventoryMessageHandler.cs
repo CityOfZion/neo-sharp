@@ -36,6 +36,37 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             // Send broadcast
 
+            switch (message.Payload.Type)
+            {
+                case InventoryType.Block:
+                    {
+                        foreach(var hash in message.Payload.Hashes)
+                        {
+
+                        }
+
+                        break;
+                    }
+                case InventoryType.Consensus:
+                    {
+                        foreach (var hash in message.Payload.Hashes)
+                        {
+
+                        }
+
+                        break;
+                    }
+                case InventoryType.Tx:
+                    {
+                        foreach (var hash in message.Payload.Hashes)
+                        {
+
+                        }
+
+                        break;
+                    }
+            }
+
             await base.Handle(message, sender);
         }
     }

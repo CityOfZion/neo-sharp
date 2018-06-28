@@ -7,12 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using NeoSharp.Core.Persistence.Contexts;
 
 namespace NeoSharp.Core.Blockchain
 {
     public class Blockchain : IDisposable, IBlockchain
     {
-        private readonly IRepository _repository;
+        private readonly IBlockHeaderContext _blockHeaderContext;
+
+        //private readonly IRepository _repository;
         public static event EventHandler<Block> PersistCompleted;
 
         /// <summary>
@@ -51,7 +54,7 @@ namespace NeoSharp.Core.Blockchain
             NextConsensus = GetConsensusAddress(StandbyValidators),
             Script = new Witness
             {
-                InvocationScript = string.Empty,
+                InvocationScript = new byte[0],
                 VerificationScript = new byte[0] // new[] { (byte)OpCode.PUSHT }
             },
             Transactions = new Transaction[]
@@ -91,9 +94,9 @@ namespace NeoSharp.Core.Blockchain
             }
         };
 
-        public Blockchain(IRepository repository)
+        public Blockchain(IBlockHeaderContext blockHeaderContext)
         {
-            _repository = repository;
+            _blockHeaderContext = blockHeaderContext;
 
             // TODO: Uncomment when we figure out transactions in genesis block
             // GenesisBlock.MerkleRoot = MerkleTree.ComputeRoot(GenesisBlock.Transactions.Select(p => p.Hash).ToArray());
@@ -108,7 +111,7 @@ namespace NeoSharp.Core.Blockchain
 
         static int TransactionComparer(Stamp<Transaction> a, Stamp<Transaction> b)
         {
-            int c = a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
+            int c = 0;// TODO: by fee a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
             if (c == 0)
             {
                 // TODO: Check ASC or DESC
@@ -176,7 +179,7 @@ namespace NeoSharp.Core.Blockchain
             //List<SpentCoin> unclaimed = new List<SpentCoin>();
             //foreach (var group in inputs.GroupBy(p => p.PrevHash))
             //{
-            //    Transaction tx = Default.GetTransaction(group.Key, out int height_start);
+            //    Transaction tx = Default.GetTransactionByHash(group.Key, out int height_start);
             //    if (tx == null) throw new ArgumentException();
             //    if (height_start == height_end) continue;
             //    foreach (CoinReference claim in group)
@@ -383,7 +386,7 @@ namespace NeoSharp.Core.Blockchain
             //    }
             //    foreach (var group in tx.Inputs.GroupBy(p => p.PrevHash))
             //    {
-            //        Transaction tx_prev = GetTransaction(group.Key, out int height);
+            //        Transaction tx_prev = GetTransactionByHash(group.Key, out int height);
             //        foreach (CoinReference input in group)
             //        {
             //            TransactionOutput out_prev = tx_prev.Outputs[input.PrevIndex];

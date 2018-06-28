@@ -8,6 +8,10 @@ namespace NeoSharp.Core.Cryptography
 {
     public abstract class ICrypto
     {
+        // TODO: When we solve the injection problem we can remove this
+
+        public static readonly ICrypto Default = new BouncyCastleCrypto();
+
         /// <summary>
         /// base58 Alphabet
         /// </summary>
@@ -136,6 +140,23 @@ namespace NeoSharp.Core.Cryptography
         public abstract byte[] Sign(byte[] message, byte[] prikey);
 
         /// <summary>
+        /// Derive Public Key from private
+        /// </summary>
+        /// <param name="privateKey">Private Key</param>
+        /// <param name="compress">Compress pubkey</param>
+        /// <returns>Bytearray Public Key</returns>
+        public abstract byte[] ComputePublicKey(byte[] privateKey, bool compress);
+
+        /// <summary>
+        /// Decode Public key
+        /// </summary>
+        /// <param name="encodedPK">Data</param>
+        /// <param name="compress">Compress</param>
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        public abstract byte[] DecodePublicKey(byte[] encodedPK, bool compress, out BigInteger x, out BigInteger y);
+
+        /// <summary>
         /// Encrypt using ECB
         /// </summary>
         /// <param name="data">Data</param>
@@ -174,9 +195,9 @@ namespace NeoSharp.Core.Cryptography
         /// </summary>
         /// <param name="P">Password</param>
         /// <param name="S">Salt</param>
-        /// <param name="N">Cost</param>
-        /// <param name="r">Block size</param>
-        /// <param name="p">Parallelization</param>
+        /// <param name="N">CPU/Memory cost parameter. Must be larger than 1, a power of 2 and less than 2^(128 * r / 8).</param>
+        /// <param name="r">Block size, must be >= 1.</param>
+        /// <param name="p">Parallelization. Must be a positive integer less than or equal to Int32.MaxValue / (128 * r * 8).</param>
         /// <param name="dkLen">Generate key length</param>
         public abstract byte[] SCrypt(byte[] P, byte[] S, int N, int r, int p, int dkLen);
 
@@ -262,6 +283,5 @@ namespace NeoSharp.Core.Cryptography
                 throw new FormatException();
             return buffer.Take(buffer.Length - 4).ToArray();
         }
-
     }
 }
