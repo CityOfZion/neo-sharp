@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
@@ -45,12 +46,12 @@ namespace NeoSharp.Core.Network
             IServerContext serverContext,
             IPeerMessageListener peerMessageListener)
         {
-            if (config == null) throw new ArgumentNullException(nameof(config));
-            _peerFactory = peerFactory ?? throw new ArgumentNullException(nameof(peerFactory));
-            _peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
-            _peerMessageListener = peerMessageListener ?? throw new ArgumentNullException(nameof(peerMessageListener));
+            Guard.ThrowIfNull(config, nameof(config));
+            _peerFactory = Guard.ThrowIfNull(peerFactory, nameof(peerFactory));
+            _peerListener = Guard.ThrowIfNull(peerListener, nameof(peerListener));
+            _logger = Guard.ThrowIfNull(logger, nameof(logger));
+            _serverContext = Guard.ThrowIfNull(serverContext, nameof(serverContext));
+            _peerMessageListener = Guard.ThrowIfNull(peerMessageListener, nameof(peerMessageListener));
 
             _peerListener.OnPeerConnected += PeerConnected;
 
