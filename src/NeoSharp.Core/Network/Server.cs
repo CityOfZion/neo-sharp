@@ -12,7 +12,16 @@ namespace NeoSharp.Core.Network
 {
     public class Server : IServer, IDisposable
     {
+        #region Properties
+
+        public bool IsStarted => _isStarted;
+
+        #endregion
+
         #region Variables
+
+        private bool _isStarted;
+
         private readonly ILogger<Server> _logger;
         private readonly IServerContext _serverContext;
         private readonly IPeerMessageListener _peerMessageListener;
@@ -27,6 +36,7 @@ namespace NeoSharp.Core.Network
         // ReSharper disable once NotAccessedField.Local
         private readonly IList<IPEndPoint> _failedPeers;
         private readonly EndPoint[] _peerEndPoints;
+
         #endregion
 
         #region Constructor
@@ -68,6 +78,7 @@ namespace NeoSharp.Core.Network
 
             // TODO: Change after port forwarding implementation
             _peerEndPoints = config.PeerEndPoints;
+            _isStarted = false;
         }
 
         #endregion
@@ -80,7 +91,11 @@ namespace NeoSharp.Core.Network
         /// <inheritdoc />
         public void Start()
         {
+            if (_isStarted) return;
+
             Stop();
+
+            _isStarted = true;
 
             // connect to peers
             ConnectToPeers(_peerEndPoints);
@@ -92,6 +107,10 @@ namespace NeoSharp.Core.Network
         /// <inheritdoc />
         public void Stop()
         {
+            if (!_isStarted) return;
+
+            _isStarted = false;
+
             _peerListener.Stop();
 
             DisconnectPeers();

@@ -8,6 +8,13 @@ namespace NeoSharp.Core.Network
 {
     public class ServerContext : IServerContext
     {
+        #region Consts
+
+        const uint PROTOCOL_VERSION = 0;
+        const ulong NODE_NETWORK = 1;
+
+        #endregion
+
         #region Variables
 
         /// <summary>
@@ -49,13 +56,12 @@ namespace NeoSharp.Core.Network
 
             _version = new VersionPayload
             {
-                Version = 2,
-                // TODO: What's it?
-                // Services = NetworkAddressWithTime.NODE_NETWORK;
+                Version = PROTOCOL_VERSION,
+                Services = NODE_NETWORK,
                 Timestamp = DateTime.UtcNow.ToTimestamp(),
                 Port = config.Port,
                 Nonce = (uint)new Random(Environment.TickCount).Next(),
-                UserAgent = $"/NEO:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/",
+                UserAgent = $"/NEO-Sharp:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/",
                 CurrentBlockIndex = _blockchain.CurrentBlock?.Index ?? 0,
                 Relay = true
             };

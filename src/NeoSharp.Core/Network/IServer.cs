@@ -5,6 +5,11 @@ namespace NeoSharp.Core.Network
     public interface IServer : IBroadcast
     {
         /// <summary>
+        /// Is started
+        /// </summary>
+        bool IsStarted { get; }
+
+        /// <summary>
         /// Connected peers
         /// </summary>
         IReadOnlyCollection<IPeer> ConnectedPeers { get; }
