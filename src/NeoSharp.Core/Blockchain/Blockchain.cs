@@ -1,10 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NeoSharp.Core.Caching;
-using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence.Contexts;
 using NeoSharp.Core.Types;
@@ -28,71 +27,11 @@ namespace NeoSharp.Core.Blockchain
         /// The interval at which each block is generated, in seconds
         /// </summary>
         public const uint SecondsPerBlock = 15;
-        public const uint DecrementInterval = 2000000;
-        public const uint MaxValidators = 1024;
-        public static readonly uint[] GenerationAmount = { 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
         /// <summary>
         /// Generate interval for each block
         /// </summary>
         public static readonly TimeSpan TimePerBlock = TimeSpan.FromSeconds(SecondsPerBlock);
-
-        /// <summary>
-        /// TODO: write desc
-        /// </summary>
-        public static readonly ECPoint[] StandbyValidators = new ECPoint[0]; // read from Config.StandbyValidators.OfType<string>().Select(p => ECPoint.DecodePoint(p.HexToBytes(), ECCurve.Secp256r1)).ToArray();
-
-        /// <summary>
-        /// GenesisBlock
-        /// </summary>
-        public static readonly Block GenesisBlock = new Block
-        {
-            PreviousBlockHash = UInt256.Zero,
-            Timestamp = new DateTime(2016, 7, 15, 15, 8, 21, DateTimeKind.Utc).ToTimestamp(),
-            Index = 0,
-            ConsensusData = 2083236893, //Pay tribute to Bitcoin
-            NextConsensus = GetConsensusAddress(StandbyValidators),
-            Script = new Witness
-            {
-                InvocationScript = new byte[0],
-                VerificationScript = new byte[0] // new[] { (byte)OpCode.PUSHT }
-            },
-            Transactions = new Transaction[]
-            {
-                //new MinerTransaction
-                //{
-                //    Nonce = 2083236893,
-                //    Attributes = new TransactionAttribute[0],
-                //    Inputs = new CoinReference[0],
-                //    Outputs = new TransactionOutput[0],
-                //    Scripts = new Witness[0]
-                //},
-                //GoverningToken,
-                //UtilityToken,
-                //new IssueTransaction
-                //{
-                //    Attributes = new TransactionAttribute[0],
-                //    Inputs = new CoinReference[0],
-                //    Outputs = new[]
-                //    {
-                //        new TransactionOutput
-                //        {
-                //            AssetId = GoverningToken.Hash,
-                //            Value = GoverningToken.Amount,
-                //            ScriptHash = Contract.CreateMultiSigRedeemScript(StandbyValidators.Length / 2 + 1, StandbyValidators).ToScriptHash()
-                //        }
-                //    },
-                //    Scripts = new[]
-                //    {
-                //        new Witness
-                //        {
-                //            InvocationScript = new byte[0],
-                //            VerificationScript = new[] { (byte)OpCode.PUSHT }
-                //        }
-                //    }
-                //}
-            }
-        };
 
         public Blockchain(IBlockHeaderContext blockHeaderContext)
         {
@@ -101,8 +40,10 @@ namespace NeoSharp.Core.Blockchain
             // TODO: Uncomment when we figure out transactions in genesis block
             // GenesisBlock.MerkleRoot = MerkleTree.ComputeRoot(GenesisBlock.Transactions.Select(p => p.Hash).ToArray());
 
-            CurrentBlock = GenesisBlock;
-            LastBlockHeader = GenesisBlock;
+            if (CurrentBlock == null)
+            {
+                AddBlock(Genesis.GenesisBlock);
+            }
         }
 
         public Block CurrentBlock { get; private set; }
