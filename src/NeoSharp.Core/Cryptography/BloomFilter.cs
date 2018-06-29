@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
-using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Cryptography
 {
@@ -38,7 +37,7 @@ namespace NeoSharp.Core.Cryptography
         /// <param name="element">Element</param>
         public void Add(byte[] element)
         {
-            foreach (uint i in _seeds.AsParallel().Select(s => _crypto.Murmur32(element, s)))
+            foreach (var i in _seeds.AsParallel().Select(s => _crypto.Murmur32(element, s)))
                 _bits.Set((int)(i % (uint)_bits.Length), true);
         }
 
@@ -49,7 +48,7 @@ namespace NeoSharp.Core.Cryptography
         /// <returns>If probably present</returns>
         public bool Check(byte[] element)
         {
-            foreach (uint i in _seeds.AsParallel().Select(s => _crypto.Murmur32(element, s)))
+            foreach (var i in _seeds.AsParallel().Select(s => _crypto.Murmur32(element, s)))
                 if (!_bits.Get((int)(i % (uint)_bits.Length)))
                     return false;
             return true;

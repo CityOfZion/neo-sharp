@@ -37,7 +37,7 @@ namespace NeoSharp.Core.Messaging.Handlers
                 .Select(tx => tx.Value.Hash)
                 .ToArray();
 
-            await sender.Send(new InventoryMessage(InventoryType.Tx, hashes));
+            await sender.Send(new InventoryMessage(InventoryType.Transaction, hashes));
         }
     }
 }

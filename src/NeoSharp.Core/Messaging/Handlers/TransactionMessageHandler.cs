@@ -5,11 +5,11 @@ using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class TxMessageHandler : InventoryMessageHandler<TxMessage>
+    public class TransactionMessageHandler : InventoryMessageHandler<TransactionMessage>
     {
         #region Variables
 
-        private readonly ILogger<TxMessageHandler> _logger;
+        private readonly ILogger<TransactionMessageHandler> _logger;
 
         #endregion
 
@@ -18,7 +18,7 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// </summary>
         /// <param name="broadcast">Broadcast</param>
         /// <param name="logger">Logger</param>
-        public TxMessageHandler(IBroadcast broadcast, ILogger<TxMessageHandler> logger) : base(broadcast)
+        public TransactionMessageHandler(IBroadcast broadcast, ILogger<TransactionMessageHandler> logger) : base(broadcast)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

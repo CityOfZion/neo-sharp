@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using NeoSharp.Core.Persistence.Contexts;
 
 namespace NeoSharp.Core.Blockchain
@@ -301,6 +302,11 @@ namespace NeoSharp.Core.Blockchain
             return null;
         }
 
+        public Task<IReadOnlyCollection<Block>> GetBlocks(IReadOnlyCollection<UInt256> blockHashes)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Returns the hash of the corresponding block based on the specified height
         /// </summary>
@@ -519,6 +525,11 @@ namespace NeoSharp.Core.Blockchain
         {
             height = 0;
             return null;
+        }
+
+        public Task<IReadOnlyCollection<Transaction>> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes)
+        {
+            throw new NotImplementedException();
         }
 
         //public Dictionary<ushort, SpentCoin> GetUnclaimed(UInt256 hash);

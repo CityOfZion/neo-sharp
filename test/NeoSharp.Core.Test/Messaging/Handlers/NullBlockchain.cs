@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Models;
@@ -58,6 +59,11 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
+        public Task<IReadOnlyCollection<Block>> GetBlocks(IReadOnlyCollection<UInt256> blockHashes)
+        {
+            throw new NotImplementedException();
+        }
+
         public UInt256 GetBlockHash(uint height)
         {
             throw new NotImplementedException();
@@ -109,6 +115,11 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
         }
 
         public Transaction GetTransaction(UInt256 hash, out int height)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IReadOnlyCollection<Transaction>> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes)
         {
             throw new NotImplementedException();
         }

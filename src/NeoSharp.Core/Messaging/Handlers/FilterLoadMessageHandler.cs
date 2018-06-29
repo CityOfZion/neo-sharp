@@ -35,8 +35,14 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// <returns>Task</returns>
         public async Task Handle(FilterLoadMessage message, IPeer sender)
         {
-            sender.BloomFilter = new BloomFilter(_crypto,
-                message.Payload.Filter.Length * 2, message.Payload.K, message.Payload.Tweak, message.Payload.Filter);
+            var payload = message.Payload;
+
+            sender.BloomFilter = new BloomFilter(
+                _crypto,
+                payload.Filter.Length * 2,
+                payload.K,
+                payload.Tweak,
+                payload.Filter);
 
             await Task.CompletedTask;
         }

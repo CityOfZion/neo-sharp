@@ -26,8 +26,7 @@ namespace NeoSharp.Core.Messaging
         getaddr = 0x08,
         [ReflectionCache(typeof(GetBlockHashesMessage))]
         getblocks = 0x09,
-        [ReflectionCache(typeof(GetDataMessage))]
-        getdata = 0x0A,
+        // getdata = 0x0A,
         [ReflectionCache(typeof(GetBlockHeadersMessage))]
         getheaders = 0x0B,
 
@@ -43,7 +42,7 @@ namespace NeoSharp.Core.Messaging
         //pong = 0x11,
         //reject = 0x12,
 
-        [ReflectionCache(typeof(TxMessage))]
+        [ReflectionCache(typeof(TransactionMessage))]
         tx = 0x13,
 
         [ReflectionCache(typeof(VerAckMessage))]
