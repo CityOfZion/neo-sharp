@@ -26,9 +26,9 @@ namespace NeoSharp.Persistence.RocksDB.Tests
                 .Setup(x => x.Serialize(entity, null))
                 .Returns(serializedTEntity);
 
-            var dbContextMock = this.AutoMockContainer.GetMock<IDbContext>();
+            var dbContextMock = this.AutoMockContainer.GetMock<IDbBinaryContext>();
 
-            var testee = this.AutoMockContainer.Create<RocksDbModel>();
+            var testee = this.AutoMockContainer.Create<RocksDbBinaryModel>();
             testee.Create(DataEntryPrefix.DataBlock, entity.Hash, entity);
 
             dbContextMock.Verify(x => x.Create(key, serializedTEntity));

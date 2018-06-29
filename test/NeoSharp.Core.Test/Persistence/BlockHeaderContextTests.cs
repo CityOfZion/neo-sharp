@@ -19,7 +19,7 @@ namespace NeoSharp.Core.Test.Persistence
                 Hash = new UInt256(new byte[] { 157, 179, 60, 8, 66, 122, 255, 105, 126, 49, 180, 74, 212, 41, 126, 177, 14, 255, 59, 82, 218, 113, 248, 145, 98, 5, 128, 140, 42, 70, 32, 69 })
             };
 
-            var dbModelMock = this.AutoMockContainer.GetMock<IDbModel>();
+            var dbModelMock = this.AutoMockContainer.GetMock<IDbBinaryModel>();
 
             var testee = this.AutoMockContainer.Create<BlockHeaderContext>();
             testee.Add(blockHeader);

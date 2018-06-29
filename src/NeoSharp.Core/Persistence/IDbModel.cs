@@ -11,9 +11,9 @@ namespace NeoSharp.Core.Persistence
         Task Update<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash, TEntity entity)
             where TEntity : Entity;
 
-        Task DeleteByHash(DataEntryPrefix dataEntryPrefix, UInt256 hash);
-
-        Task<TEntity> GetByHash<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash)
+        Task<TEntity> Get<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash)
             where TEntity : Entity;
+
+        Task Delete(DataEntryPrefix dataEntryPrefix, UInt256 hash);
     }
 }

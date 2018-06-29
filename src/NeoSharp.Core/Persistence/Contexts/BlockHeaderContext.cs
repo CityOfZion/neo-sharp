@@ -26,14 +26,9 @@ namespace NeoSharp.Core.Persistence.Contexts
 
         public Task<BlockHeader> GetBlockHeaderByHash(UInt256 blockHeaderHash)
         {
-            return _model.GetByHash<BlockHeader>(DataEntryPrefix.DataBlock, blockHeaderHash);
+            return _model.Get<BlockHeader>(DataEntryPrefix.DataBlock, blockHeaderHash);
         }
 
-        // Is there any use case where this method is need???
-        //public async Task<byte[]> GetRawBlockHeader(UInt256 blockHash)
-        //{
-        //    return await _dbContext.GetByHash(blockHash.BuildKey(DataEntryPrefix.DataBlock));
-        //}
         #endregion
     }
 }

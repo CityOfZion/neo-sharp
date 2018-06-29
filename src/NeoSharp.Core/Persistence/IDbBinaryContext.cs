@@ -2,7 +2,7 @@
 
 namespace NeoSharp.Core.Persistence
 {
-    public interface IDbContext
+    public interface IDbBinaryContext
     {
         Task Create(byte[] key, byte[] content);
 
@@ -10,6 +10,6 @@ namespace NeoSharp.Core.Persistence
 
         Task Update(byte[] key, byte[] content);
 
-        Task<byte[]> GetByHash(byte[] hash);
+        Task<byte[]> Get(byte[] key);
     }
 }

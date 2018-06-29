@@ -6,17 +6,17 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Persistence.RocksDB
 {
-    public class RocksDbModel : IDbModel
+    public class RocksDbBinaryModel : IDbModel
     {
         #region Private Fields 
-        private readonly IDbContext _dbContext;
+        private readonly IDbBinaryContext _dbContext;
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
         #endregion
 
         #region Constructor 
-        public RocksDbModel(
-            IDbContext dbContext, 
+        public RocksDbBinaryModel(
+            IDbBinaryContext dbContext, 
             IBinarySerializer serializer, 
             IBinaryDeserializer deserializer)
         {
@@ -40,28 +40,31 @@ namespace NeoSharp.Persistence.RocksDB
             where TEntity : Entity
         {
             var key = BuildKey(dataEntryPrefix, hash);
+            var buffer = _serializer.Serialize(entity);
 
-            throw new NotImplementedException();
+            //Delete first, does RocksDB allow overwrite?
+            _dbContext.Delete(key);
+
+            return _dbContext.Create(key, buffer);
         }
 
-        public Task DeleteByHash(DataEntryPrefix dataEntryPrefix, UInt256 hash)
+        public Task Delete(DataEntryPrefix dataEntryPrefix, UInt256 hash)
         {
             var key = BuildKey(dataEntryPrefix, hash);
-
-            throw new NotImplementedException();
+            return _dbContext.Delete(key);
         }
 
-        public async Task<TEntity> GetByHash<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash) 
+        public async Task<TEntity> Get<TEntity>(DataEntryPrefix dataEntryPrefix, UInt256 hash) 
             where TEntity : Entity
         {
             var key = BuildKey(dataEntryPrefix, hash);
-            var buffer = await _dbContext.GetByHash(key);
+            var buffer = await _dbContext.Get(key);
 
             return (TEntity)_deserializer.Deserialize(buffer, typeof(TEntity));
         }
         #endregion
 
-        private static byte[] BuildKey(DataEntryPrefix dataEntryPrefix, UInt256 hash)
+        private byte[] BuildKey(DataEntryPrefix dataEntryPrefix, UInt256 hash)
         {
             return hash.BuildKey(dataEntryPrefix);
         }

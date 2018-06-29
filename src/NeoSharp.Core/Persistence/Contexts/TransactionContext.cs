@@ -37,7 +37,7 @@ namespace NeoSharp.Core.Persistence.Contexts
 
         public Task<Transaction> GetTransactionByHash(UInt256 transactionHash)
         {
-            return _model.GetByHash<Transaction>(DataEntryPrefix.DataTransaction, transactionHash);
+            return _model.Get<Transaction>(DataEntryPrefix.DataTransaction, transactionHash);
         }
 
         public Task<IEnumerable<Transaction>> GetTransactionsForBlock(UInt256 blockHeaderHash)

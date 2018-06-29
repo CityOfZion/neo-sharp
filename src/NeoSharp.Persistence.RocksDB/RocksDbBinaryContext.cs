@@ -5,7 +5,7 @@ using RocksDbSharp;
 
 namespace NeoSharp.Persistence.RocksDB
 {
-    public class RocksDbContext : IDbContext
+    public class RocksDbBinaryContext : IDbBinaryContext
     {
         #region Private Fields 
         private readonly IRepositoryConfiguration _config;
@@ -15,7 +15,7 @@ namespace NeoSharp.Persistence.RocksDB
 
         #region Constructor 
 
-        public RocksDbContext(IRepositoryConfiguration config)
+        public RocksDbBinaryContext(IRepositoryConfiguration config)
         {
             _config = config;
         }
@@ -38,6 +38,7 @@ namespace NeoSharp.Persistence.RocksDB
             return taskCompletionSource.Task;
         }
 
+ 
         public Task Delete(byte[] key)
         {
             var taskCompletionSource = new TaskCompletionSource<object>();
@@ -60,7 +61,7 @@ namespace NeoSharp.Persistence.RocksDB
             throw new NotImplementedException();
         }
 
-        public Task<byte[]> GetByHash(byte[] hash)
+        public Task<byte[]> Get(byte[] key)
         {
             var taskCompletionSource = new TaskCompletionSource<byte[]>();
 
@@ -68,7 +69,7 @@ namespace NeoSharp.Persistence.RocksDB
             {
                 CheckAndCreateIfNecessaryTheConnectionHandler();
 
-                var rawContent = _rocksDbConnectionHandler.Get(hash);
+                var rawContent = _rocksDbConnectionHandler.Get(key);
                 taskCompletionSource.SetResult(rawContent);
             });
 
