@@ -99,11 +99,10 @@ namespace NeoSharp.Application.Attributes
 
             // Fill default parameters
 
-            for (var x = 0; x < maxPars; x++)
+            for (var x = 0; x < ret.Length; x++)
                 if (Parameters[x].HasDefaultValue)
                 {
                     ret[x] = Parameters[x].DefaultValue;
-                    maxPars = x;
                 }
 
             // Fill argument values

@@ -52,6 +52,32 @@ namespace NeoSharp.Core.Blockchain
         MetaDataCache<T> GetMetaData<T>() where T : class, ISerializable, new();
 
         /// <summary>
+        /// Return the corresponding asset information according to the specified hash
+        /// </summary>
+        /// <param name="hash">Hash</param>
+        /// <returns></returns>
+        Asset GetAsset(UInt256 hash);
+
+        /// <summary>
+        /// Return the corresponding contract information according to the specified hash
+        /// </summary>
+        /// <param name="hash">Hash</param>
+        /// <returns></returns>
+        Contract GetContract(UInt256 hash);
+
+        /// <summary>
+        /// Return all contracts
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<Contract> GetContracts();
+
+        /// <summary>
+        /// Return all assets
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<Asset> GetAssets();
+
+        /// <summary>
         /// Return the corresponding block information according to the specified height
         /// </summary>
         /// <param name="height"></param>

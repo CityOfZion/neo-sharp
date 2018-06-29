@@ -270,6 +270,12 @@ namespace NeoSharp.Application.Client
         /// <param name="output">Output</param>
         private void WriteObject(object obj, PromptOutputStyle output)
         {
+            if (obj == null)
+            {
+                _consoleWriter.WriteLine("NULL", ConsoleOutputStyle.Error);
+                return;
+            }
+
             switch (output)
             {
                 case PromptOutputStyle.json:
