@@ -24,17 +24,16 @@ namespace NeoSharp.Core.Network
         /// <summary>
         /// Acl Config
         /// </summary>
-        public NetworkAclConfig Acl { get; internal set; }
+        public NetworkAclConfig AclConfig { get; internal set; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="configuration">Configuration</param>
-        /// <param name="aclLoader">ACL Loader</param>
-        public NetworkConfig(IConfiguration configuration, INetworkAclLoader aclLoader)
+        public NetworkConfig(IConfiguration configuration)
         {
             PeerEndPoints = new EndPoint[0];
-            configuration?.GetSection("network")?.Bind(this, aclLoader);
+            configuration?.GetSection("network")?.Bind(this);
         }
     }
 }

@@ -11,16 +11,13 @@ namespace NeoSharp.Core.Network
     {
         private const int DefaultMagic = 7630401;
 
-        public static void Bind(this IConfiguration config, NetworkConfig networkConfig, INetworkAclLoader aclLoader)
+        public static void Bind(this IConfiguration config, NetworkConfig networkConfig)
         {
             networkConfig.Magic = ParseUInt32(config, "magic", DefaultMagic);
             networkConfig.Port = ParseUInt16(config, "port");
             networkConfig.ForceIPv6 = ParseBool(config, "forceIPv6");
-
-            var aclConfig = ParseAcl(config, "acl");
-            networkConfig.Acl = aclConfig;
-
-            networkConfig.PeerEndPoints = ParsePeerEndPoints(config, aclLoader.Load(aclConfig) ?? NetworkAcl.Default);
+            networkConfig.AclConfig = ParseAcl(config, "acl");
+            networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
         }
 
         public static void Bind(this IConfiguration config, RpcConfig rpcConfig)
@@ -32,7 +29,7 @@ namespace NeoSharp.Core.Network
             var sslSection = config?.GetSection("ssl");
             rpcConfig.Ssl.Path = ParseString(sslSection, "path");
             rpcConfig.Ssl.Password = ParseString(sslSection, "password");
-            rpcConfig.Acl = ParseAcl(config, "acl");
+            rpcConfig.AclConfig = ParseAcl(config, "acl");
         }
 
         private static uint ParseUInt32(IConfiguration config, string section, uint defaultValue = 0)
@@ -71,14 +68,13 @@ namespace NeoSharp.Core.Network
             return defaultValue;
         }
 
-        private static EndPoint[] ParsePeerEndPoints(IConfiguration config, NetworkAcl acl)
+        private static EndPoint[] ParsePeerEndPoints(IConfiguration config)
         {
             var peerEndPoints = config.GetSection("peerEndPoints")?.Get<string[]>().Distinct();
             if (peerEndPoints == null) return new EndPoint[0];
 
             return peerEndPoints
                 .Select(EndPoint.Parse)
-                .Where(acl.IsAllowed)
                 .ToArray();
         }
 

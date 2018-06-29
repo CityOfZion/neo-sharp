@@ -3,10 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {
@@ -18,6 +18,7 @@ namespace NeoSharp.Core.Network
         private readonly IPeerMessageListener _peerMessageListener;
         private readonly IPeerFactory _peerFactory;
         private readonly IPeerListener _peerListener;
+        private readonly NetworkAcl _acl;
 
         // if we successfully connect with a peer it is inserted into this list
         private readonly ConcurrentBag<IPeer> _connectedPeers;
@@ -29,29 +30,36 @@ namespace NeoSharp.Core.Network
         #endregion
 
         #region Constructor
+
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="config">Network config</param>
-        /// <param name="peerFactory">PeerFactory</param>
-        /// <param name="peerListener">PeerListener</param>
+        /// <param name="config">Network configuration</param>
+        /// <param name="peerFactory">Factory to create peers from endpoints</param>
+        /// <param name="peerListener">Listener to accept peer connections</param>
+        /// <param name="aclLoader">ACL loader to define access</param>
         /// <param name="logger">Logger</param>
         /// <param name="serverContext">Server context</param>
-        /// <param name="peerMessageListener"></param>
+        /// <param name="peerMessageListener">PeerMessageListener</param>
         public Server(
             NetworkConfig config,
             IPeerFactory peerFactory,
             IPeerListener peerListener,
+            INetworkAclLoader aclLoader,
             ILogger<Server> logger,
             IServerContext serverContext,
             IPeerMessageListener peerMessageListener)
         {
-            Guard.ThrowIfNull(config, nameof(config));
-            _peerFactory = Guard.ThrowIfNull(peerFactory, nameof(peerFactory));
-            _peerListener = Guard.ThrowIfNull(peerListener, nameof(peerListener));
-            _logger = Guard.ThrowIfNull(logger, nameof(logger));
-            _serverContext = Guard.ThrowIfNull(serverContext, nameof(serverContext));
-            _peerMessageListener = Guard.ThrowIfNull(peerMessageListener, nameof(peerMessageListener));
+            if (config == null) throw new ArgumentNullException(nameof(config));
+            _peerFactory = peerFactory ?? throw new ArgumentNullException(nameof(peerFactory));
+            _peerListener = peerListener ?? throw new ArgumentNullException(nameof(peerListener));
+
+            if (aclLoader == null) throw new ArgumentNullException(nameof(aclLoader));
+            _acl = aclLoader.Load(config.AclConfig) ?? NetworkAcl.Default;
+
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
+            _peerMessageListener = peerMessageListener ?? throw new ArgumentNullException(nameof(peerMessageListener));
 
             _peerListener.OnPeerConnected += PeerConnected;
 
@@ -61,6 +69,7 @@ namespace NeoSharp.Core.Network
             // TODO: Change after port forwarding implementation
             _peerEndPoints = config.PeerEndPoints;
         }
+
         #endregion
 
         #region IServer implementation
@@ -144,6 +153,11 @@ namespace NeoSharp.Core.Network
         {
             try
             {
+                if (_acl.IsAllowed(peer.EndPoint) == false)
+                {
+                    throw new UnauthorizedAccessException($"The endpoint \"{peer.EndPoint}\" is prohibited by ACL.");
+                }
+
                 _connectedPeers.Add(peer);
 
                 _peerMessageListener.StartListen(peer);

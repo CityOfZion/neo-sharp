@@ -37,7 +37,7 @@ namespace NeoSharp.Core.Network.Rpc
         /// <summary>
         /// Acl Config
         /// </summary>
-        public NetworkAclConfig Acl { get; internal set; }
+        public NetworkAclConfig AclConfig { get; internal set; }
 
         /// <summary>
         /// Constructor

@@ -28,7 +28,7 @@ namespace NeoSharp.Core.Network.Rpc
         private readonly RpcConfig _config;
         private readonly IBlockchain _blockchain;
         private readonly ILogger<RpcServer> _logger;
-        private readonly IList<IRpcProcessRequest> _callbacks;
+        private readonly IList<IRpcProcessRequest> _callbacks = new List<IRpcProcessRequest>();
 
         #endregion
 
@@ -48,10 +48,9 @@ namespace NeoSharp.Core.Network.Rpc
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            if (aclLoader == null) throw new ArgumentNullException(nameof(aclLoader));
 
-            _acl = aclLoader.Load(config.Acl) ?? NetworkAcl.Default;
-            _callbacks = new List<IRpcProcessRequest>();
+            if (aclLoader == null) throw new ArgumentNullException(nameof(aclLoader));
+            _acl = aclLoader.Load(config.AclConfig) ?? NetworkAcl.Default;
         }
 
         private static JObject CreateErrorResponse(string id, int code, string message, object error = null)
@@ -133,14 +132,14 @@ namespace NeoSharp.Core.Network.Rpc
             {
                 // Allow only GET and POST
 
-                if (context.Request.Method == "GET")
+                if (HttpMethods.Get.Equals(context.Request.Method, StringComparison.OrdinalIgnoreCase))
                 {
                     request.JsonRpc = context.Request.Query["jsonrpc"];
                     request.Id = context.Request.Query["id"];
                     request.Method = context.Request.Query["method"];
                     request.SetParams(context.Request.Query["params"]);
                 }
-                else if (context.Request.Method == "POST")
+                else if (HttpMethods.Post.Equals(context.Request.Method, StringComparison.OrdinalIgnoreCase))
                 {
                     string post;
 

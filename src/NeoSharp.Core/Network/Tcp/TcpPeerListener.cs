@@ -3,13 +3,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using NeoSharp.Core.Logging;
-using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network.Tcp
 {
     public class TcpPeerListener : IPeerListener, IDisposable
     {
-        private readonly NetworkAcl _acl;
         private readonly ITcpPeerFactory _peerFactory;
         private readonly ILogger<TcpPeerListener> _logger;
         private readonly TcpListener _listener;
@@ -18,13 +16,9 @@ namespace NeoSharp.Core.Network.Tcp
 
         public TcpPeerListener(
             NetworkConfig config,
-            INetworkAclLoader aclLoader,
             ITcpPeerFactory peerFactory,
             ILogger<TcpPeerListener> logger)
         {
-            if (aclLoader == null) throw new ArgumentNullException(nameof(aclLoader));
-
-            _acl = aclLoader.Load(config.Acl) ?? NetworkAcl.Default;
             _peerFactory = peerFactory;
             _logger = logger;
             _listener = new TcpListener(IPAddress.Any, config.Port);
@@ -61,11 +55,6 @@ namespace NeoSharp.Core.Network.Tcp
                     socket = await _listener.AcceptSocketAsync();
 
                     var ipEndPoint = (IPEndPoint)socket.RemoteEndPoint;
-
-                    if (_acl.IsAllowed(ipEndPoint.Address) == false)
-                    {
-                        throw new UnauthorizedAccessException();
-                    }
 
                     _logger.LogInformation($"\"{ipEndPoint.Address}\" is connected");
                 }
