@@ -1,6 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
-using NeoSharp.Core.Types.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NeoSharp.Core.Network.Security
 {
@@ -16,17 +16,17 @@ namespace NeoSharp.Core.Network.Security
             if (!string.IsNullOrEmpty(config.Path) && File.Exists(config.Path))
             {
                 var json = File.ReadAllText(config.Path);
-                var jObject = JObject.Parse(json);
+                var jToken = JToken.Parse(json);
 
-                if (jObject is JArray jArray)
+                if (jToken is JArray jArray)
                 {
                     entries = jArray
-                        .Where(it => it.ContainsProperty("value"))
+                        .Where(it => it["value"] != null)
                         .Select(it =>
                         {
-                            var value = it.Properties["value"].AsString();
+                            var value = (string)it["value"];
 
-                            if (it.ContainsProperty("regex") && it.Properties["regex"].AsBooleanOrDefault())
+                            if ((bool?)it["regex"] ?? false)
                                 return new NetworkAcl.RegexEntry(value);
 
                             return new NetworkAcl.Entry(value);
