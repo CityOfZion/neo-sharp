@@ -1,4 +1,5 @@
 ﻿using NeoSharp.BinarySerialization;
+using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 using System;
@@ -8,10 +9,10 @@ namespace NeoSharp.Core.Models
     [Serializable]
     public class Contract
     {
-        public string Hash => Code?.Hash;
+        public UInt160 ScriptHash => Code?.ScriptHash;
         public string Script => Code?.Script;
-        public string[] Parameters => Code?.Parameters;
-        public string ReturnType => Code?.ReturnType;
+        public ContractParameterType[] Parameters => Code?.Parameters;
+        public ContractParameterType ReturnType => (ContractParameterType)Code?.ReturnType;
 
         [BinaryProperty(1)]
         [JsonProperty("code")]

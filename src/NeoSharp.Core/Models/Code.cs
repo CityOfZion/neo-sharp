@@ -1,5 +1,7 @@
 ﻿using System;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.SmartContract;
+using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models
@@ -9,7 +11,7 @@ namespace NeoSharp.Core.Models
     {
         [BinaryProperty(1)]
         [JsonProperty("hash")]
-        public string Hash;
+        public UInt160 ScriptHash;
 
         [BinaryProperty(2)]
         [JsonProperty("script")]
@@ -17,10 +19,10 @@ namespace NeoSharp.Core.Models
 
         [BinaryProperty(3)]
         [JsonProperty("returntype")]
-        public string ReturnType;
+        public ContractParameterType ReturnType;
 
         [BinaryProperty(4)]
         [JsonProperty("parameters")]
-        public string[] Parameters = new string[0];
+        public ContractParameterType[] Parameters = new ContractParameterType[0];
     }
 }
