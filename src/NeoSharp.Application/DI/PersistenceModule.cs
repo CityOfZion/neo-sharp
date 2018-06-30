@@ -1,6 +1,5 @@
 ﻿using NeoSharp.Core.DI;
 using NeoSharp.Core.Persistence;
-using NeoSharp.Core.Persistence.Contexts;
 using NeoSharp.Persistence.RocksDB;
 using NeoSharp.Persistence.RedisDB;
 
@@ -10,32 +9,45 @@ namespace NeoSharp.Application.DI
     {
         public void Register(IContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterSingleton<IRepositoryConfiguration, RocksDbConfiguration>();
-            //TODO: Register if configured to use Redis for either binary or json persistence
-            //containerBuilder.RegisterSingleton<IRepositoryConfiguration, RedisDbConfiguration>();
+            //TODO:  Instantiate the Binary or JSON Persistence providers based on configuration (will need to implement provider types in configuration files)
+            //Examples:
 
-            containerBuilder.RegisterSingleton<IBlockHeaderContext, BlockHeaderContext>();
-            containerBuilder.RegisterSingleton<ITransactionContext, TransactionContext>();
+            ////Binary storage provider config
+            //if (BinaryStorageProvider == RocksDb)
+            //{
+            //    var config = new RocksDbConfiguration
+            //    {
+            //        ConnectionString = "localhost",
+            //        StorageFormat = RepositoryPersistenceFormat.Binary
+            //    };
 
-            //TODO: Register our persistence types based on the configuration for binary and JSON
-            //TODO: These should not be singleton
-            //if (BinaryPersistenceContect = Rocks)
-            //{
-                containerBuilder.RegisterSingleton<IDbModel, RocksDbBinaryModel>();
-                containerBuilder.RegisterSingleton<IDbBinaryContext, RocksDbBinaryContext>();
+            //    new RocksDbRepository();
             //}
-            //else if (BinaryPersistenceContext == Redis)
+            //else if (BinaryStorageProvider == RedisDb)
             //{
-            //    ConfigurationModule.RedisConnectionString->Redis Server B
-            //    containerBuilder.RegisterSingleton<IDbBinaryModel, RedisBinaryDbModel>();
-            //    containerBuilder.RegisterSingleton<IDbBinaryContext, RedisBinaryDbContext>();
+            //    var config = new RedisDbConfiguration
+            //    {
+            //        ConnectionString = "localhost",
+            //        DatabaseId = 0,
+            //        StorageFormat = RepositoryPersistenceFormat.Binary
+            //    };
+
+            //    new RedisDbRepository();
             //}
 
-            //if (JsonPersistenceContext = Redis)
+            ////Json storage provider config
+            //if (JsonStorageProvider == RedisDB)
             //{
-            //    containerBuilder.RegisterSingleton<IDbBinaryModel, RedisJsonDbModel>();
-            //    containerBuilder.RegisterSingleton<IDbJsonContext, RedisJsonDbContext>();
+            //    var config = new RedisDbConfiguration
+            //    {
+            //        ConnectionString = "localhost",
+            //        DatabaseId = 1, //If were going to use redis for both, we can change the id
+            //        StorageFormat = RepositoryPersistenceFormat.JSON
+            //    };
+
+            //    new RedisDbRepository();
             //}
+            //else if (JsonStorageProvider == MongoDB)
         }
     }
 }

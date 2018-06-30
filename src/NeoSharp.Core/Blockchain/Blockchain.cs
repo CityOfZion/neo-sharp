@@ -5,14 +5,14 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Persistence.Contexts;
+using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Blockchain
 {
     public class Blockchain : IDisposable, IBlockchain
     {
-        private readonly IBlockHeaderContext _blockHeaderContext;
+        private readonly IRepository _repository;
 
         //private readonly IRepository _repository;
         public static event EventHandler<Block> PersistCompleted;
@@ -33,9 +33,9 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         public static readonly TimeSpan TimePerBlock = TimeSpan.FromSeconds(SecondsPerBlock);
 
-        public Blockchain(IBlockHeaderContext blockHeaderContext)
+        public Blockchain(IRepository repository)
         {
-            _blockHeaderContext = blockHeaderContext;
+            _repository = repository;
 
             // TODO: Uncomment when we figure out transactions in genesis block
             // GenesisBlock.MerkleRoot = MerkleTree.ComputeRoot(GenesisBlock.Transactions.Select(p => p.Hash).ToArray());

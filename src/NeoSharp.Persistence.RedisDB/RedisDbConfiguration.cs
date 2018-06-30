@@ -9,5 +9,6 @@ namespace NeoSharp.Persistence.RedisDB
     {
         public string ConnectionString { get; set; }
         public object DatabaseId { get; set; }
+        public RepositoryPersistenceFormat StorageFormat { get; set; }
     }
 }

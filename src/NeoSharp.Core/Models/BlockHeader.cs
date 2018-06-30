@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 namespace NeoSharp.Core.Models
 {
     [Serializable]
-    public class BlockHeader : Entity
+    public class BlockHeader
     {
         #region Serializable data
 

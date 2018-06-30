@@ -15,5 +15,10 @@ namespace NeoSharp.Core.Persistence
         /// Database identifier (for repositories that support multiple databases like redis)
         /// </summary>
         object DatabaseId { get; set; }
+
+        /// <summary>
+        /// Storage format the repository uses to persist data
+        /// </summary>
+        RepositoryPersistenceFormat StorageFormat { get; set; }
     }
 }

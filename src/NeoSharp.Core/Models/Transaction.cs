@@ -12,7 +12,7 @@ namespace NeoSharp.Core.Models
 {
     [Serializable]
     [BinaryTypeSerializer(typeof(TransactionSerializer))]
-    public class Transaction : Entity, IBinaryVerifiable
+    public class Transaction : IBinaryVerifiable
     {
         #region Header
 

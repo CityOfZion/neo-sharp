@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.RocksD
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.RocksDB.Tests", "test\NeoSharp.Persistence.RocksDB.Tests\NeoSharp.Persistence.RocksDB.Tests.csproj", "{19E9505C-027B-47ED-B206-1682D6D88E33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Persistence.Redis.Tests", "test\NeoSharp.Persistence.Redis.Tests\NeoSharp.Persistence.Redis.Tests.csproj", "{21B0BA1B-2F87-47BC-AC1C-03C23508771F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{19E9505C-027B-47ED-B206-1682D6D88E33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19E9505C-027B-47ED-B206-1682D6D88E33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{19E9505C-027B-47ED-B206-1682D6D88E33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21B0BA1B-2F87-47BC-AC1C-03C23508771F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21B0BA1B-2F87-47BC-AC1C-03C23508771F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21B0BA1B-2F87-47BC-AC1C-03C23508771F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21B0BA1B-2F87-47BC-AC1C-03C23508771F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +115,7 @@ Global
 		{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30} = {049B9D65-5954-424B-8155-5726A60E24C5}
 		{24502C1E-AD52-4AC9-A83E-C7BAE373167C} = {049B9D65-5954-424B-8155-5726A60E24C5}
 		{19E9505C-027B-47ED-B206-1682D6D88E33} = {1E81559D-7119-409A-9F67-9621D78081E3}
+		{21B0BA1B-2F87-47BC-AC1C-03C23508771F} = {1E81559D-7119-409A-9F67-9621D78081E3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0C0EE31A-D025-404A-8D06-FB883C62C9AD}

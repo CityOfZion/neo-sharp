@@ -7,6 +7,8 @@ namespace NeoSharp.Persistence.RocksDB
     {
         public string ConnectionString { get; set; }
 
-        public object DatabaseId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+        public object DatabaseId { get; set; }
+
+        public RepositoryPersistenceFormat StorageFormat { get; set; }
     }
 }
