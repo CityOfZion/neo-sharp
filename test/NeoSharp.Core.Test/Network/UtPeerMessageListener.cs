@@ -55,7 +55,7 @@ namespace NeoSharp.Core.Test.Network
         //    server.Start();
         //    server.Stop();
 
-        //    // Asset
+        //    // Assert
         //    peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
         //    peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
         //    peerMock.Verify(x => x.Receive());
@@ -114,7 +114,7 @@ namespace NeoSharp.Core.Test.Network
 
         //    server.Stop();
 
-        //    // Asset
+        //    // Assert
         //    waitTimedOut.Should().BeTrue();
         //    peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
         //    peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
@@ -169,7 +169,7 @@ namespace NeoSharp.Core.Test.Network
 
         //    server.Stop();
 
-        //    // Asset
+        //    // Assert
         //    waitTimedOut.Should().BeTrue();
         //    peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
         //    peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
@@ -227,7 +227,7 @@ namespace NeoSharp.Core.Test.Network
 
         //    server.Stop();
 
-        //    // Asset
+        //    // Assert
         //    waitTimedOut.Should().BeTrue();
         //    peerMock.Verify(x => x.Send(new VerAckMessage()), Times.Never);
         //    peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);

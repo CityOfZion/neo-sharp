@@ -60,7 +60,7 @@ namespace NeoSharp.Core.Test.Network
             // Act
             server.Start();
 
-            // Asset
+            // Assert
             peerFactoryMock.Verify(x => x.ConnectTo(_peerEndPoint), Times.Once);
             peerListenerMock.Verify(x => x.Start(), Times.Once);
             peerMessageListenerMock.Verify(x => x.StartListen(peer), Times.Once);
@@ -87,7 +87,7 @@ namespace NeoSharp.Core.Test.Network
             // Act
             server.Start();
 
-            // Asset
+            // Assert
             peerFactoryMock.Verify(x => x.ConnectTo(_peerEndPoint), Times.Once);
             loggerMock.Verify(x => x.LogWarning(It.Is<string>(msg => msg.Contains(expectedLoggedWarningMessage))), Times.Once);
             peerListenerMock.Verify(x => x.Start(), Times.Once);        
@@ -126,7 +126,7 @@ namespace NeoSharp.Core.Test.Network
 
             server.Stop();
 
-            // Asset
+            // Assert
             peerMock.Verify(x => x.Disconnect(), Times.Once);
             peerListenerMock.Verify(x => x.Stop(), Times.AtLeastOnce);
         }
@@ -164,7 +164,7 @@ namespace NeoSharp.Core.Test.Network
 
             server.Dispose();
 
-            // Asset
+            // Assert
             peerMock.Verify(x => x.Disconnect(), Times.Once);
             peerListenerMock.Verify(x => x.Stop(), Times.AtLeastOnce);
         }

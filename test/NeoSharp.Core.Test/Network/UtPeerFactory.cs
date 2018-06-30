@@ -22,7 +22,7 @@ namespace NeoSharp.Core.Test.Network
             // Act
             peerFactory.ConnectTo(endPoint);
 
-            // Asset
+            // Assert
             tcpPeerFactoryMock.Verify(x => x.ConnectTo(It.IsAny<EndPoint>()), Times.Once);
         }
 
@@ -35,7 +35,7 @@ namespace NeoSharp.Core.Test.Network
             // Act
             Action a = () => peerFactory.ConnectTo(null);
 
-            // Asset
+            // Assert
             a.Should().Throw<ArgumentNullException>();
         }
 
@@ -49,7 +49,7 @@ namespace NeoSharp.Core.Test.Network
             // Act
             Action a = () => peerFactory.ConnectTo(endPoint);
 
-            // Asset
+            // Assert
             a.Should().Throw<NotSupportedException>();
         }
     }

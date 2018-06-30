@@ -26,8 +26,8 @@ namespace NeoSharp.Core.Test.Network.Security
             var acl = aclLoader.Load(cfg);
             File.Delete(tmpRules);
 
-            // Asset
-            for(var i= 0; i< 256; ++i)
+            // Assert
+            for (var i= 0; i< 256; ++i)
             {
                 acl.IsAllowed("192.168.6." + i).Should().BeTrue();
                 acl.IsAllowed("192.168." + i + ".1").Should().Be(i == 6 || i == 5);
@@ -51,7 +51,7 @@ namespace NeoSharp.Core.Test.Network.Security
             var acl = aclFactory.Load(cfg);
             File.Delete(tmpRules);
 
-            // Asset
+            // Assert
             for (var i = 0; i < 256; ++i)
             {
                 acl.IsAllowed("192.168.8." + i).Should().BeFalse();

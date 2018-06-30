@@ -33,7 +33,7 @@ namespace NeoSharp.Core.Test.Cryptography
             var root = MerkleTree.ComputeRoot(_crypto, _hashes);
             var tree = MerkleTree.ComputeTree(_crypto, _hashes);
 
-            // Asset
+            // Assert
             Assert.AreEqual(root.ToString(), "0x04948a9f4b7d5d1c7ed2cbd7f7034cfa095ce08d0b7a25959a083dc446aa8743");
             Assert.AreEqual(root, tree.Root.Hash);
             Assert.AreEqual(tree.Depth, 3);
@@ -60,7 +60,7 @@ namespace NeoSharp.Core.Test.Cryptography
             var node = tree.Search(UInt256.Parse("d7578928d3ffde14619ce1ceaecbf0300b303a4f09916c0c62006625ba9d251a"));
             var node_none = tree.Search(UInt256.Parse("f6049de2a1ce95dc4fbff3c66af5900ff2733d78c0eaab7c723c92f0a1e62f23"));
 
-            // Asset
+            // Assert
             Assert.AreEqual(node.Hash.ToString(), "0xd7578928d3ffde14619ce1ceaecbf0300b303a4f09916c0c62006625ba9d251a");
             Assert.IsNull(node_none);
         }
@@ -74,7 +74,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             var leafs = tree.Root.GetLeafs().Select(u => u.Hash).ToArray();
 
-            // Asset
+            // Assert
             Assert.IsTrue(_hashes.SequenceEqual(leafs));
             Assert.AreEqual(leafs.Length, (tree.Depth - 1) * 2);
         }

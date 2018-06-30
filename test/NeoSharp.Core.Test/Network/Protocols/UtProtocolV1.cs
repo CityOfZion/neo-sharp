@@ -37,7 +37,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
                 actualVerAckMessage = (VerAckMessage)await tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
             }
 
-            // Asset
+            // Assert
             actualVerAckMessage
                 .Should()
                 .NotBeNull();
@@ -74,7 +74,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
                 actualVersionMessage = (VersionMessage)await tcpProtocol.ReceiveMessageAsync(memory, CancellationToken.None);
             }
 
-            // Asset
+            // Assert
             actualVersionMessage
                 .Should()
                 .NotBeNull();

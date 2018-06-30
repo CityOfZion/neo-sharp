@@ -27,7 +27,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             bloomfilter.Add(element);
 
-            // Asset
+            // Assert
             bloomfilter.GetBits(result);
             Assert.AreEqual(0x08, result[8]);
         }
@@ -44,7 +44,7 @@ namespace NeoSharp.Core.Test.Cryptography
             bloomfilter.Add(element1);
             var result = bloomfilter.Check(element2);
 
-            // Asset
+            // Assert
             Assert.IsFalse(result);
         }
 
@@ -64,7 +64,7 @@ namespace NeoSharp.Core.Test.Cryptography
             bloomfilter.Add(element2);
             bloomfilter.Add(element3);
 
-            // Asset
+            // Assert
             bloomfilter.GetBits(result);
             Assert.AreEqual(result.ToHexString(false), "0a0444ca");
         }

@@ -19,7 +19,7 @@ namespace NeoSharp.Core.Test.Network
             // Act
             networkManager.StartNetwork();
 
-            // Asset
+            // Assert
             serverMock.Verify(x => x.Start(), Times.Once);
         }
 
@@ -34,7 +34,7 @@ namespace NeoSharp.Core.Test.Network
             // Act
             networkManager.StopNetwork();
 
-            // Asset
+            // Assert
             serverMock.Verify(x => x.Stop(), Times.Once);
         }
     }

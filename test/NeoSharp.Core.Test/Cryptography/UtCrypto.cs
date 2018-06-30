@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Cryptography;
@@ -29,9 +30,9 @@ namespace NeoSharp.Core.Test.Cryptography
             var sha256_bc = _bccrypto.Sha256(_data);
             var sha256_nv = _nativecrypto.Sha256(_data);
 
-            // Asset
-            Assert.AreEqual(sha256_bc.ToHexString(false), sha256_nv.ToHexString(false),
-                "be45cb2605bf36bebde684841a28f0fd43c69850a3dce5fedba69928ee3a8991");
+            // Assert
+            CollectionAssert.AreEqual(sha256_bc, sha256_nv);
+            Assert.AreEqual(sha256_bc.ToHexString(false), "be45cb2605bf36bebde684841a28f0fd43c69850a3dce5fedba69928ee3a8991");
         }
 
         [TestMethod]
@@ -40,7 +41,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             var ripemd160 = _bccrypto.RIPEMD160(_data);
 
-            // Asset
+            // Assert
             Assert.AreEqual(ripemd160.ToHexString(false), "696c7528a3545e25bec296e0d39b5f898bec97f7");
         }
 
@@ -50,7 +51,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             var hash256 = _bccrypto.Hash256(_data);
 
-            // Asset
+            // Assert
             Assert.AreEqual(hash256.ToHexString(false), "fc793c641b354b10b9a264ad4f541f6efe8445a0d05fe39336a126252b166e8b");
         }
 
@@ -60,7 +61,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             var hash160 = _bccrypto.Hash160(_data);
 
-            // Asset
+            // Assert
             Assert.AreEqual(hash160.ToHexString(false), "7a91e1b6ef1be3631b154ac8763a017eb03dc1b0");
         }
 
@@ -70,7 +71,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             var murmur3 = _bccrypto.Murmur3(_data, 1);
 
-            // Asset
+            // Assert
             Assert.AreEqual(murmur3.ToHexString(false), "5376a7bb");
         }
 
@@ -80,7 +81,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             var murmur32 = _bccrypto.Murmur32(_data, 1);
 
-            // Asset
+            // Assert
             Assert.AreEqual(murmur32, (uint)3148314195);
         }
 
@@ -103,7 +104,7 @@ namespace NeoSharp.Core.Test.Cryptography
             var verify2 = _bccrypto.VerifySignature(message2, signature2, pubkey2);
             var verifybad = _bccrypto.VerifySignature(message3, signature3, pubkey3);
 
-            // Asset
+            // Assert
             Assert.IsTrue(verify1);
             Assert.IsTrue(verify2);
             Assert.IsFalse(verifybad);
@@ -129,7 +130,7 @@ namespace NeoSharp.Core.Test.Cryptography
                 var verify = _bccrypto.VerifySignature(message, signature, pubkey);
                 var verifybad = _bccrypto.VerifySignature(message, signaturebad, pubkey);
 
-                // Asset
+                // Assert
                 Assert.IsTrue(verify);
                 Assert.IsFalse(verifybad);
             }
@@ -147,9 +148,41 @@ namespace NeoSharp.Core.Test.Cryptography
             var pubkey_compressed = _bccrypto.ComputePublicKey(privkey, true);
             var pubkey_uncompressed = _bccrypto.ComputePublicKey(privkey, false);
 
-            // Asset
+            // Assert
             CollectionAssert.AreEqual(expected_pubkey_comp, pubkey_compressed);
             CollectionAssert.AreEqual(expected_pubkey_uncomp, pubkey_uncompressed);
+        }
+
+        [TestMethod]
+        public void Decode_PublicKey()
+        {
+            // Arrange
+            var pubkey_part = "38356c74a1ab4d40df857b790e4232180e2f99f5c78468c150d0903a3e5d2b6fc88c3095b1b688d3d027477dfad0deb1ab94cb08db2de5abb79c1482aa1ea2fc".HexToBytes();
+            var pubkey_uncomp = "0438356c74a1ab4d40df857b790e4232180e2f99f5c78468c150d0903a3e5d2b6fc88c3095b1b688d3d027477dfad0deb1ab94cb08db2de5abb79c1482aa1ea2fc".HexToBytes();
+            var pubkey_comp = "0238356c74a1ab4d40df857b790e4232180e2f99f5c78468c150d0903a3e5d2b6f".HexToBytes();
+
+            // Act
+            var compressed = _bccrypto.DecodePublicKey(pubkey_uncomp, true, out BigInteger x1, out BigInteger y1);
+            var uncompressed = _bccrypto.DecodePublicKey(pubkey_comp, false, out BigInteger x2, out BigInteger y2);
+            var compressed2 = _bccrypto.DecodePublicKey(pubkey_part, true, out BigInteger x3, out BigInteger y3);
+
+            // Assert
+            Assert.AreEqual(x1, x2);
+            Assert.AreEqual(y1, y2);
+            Assert.AreEqual(x3, x1);
+            Assert.AreEqual(x1.ToString(), "25423910948081187308645163652542039167507182320027680753707589392465049496431");
+            Assert.AreEqual(y2.ToString(), "90710263625294316789152749637780639904397777988680875310398951746483276129020");
+            CollectionAssert.AreEqual(pubkey_comp, compressed);
+            CollectionAssert.AreEqual(pubkey_comp, compressed2);
+            CollectionAssert.AreEqual(pubkey_uncomp, uncompressed);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Decode_PublicKey_Exception()
+        {
+            // Act
+            var pubkey = _bccrypto.DecodePublicKey(null, true, out BigInteger x1, out BigInteger y1);
         }
 
         [TestMethod]
@@ -166,9 +199,9 @@ namespace NeoSharp.Core.Test.Cryptography
             var data_bc = _bccrypto.AesDecrypt(aes_nv, key, iv);
             var data_nv = _nativecrypto.AesDecrypt(aes_bc, key, iv);
 
-            // Asset
+            // Assert
             CollectionAssert.AreEqual(data_bc, data_nv);
-            Assert.AreEqual(aes_bc.ToHexString(false), aes_bc.ToHexString(false), "7c6c258ccc6a400efacc631452a75a25");
+            Assert.AreEqual(aes_bc.ToHexString(false), "7c6c258ccc6a400efacc631452a75a25");
         }
 
         [TestMethod]
@@ -184,9 +217,9 @@ namespace NeoSharp.Core.Test.Cryptography
             var data_bc = _bccrypto.AesDecrypt(aes_nv, key);
             var data_nv = _nativecrypto.AesDecrypt(aes_bc, key);
 
-            // Asset
+            // Assert
             CollectionAssert.AreEqual(data_bc, data_nv);
-            Assert.AreEqual(aes_bc.ToHexString(false), aes_bc.ToHexString(false), "7c6c258ccc6a400efacc631452a75a25");
+            Assert.AreEqual(aes_bc.ToHexString(false), "737d7012de2b424f76877a9f0255cc22");
         }
 
         [TestMethod]
@@ -195,7 +228,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             var resut = _bccrypto.SCrypt(_data, _data, 16384, 8, 1, 16);
 
-            // Asset
+            // Assert
             Assert.AreEqual(resut.ToHexString(false), "99568a5d8855750bb47a9fce6b0eacc6");
         }
 
@@ -208,7 +241,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             var result = _bccrypto.Base58Encode(Encoding.ASCII.GetBytes(test));
 
-            // Asset
+            // Assert
             Assert.AreEqual(result, "2NXDA7BcYgm9Sfmth7KzYhxPrNq8Gnj6");
         }
 
@@ -222,7 +255,7 @@ namespace NeoSharp.Core.Test.Cryptography
             var decoding = _bccrypto.Base58Decode(test);
             var result = Encoding.ASCII.GetString(decoding);
 
-            // Asset
+            // Assert
             Assert.AreEqual(result, "Base58 Unit Test Decode");
         }
 
@@ -237,7 +270,7 @@ namespace NeoSharp.Core.Test.Cryptography
             var decoding = _bccrypto.Base58Decode(encodig);
             var result = Encoding.ASCII.GetString(decoding);
 
-            // Asset
+            // Assert
             Assert.AreEqual(test, result);
         }
 
@@ -261,7 +294,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Act
             var result = _bccrypto.Base58CheckEncode(Encoding.ASCII.GetBytes(test));
 
-            // Asset
+            // Assert
             Assert.AreEqual(result, "21i2gvdxyfLDsyXjR12YRnFdJKkKTuwrdF4VmfZcoWW");
         }
 
@@ -275,7 +308,7 @@ namespace NeoSharp.Core.Test.Cryptography
             var decoding = _bccrypto.Base58CheckDecode(test);
             var result = Encoding.ASCII.GetString(decoding);
 
-            // Asset
+            // Assert
             Assert.AreEqual(result, "Base58CheckDecode Unit Test");
         }
 
@@ -301,7 +334,7 @@ namespace NeoSharp.Core.Test.Cryptography
             var decoding = _bccrypto.Base58CheckDecode(encodig);
             var result = Encoding.ASCII.GetString(decoding);
 
-            // Asset
+            // Assert
             Assert.AreEqual(test, result);
         }
     }

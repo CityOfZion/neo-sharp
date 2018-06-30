@@ -48,19 +48,19 @@ namespace NeoSharp.Core.Cryptography
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="compressedPoint">Compressed Point</param>
-        public ECPoint(byte[] compressedPoint)
+        /// <param name="point">Point</param>
+        public ECPoint(byte[] point)
         {
             IsInfinity = false;
 
-            EncodedData = compressedPoint;
-            DecodedData = ICrypto.Default.DecodePublicKey(EncodedData, false, out X, out Y);
+            EncodedData = ICrypto.Default.DecodePublicKey(point, true, out X, out Y);
+            DecodedData = ICrypto.Default.DecodePublicKey(point, false, out X, out Y);
         }
 
         /// <summary>
         /// Compare ECPoint
         /// </summary>
-        /// <param name="other">Other</param>
+        /// <param name="other">ECPoint to compare</param>
         /// <returns>Return compare value</returns>
         public int CompareTo(ECPoint other)
         {

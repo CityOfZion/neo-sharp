@@ -13,7 +13,7 @@ namespace NeoSharp.Core.Test.Types
             // Arrange
             var value = new BigDecimal();
 
-            // Asset
+            // Assert
             Assert.IsNotNull(value);
             Assert.AreEqual(0, value.Value);
         }
@@ -24,7 +24,7 @@ namespace NeoSharp.Core.Test.Types
             // Arrange
             var value = new BigDecimal(1500, 3);
 
-            // Asset
+            // Assert
             Assert.AreEqual(1500, value.Value);
             Assert.AreEqual(3, value.Decimals);
             Assert.AreEqual(1, value.Sign);
@@ -39,7 +39,7 @@ namespace NeoSharp.Core.Test.Types
             // Act
             var newvalue = value.ChangeDecimals(3);
 
-            // Asset
+            // Assert
             Assert.AreEqual(value.Value, newvalue.Value);
             Assert.AreEqual(value.Decimals, newvalue.Decimals);
             Assert.AreEqual(value.Sign, newvalue.Sign);
@@ -54,7 +54,7 @@ namespace NeoSharp.Core.Test.Types
             // Act
             var newvalue = value.ChangeDecimals(5);
 
-            // Asset
+            // Assert
             Assert.AreEqual(150000, newvalue.Value);
             Assert.AreEqual(5, newvalue.Decimals);
         }
@@ -68,7 +68,7 @@ namespace NeoSharp.Core.Test.Types
             // Act
             var newvalue = value.ChangeDecimals(3);
 
-            // Asset
+            // Assert
             Assert.AreEqual(1500, newvalue.Value);
             Assert.AreEqual(3, newvalue.Decimals);
         }
@@ -79,7 +79,7 @@ namespace NeoSharp.Core.Test.Types
             // Arrange
             var actual = BigDecimal.TryParse("1234e10", 3, out var value);
 
-            // Asset
+            // Assert
             Assert.IsTrue(actual);
             Assert.AreEqual(12340000000000000, value.Value);
             Assert.AreEqual(3, value.Decimals);
@@ -91,7 +91,7 @@ namespace NeoSharp.Core.Test.Types
             // Arrange
             var actual = BigDecimal.TryParse("1.234", 5, out var value);
 
-            // Asset
+            // Assert
             Assert.IsTrue(actual);
             Assert.AreEqual(123400, value.Value);
             Assert.AreEqual(5, value.Decimals);
@@ -103,7 +103,7 @@ namespace NeoSharp.Core.Test.Types
             // Arrange
             var value = BigDecimal.Parse("1234", 5);
 
-            // Asset
+            // Assert
             Assert.AreEqual(123400000, value.Value);
             Assert.AreEqual(5, value.Decimals);
         }
@@ -126,7 +126,7 @@ namespace NeoSharp.Core.Test.Types
             // Act
             var newvalue = value.ToFixed8();
 
-            // Asset
+            // Assert
             Assert.AreEqual(f8value, newvalue);
         }
 
@@ -147,7 +147,7 @@ namespace NeoSharp.Core.Test.Types
             // Arrange
             var value = new BigDecimal(9876, 10);
 
-            // Asset
+            // Assert
             Assert.AreEqual("0.0000009876", value.ToString());
         }
     }

@@ -76,34 +76,7 @@ namespace NeoSharp.Core.Cryptography
         /// <returns>Bool</returns>
         public override bool VerifySignature(byte[] message, byte[] signature, byte[] pubkey)
         {
-            byte[] fullpubkey;
-
-            if (pubkey.Length == 33 && (pubkey[0] == 0x02 || pubkey[0] == 0x03))
-            {
-                try
-                {
-                    fullpubkey = new ECPublicKeyParameters("ECDSA",
-                        _curve.Curve.DecodePoint(pubkey), _domain).Q.GetEncoded(false);
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            else if (pubkey.Length == 64)
-            {
-                fullpubkey = new byte[65];
-                fullpubkey[0] = 0x04;
-                Array.Copy(pubkey, 0, fullpubkey, 1, pubkey.Length);
-            }
-            else if (pubkey.Length != 65 || pubkey[0] != 0x04)
-            {
-                throw new ArgumentException();
-            }
-            else
-            {
-                fullpubkey = pubkey;
-            }
+            byte[] fullpubkey = DecodePublicKey(pubkey, false, out System.Numerics.BigInteger x, out System.Numerics.BigInteger y);
 
             Org.BouncyCastle.Math.EC.ECPoint point = _curve.Curve.DecodePoint(fullpubkey);
             var keyParameters = new ECPublicKeyParameters(point, _domain);
@@ -181,18 +154,37 @@ namespace NeoSharp.Core.Cryptography
         }
 
         /// <summary>
-        /// Decode Public key
+        /// Decode Public Key
         /// </summary>
-        /// <param name="encodedPK">Data</param>
-        /// <param name="compress">Compress</param>
+        /// <param name="pubkey">Data</param>
+        /// <param name="compress">Compress public key</param>
         /// <param name="x">X</param>
         /// <param name="y">Y</param>
-        public override byte[] DecodePublicKey(byte[] encodedPK, bool compress, out System.Numerics.BigInteger x, out System.Numerics.BigInteger y)
+        /// <returns>Public key bytearray</returns>
+        public override byte[] DecodePublicKey(byte[] pubkey, bool compress, out System.Numerics.BigInteger x, out System.Numerics.BigInteger y)
         {
-            if (encodedPK == null) throw new ArgumentException(nameof(encodedPK));
+            if (pubkey == null || pubkey.Length != 33 && pubkey.Length != 64 && pubkey.Length != 65)
+            {
+                throw new ArgumentException(nameof(pubkey));
+            }
 
-            var ret = new ECPublicKeyParameters("ECDSA", _curve.Curve.DecodePoint(encodedPK), _domain).Q;
+            if (pubkey.Length == 33 && pubkey[0] != 0x02 && pubkey[0] != 0x03) throw new ArgumentException(nameof(pubkey));
+            if (pubkey.Length == 65 && pubkey[0] != 0x04) throw new ArgumentException(nameof(pubkey));
 
+            byte[] fullpubkey;
+
+            if (pubkey.Length == 64)
+            {
+                fullpubkey = new byte[65];
+                fullpubkey[0] = 0x04;
+                Array.Copy(pubkey, 0, fullpubkey, 1, pubkey.Length);
+            }
+            else
+            {
+                fullpubkey = pubkey;
+            }
+
+            var ret = new ECPublicKeyParameters("ECDSA", _curve.Curve.DecodePoint(fullpubkey), _domain).Q;
             var x0 = ret.XCoord.ToBigInteger();
             var y0 = ret.YCoord.ToBigInteger();
 
