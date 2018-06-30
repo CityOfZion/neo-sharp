@@ -6,6 +6,7 @@ using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Crypto.Prng;
 using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
@@ -104,7 +105,7 @@ namespace NeoSharp.Core.Cryptography
         /// <returns>Siganture bytearray</returns>
         public override byte[] Sign(byte[] message, byte[] prikey)
         {
-            ECPrivateKeyParameters priv = new ECPrivateKeyParameters("ECDSA", (new BigInteger(1, prikey.ToArray())), _domain);
+            ECPrivateKeyParameters priv = new ECPrivateKeyParameters("ECDSA", (new BigInteger(1, prikey)), _domain);
             var signer = new ECDsaSigner();
             var fullsign = new byte[64];
 
@@ -147,7 +148,7 @@ namespace NeoSharp.Core.Cryptography
         {
             if (privateKey == null) throw new ArgumentException(nameof(privateKey));
 
-            var q = _domain.G.Multiply(new BigInteger(1, privateKey.ToArray()));
+            var q = _domain.G.Multiply(new BigInteger(1, privateKey));
             var publicParams = new ECPublicKeyParameters(q, _domain);
 
             return publicParams.Q.GetEncoded(compress);
@@ -285,6 +286,26 @@ namespace NeoSharp.Core.Cryptography
             if (dkLen < 1) throw new ArgumentException(nameof(dkLen));
 
             return Org.BouncyCastle.Crypto.Generators.SCrypt.Generate(P, S, N, r, p, dkLen);
+        }
+
+        /// <summary>
+        /// Generates random bytes
+        /// </summary>
+        /// <param name="length">Length</param>
+        /// <returns>Random bytearray</returns>
+        public override byte[] GenerateRandomBytes(int length)
+        {
+            if (length < 1) throw new ArgumentException(nameof(length));
+
+            // NativePRNG
+            SecureRandom random = new SecureRandom();
+            var seed = new ThreadedSeedGenerator();
+            random.SetSeed(seed.GenerateSeed(32, false));
+
+            var randombytes = new byte[length];
+            random.NextBytes(randombytes);
+
+            return randombytes;
         }
     }
 }

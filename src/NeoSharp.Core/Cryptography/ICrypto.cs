@@ -284,5 +284,12 @@ namespace NeoSharp.Core.Cryptography
                 throw new FormatException();
             return buffer.Take(buffer.Length - 4).ToArray();
         }
+
+        /// <summary>
+        /// Generates random bytes
+        /// </summary>
+        /// <param name="length">Length</param>
+        /// <returns>Random bytearray</returns>
+        public abstract byte[] GenerateRandomBytes(int length);
     }
 }

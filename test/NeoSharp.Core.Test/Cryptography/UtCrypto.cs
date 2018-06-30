@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -336,6 +338,33 @@ namespace NeoSharp.Core.Test.Cryptography
 
             // Assert
             Assert.AreEqual(test, result);
+        }
+
+        [TestMethod]
+        public void Random_Bytes_Generation()
+        {
+            // Arrange
+            var results = new List<byte[]>();
+
+            for (int tries = 0; tries < 100; ++tries)
+            {
+                // Act
+                var value = _bccrypto.GenerateRandomBytes(10);
+                bool contains = results.Any(x => x.SequenceEqual(value));
+                results.Add(value);
+
+                // Assert
+                Assert.AreNotEqual(BitConverter.ToInt32(value, 0), 0);
+                Assert.IsFalse(contains);
+            }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void Random_Bytes_Exception()
+        {
+            // Arrange
+            var value = _bccrypto.GenerateRandomBytes(0);
         }
     }
 }
