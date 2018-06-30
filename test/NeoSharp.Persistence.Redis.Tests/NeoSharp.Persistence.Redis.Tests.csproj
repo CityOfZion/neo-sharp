@@ -12,4 +12,10 @@
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj" />
+    <ProjectReference Include="..\..\src\NeoSharp.Core\NeoSharp.Core.csproj" />
+    <ProjectReference Include="..\..\src\NeoSharp.Persistence.RedisDB\NeoSharp.Persistence.RedisDB.csproj" />
+  </ItemGroup>
+
 </Project>
