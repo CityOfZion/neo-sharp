@@ -5,7 +5,6 @@ namespace NeoSharp.Core.Persistence
     public interface IRepository
     {
         #region Blocks
-
         /// <summary>
         /// Adds a block header to the repository storage
         /// </summary>
@@ -60,7 +59,6 @@ namespace NeoSharp.Core.Persistence
         /// <returns>Total / current block height</returns>
         long GetTotalBlockHeight();
         #endregion
-
 
         #region Transactions
         /// <summary>

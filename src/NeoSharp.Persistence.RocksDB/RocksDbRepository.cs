@@ -8,24 +8,27 @@ using System.Text;
 
 namespace NeoSharp.Persistence.RocksDB
 {
-    public class RocksDbRepository : IRepository, IDisposable
+    public class RocksDbRepository : IRocksDbRepository, IDisposable
     {
-        private RocksDb _rocksDb;
+        #region Private Fields 
+        private readonly RocksDb _rocksDb;
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
+        #endregion
 
-        public RocksDbRepository(IRepositoryConfiguration config, IBinarySerializer serializer, IBinaryDeserializer deserializer)
+        #region Constructor 
+        public RocksDbRepository(RocksDbConfig config, IBinarySerializer serializer, IBinaryDeserializer deserializer)
         {
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));
+            if (config == null) throw new ArgumentNullException(nameof(config));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
 
             //Initialize RocksDB (Connection String is the path to use)
             var options = new DbOptions().SetCreateIfMissing(true);
             // TODO: please avoid sync IO in constructor -> Open connection with the first operation for now
-            //_rocksDb = RocksDb.Open(options, config.ConnectionString);
+            _rocksDb = RocksDb.Open(options, config.FilePath);
         }
+        #endregion
 
         #region IRepository Members
         public void AddBlockHeader(BlockHeader blockHeader)
@@ -98,26 +101,30 @@ namespace NeoSharp.Persistence.RocksDB
         }
         #endregion
 
+        #region IDisposable Members
+        public void Dispose()
+        {
+            if (_rocksDb != null)
+            {
+                _rocksDb.Dispose();
+            }
+        }
+        #endregion
+
+        #region Private Methods 
         /// <summary>
         /// Builds the concatenated key based on data type and desired key
         /// </summary>
         /// <param name="type">Data type</param>
         /// <param name="key">Desired key</param>
         /// <returns>Resulting key</returns>
-        private byte[] BuildKey(DataEntryPrefix type, byte[] key)
+        private static byte[] BuildKey(DataEntryPrefix type, byte[] key)
         {
-            List<byte> bytes = new List<byte>(key);
+            var bytes = new List<byte>(key);
             bytes.Insert(0, (byte)type);
             return bytes.ToArray();
         }
 
-
-        #region IDisposable Members
-        public void Dispose()
-        {
-            if (_rocksDb != null)
-                _rocksDb.Dispose();
-        }
         #endregion
     }
 }

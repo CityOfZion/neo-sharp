@@ -1,50 +1,58 @@
-using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Models;
-using NeoSharp.Core.Persistence;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Models;
+using NeoSharp.Core.Persistence;
+using NeoSharp.Persistence.RedisDB.Helpers;
+using Newtonsoft.Json;
 
 namespace NeoSharp.Persistence.RedisDB
 {
-    public class RedisDbRepository : IRepository
+    public class RedisDbRepository : IRedisDbRepository
     {
-        private readonly IRepositoryConfiguration _config;
+        #region Private Fields 
+        private readonly PersistenceConfig _persistenceConfig;
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
-        private RedisHelper _redis;
+        private readonly RedisHelper _redis;
+        #endregion
 
-        public RedisDbRepository(IRepositoryConfiguration config, IBinarySerializer serializer, IBinaryDeserializer deserializer)
+        #region Construtor 
+        public RedisDbRepository(
+            PersistenceConfig persistenceConfig, 
+            RedisDbConfig config, 
+            IBinarySerializer serializer, 
+            IBinaryDeserializer deserializer)
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
+            _persistenceConfig = persistenceConfig ?? throw new ArgumentNullException(nameof(persistenceConfig));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
 
-            //If no connection string provided, we can just default to localhost
-            if (String.IsNullOrEmpty(_config.ConnectionString))
-                _config.ConnectionString = "localhost";
-
-            //Default to DB 0
-            int dbId = _config.DatabaseId == null ? 0 : (int)_config.DatabaseId;
+            var host = string.IsNullOrEmpty(config.ConnectionString) ? "localhost" : config.ConnectionString;
+            var dbId = config.DatabaseId ?? 0;
 
             //Make the connection to the specified server and database
-            if(_redis == null)
-                _redis = new RedisHelper(_config.ConnectionString, dbId);
+            if (_redis == null)
+            {
+                _redis = new RedisHelper(host, dbId);
+            }
         }
+        #endregion
 
         #region IRepository Members
 
         public void AddBlockHeader(BlockHeader blockHeader)
         {
             //Serialize
-            if(_config.StorageFormat == RepositoryPersistenceFormat.Binary)
+            if(_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb)
             {
                 var blockHeaderBytes = _serializer.Serialize(blockHeader);
                 //Write the redis database with the binary bytes
                 _redis.Database.Set(DataEntryPrefix.DataBlock, blockHeader.Hash.ToString(), blockHeaderBytes);
             }
-            else if(_config.StorageFormat == RepositoryPersistenceFormat.JSON)
+
+            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
             {
                 var blockHeaderJson = JsonConvert.SerializeObject(blockHeader);
                 //Write the redis database with the binary bytes
@@ -61,14 +69,15 @@ namespace NeoSharp.Persistence.RedisDB
 
         public void AddTransaction(Transaction transaction)
         {
-            if(_config.StorageFormat == RepositoryPersistenceFormat.Binary)
+            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb)
             {
                 //Convert to bytes
                 var transactionBytes = _serializer.Serialize(transaction);
                 //Write the redis database with the binary bytes
                 _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash.ToString(), transactionBytes);
             }
-            else if(_config.StorageFormat == RepositoryPersistenceFormat.JSON)
+
+            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
             {
                 //Convert to bytes
                 var transactionJson = JsonConvert.SerializeObject(transaction);
@@ -111,11 +120,12 @@ namespace NeoSharp.Persistence.RedisDB
             //Retrieve the block header
             var blockHeader = GetRawBlock(id);
 
-            if(_config.StorageFormat == RepositoryPersistenceFormat.Binary)
+            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb)
             {
                 return _deserializer.Deserialize<BlockHeader>((byte[])blockHeader);
             }
-            else if(_config.StorageFormat == RepositoryPersistenceFormat.JSON)
+
+            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
             {
                 return JsonConvert.DeserializeObject<BlockHeader>((string)blockHeader);
             }
@@ -148,11 +158,12 @@ namespace NeoSharp.Persistence.RedisDB
         {
             var transaction = _redis.Database.Get(DataEntryPrefix.DataTransaction, id);
 
-            if (_config.StorageFormat == RepositoryPersistenceFormat.Binary)
+            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb)
             {
                 return _deserializer.Deserialize<Transaction>(transaction);
             }
-            else if (_config.StorageFormat == RepositoryPersistenceFormat.JSON)
+
+            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
             {
                 return JsonConvert.DeserializeObject<Transaction>(transaction);
             }
@@ -167,7 +178,7 @@ namespace NeoSharp.Persistence.RedisDB
 
         public Transaction[] GetTransactionsForBlock(string id)
         {
-            List<Transaction> transactions = new List<Transaction>();
+            var transactions = new List<Transaction>();
             var block = GetBlockHeaderById(id);
 
             foreach (var transactionHash in block.TransactionHashes)
@@ -178,7 +189,6 @@ namespace NeoSharp.Persistence.RedisDB
 
             return transactions.ToArray();
         }
-
         #endregion
     }
 }
