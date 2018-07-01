@@ -4,13 +4,10 @@ os:
 dist: trusty
 dotnet: 2.0.0
 mono: none
-env:
-  global:
-    secure: "TL6yv28eMQb6rWNntp3E1b6d0nZjvuWBNEp45isWBRG8lkPkvKsUzyuB+oc8JzVFAUnt4dVYbiKLOA1PArlssBcIv3DvUEXDAoIiKmBEjq43yRhr9OB8LBRD1dN6dh4Khzv7Et51bqocs4/ajwKO+pES1zM3DjyaYgc+BPhEenfrQjRTzOK0zh2nzPXFJm4bGc/K2S+WW9dePyYQdQcPu3PWcM3gpfZrpQjwyfkH4hL+5q8rPV78jjRb6E/R+1DFoABsfU1MAPYRJ0K2aZhTzz3IU7e0hp+pXo+qE1tHIPU0ATzmN/mBwEHx9KbhNOfhROr7oyIauQHzOk8ES1iVWzM4ivRWV4WdCHK/9YI+i1iFGmKaAQ0GIcnRcKbr5wMZ6yGxR48oDECRrx7k4hqlfs4tkjGD9gAHiEvIK/rpzRlp4z+87hgpHg4ooRoScMx1khAtcrw3lmytavI1sNk/zYAcDAY7iHrMi1AGBxHhiuFxzFvZmrYZqtD7ku2/82/1nYpUggRaI9HjZs7VFBiOi1ga8/dW0jukb8Q/l+CPaiHuPObi83juDziCY4xRJ6KSZhWuCFvKJlNZKg7fehNHUsNFESfFjPmhRirk3ADHRXE1h6InhYApUvmMXk5MWDJM8KrF4XjBq+uKYF9/T2wCj0PErOEeef//fK3vEpRcr44="
 
 script:
 
-  # let's do the restore. 
+# let's do the restore. 
 - dotnet restore
 
 # setup the projects to have the coverlet package in test. If it doesn't have coverlet to run the code coverage during the msbuild, then you'll get no code coverage reports.  dotnet test will just run the tests without code coverage.
@@ -18,27 +15,31 @@ script:
 
 # do the tests.  Note: I had to do some workarounds to make sure dotnet test only runs on the Test Projects.  
 # see https://dasmulli.blog/2018/01/20/make-dotnet-test-work-on-solution-files/ 
-- dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=lcov
+- dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
 #### merge coverage reports section start
 # merge the coverage reports so they can get uploaded to coveralls correctly. 
 
 # first install lcov-result-merger by cloning it.
-- git clone https://github.com/mweibel/lcov-result-merger.git
+#- git clone https://github.com/mweibel/lcov-result-merger.git
 # now build it into it's own directory
-- cd lcov-result-merger
-- npm build
+#- cd lcov-result-merger
+#- npm build
 # now we need to install the dependent packages for lcov.
-- npm install vinyl
-- npm install vinyl-fs
-- npm install through2
+#- npm install vinyl
+#- npm install vinyl-fs
+#- npm install through2
 
 # run it against all the coverage files
-- ./bin/lcov-result-merger.js '../test/*/coverage.info' 'test/coverage_merged.info'
+#- ./bin/lcov-result-merger.js '../test/*/coverage.info' './coverage_merged.info'
 
 #ok, now you have the merged coverage file
 #### merge coverage reports section done
 
 #using the new uploader
-- gem install coveralls-lcov
-- coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN test/coverage_merged.info
+#- gem install coveralls-lcov
+#- coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN ./coverage_merged.info
+
+after_success:
+#CODECOV
+- bash <(curl -s https://codecov.io/bash) -v
