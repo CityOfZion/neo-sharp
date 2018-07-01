@@ -1,7 +1,6 @@
 ﻿using System;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 
@@ -50,6 +49,10 @@ namespace NeoSharp.Core.Models
         [JsonProperty("script")]
         public Witness Script;
 
+        [BinaryProperty(8)]
+        [JsonProperty("txhashes")]
+        public UInt256[] TransactionHashes { get; set; }
+
         #endregion
 
         #region Non serializable data
@@ -57,17 +60,8 @@ namespace NeoSharp.Core.Models
         [JsonProperty("hash")]
         public UInt256 Hash { get; set; }
 
-        //[JsonProperty("size")]
-        //public int Size;
-
-        //[JsonProperty("nextblockhash")]
-        //public UInt256 NextBlockHash;
-
         [JsonProperty("txcount")]
         public int TransactionCount => TransactionHashes?.Length ?? 0;
-
-        [JsonProperty("txhashes")]
-        public UInt256[] TransactionHashes { get; set; }
 
         #endregion
 
@@ -76,7 +70,7 @@ namespace NeoSharp.Core.Models
         /// </summary>
         /// <param name="serializer">Serializer</param>
         /// <param name="crypto">Crypto</param>
-        public virtual void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
+        public void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
         {
             MerkleRoot = MerkleTree.ComputeRoot(crypto, TransactionHashes);
 

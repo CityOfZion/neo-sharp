@@ -79,7 +79,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             yield break;
         }
 
-        public Task<IReadOnlyCollection<Block>> GetBlocks(IReadOnlyCollection<UInt256> blockHashes)
+        public IEnumerable<Block> GetBlocks(IReadOnlyCollection<UInt256> blockHashes)
         {
             throw new NotImplementedException();
         }
@@ -139,7 +139,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public Task<IReadOnlyCollection<Transaction>> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes)
+        public IEnumerable<Transaction> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes)
         {
             throw new NotImplementedException();
         }

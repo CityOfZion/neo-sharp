@@ -60,22 +60,22 @@ namespace NeoSharp.Core.Messaging.Handlers
             switch (message.Payload.Type)
             {
                 case InventoryType.Transaction:
-                {
-                    await SendTransactions(hashes, sender);
-                    break;
-                }
+                    {
+                        await SendTransactions(hashes, sender);
+                        break;
+                    }
 
                 case InventoryType.Block:
-                {
-                    await SendBlocks(hashes, sender);
-                    break;
-                }
+                    {
+                        await SendBlocks(hashes, sender);
+                        break;
+                    }
 
                 case InventoryType.Consensus:
-                {
-                    // TODO: Implement after consensus
-                    break;
-                }
+                    {
+                        // TODO: Implement after consensus
+                        break;
+                    }
 
                 default:
                     _logger.LogError(
@@ -86,14 +86,14 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         private async Task SendTransactions(IReadOnlyCollection<UInt256> transactionHashes, IPeer peer)
         {
-            var transactions = await _blockchain.GetTransactions(transactionHashes);
+            var transactions = _blockchain.GetTransactions(transactionHashes);
 
             await peer.Send(new TransactionMessage(transactions));
         }
 
         private async Task SendBlocks(IReadOnlyCollection<UInt256> blockHashes, IPeer peer)
         {
-            var blocks = await _blockchain.GetBlocks(blockHashes);
+            var blocks = _blockchain.GetBlocks(blockHashes);
 
             var filter = peer.BloomFilter;
             if (filter == null)

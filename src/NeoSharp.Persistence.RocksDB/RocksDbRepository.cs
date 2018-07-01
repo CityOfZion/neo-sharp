@@ -1,10 +1,9 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using System;
+using System.Collections.Generic;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using RocksDbSharp;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NeoSharp.Persistence.RocksDB
 {
@@ -17,6 +16,7 @@ namespace NeoSharp.Persistence.RocksDB
         #endregion
 
         #region Constructor 
+
         public RocksDbRepository(RocksDbConfig config, IBinarySerializer serializer, IBinaryDeserializer deserializer)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
@@ -28,13 +28,23 @@ namespace NeoSharp.Persistence.RocksDB
             // TODO: please avoid sync IO in constructor -> Open connection with the first operation for now
             _rocksDb = RocksDb.Open(options, config.FilePath);
         }
+
         #endregion
 
         #region IRepository Members
+
+        public byte[] GetBlockHashFromHeight(uint height)
+        {
+            return _rocksDb.Get(BuildKey(DataEntryPrefix.IxHeightToHash, BitConverter.GetBytes(height)));
+        }
+
         public void AddBlockHeader(BlockHeader blockHeader)
         {
             var hash = blockHeader.Hash.ToArray();
+            var ix = BitConverter.GetBytes(blockHeader.Index);
+
             _rocksDb.Put(BuildKey(DataEntryPrefix.DataBlock, hash), _serializer.Serialize(blockHeader));
+            _rocksDb.Put(BuildKey(DataEntryPrefix.IxHeightToHash, ix), hash);
         }
 
         public void AddTransaction(Transaction transaction)
@@ -43,20 +53,16 @@ namespace NeoSharp.Persistence.RocksDB
             _rocksDb.Put(BuildKey(DataEntryPrefix.DataTransaction, hash), _serializer.Serialize(transaction));
         }
 
-        public BlockHeader GetBlockHeaderByHeight(int height)
+        public BlockHeader GetBlockHeader(byte[] hash)
         {
-            throw new NotImplementedException();
-        }
+            var rawHeader = _rocksDb.Get(BuildKey(DataEntryPrefix.DataBlock, hash));
 
-        public BlockHeader GetBlockHeaderById(byte[] id)
-        {
-            var rawBlock = GetRawBlock(id);
-            return _deserializer.Deserialize<BlockHeader>((byte[])rawBlock);
-        }
+            if (rawHeader != null)
+            {
+                return _deserializer.Deserialize<BlockHeader>(rawHeader);
+            }
 
-        public BlockHeader GetBlockHeaderById(string id)
-        {
-            return GetBlockHeaderById(Encoding.UTF8.GetBytes(id));
+            return null;
         }
 
         public BlockHeader GetBlockHeaderByTimestamp(int timestamp)
@@ -64,41 +70,20 @@ namespace NeoSharp.Persistence.RocksDB
             throw new NotImplementedException();
         }
 
-        public object GetRawBlock(string id)
-        {
-            return GetRawBlock(Encoding.UTF8.GetBytes(id));
-        }
-
-        public object GetRawBlock(byte[] id)
-        {
-            return _rocksDb.Get(BuildKey(DataEntryPrefix.DataBlock, id));
-        }
-
         public long GetTotalBlockHeight()
         {
             throw new NotImplementedException();
         }
 
-        public Transaction GetTransaction(byte[] id)
+        public Transaction GetTransaction(byte[] hash)
         {
-            var bytes = _rocksDb.Get(BuildKey(DataEntryPrefix.DataTransaction, id));
+            var bytes = _rocksDb.Get(BuildKey(DataEntryPrefix.DataTransaction, hash));
+
+            if (bytes == null) return null;
+
             return _deserializer.Deserialize<Transaction>(bytes);
         }
 
-        public Transaction GetTransaction(string id)
-        {
-            return GetTransaction(Encoding.UTF8.GetBytes(id));
-        }
-
-        public Transaction[] GetTransactionsForBlock(byte[] id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Transaction[] GetTransactionsForBlock(string id)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
 
         #region IDisposable Members

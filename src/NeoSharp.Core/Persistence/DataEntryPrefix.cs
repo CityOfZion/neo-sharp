@@ -12,6 +12,7 @@
         StContract = 0x50,
         StStorage = 0x70,
         IxHeaderHashList = 0x80,
+        IxHeightToHash = 0x81,
         IxValidatorsCount = 0x90,
         SysCurrentBlock = 0xc0,
         SysCurrentHeader = 0xc1,

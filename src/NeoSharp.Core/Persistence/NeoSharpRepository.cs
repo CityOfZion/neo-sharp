@@ -1,4 +1,6 @@
 ﻿using System;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 
 namespace NeoSharp.Core.Persistence
@@ -6,6 +8,8 @@ namespace NeoSharp.Core.Persistence
     public class NeoSharpRepository : IRepository
     {
         #region Private Fields 
+
+        private readonly IBinarySerializer _serializer;
         private readonly PersistenceConfig _persistenceConfig;
         private readonly IRocksDbRepository _rocksDbRepository;
         private readonly IRedisDbRepository _redisDbRepository;
@@ -13,57 +17,62 @@ namespace NeoSharp.Core.Persistence
         #endregion
 
         #region Constructor 
-        public NeoSharpRepository(
-            PersistenceConfig persistenceConfig, 
-            IRocksDbRepository rocksDbRepository, 
-            IRedisDbRepository redisDbRepository)
+
+        public NeoSharpRepository
+            (
+            IBinarySerializer serializer,
+            PersistenceConfig persistenceConfig,
+            IRocksDbRepository rocksDbRepository,
+            IRedisDbRepository redisDbRepository
+            )
         {
+            this._serializer = serializer;
             this._persistenceConfig = persistenceConfig;
             this._rocksDbRepository = rocksDbRepository;
             this._redisDbRepository = redisDbRepository;
         }
+
         #endregion
 
         #region IRepository Implementation 
+
         public void AddBlockHeader(BlockHeader blockHeader)
         {
-            if (this._persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RocksDb)
+            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RocksDb)
             {
-                this._rocksDbRepository.AddBlockHeader(blockHeader);
+                _rocksDbRepository.AddBlockHeader(blockHeader);
             }
 
-            if (this._persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
+            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
             {
-                this._redisDbRepository.AddBlockHeader(blockHeader);
+                _redisDbRepository.AddBlockHeader(blockHeader);
             }
         }
 
-        public BlockHeader GetBlockHeaderById(byte[] id)
+        public BlockHeader GetBlockHeader(byte[] hash)
         {
-            throw new NotImplementedException();
+            var ret = _rocksDbRepository.GetBlockHeader(hash);
+
+            if (ret != null) ret.UpdateHash(_serializer, ICrypto.Default);
+
+            return ret;
         }
 
-        public BlockHeader GetBlockHeaderById(string id)
+        public byte[] GetBlockHashFromHeight(uint height)
         {
-            throw new NotImplementedException();
+            return _rocksDbRepository.GetBlockHashFromHeight(height);
         }
 
-        public BlockHeader GetBlockHeaderByHeight(int height)
+        public BlockHeader GetBlockHeader(uint height)
         {
-            throw new NotImplementedException();
+            var hash = _rocksDbRepository.GetBlockHashFromHeight(height);
+
+            if (hash == null) return null;
+
+            return _rocksDbRepository.GetBlockHeader(hash);
         }
 
         public BlockHeader GetBlockHeaderByTimestamp(int timestamp)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object GetRawBlock(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public object GetRawBlock(byte[] id)
         {
             throw new NotImplementedException();
         }
@@ -75,28 +84,26 @@ namespace NeoSharp.Core.Persistence
 
         public void AddTransaction(Transaction transaction)
         {
-            throw new NotImplementedException();
+            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RocksDb)
+            {
+                _rocksDbRepository.AddTransaction(transaction);
+            }
+
+            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
+            {
+                _redisDbRepository.AddTransaction(transaction);
+            }
         }
 
-        public Transaction GetTransaction(byte[] id)
+        public Transaction GetTransaction(byte[] hash)
         {
-            throw new NotImplementedException();
+            var ret = _rocksDbRepository.GetTransaction(hash);
+
+            if (ret != null) ret.UpdateHash(_serializer, ICrypto.Default);
+
+            return ret;
         }
 
-        public Transaction GetTransaction(string id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Transaction[] GetTransactionsForBlock(byte[] id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Transaction[] GetTransactionsForBlock(string id)
-        {
-            throw new NotImplementedException();
-        }
         #endregion
     }
 }

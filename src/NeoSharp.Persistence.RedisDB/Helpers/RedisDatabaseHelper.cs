@@ -1,14 +1,13 @@
-﻿using NeoSharp.Core.Persistence;
+﻿using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Persistence;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace NeoSharp.Persistence.RedisDB
 {
     public class RedisDatabaseHelper
     {
         private readonly IDatabase _redisDb;
+
         public RedisDatabaseHelper(IDatabase redisDb)
         {
             _redisDb = redisDb;
@@ -34,6 +33,17 @@ namespace NeoSharp.Persistence.RedisDB
         public RedisValue Get(DataEntryPrefix type, string key)
         {
             return _redisDb.HashGet(BuildKey(type, key), "data");
+        }
+
+        /// <summary>
+        /// Gets the values from a hash set at key.
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public RedisValue Get(DataEntryPrefix type, byte[] key)
+        {
+            return Get(type, key.ToHexString());
         }
 
         /// <summary>

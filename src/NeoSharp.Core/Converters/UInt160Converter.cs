@@ -44,7 +44,7 @@ namespace NeoSharp.Core.Converters
         {
             if (value is UInt160) return value;
             if (value is byte[] bytes && bytes.Length == UInt160.Zero.Size) return new UInt160(bytes);
-            if (value is string str) return new UInt160(str.HexToBytes());
+            if (value is string str) return UInt160.Parse(str);
 
             return base.ConvertFrom(context, culture, value);
         }

@@ -1,9 +1,8 @@
-﻿using NeoSharp.Core.Caching;
+﻿using System.Collections.Generic;
+using System.Security.Cryptography;
+using NeoSharp.Core.Caching;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
-using System.Collections.Generic;
-using System.Security.Cryptography;
-using System.Threading.Tasks;
 
 namespace NeoSharp.Core.Blockchain
 {
@@ -91,7 +90,7 @@ namespace NeoSharp.Core.Blockchain
         /// <returns></returns>
         Block GetBlock(UInt256 hash);
 
-        Task<IReadOnlyCollection<Block>> GetBlocks(IReadOnlyCollection<UInt256> blockHashes);
+        IEnumerable<Block> GetBlocks(IReadOnlyCollection<UInt256> blockHashes);
 
         /// <summary>
         /// Returns the hash of the corresponding block based on the specified height
@@ -160,7 +159,7 @@ namespace NeoSharp.Core.Blockchain
         /// <returns></returns>
         Transaction GetTransaction(UInt256 hash, out int height);
 
-        Task<IReadOnlyCollection<Transaction>> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes);
+        IEnumerable<Transaction> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes);
 
         /// <summary>
         /// Get the corresponding unspent assets based on the specified hash value and index
