@@ -32,10 +32,14 @@ namespace NeoSharp.Persistence.RedisDB
             var host = string.IsNullOrEmpty(config.ConnectionString) ? "localhost" : config.ConnectionString;
             var dbId = config.DatabaseId ?? 0;
 
-            //Make the connection to the specified server and database
-            if (_redis == null)
+            if (this._persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb ||
+                this._persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
             {
-                _redis = new RedisHelper(host, dbId);
+                //Make the connection to the specified server and database
+                if (_redis == null)
+                {
+                    _redis = new RedisHelper(host, dbId);
+                }
             }
         }
         #endregion
