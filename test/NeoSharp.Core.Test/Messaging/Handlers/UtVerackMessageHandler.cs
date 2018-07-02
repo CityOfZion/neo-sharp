@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
@@ -45,18 +47,22 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
         public async Task Can_send_get_block_headers_message_if_peer_block_header_height_is_different()
         {
             // Arrange
-            var blockchain = new NullBlockchain();
+            var blockHeader = new BlockHeader()
+            {
+                Index = 1,
+                Hash = UInt256.Zero
+            };
 
-            AutoMockContainer.Register<IBlockchain>(blockchain);
+            var blockchainMock = this.AutoMockContainer.GetMock<IBlockchain>();
+            blockchainMock
+                .SetupGet(x => x.LastBlockHeader)
+                .Returns(blockHeader);
 
             var verAckMessage = new VerAckMessage();
             var version = new VersionPayload();
             var peerMock = AutoMockContainer.GetMock<IPeer>();
 
             peerMock.SetupProperty(x => x.Version, version);
-
-            blockchain.LastBlockHeader.Index = 1;
-            blockchain.LastBlockHeader.Hash = UInt256.Zero;
             version.CurrentBlockIndex = 2;
 
             var messageHandler = AutoMockContainer.Get<VerAckMessageHandler>();
@@ -64,10 +70,9 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             // Act
             await messageHandler.Handle(verAckMessage, peerMock.Object);
 
-            //TODO: Check this
-
             // Assert
-            //peerMock.Verify(x => x.Send(It.IsAny<GetBlockHeadersMessage>()), Times.Once);
+            peerMock.Verify(x => x.Send(It.IsAny<GetBlockHeadersMessage>()), Times.Once);   // TODO: This need to evalueate correctly that the right GetBlockHeadersMessage is been generated.
+            peerMock.Verify(x => x.Send<GetAddrMessage>(), Times.Once);
         }
     }
 }
