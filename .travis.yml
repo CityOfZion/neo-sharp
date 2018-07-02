@@ -17,29 +17,6 @@ script:
 # see https://dasmulli.blog/2018/01/20/make-dotnet-test-work-on-solution-files/ 
 - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
 
-#### merge coverage reports section start
-# merge the coverage reports so they can get uploaded to coveralls correctly. 
-
-# first install lcov-result-merger by cloning it.
-#- git clone https://github.com/mweibel/lcov-result-merger.git
-# now build it into it's own directory
-#- cd lcov-result-merger
-#- npm build
-# now we need to install the dependent packages for lcov.
-#- npm install vinyl
-#- npm install vinyl-fs
-#- npm install through2
-
-# run it against all the coverage files
-#- ./bin/lcov-result-merger.js '../test/*/coverage.info' './coverage_merged.info'
-
-#ok, now you have the merged coverage file
-#### merge coverage reports section done
-
-#using the new uploader
-#- gem install coveralls-lcov
-#- coveralls-lcov --repo-token=$COVERALLS_REPO_TOKEN ./coverage_merged.info
-
 after_success:
 #CODECOV
 - bash <(curl -s https://codecov.io/bash) -v
