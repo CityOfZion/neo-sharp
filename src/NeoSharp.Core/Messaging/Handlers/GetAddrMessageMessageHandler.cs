@@ -39,11 +39,11 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             var networkAddressWithTimes = peers
                 .Select(p => new NetworkAddressWithTime
-                    {
-                        EndPoint = p.EndPoint,
-                        Services = p.Version.Services,
-                        Timestamp = p.Version.Timestamp
-                    }
+                {
+                    EndPoint = p.EndPoint.ToEndPoint(),
+                    Services = p.Version.Services,
+                    Timestamp = p.Version.Timestamp
+                }
                 )
                 .ToArray();
 

@@ -12,6 +12,7 @@ namespace NeoSharp.Core.Blockchain
     public class Blockchain : IDisposable, IBlockchain
     {
         private readonly IRepository _neoSharpRepository;
+
         public static event EventHandler<Block> PersistCompleted;
 
         /// <summary>
@@ -30,12 +31,16 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         public static readonly TimeSpan TimePerBlock = TimeSpan.FromSeconds(SecondsPerBlock);
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="neoSharpRepository">Neo sharp repository</param>
         public Blockchain(IRepository neoSharpRepository)
         {
             _neoSharpRepository = neoSharpRepository;
 
             LastBlockHeader = CurrentBlock = GetBlock(0);
-
+            
             if (CurrentBlock == null)
             {
                 AddBlock(Genesis.GenesisBlock);
@@ -78,7 +83,8 @@ namespace NeoSharp.Core.Blockchain
 
             LastBlockHeader = CurrentBlock = block;
 
-            _neoSharpRepository.AddBlockHeader(block);
+            _neoSharpRepository.AddBlockHeader(LastBlockHeader);
+            _neoSharpRepository.SetTotalBlockHeight(block.Index);
 
             foreach (var tx in block.Transactions)
             {
@@ -106,7 +112,9 @@ namespace NeoSharp.Core.Blockchain
         public Block GetBlock(uint height)
         {
             UInt256 hash = GetBlockHash(height);
+
             if (hash == null) return null;
+
             return GetBlock(hash);
         }
 
@@ -144,6 +152,8 @@ namespace NeoSharp.Core.Blockchain
 
         public IEnumerable<Block> GetBlocks(IReadOnlyCollection<UInt256> blockHashes)
         {
+            // TODO: change this to async
+
             foreach (var hash in blockHashes)
             {
                 var block = GetBlock(hash);
@@ -214,10 +224,11 @@ namespace NeoSharp.Core.Blockchain
         /// <param name="blockHeaders"></param>
         public void AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders)
         {
-            // TODO: hook up persistence here
-            if (blockHeaders.Any())
+            // TODO: finish this logic
+
+            foreach (var header in blockHeaders)
             {
-                LastBlockHeader = blockHeaders.OrderBy(h => h.Index).Last();
+                _neoSharpRepository.AddBlockHeader(header);
             }
         }
 
@@ -283,6 +294,18 @@ namespace NeoSharp.Core.Blockchain
 
                 yield return tx;
             }
+        }
+
+        /// <summary>
+        /// Determine whether the specified transaction is included in the blockchain
+        /// </summary>
+        /// <param name="hash">Transaction hash</param>
+        /// <returns>Return true if the specified transaction is included</returns>
+        public bool ContainsTransaction(UInt256 hash)
+        {
+            // TODO: Optimize this
+
+            return _neoSharpRepository.GetTransaction(hash.ToArray()) != null;
         }
 
         #endregion
@@ -371,16 +394,6 @@ namespace NeoSharp.Core.Blockchain
         //    }
         //    return amount_claimed;
         //}
-
-        /// <summary>
-        /// Determine whether the specified transaction is included in the blockchain
-        /// </summary>
-        /// <param name="hash">Transaction hash</param>
-        /// <returns>Return true if the specified transaction is included</returns>
-        public bool ContainsTransaction(UInt256 hash)
-        {
-            return false;
-        }
 
         public bool ContainsUnspent(CoinReference input)
         {

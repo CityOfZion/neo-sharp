@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
@@ -10,9 +11,8 @@ namespace NeoSharp.Core.Persistence
         #region Private Fields 
 
         private readonly IBinarySerializer _serializer;
-        private readonly PersistenceConfig _persistenceConfig;
-        private readonly IRocksDbRepository _rocksDbRepository;
-        private readonly IRedisDbRepository _redisDbRepository;
+        private readonly IRepository[] _writeRepositories;
+        private readonly IRepository _readRepositories;
 
         #endregion
 
@@ -26,10 +26,22 @@ namespace NeoSharp.Core.Persistence
             IRedisDbRepository redisDbRepository
             )
         {
-            this._serializer = serializer;
-            this._persistenceConfig = persistenceConfig;
-            this._rocksDbRepository = rocksDbRepository;
-            this._redisDbRepository = redisDbRepository;
+            _serializer = serializer;
+
+            var repositories = new List<IRepository>();
+
+            if (persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RocksDb)
+            {
+                repositories.Add(rocksDbRepository);
+            }
+
+            if (persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
+            {
+                repositories.Add(redisDbRepository);
+            }
+
+            _writeRepositories = repositories.ToArray();
+            _readRepositories = repositories.FirstOrDefault();
         }
 
         #endregion
@@ -38,20 +50,31 @@ namespace NeoSharp.Core.Persistence
 
         public void AddBlockHeader(BlockHeader blockHeader)
         {
-            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RocksDb)
+            foreach (var repo in _writeRepositories)
             {
-                _rocksDbRepository.AddBlockHeader(blockHeader);
+                repo.AddBlockHeader(blockHeader);
             }
+        }
 
-            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
+        public void SetTotalBlockHeight(uint height)
+        {
+            foreach (var repo in _writeRepositories)
             {
-                _redisDbRepository.AddBlockHeader(blockHeader);
+                repo.SetTotalBlockHeight(height);
+            }
+        }
+
+        public void AddTransaction(Transaction transaction)
+        {
+            foreach (var repo in _writeRepositories)
+            {
+                repo.AddTransaction(transaction);
             }
         }
 
         public BlockHeader GetBlockHeader(byte[] hash)
         {
-            var ret = _rocksDbRepository.GetBlockHeader(hash);
+            var ret = _readRepositories.GetBlockHeader(hash);
 
             if (ret != null) ret.UpdateHash(_serializer, ICrypto.Default);
 
@@ -60,44 +83,26 @@ namespace NeoSharp.Core.Persistence
 
         public byte[] GetBlockHashFromHeight(uint height)
         {
-            return _rocksDbRepository.GetBlockHashFromHeight(height);
+            return _readRepositories.GetBlockHashFromHeight(height);
         }
 
         public BlockHeader GetBlockHeader(uint height)
         {
-            var hash = _rocksDbRepository.GetBlockHashFromHeight(height);
+            var hash = _readRepositories.GetBlockHashFromHeight(height);
 
             if (hash == null) return null;
 
-            return _rocksDbRepository.GetBlockHeader(hash);
+            return GetBlockHeader(hash);
         }
 
-        public BlockHeader GetBlockHeaderByTimestamp(int timestamp)
+        public uint GetTotalBlockHeight()
         {
-            throw new NotImplementedException();
-        }
-
-        public long GetTotalBlockHeight()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void AddTransaction(Transaction transaction)
-        {
-            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RocksDb)
-            {
-                _rocksDbRepository.AddTransaction(transaction);
-            }
-
-            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
-            {
-                _redisDbRepository.AddTransaction(transaction);
-            }
+            return _readRepositories.GetTotalBlockHeight();
         }
 
         public Transaction GetTransaction(byte[] hash)
         {
-            var ret = _rocksDbRepository.GetTransaction(hash);
+            var ret = _readRepositories.GetTransaction(hash);
 
             if (ret != null) ret.UpdateHash(_serializer, ICrypto.Default);
 

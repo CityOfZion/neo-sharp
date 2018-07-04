@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Text;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
@@ -13,13 +11,16 @@ namespace NeoSharp.Persistence.RedisDB
     public class RedisDbRepository : IRedisDbRepository
     {
         #region Private Fields 
+
         private readonly PersistenceConfig _persistenceConfig;
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
         private readonly RedisHelper _redis;
+
         #endregion
 
-        #region Construtor 
+        #region Construtor
+
         public RedisDbRepository(
             PersistenceConfig persistenceConfig,
             RedisDbConfig config,
@@ -43,6 +44,7 @@ namespace NeoSharp.Persistence.RedisDB
                 }
             }
         }
+
         #endregion
 
         #region IRepository Members
@@ -133,10 +135,19 @@ namespace NeoSharp.Persistence.RedisDB
             return null;
         }
 
-        public long GetTotalBlockHeight()
+        public void SetTotalBlockHeight(uint height)
+        {
+            // TODO: redis logic
+            //_redis.Database.AddToIndex(RedisIndex.BlockHeight, height);
+        }
+
+        public uint GetTotalBlockHeight()
         {
             //Use the block height secondary index to tell us what our block height is
-            return _redis.Database.GetIndexLength(RedisIndex.BlockHeight);
+            //return _redis.Database.GetIndexLength(RedisIndex.BlockHeight);
+
+            // TODO: redis logic
+            throw new NotImplementedException();
         }
 
         public Transaction GetTransaction(byte[] hash)

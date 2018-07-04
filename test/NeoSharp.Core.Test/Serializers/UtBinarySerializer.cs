@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
@@ -228,13 +229,13 @@ namespace NeoSharp.Core.Test.Serializers
                 {
                     new NetworkAddressWithTime
                     {
-                        EndPoint = new EndPoint { Protocol = Protocol.Tcp, Host = "127.0.0.1", Port = ushort.MaxValue },
+                        EndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1").MapToIPv6(), ushort.MaxValue ),
                         Services = ulong.MaxValue,
                         Timestamp = uint.MaxValue,
                     },
                     new NetworkAddressWithTime
                     {
-                        EndPoint= new EndPoint { Protocol = Protocol.Tcp, Host = "::01", Port = ushort.MinValue },
+                        EndPoint = new IPEndPoint(IPAddress.Parse("::01").MapToIPv6(), ushort.MinValue ),
                         Services = ulong.MinValue,
                         Timestamp = uint.MinValue,
                     }
@@ -267,7 +268,7 @@ namespace NeoSharp.Core.Test.Serializers
         {
             var original = new NetworkAddressWithTime
             {
-                EndPoint = new EndPoint { Protocol = Protocol.Tcp, Host = "*", Port = 0 },
+                EndPoint = new IPEndPoint(IPAddress.Broadcast.MapToIPv6(), 0),
                 Services = ulong.MaxValue,
                 Timestamp = uint.MaxValue
             };

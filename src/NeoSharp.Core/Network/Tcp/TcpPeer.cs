@@ -219,8 +219,10 @@ namespace NeoSharp.Core.Network.Tcp
                 {
                     return await _protocol.ReceiveMessageAsync(_stream, tokenSource.Token);
                 }
-                catch
+                catch (Exception err)
                 {
+                    _logger.LogError(err, "Error while receive");
+
                     Disconnect();
                 }
             }
@@ -255,10 +257,12 @@ namespace NeoSharp.Core.Network.Tcp
 
                 try
                 {
-                   await _protocol.SendMessageAsync(_stream, message, tokenSource.Token);
+                    await _protocol.SendMessageAsync(_stream, message, tokenSource.Token);
                 }
-                catch
+                catch (Exception err)
                 {
+                    _logger.LogError(err, "Error while send");
+
                     Disconnect();
                 }
             }

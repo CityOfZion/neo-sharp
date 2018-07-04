@@ -5,6 +5,15 @@ namespace NeoSharp.Core.Messaging.Messages
 {
     public class GetBlockHashesMessage : Message<GetBlocksPayload>
     {
+        public GetBlockHashesMessage()
+        {
+            Command = MessageCommand.getblocks;
+            Payload = new GetBlocksPayload
+            {
+                HashStart = new UInt256[] { }
+            };
+        }
+
         public GetBlockHashesMessage(UInt256 hashStart)
         {
             Command = MessageCommand.getblocks;

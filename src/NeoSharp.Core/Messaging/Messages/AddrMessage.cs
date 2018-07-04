@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
-using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Messages
 {
@@ -38,9 +38,9 @@ namespace NeoSharp.Core.Messaging.Messages
         public ulong Services;
 
         [BinaryProperty(2)]
-        [TypeConverter(typeof(EndPointConverter))]
-        [BinaryTypeSerializer(typeof(EndPointConverter))]
-        public EndPoint EndPoint;
+        [TypeConverter(typeof(IPEndPointConverter))]
+        [BinaryTypeSerializer(typeof(IPEndPointConverter))]
+        public IPEndPoint EndPoint;
 
         /// <summary>
         /// Check if is equal to other

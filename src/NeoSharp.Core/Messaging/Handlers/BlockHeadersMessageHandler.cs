@@ -20,7 +20,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         public async Task Handle(BlockHeadersMessage message, IPeer sender)
         {
-            _blockchain.AddBlockHeaders(message.Payload.Headers);
+            //_blockchain.AddBlockHeaders(message.Payload.Headers.Select(u => u.Header));
 
             if (_blockchain.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
             {

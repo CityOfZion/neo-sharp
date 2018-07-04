@@ -52,8 +52,7 @@ namespace NeoSharp.Core.Network.Protocols
             int size,
             CancellationToken cancellationToken)
         {
-            size = Math.Min(size, MaxBufferSize);
-            var buffer = new byte[size];
+            var buffer = new byte[Math.Min(size, MaxBufferSize)];
 
             using (var memory = new MemoryStream())
             {

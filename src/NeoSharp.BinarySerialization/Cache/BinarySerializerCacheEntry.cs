@@ -22,10 +22,11 @@ namespace NeoSharp.BinarySerialization.Cache
 
         // Fields
 
+        public readonly int Order;
+        public readonly Type Type;
         public readonly string Name;
         public readonly int MaxLength;
         public readonly bool ReadOnly;
-        public readonly Type Type;
         public readonly BinaryPropertyAttribute Context;
 
         // Cache
@@ -72,11 +73,13 @@ namespace NeoSharp.BinarySerialization.Cache
             {
                 Context = null;
                 MaxLength = 0;
+                Order = 0;
             }
             else
             {
                 Context = atr;
                 MaxLength = atr.MaxLength;
+                Order = atr.Order;
             }
 
             if (type == typeof(byte[]))

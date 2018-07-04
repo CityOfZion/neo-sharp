@@ -30,7 +30,13 @@ namespace NeoSharp.Core.Persistence
         /// Retrieves the total / current block height
         /// </summary>
         /// <returns>Total / current block height</returns>
-        long GetTotalBlockHeight();
+        uint GetTotalBlockHeight();
+
+        /// <summary>
+        /// Set the total/ current block height
+        /// </summary>
+        /// <param name="height">Total / current block height</param>
+        void SetTotalBlockHeight(uint height);
 
         #endregion
 

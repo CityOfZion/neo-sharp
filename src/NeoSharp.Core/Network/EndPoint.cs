@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Text.RegularExpressions;
 
 namespace NeoSharp.Core.Network
@@ -14,16 +15,43 @@ namespace NeoSharp.Core.Network
         /// Protocol
         /// </summary>
         public Protocol Protocol { get; set; }
-        
+
         /// <summary>
         /// Host
         /// </summary>
         public string Host { get; set; }
-     
+
         /// <summary>
         /// Port
         /// </summary>
         public int Port { get; set; }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public EndPoint() { }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="protocol">Protocol</param>
+        /// <param name="endPoint">Endpoint</param>
+        public EndPoint(Protocol protocol, IPEndPoint endPoint)
+        {
+            Protocol = protocol;
+            Host = endPoint.Address.ToString();
+            Port = endPoint.Port;
+        }
+
+        /// <summary>
+        /// Get IpEndPoint
+        /// </summary>
+        public IPEndPoint ToEndPoint()
+        {
+            // TODO: check dns
+
+            return new IPEndPoint(IPAddress.Parse(Host), Port);
+        }
 
         public static EndPoint Parse(string value)
         {

@@ -29,8 +29,8 @@ namespace NeoSharp.Core.Messaging.Handlers
                 .ToArray();
 
             var endPointsToConnect = message.Payload.Address
-                .Select(nat => nat.EndPoint)
-                .Where(ep => connectedEndPoints.Contains(ep) == false) 
+                .Select(nat => new EndPoint(Protocol.Tcp, nat.EndPoint))
+                .Where(ep => !connectedEndPoints.Contains(ep))
                 .ToArray();
 
             _server.ConnectToPeers(endPointsToConnect);

@@ -38,7 +38,6 @@ namespace NeoSharp.BinarySerialization.Serializers
             type.GetProperties()
             .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
             .Where(u => u.atr != null)
-            .OrderBy(u => u.atr.Order)
             .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
             .Concat
             (
@@ -47,9 +46,9 @@ namespace NeoSharp.BinarySerialization.Serializers
                 type.GetFields()
                 .Select(u => new { prop = u, atr = u.GetCustomAttribute<BinaryPropertyAttribute>(true) })
                 .Where(u => u.atr != null)
-                .OrderBy(u => u.atr.Order)
                 .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
             )
+            .OrderBy(u => u.Order)
             .ToArray();
         }
 
