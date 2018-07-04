@@ -17,6 +17,7 @@ namespace NeoSharp.Application
             containerBuilder.RegisterModule<SerializationModule>();
             containerBuilder.RegisterModule<PersistenceModule>();
             containerBuilder.RegisterModule<ClientModule>();
+            containerBuilder.RegisterModule<WalletModule>();
 
             var container = containerBuilder.Build();
 

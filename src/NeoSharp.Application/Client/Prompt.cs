@@ -10,6 +10,7 @@ using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Types;
+using NeoSharp.Core.Wallet;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Application.Client
@@ -56,6 +57,10 @@ namespace NeoSharp.Application.Client
         /// Rpc server
         /// </summary>
         private readonly IRpcServer _rpc;
+        /// <summary>
+        /// The wallet.
+        /// </summary>
+        private readonly IWalletManager _walletManager;
         /// <summary>
         /// Command cache
         /// </summary>
@@ -119,7 +124,7 @@ namespace NeoSharp.Application.Client
         /// <param name="blockchain">Blockchain</param>
         public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit,
             ILogger<Prompt> logger, INetworkManager networkManagerInit,
-            IServer serverInit, IRpcServer rpcInit, IBinarySerializer serializer, IBlockchain blockchain)
+                      IServer serverInit, IRpcServer rpcInit, IBinarySerializer serializer, IBlockchain blockchain, IWalletManager walletManager)
         {
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;
@@ -129,6 +134,7 @@ namespace NeoSharp.Application.Client
             _serializer = serializer;
             _rpc = rpcInit;
             _blockchain = blockchain;
+            _walletManager = walletManager;
         }
 
         public void StartPrompt(string[] args)

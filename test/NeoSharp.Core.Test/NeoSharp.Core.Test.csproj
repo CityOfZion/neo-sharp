@@ -30,6 +30,6 @@
 
   <ItemGroup>
     <Folder Include="Persistence\" />
+    <Folder Include="Wallet\" />
   </ItemGroup>
-
 </Project>
