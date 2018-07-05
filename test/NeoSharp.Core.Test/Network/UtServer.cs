@@ -8,10 +8,8 @@ using Moq;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
-using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
-using NeoSharp.Core.Test.ExtensionMethods;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Core.Test.Network
@@ -63,8 +61,7 @@ namespace NeoSharp.Core.Test.Network
             // Assert
             peerFactoryMock.Verify(x => x.ConnectTo(_peerEndPoint), Times.Once);
             peerListenerMock.Verify(x => x.Start(), Times.Once);
-            peerMessageListenerMock.Verify(x => x.StartListen(peer), Times.Once);
-            peerMock.Verify(x => x.Send(It.IsAny<VersionMessage>()), Times.Once);
+            peerMessageListenerMock.Verify(x => x.StartFor(peer, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [TestMethod]
@@ -97,18 +94,12 @@ namespace NeoSharp.Core.Test.Network
         public void Stop_SuccessfulPeerConnection_StoppingServerLeadsToDisconnectingPeer()
         {
             // Arrange 
+            var peerMessageListenerMock = AutoMockContainer.GetMock<IPeerMessageListener>();
             var peerMock = AutoMockContainer.GetMock<IPeer>();
 
             peerMock
                 .SetupGet(x => x.EndPoint)
                 .Returns(_peerEndPoint);
-
-            var waitSendToPeerVersionMessageResetEvent = new ManualResetEvent(false);
-
-            peerMock
-                .SetupFakeHandshake()
-                .Setup(x => x.Send(It.IsAny<VersionMessage>()))
-                .Callback(() => waitSendToPeerVersionMessageResetEvent.Set());
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
 
@@ -121,12 +112,11 @@ namespace NeoSharp.Core.Test.Network
 
             // Act
             server.Start();
-
-            waitSendToPeerVersionMessageResetEvent.WaitOne();
-
             server.Stop();
 
             // Assert
+            peerListenerMock.Verify(x => x.Start(), Times.Once);
+            peerMessageListenerMock.Verify(x => x.StartFor(peerMock.Object, It.IsAny<CancellationToken>()), Times.Once);
             peerMock.Verify(x => x.Disconnect(), Times.Once);
             peerListenerMock.Verify(x => x.Stop(), Times.AtLeastOnce);
         }
@@ -135,18 +125,12 @@ namespace NeoSharp.Core.Test.Network
         public void Dispose_ServerIsRunning_StopListenerAndDisconnectPeer()
         {
             // Arrange 
+            var peerMessageListenerMock = AutoMockContainer.GetMock<IPeerMessageListener>();
             var peerMock = AutoMockContainer.GetMock<IPeer>();
 
             peerMock
                 .SetupGet(x => x.EndPoint)
                 .Returns(_peerEndPoint);
-
-            var waitSendToPeerVersionMessageResetEvent = new ManualResetEvent(false);
-
-            peerMock
-                .SetupFakeHandshake()
-                .Setup(x => x.Send(It.IsAny<VersionMessage>()))
-                .Callback(() => waitSendToPeerVersionMessageResetEvent.Set());
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
 
@@ -159,12 +143,11 @@ namespace NeoSharp.Core.Test.Network
 
             // Act
             server.Start();
-
-            waitSendToPeerVersionMessageResetEvent.WaitOne();
-
             server.Dispose();
 
             // Assert
+            peerListenerMock.Verify(x => x.Start(), Times.Once);
+            peerMessageListenerMock.Verify(x => x.StartFor(peerMock.Object, It.IsAny<CancellationToken>()), Times.Once);
             peerMock.Verify(x => x.Disconnect(), Times.Once);
             peerListenerMock.Verify(x => x.Stop(), Times.AtLeastOnce);
         }
@@ -173,17 +156,11 @@ namespace NeoSharp.Core.Test.Network
         public async Task SendBroadcast_FilterIsNull_MessageSendToConnectedPeers()
         {
             // Arrange
-            var waitSendToPeerVersionMessageResetEvent = new ManualResetEvent(false);
             var peerMock = AutoMockContainer.GetMock<IPeer>();
 
             peerMock
                 .SetupGet(x => x.EndPoint)
                 .Returns(_peerEndPoint);
-
-            peerMock
-                .SetupFakeHandshake()
-                .Setup(x => x.Send(It.IsAny<VersionMessage>()))
-                .Callback(() => waitSendToPeerVersionMessageResetEvent.Set());
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
 
@@ -196,8 +173,6 @@ namespace NeoSharp.Core.Test.Network
 
             // Act
             server.Start();
-
-            waitSendToPeerVersionMessageResetEvent.WaitOne();
 
             await server.SendBroadcast(message);
 
@@ -209,17 +184,11 @@ namespace NeoSharp.Core.Test.Network
         public async Task SendBroadcast_FilterEqualFalse_MessageNotSendToBroadcaster()
         {
             // Arrange
-            var waitSendToPeerVersionMessageResetEvent = new ManualResetEvent(false);
             var peerMock = AutoMockContainer.GetMock<IPeer>();
 
             peerMock
                 .SetupGet(x => x.EndPoint)
                 .Returns(_peerEndPoint);
-
-            peerMock
-                .SetupFakeHandshake()
-                .Setup(x => x.Send(It.IsAny<VersionMessage>()))
-                .Callback(() => waitSendToPeerVersionMessageResetEvent.Set());
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
 
@@ -232,8 +201,6 @@ namespace NeoSharp.Core.Test.Network
 
             // Act
             server.Start();
-
-            waitSendToPeerVersionMessageResetEvent.WaitOne();
 
             await server.SendBroadcast(message, peer => false);
 
@@ -245,17 +212,11 @@ namespace NeoSharp.Core.Test.Network
         public async Task SendBroadcast_FilterEqualTrue_MessageSendToPeer()
         {
             // Arrange
-            var waitSendToPeerVersionMessageResetEvent = new ManualResetEvent(false);
             var peerMock = AutoMockContainer.GetMock<IPeer>();
 
             peerMock
                 .SetupGet(x => x.EndPoint)
                 .Returns(_peerEndPoint);
-
-            peerMock
-                .SetupFakeHandshake()
-                .Setup(x => x.Send(It.IsAny<VersionMessage>()))
-                .Callback(() => waitSendToPeerVersionMessageResetEvent.Set());
 
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
 
@@ -268,8 +229,6 @@ namespace NeoSharp.Core.Test.Network
 
             // Act
             server.Start();
-
-            waitSendToPeerVersionMessageResetEvent.WaitOne();
 
             await server.SendBroadcast(message, peer => true);
 

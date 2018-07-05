@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Messaging;
+using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.Network
 {
@@ -12,40 +13,33 @@ namespace NeoSharp.Core.Network
         #region Private Fields
 
         private static readonly TimeSpan DefaultMessagePollingInterval = TimeSpan.FromMilliseconds(100);
-        private static readonly TimeSpan DefaultReceiveTimeout = TimeSpan.FromMilliseconds(1_000);
 
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly IMessageHandler<Message> _messageHandler;
-        private CancellationTokenSource _messageListenerCancelationToken;
+        private readonly IServerContext _serverContext;
 
         #endregion
 
         #region Constructor
 
-        public PeerMessageListener(IAsyncDelayer asyncDelayer, IMessageHandler<Message> messageHandler)
+        public PeerMessageListener(
+            IAsyncDelayer asyncDelayer,
+            IMessageHandler<Message> messageHandler,
+            IServerContext serverContext)
         {
-            _asyncDelayer = asyncDelayer;
-            _messageHandler = messageHandler;
-
-            _messageListenerCancelationToken = null;
+            _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
+            _messageHandler = messageHandler ?? throw new ArgumentNullException(nameof(messageHandler));
+            _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
         }
 
         #endregion
 
-        #region IPeerMessageListener implementation
+        #region IPeerMessageListener implementation 
 
-        public void StartListen(IPeer peer)
+        public void StartFor(IPeer peer, CancellationToken cancellationToken)
         {
-            // Create cancel token
-
-            if (_messageListenerCancelationToken != null)
-            {
-                _messageListenerCancelationToken.Cancel();
-            }
-
-            _messageListenerCancelationToken = new CancellationTokenSource(DefaultReceiveTimeout);
-
-            // Start tasks
+            // Initiate handshake
+            peer.Send(new VersionMessage(_serverContext.Version));
 
             Task.Factory.StartNew(async () =>
             {
@@ -54,7 +48,7 @@ namespace NeoSharp.Core.Network
                     var message = await peer.Receive();
                     if (message == null)
                     {
-                        await _asyncDelayer.Delay(DefaultMessagePollingInterval, _messageListenerCancelationToken.Token);
+                        await _asyncDelayer.Delay(DefaultMessagePollingInterval, cancellationToken);
                         continue;
                     }
 
@@ -63,16 +57,7 @@ namespace NeoSharp.Core.Network
 
                     await _messageHandler.Handle(message, peer);
                 }
-            },
-            _messageListenerCancelationToken.Token,
-            TaskCreationOptions.LongRunning,
-            TaskScheduler.Default
-            );
-        }
-
-        public void StopListenAllPeers()
-        {
-            _messageListenerCancelationToken?.Cancel();
+            }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
         #endregion

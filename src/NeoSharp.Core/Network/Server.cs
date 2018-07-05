@@ -2,28 +2,20 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
-using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {
     public class Server : IServer, IDisposable
     {
-        #region Properties
-
-        public bool IsStarted => _isStarted;
-
-        #endregion
-
         #region Variables
 
-        private bool _isStarted;
-
+        private bool _isRunning;
         private readonly ILogger<Server> _logger;
-        private readonly IServerContext _serverContext;
         private readonly IPeerMessageListener _peerMessageListener;
         private readonly IPeerFactory _peerFactory;
         private readonly IPeerListener _peerListener;
@@ -36,6 +28,7 @@ namespace NeoSharp.Core.Network
         // ReSharper disable once NotAccessedField.Local
         private readonly IList<IPEndPoint> _failedPeers;
         private readonly EndPoint[] _peerEndPoints;
+        private CancellationTokenSource _messageListenerTokenSource;
 
         #endregion
 
@@ -45,20 +38,18 @@ namespace NeoSharp.Core.Network
         /// Constructor
         /// </summary>
         /// <param name="config">Network configuration</param>
+        /// <param name="aclLoader">ACL loader to define access</param>
         /// <param name="peerFactory">Factory to create peers from endpoints</param>
         /// <param name="peerListener">Listener to accept peer connections</param>
-        /// <param name="aclLoader">ACL loader to define access</param>
-        /// <param name="logger">Logger</param>
-        /// <param name="serverContext">Server context</param>
         /// <param name="peerMessageListener">PeerMessageListener</param>
+        /// <param name="logger">Logger</param>
         public Server(
             NetworkConfig config,
+            INetworkAclLoader aclLoader,
             IPeerFactory peerFactory,
             IPeerListener peerListener,
-            INetworkAclLoader aclLoader,
-            ILogger<Server> logger,
-            IServerContext serverContext,
-            IPeerMessageListener peerMessageListener)
+            IPeerMessageListener peerMessageListener,
+            ILogger<Server> logger)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
             _peerFactory = peerFactory ?? throw new ArgumentNullException(nameof(peerFactory));
@@ -68,7 +59,6 @@ namespace NeoSharp.Core.Network
             _acl = aclLoader.Load(config.AclConfig) ?? NetworkAcl.Default;
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
             _peerMessageListener = peerMessageListener ?? throw new ArgumentNullException(nameof(peerMessageListener));
 
             _peerListener.OnPeerConnected += PeerConnected;
@@ -78,7 +68,6 @@ namespace NeoSharp.Core.Network
 
             // TODO: Change after port forwarding implementation
             _peerEndPoints = config.PeerEndPoints;
-            _isStarted = false;
         }
 
         #endregion
@@ -91,31 +80,32 @@ namespace NeoSharp.Core.Network
         /// <inheritdoc />
         public void Start()
         {
-            if (_isStarted) return;
+            if (_isRunning)
+            {
+                throw new InvalidOperationException("The server is running. To start it again please stop it before.");
+            }
 
-            Stop();
-
-            _isStarted = true;
+            _messageListenerTokenSource = new CancellationTokenSource();
 
             // connect to peers
             ConnectToPeers(_peerEndPoints);
 
             // listen for peers
             _peerListener.Start();
+
+            _isRunning = true;
         }
 
         /// <inheritdoc />
         public void Stop()
         {
-            if (!_isStarted) return;
-
-            _isStarted = false;
-
             _peerListener.Stop();
+
+            _messageListenerTokenSource?.Cancel();
 
             DisconnectPeers();
 
-            _peerMessageListener.StopListenAllPeers();
+            _isRunning = false;
         }
 
         /// <inheritdoc />
@@ -151,18 +141,22 @@ namespace NeoSharp.Core.Network
 
             await Task.CompletedTask;
         }
+
         #endregion
 
-        #region IDisposable Implementation 
+        #region IDisposable Implementation
+
         /// <inheritdoc />
         public void Dispose()
         {
             Stop();
             _peerListener.OnPeerConnected -= PeerConnected;
         }
+
         #endregion
 
         #region Private Methods 
+        
         /// <summary>
         /// Peer connected Event
         /// </summary>
@@ -178,11 +172,7 @@ namespace NeoSharp.Core.Network
                 }
 
                 _connectedPeers.Add(peer);
-
-                _peerMessageListener.StartListen(peer);
-
-                // Initiate handshake
-                peer.Send(new VersionMessage(_serverContext.Version));
+                _peerMessageListener.StartFor(peer, _messageListenerTokenSource.Token);
             }
             catch (Exception e)
             {
