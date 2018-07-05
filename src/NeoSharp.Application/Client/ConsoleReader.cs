@@ -272,90 +272,73 @@ namespace NeoSharp.Application.Client
                     // Autocomplete
                     case ConsoleKey.Tab:
                         {
-                            List<string> matches = new List<string>();
                             string cmd = txt.ToString().ToLowerInvariant();
+                            string[] matches = autocomplete?.Keys.Where(key => key.StartsWith(cmd)).OrderBy(u => u).ToArray();
 
-                            if (autocomplete != null)
+                            if (matches == null || matches.Length <= 0)
                             {
-                                foreach (KeyValuePair<string, List<ParameterInfo[]>> var in autocomplete)
-                                {
-                                    if (!var.Key.StartsWith(cmd)) continue;
+                                // No match
 
-                                    matches.Add(var.Key);
-                                }
+                                break;
                             }
 
-                            if (matches.Count > 0)
+                            int max = 0;
+
+                            if (matches.Length == 1)
                             {
-                                int max = 0;
+                                // 1 found
 
-                                if (matches.Count == 1)
-                                {
-                                    // 1 found
-
-                                    txt.Clear();
-                                    txt.Append(matches[0] + " ");
-                                    cursor = txt.Length;
-                                    max = matches[0].Length;
-                                }
-                                else
-                                {
-                                    // Search match
-
-                                    cmd = matches[0];
-                                    for (int x = 1, m = cmd.Length; x < m; x++)
-                                    {
-                                        var ok = true;
-                                        foreach (var s in matches)
-                                        {
-                                            if (s.StartsWith(cmd.Substring(0, x))) continue;
-
-                                            ok = false;
-                                            break;
-                                        }
-                                        if (ok) max = x;
-                                        else break;
-                                    }
-
-                                    // Take coincidences
-
-                                    txt.Clear();
-                                    txt.Append(matches[0].Substring(0, max));
-                                    cursor = txt.Length;
-                                }
-
-                                // Print found
-
-                                _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
-
-                                if (max <= 0)
-                                {
-                                    var sb = new StringBuilder();
-
-                                    foreach (var var in matches)
-                                    {
-                                        sb.AppendLine(var);
-                                    }
-
-                                    _consoleWriter.Write(sb.ToString(), ConsoleOutputStyle.Autocomplete);
-                                }
-                                else
-                                {
-                                    foreach (var var in matches)
-                                    {
-                                        _consoleWriter.Write(var.Substring(0, max), ConsoleOutputStyle.AutocompleteMatch);
-                                        _consoleWriter.WriteLine(var.Substring(max), ConsoleOutputStyle.Autocomplete);
-                                    }
-                                }
-
-                                // Prompt
-
-                                _consoleWriter.WritePrompt();
-                                _consoleWriter.GetCursorPosition(out startX, out startY);
-
-                                _consoleWriter.Write(txt.ToString(), ConsoleOutputStyle.Input);
-                                _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                                txt.Clear();
+                                txt.Append(matches[0] + " ");
+                                cursor = txt.Length;
+                                max = matches[0].Length;
                             }
+                            else
+                            {
+                                // Search match
+
+                                cmd = matches[0];
+                                for (int x = 1, m = cmd.Length; x <= m; x++)
+                                {
+                                    var ok = true;
+                                    var split = cmd.Substring(0, x);
+
+                                    foreach (string s in matches)
+                                    {
+                                        if (s.StartsWith(split)) continue;
+
+                                        ok = false;
+                                        break;
+                                    }
+
+                                    if (ok) max = x;
+                                    else break;
+                                }
+
+                                // Take coincidences
+
+                                txt.Clear();
+                                txt.Append(matches[0].Substring(0, max));
+                                cursor = txt.Length;
+                            }
+
+                            // Print found
+
+                            _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
+
+                            foreach (var var in matches)
+                            {
+                                _consoleWriter.Write(var.Substring(0, max), ConsoleOutputStyle.AutocompleteMatch);
+                                _consoleWriter.WriteLine(var.Substring(max), ConsoleOutputStyle.Autocomplete);
+                            }
+
+                            // Prompt
+
+                            _consoleWriter.WritePrompt();
+                            _consoleWriter.GetCursorPosition(out startX, out startY);
+
+                            _consoleWriter.Write(txt.ToString(), ConsoleOutputStyle.Input);
+                            _consoleWriter.SetCursorPosition(startX + cursor, startY);
 
                             break;
                         }
