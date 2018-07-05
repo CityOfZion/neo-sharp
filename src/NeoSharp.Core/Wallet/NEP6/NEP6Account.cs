@@ -1,5 +1,4 @@
-﻿using System;
-using NeoSharp.Core.Cryptography;
+﻿using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
 using NeoSharp.Core.Extensions;
@@ -10,13 +9,13 @@ namespace NeoSharp.Core.Wallet.NEP6
 {
     public class NEP6Account : IWalletAccount
     {
-        ICrypto _crypto;
-        Contract _contract;
-        UInt160 _scriptHash;
+        private readonly ICrypto _crypto;
+        private Contract _contract;
+        private UInt160 _scriptHash;
 
         public UInt160 ScriptHash
         {
-            get { return _scriptHash; }
+            get => _scriptHash;
             set
             {
                 _scriptHash = value;
@@ -24,14 +23,14 @@ namespace NeoSharp.Core.Wallet.NEP6
             }
         }
 
-        public String Address { get; private set; }
-        public String Label { get; set; }
+        public string Address { get; private set; }
+        public string Label { get; set; }
         public bool IsDefault { get; set; }
         public bool Lock { get; set; }
-        public String Key { get; set; }
+        public string Key { get; set; }
         public Contract Contract
         {
-            get { return _contract; }
+            get => _contract;
             set
             {
                 _contract = value;

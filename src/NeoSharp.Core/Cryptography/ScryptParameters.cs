@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.Core.Wallet
+﻿namespace NeoSharp.Core.Cryptography
 {
     public class ScryptParameters
     {

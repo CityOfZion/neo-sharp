@@ -1,4 +1,5 @@
 ﻿using NeoSharp.Core.Models;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Persistence
 {
@@ -17,14 +18,14 @@ namespace NeoSharp.Core.Persistence
         /// </summary>
         /// <param name="height">The block height / index to retrieve</param>
         /// <returns>Block hash at specified height / index</returns>
-        byte[] GetBlockHashFromHeight(uint height);
+        UInt256 GetBlockHashFromHeight(uint height);
 
         /// <summary>
         /// Retrieves a block header by hash
         /// </summary>
         /// <param name="hash">Block id / hash</param>
         /// <returns>Block header with specified id</returns>
-        BlockHeader GetBlockHeader(byte[] hash);
+        BlockHeader GetBlockHeader(UInt256 hash);
 
         /// <summary>
         /// Retrieves the total / current block height

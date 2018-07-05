@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using NeoSharp.Core.Cryptography;
 using Newtonsoft.Json.Linq;
 
 namespace NeoSharp.Core.Wallet
@@ -12,13 +12,13 @@ namespace NeoSharp.Core.Wallet
         /// <summary>
         /// name is a label that the user has made to the wallet file.
         /// </summary>
-        String Name { get; set; }
+        string Name { get; set; }
 
         /// <summary>
         /// Version is currently fixed at 1.0 and will be used for functional 
         /// upgrades in the future
         /// </summary>
-        String Version { get; set; }
+        string Version { get; set; }
 
         /// <summary>
         /// scrypt is a ScryptParameters object which describe the parameters 

@@ -94,44 +94,30 @@ namespace NeoSharp.Core.Blockchain
             return true;
         }
 
-        /// <summary>
-        /// Determine whether the specified block is contained in the blockchain
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public bool ContainsBlock(UInt256 hash)
         {
-            return _repository.GetBlockHeader(hash.ToArray()) != null;
+            return _repository.GetBlockHeader(hash) != null;
         }
 
-        /// <summary>
-        /// Return the corresponding block information according to the specified height
-        /// </summary>
-        /// <param name="height">Height</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public Block GetBlock(uint height)
         {
-            UInt256 hash = GetBlockHash(height);
+            var hash = GetBlockHash(height);
 
-            if (hash == null) return null;
-
-            return GetBlock(hash);
+            return hash == null ? null : GetBlock(hash);
         }
 
-        /// <summary>
-        /// Return the corresponding block information according to the specified height
-        /// </summary>
-        /// <param name="hash">Hash</param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public Block GetBlock(UInt256 hash)
         {
-            var header = _repository.GetBlockHeader(hash.ToArray());
+            var header = _repository.GetBlockHeader(hash);
 
             if (header != null)
             {
                 var txs = header.TransactionHashes.Select(u => _repository.GetTransaction(u.ToArray())).ToArray();
 
-                return new Block()
+                return new Block
                 {
                     ConsensusData = header.ConsensusData,
                     Index = header.Index,
@@ -164,28 +150,16 @@ namespace NeoSharp.Core.Blockchain
             }
         }
 
-        /// <summary>
-        /// Returns the hash of the corresponding block based on the specified height
-        /// </summary>
-        /// <param name="height"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public UInt256 GetBlockHash(uint height)
         {
-            var hash = _repository.GetBlockHashFromHeight(height);
-
-            if (hash != null) return new UInt256(hash);
-
-            return UInt256.Zero;
+            return _repository.GetBlockHashFromHeight(height);
         }
 
-        /// <summary>
-        /// Returns the information for the next block based on the specified hash value
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public Block GetNextBlock(UInt256 hash)
         {
-            var header = _repository.GetBlockHeader(hash.ToArray());
+            var header = _repository.GetBlockHeader(hash);
 
             if (header != null)
             {
@@ -195,20 +169,14 @@ namespace NeoSharp.Core.Blockchain
             return null;
         }
 
-        /// <summary>
-        /// Returns the hash value of the next block based on the specified hash value
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public UInt256 GetNextBlockHash(UInt256 hash)
         {
-            var header = _repository.GetBlockHeader(hash.ToArray());
+            var header = _repository.GetBlockHeader(hash);
 
             if (header != null)
             {
-                var nextHash = _repository.GetBlockHashFromHeight(header.Index + 1);
-
-                if (nextHash != null) return new UInt256(nextHash);
+                return this._repository.GetBlockHashFromHeight(header.Index + 1);
             }
 
             return UInt256.Zero;
@@ -246,14 +214,10 @@ namespace NeoSharp.Core.Blockchain
             return null;
         }
 
-        /// <summary>
-        /// Returns the corresponding block header information according to the specified hash value
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public BlockHeader GetBlockHeader(UInt256 hash)
         {
-            return _repository.GetBlockHeader(hash.ToArray());
+            return _repository.GetBlockHeader(hash);
         }
 
         #endregion

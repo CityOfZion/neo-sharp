@@ -26,6 +26,7 @@ namespace NeoSharp.Application.DI
                     {
                         containerBuilder.RegisterSingleton<RocksDbConfig>();
                         containerBuilder.RegisterSingleton<IRepository, RocksDbRepository>();
+                        containerBuilder.RegisterSingleton<IRocksDbContext, RocksDbContext>();
                         break;
                     }
             }

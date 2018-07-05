@@ -3,6 +3,7 @@ using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
+using NeoSharp.Core.Types;
 using NeoSharp.Persistence.RedisDB.Helpers;
 using Newtonsoft.Json;
 
@@ -93,16 +94,13 @@ namespace NeoSharp.Persistence.RedisDB
             }
         }
 
-        public byte[] GetBlockHashFromHeight(uint height)
+        public UInt256 GetBlockHashFromHeight(uint height)
         {
             //Get the hash for the block at the specified height from our secondary index
             var values = _redis.Database.GetFromIndex(RedisIndex.BlockHeight, height);
 
             //We want only the first result
-            if (values.Length > 0)
-                return values[0].HexToBytes();
-
-            return null;
+            return values.Length > 0 ? new UInt256(values[0].HexToBytes()) : null;
         }
 
         public BlockHeader GetBlockHeaderByTimestamp(int timestamp)
@@ -111,16 +109,13 @@ namespace NeoSharp.Persistence.RedisDB
             var values = _redis.Database.GetFromIndex(RedisIndex.BlockTimestamp, timestamp);
 
             //We want only the first result
-            if (values.Length > 0)
-                return GetBlockHeader(values[0].HexToBytes());
-
-            return null;
+            return values.Length > 0 ? GetBlockHeader(new UInt256(values[0].HexToBytes())) : null;
         }
 
-        public BlockHeader GetBlockHeader(byte[] hash)
+        public BlockHeader GetBlockHeader(UInt256 hash)
         {
             //Retrieve the block header
-            var blockHeader = _redis.Database.Get(DataEntryPrefix.DataBlock, hash);
+            var blockHeader = _redis.Database.Get(DataEntryPrefix.DataBlock, hash.ToArray());
 
             if (_persistenceConfig.Provider == StorageProvider.RedisDbBinary)
             {

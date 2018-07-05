@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NeoSharp.Core.Cryptography;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

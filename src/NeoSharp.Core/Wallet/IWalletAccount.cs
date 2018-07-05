@@ -10,7 +10,7 @@ namespace NeoSharp.Core.Wallet
         /// <summary>
         /// address is the base58 encoded address of the account.
         /// </summary>
-        String Address { get; }
+        string Address { get; }
 
         /// <summary>
         /// ScriptHash of Address
@@ -20,7 +20,7 @@ namespace NeoSharp.Core.Wallet
         /// <summary>
         /// label is a label that the user has made to the account.
         /// </summary>
-        String Label { get; set; }
+        string Label { get; set; }
 
         /// <summary>
         /// isDefault indicates whether the account is the default change
@@ -38,7 +38,7 @@ namespace NeoSharp.Core.Wallet
         /// key is the private key of the account in the NEP-2 format. This
         /// field can be null (for watch-only address or non-standard address).
         /// </summary>
-        String Key { get; }
+        string Key { get; }
 
         /// <summary>
         /// contract is a Contract object which describes the details of the
