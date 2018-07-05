@@ -35,6 +35,10 @@
         ConsolePercentWriter CreatePercent(long maxValue = 100);
 
         /// <summary>
+        /// Write prompt
+        /// </summary>
+        void WritePrompt();
+        /// <summary>
         /// Write output into console
         /// </summary>
         /// <param name="output">Output</param>

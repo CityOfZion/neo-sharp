@@ -8,6 +8,13 @@ namespace NeoSharp.Application.Client
     {
         #region Variables
 
+        /// <summary>
+        /// Prompt
+        /// </summary>
+        private const string ReadPrompt = "neo#> ";
+
+        private object _lockObject = new object();
+
         static readonly ReflectionCache<ConsoleOutputStyle, ConsoleOutputStyleAttribute> _cache =
             ReflectionCache<ConsoleOutputStyle, ConsoleOutputStyleAttribute>.CreateFromEnum();
 
@@ -56,14 +63,24 @@ namespace NeoSharp.Application.Client
             Console.Clear();
         }
         /// <summary>
+        /// Write prompt
+        /// </summary>
+        public void WritePrompt()
+        {
+            Write(ReadPrompt, ConsoleOutputStyle.Prompt);
+        }
+        /// <summary>
         /// Write output into console
         /// </summary>
         /// <param name="output">Output</param>
         /// <param name="style">Style</param>
         public void Write(string output, ConsoleOutputStyle style = ConsoleOutputStyle.Output)
         {
-            ApplyStyle(style);
-            Console.Write(output);
+            lock (_lockObject)
+            {
+                ApplyStyle(style);
+                Console.Write(output);
+            }
         }
         /// <summary>
         /// Write line into console
@@ -72,8 +89,11 @@ namespace NeoSharp.Application.Client
         /// <param name="style">Style</param>
         public void WriteLine(string line, ConsoleOutputStyle style = ConsoleOutputStyle.Output)
         {
-            ApplyStyle(style);
-            Console.WriteLine(line);
+            lock (_lockObject)
+            {
+                ApplyStyle(style);
+                Console.WriteLine(line);
+            }
         }
         /// <summary>
         /// Create percent writer

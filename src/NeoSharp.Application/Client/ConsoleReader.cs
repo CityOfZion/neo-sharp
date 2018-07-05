@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security;
 using System.Text;
+using System.Threading;
 
 namespace NeoSharp.Application.Client
 {
@@ -12,17 +13,22 @@ namespace NeoSharp.Application.Client
         #region Constants
 
         /// <summary>
-        /// Prompt
-        /// </summary>
-        private const string ReadPrompt = "neo#> ";
-        /// <summary>
         /// Max history size
         /// </summary>
         private const int MaxHistorySize = 32;
 
         #endregion
 
-        #region Variables
+        #region Public Fields
+
+        /// <summary>
+        /// State
+        /// </summary>
+        public ConsoleReaderState State { get; private set; } = ConsoleReaderState.None;
+
+        #endregion
+
+        #region Private fields
 
         private readonly IConsoleWriter _consoleWriter;
         private readonly List<string> _manualInputs;
@@ -53,12 +59,15 @@ namespace NeoSharp.Application.Client
 
             _manualInputs.AddRange(inputs.Where(u => !string.IsNullOrEmpty(u)));
         }
+
         /// <summary>
         /// Read password
         /// </summary>
         /// <returns>Reteurn Secure string password</returns>
         public SecureString ReadPassword()
         {
+            State = ConsoleReaderState.ReadingPassword;
+
             Console.ForegroundColor = ConsoleColor.Cyan;
 
             var pwd = new SecureString();
@@ -83,25 +92,35 @@ namespace NeoSharp.Application.Client
                     pwd.AppendChar(i.KeyChar);
                     Console.Write("*");
                 }
+
+                State = pwd.Length > 0 ? ConsoleReaderState.ReadingPasswordDirty : ConsoleReaderState.ReadingPassword;
             }
+
+            State = ConsoleReaderState.None;
 
             return pwd;
         }
+
         /// <summary>
         /// Read string from console
         /// </summary>
+        /// <param name="cancel">Cancel</param>
         /// <param name="autocomplete">Autocomplete</param>
         /// <returns>Returns the readed string</returns>
-        public string ReadFromConsole(IDictionary<string, List<ParameterInfo[]>> autocomplete = null)
+        public string ReadFromConsole(CancellationToken cancel, IDictionary<string, List<ParameterInfo[]>> autocomplete = null)
         {
+            State = ConsoleReaderState.Reading;
+
             // Write prompt
 
-            _consoleWriter.Write(ReadPrompt, ConsoleOutputStyle.Prompt);
+            _consoleWriter.WritePrompt();
 
             // If have something loaded
 
             if (_manualInputs.Count > 0)
             {
+                State = ConsoleReaderState.ReadingDirty;
+
                 // Get first loaded command
 
                 var input = _manualInputs[0];
@@ -115,6 +134,8 @@ namespace NeoSharp.Application.Client
 
                     // Use it
 
+                    State = ConsoleReaderState.None;
+
                     return input;
                 }
             }
@@ -122,19 +143,28 @@ namespace NeoSharp.Application.Client
             // Read from console
 
             string ret;
-            if (autocomplete != null && autocomplete.Count > 0)
+            var cursor = 0;
+            var historyIndex = 0;
+            var insertMode = true;
+            var txt = new StringBuilder();
+
+            Console.CursorSize = !insertMode ? 100 : 25;
+            _consoleWriter.GetCursorPosition(out var startX, out var startY);
+
+            var i = new ConsoleKeyInfo();
+
+            do
             {
-                int cursor = 0;
-                int historyIndex = 0;
-                bool insertMode = true;
-                var txt = new StringBuilder();
+                while (!Console.KeyAvailable)
+                {
+                    if (cancel != null && cancel.IsCancellationRequested) return "";
 
-                Console.CursorSize = !insertMode ? 100 : 25;
-                _consoleWriter.GetCursorPosition(out int startX, out int startY);
+                    Thread.Sleep(5);
+                }
 
-                READ_LINE:
+                if (cancel != null && cancel.IsCancellationRequested) return "";
 
-                var i = Console.ReadKey(true);
+                i = Console.ReadKey(true);
 
                 switch (i.Key)
                 {
@@ -148,7 +178,7 @@ namespace NeoSharp.Application.Client
                     case ConsoleKey.Delete:
                         {
                             if (cursor >= txt.Length)
-                                goto READ_LINE;
+                                break;
 
                             txt.Remove(cursor, 1);
 
@@ -163,7 +193,7 @@ namespace NeoSharp.Application.Client
                                 _consoleWriter.Write(" \b", ConsoleOutputStyle.Input);
                             }
 
-                            goto READ_LINE;
+                            break;
                         }
                     case ConsoleKey.Backspace:
                         {
@@ -173,7 +203,7 @@ namespace NeoSharp.Application.Client
                                 cursor--;
                             }
                             else if (cursor == 0)
-                                goto READ_LINE;
+                                break;
 
                             int l = txt.Length - cursor;
                             if (l > 0)
@@ -188,7 +218,7 @@ namespace NeoSharp.Application.Client
                                 _consoleWriter.Write("\b \b", ConsoleOutputStyle.Input);
                             }
 
-                            goto READ_LINE;
+                            break;
                         }
                     // Move
                     case ConsoleKey.LeftArrow:
@@ -200,7 +230,7 @@ namespace NeoSharp.Application.Client
                                 cursor = Math.Min(txt.Length, cursor + 1);
 
                             _consoleWriter.SetCursorPosition(startX + cursor, startY);
-                            goto READ_LINE;
+                            break;
                         }
                     case ConsoleKey.Home:
                     case ConsoleKey.End:
@@ -211,7 +241,7 @@ namespace NeoSharp.Application.Client
                                 cursor = txt.Length;
 
                             _consoleWriter.SetCursorPosition(startX + cursor, startY);
-                            goto READ_LINE;
+                            break;
                         }
                     // History
                     case ConsoleKey.UpArrow:
@@ -237,7 +267,7 @@ namespace NeoSharp.Application.Client
                             CleanFromThisPoint(startX, startY);
                             _consoleWriter.Write(strH, ConsoleOutputStyle.Input);
 
-                            goto READ_LINE;
+                            break;
                         }
                     // Autocomplete
                     case ConsoleKey.Tab:
@@ -245,11 +275,14 @@ namespace NeoSharp.Application.Client
                             List<string> matches = new List<string>();
                             string cmd = txt.ToString().ToLowerInvariant();
 
-                            foreach (KeyValuePair<string, List<ParameterInfo[]>> var in autocomplete)
+                            if (autocomplete != null)
                             {
-                                if (!var.Key.StartsWith(cmd)) continue;
+                                foreach (KeyValuePair<string, List<ParameterInfo[]>> var in autocomplete)
+                                {
+                                    if (!var.Key.StartsWith(cmd)) continue;
 
-                                matches.Add(var.Key);
+                                    matches.Add(var.Key);
+                                }
                             }
 
                             if (matches.Count > 0)
@@ -272,8 +305,8 @@ namespace NeoSharp.Application.Client
                                     cmd = matches[0];
                                     for (int x = 1, m = cmd.Length; x < m; x++)
                                     {
-                                        bool ok = true;
-                                        foreach (string s in matches)
+                                        var ok = true;
+                                        foreach (var s in matches)
                                         {
                                             if (s.StartsWith(cmd.Substring(0, x))) continue;
 
@@ -295,35 +328,43 @@ namespace NeoSharp.Application.Client
 
                                 _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
 
-                                foreach (var var in matches)
+                                if (max <= 0)
                                 {
-                                    _consoleWriter.Write(var.Substring(0, max), ConsoleOutputStyle.AutocompleteMatch);
-                                    _consoleWriter.WriteLine(var.Substring(max), ConsoleOutputStyle.Autocomplete);
+                                    var sb = new StringBuilder();
+
+                                    foreach (var var in matches)
+                                    {
+                                        sb.AppendLine(var);
+                                    }
+
+                                    _consoleWriter.Write(sb.ToString(), ConsoleOutputStyle.Autocomplete);
+                                }
+                                else
+                                {
+                                    foreach (var var in matches)
+                                    {
+                                        _consoleWriter.Write(var.Substring(0, max), ConsoleOutputStyle.AutocompleteMatch);
+                                        _consoleWriter.WriteLine(var.Substring(max), ConsoleOutputStyle.Autocomplete);
+                                    }
                                 }
 
                                 // Prompt
 
-                                _consoleWriter.Write(ReadPrompt, ConsoleOutputStyle.Prompt);
+                                _consoleWriter.WritePrompt();
                                 _consoleWriter.GetCursorPosition(out startX, out startY);
 
                                 _consoleWriter.Write(txt.ToString(), ConsoleOutputStyle.Input);
                                 _consoleWriter.SetCursorPosition(startX + cursor, startY);
                             }
-                            else
-                            {
-                                // No match
 
-                                _consoleWriter.WriteLine("", ConsoleOutputStyle.Input);
-                            }
-
-                            goto READ_LINE;
+                            break;
                         }
                     // Special
                     case ConsoleKey.Insert:
                         {
                             insertMode = !insertMode;
                             Console.CursorSize = !insertMode ? 100 : 25;
-                            goto READ_LINE;
+                            break;
                         }
                     // Write
                     default:
@@ -344,29 +385,31 @@ namespace NeoSharp.Application.Client
                                 _consoleWriter.SetCursorPosition(startX + cursor, startY);
                             }
 
-                            goto READ_LINE;
+                            break;
                         }
                 }
 
-                ret = txt.ToString();
+                State = txt.Length > 0 ? ConsoleReaderState.ReadingDirty : ConsoleReaderState.Reading;
             }
-            else
-            {
-                _consoleWriter.ApplyStyle(ConsoleOutputStyle.Input);
-                ret = Console.ReadLine();
-            }
+            while (i.Key != ConsoleKey.Enter);
+
+            ret = txt.ToString();
 
             // Append to history
 
             if (_history.LastOrDefault() != ret)
             {
                 if (_history.Count > MaxHistorySize)
+                {
                     _history.RemoveAt(0);
+                }
 
                 _history.Add(ret);
             }
 
             // return text
+
+            State = ConsoleReaderState.None;
 
             return ret;
         }

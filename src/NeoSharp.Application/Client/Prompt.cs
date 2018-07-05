@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain;
@@ -40,7 +43,7 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Logger
         /// </summary>
-        private readonly ILogger<Prompt> _logger;
+        private readonly Core.Logging.ILogger<Prompt> _logger;
         /// <summary>
         /// Network manager
         /// </summary>
@@ -67,8 +70,23 @@ namespace NeoSharp.Application.Client
         private static readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
         private static readonly IDictionary<string, List<ParameterInfo[]>> _commandAutocompleteCache;
 
+        private readonly ILoggerFactoryExtended _loggerFactory;
+
         public delegate void delOnCommandRequested(IPrompt prompt, PromptCommandAttribute cmd, string commandLine);
         public event delOnCommandRequested OnCommandRequested;
+
+        private readonly ConcurrentBag<LogEntry> _logs;
+
+        private readonly static Dictionary<LogLevel, ConsoleOutputStyle> _logStyle = new Dictionary<LogLevel, ConsoleOutputStyle>()
+        {
+            { LogLevel.Critical, ConsoleOutputStyle.Error },
+            { LogLevel.Error, ConsoleOutputStyle.Error },
+            { LogLevel.Information, ConsoleOutputStyle.Log },
+            { LogLevel.None, ConsoleOutputStyle.Log },
+            { LogLevel.Trace, ConsoleOutputStyle.Log },
+            { LogLevel.Warning, ConsoleOutputStyle.Log },
+            { LogLevel.Debug, ConsoleOutputStyle.Log }
+        };
 
         #endregion
 
@@ -116,6 +134,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="consoleReaderInit">Console reader init</param>
         /// <param name="consoleWriterInit">Console writer init</param>
+        /// <param name="loggerFactory">Logget factory</param>
         /// <param name="logger">Logger</param>
         /// <param name="networkManagerInit">Network manger init</param>
         /// <param name="serverInit">Server</param>
@@ -123,8 +142,8 @@ namespace NeoSharp.Application.Client
         /// <param name="serializer">Binary serializer</param>
         /// <param name="blockchain">Blockchain</param>
         public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit,
-            ILogger<Prompt> logger, INetworkManager networkManagerInit,
-                      IServer serverInit, IRpcServer rpcInit, IBinarySerializer serializer, IBlockchain blockchain, IWalletManager walletManager)
+            ILoggerFactoryExtended loggerFactory, Core.Logging.ILogger<Prompt> logger, INetworkManager networkManagerInit,
+            IServer serverInit, IRpcServer rpcInit, IBinarySerializer serializer, IBlockchain blockchain, IWalletManager walletManager)
         {
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;
@@ -134,13 +153,15 @@ namespace NeoSharp.Application.Client
             _serializer = serializer;
             _rpc = rpcInit;
             _blockchain = blockchain;
+            _loggerFactory = loggerFactory;
+            _logs = new ConcurrentBag<LogEntry>();
             _walletManager = walletManager;
         }
 
         public void StartPrompt(string[] args)
         {
             _logger.LogInformation("Starting Prompt");
-            _consoleWriter.WriteLine("Neo-Sharp");
+            _consoleWriter.WriteLine("Neo-Sharp", ConsoleOutputStyle.Prompt);
 
             if (args != null)
             {
@@ -151,8 +172,27 @@ namespace NeoSharp.Application.Client
 
             while (!_exit)
             {
-                var fullCmd = _consoleReader.ReadFromConsole(_commandAutocompleteCache);
-                if (string.IsNullOrWhiteSpace(fullCmd)) continue;
+                // Read log buffer
+
+                while (_logs.TryTake(out var log))
+                {
+                    _consoleWriter.WriteLine
+                        (
+                        "[" + log.Level.ToString() + (string.IsNullOrEmpty(log.Category) ? "" : "-" + log.Category) + "] " +
+                        log.MessageWithError, _logStyle[log.Level]
+                        );
+                }
+
+                // Read input
+
+                var fullCmd = _consoleReader.ReadFromConsole(CancellationToken.None, _commandAutocompleteCache);
+
+                if (string.IsNullOrWhiteSpace(fullCmd))
+                {
+                    continue;
+                }
+
+                _logger.LogInformation("Execute: " + fullCmd);
 
                 Execute(fullCmd);
             }

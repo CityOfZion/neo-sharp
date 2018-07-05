@@ -1,15 +1,28 @@
-﻿using NeoSharp.Application.Attributes;
-using NeoSharp.Core.Types;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using NeoSharp.Application.Attributes;
+using NeoSharp.Core.Logging;
+using NeoSharp.Core.Types;
+using NeoSharp.Logging.NLog;
 
 namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
+        public enum LogMode
+        {
+            On,
+            Off
+        }
+
+        private void Log_OnLog(LogEntry log)
+        {
+            _logs.Add(log);
+        }
+
         private StreamWriter _record;
 
         /// <summary>
@@ -70,6 +83,28 @@ namespace NeoSharp.Application.Client
                     foreach (var par in modes)
                         _consoleWriter.WriteLine("  " + par, ConsoleOutputStyle.Information);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Enable / Disable logs
+        /// </summary>
+        /// <param name="mode">Mode</param>
+        [PromptCommand("log", Help = "Enable/Disable log output", Category = "Usability")]
+        private void LogCommand(LogMode mode)
+        {
+            if (mode == LogMode.On)
+            {
+                _loggerFactory.OnLog -= Log_OnLog;
+                _loggerFactory.OnLog += Log_OnLog;
+
+                _logger.LogDebug("Log output is enabled");
+            }
+            else
+            {
+                _logger.LogDebug("Log output is disabled");
+
+                _loggerFactory.OnLog -= Log_OnLog;
             }
         }
 
@@ -197,7 +232,7 @@ namespace NeoSharp.Application.Client
         private void HelpCommand()
         {
             string lastCat = null, lastCom = null;
-            foreach (string[] key in _commandCache.Keys.OrderBy(u => _commandCache[u].Category + "\n" + u))
+            foreach (string[] key in _commandCache.Keys.OrderBy(u => _commandCache[u].Category + "\n" + string.Join("", u)))
             {
                 var c = _commandCache[key];
 

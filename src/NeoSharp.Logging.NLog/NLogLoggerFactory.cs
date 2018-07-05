@@ -1,14 +1,28 @@
 ﻿using Microsoft.Extensions.Logging;
+using NeoSharp.Core.Logging;
 using NLog;
 using NLog.Extensions.Logging;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace NeoSharp.Logging.NLog
 {
-    public class NLogLoggerFactory : ILoggerFactory
+    public class NLogLoggerFactory : ILoggerFactoryExtended
     {
+        #region Public event
+
+        public event delOnLog OnLog;
+
+        #endregion
+
+        #region Private fields
+
         private readonly LoggerFactory _loggerFactory;
 
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public NLogLoggerFactory()
         {
             _loggerFactory = new LoggerFactory();
@@ -28,6 +42,11 @@ namespace NeoSharp.Logging.NLog
         public ILogger CreateLogger(string categoryName)
         {
             return _loggerFactory.CreateLogger(categoryName);
+        }
+
+        public void RaiseOnLog(LogEntry log)
+        {
+            OnLog?.Invoke(log);
         }
 
         public void AddProvider(ILoggerProvider provider)

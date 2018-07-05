@@ -6,10 +6,16 @@ namespace NeoSharp.Core.Logging
 {
     public class LoggerAdapter<TCategory> : ILogger<TCategory>
     {
+        #region Privte fields
+
+        private readonly ILoggerFactoryExtended _factory;
         private readonly ILogger _logger;
 
-        public LoggerAdapter(ILoggerFactory factory)
+        #endregion
+
+        public LoggerAdapter(ILoggerFactoryExtended factory)
         {
+            _factory = factory;
             _logger = factory.CreateLogger<TCategory>();
         }
 
@@ -111,6 +117,14 @@ namespace NeoSharp.Core.Logging
         /// <inheritdoc />
         public void Log(LogLevel logLevel, Exception exception, string message, params object[] args)
         {
+            _factory?.RaiseOnLog(new LogEntry()
+            {
+                Category = typeof(TCategory).Name,
+                Level = logLevel,
+                Message = message,
+                Exception = exception
+            });
+
             _logger.Log(logLevel, 0, new FormattedLogValues(message, args), exception, MessageFormatter);
         }
 
