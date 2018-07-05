@@ -14,15 +14,12 @@ using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Types;
 using NeoSharp.Core.Wallet;
-using Newtonsoft.Json;
 
 namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
         #region Variables
-
-        public enum PromptOutputStyle { json, raw };
 
         /// <summary>
         /// Exit flag
@@ -306,38 +303,6 @@ namespace NeoSharp.Application.Client
 
                 PrintHelp(cmds);
                 return false;
-            }
-        }
-
-        /// <summary>
-        /// Write object
-        /// </summary>
-        /// <param name="obj">Object</param>
-        /// <param name="output">Output</param>
-        private void WriteObject(object obj, PromptOutputStyle output)
-        {
-            if (obj == null)
-            {
-                _consoleWriter.WriteLine("NULL", ConsoleOutputStyle.Error);
-                return;
-            }
-
-            switch (output)
-            {
-                case PromptOutputStyle.json:
-                    {
-                        _consoleWriter.WriteLine(JsonConvert.SerializeObject(obj, Formatting.Indented));
-                        break;
-                    }
-                case PromptOutputStyle.raw:
-                    {
-                        if (obj is byte[] data)
-                            _consoleWriter.WriteLine(data.ToHexString(true));
-                        else
-                            _consoleWriter.WriteLine(_serializer.Serialize(obj).ToHexString(true));
-
-                        break;
-                    }
             }
         }
     }

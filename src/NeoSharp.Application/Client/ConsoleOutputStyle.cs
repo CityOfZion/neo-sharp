@@ -6,6 +6,27 @@ namespace NeoSharp.Application.Client
     public enum ConsoleOutputStyle : byte
     {
         /// <summary>
+        /// Gray
+        /// </summary>
+        [ConsoleOutputStyle(Foreground = ConsoleColor.Gray)]
+        Gray,
+        /// <summary>
+        /// White
+        /// </summary>
+        [ConsoleOutputStyle(Foreground = ConsoleColor.White)]
+        White,
+        /// <summary>
+        /// DarkGray
+        /// </summary>
+        [ConsoleOutputStyle(Foreground = ConsoleColor.DarkGray)]
+        DarkGray,
+        /// <summary>
+        /// DarkRed
+        /// </summary>
+        [ConsoleOutputStyle(Foreground = ConsoleColor.DarkRed)]
+        DarkRed,
+
+        /// <summary>
         /// Regular output
         /// </summary>
         [ConsoleOutputStyle(Foreground = ConsoleColor.White)]
