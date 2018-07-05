@@ -1,7 +1,4 @@
-﻿using System;
-using NeoSharp.Core.Types.Json;
-
-namespace NeoSharp.Core.Wallet
+﻿namespace NeoSharp.Core.Wallet
 {
     public class ScryptParameters
     {

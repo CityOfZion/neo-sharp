@@ -1,7 +1,7 @@
 ﻿using System;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
-using NeoSharp.Core.Types.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NeoSharp.Core.Wallet
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NeoSharp.Core.Types.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NeoSharp.Core.Wallet
 {
