@@ -15,7 +15,7 @@ namespace NeoSharp.Core.Blockchain
 
         Block CurrentBlock { get; }
 
-        BlockHeader LastBlockHeader { get; }
+        BlockHeaderBase LastBlockHeader { get; }
 
         /// <summary>
         /// Add the specified block to the blockchain
@@ -28,7 +28,7 @@ namespace NeoSharp.Core.Blockchain
         /// Add the specified block headers to the blockchain
         /// </summary>
         /// <param name="blockHeaders"></param>
-        void AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders);
+        void AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders);
 
         /// <summary>
         /// Determine whether the specified block is contained in the blockchain

@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace NeoSharp.Persistence.RedisDB
 {
-    public class RedisDbRepository : IRedisDbRepository
+    public class RedisDbRepository : IRepository
     {
         #region Private Fields 
 
@@ -34,8 +34,8 @@ namespace NeoSharp.Persistence.RedisDB
             var host = string.IsNullOrEmpty(config.ConnectionString) ? "localhost" : config.ConnectionString;
             var dbId = config.DatabaseId ?? 0;
 
-            if (this._persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb ||
-                this._persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
+            if (this._persistenceConfig.Provider == StorageProvider.RedisDbBinary ||
+                this._persistenceConfig.Provider == StorageProvider.RedisDbJson)
             {
                 //Make the connection to the specified server and database
                 if (_redis == null)
@@ -49,17 +49,17 @@ namespace NeoSharp.Persistence.RedisDB
 
         #region IRepository Members
 
-        public void AddBlockHeader(BlockHeader blockHeader)
+        public void AddBlockHeader(BlockHeaderBase blockHeader)
         {
             //Serialize
-            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb)
+            if (_persistenceConfig.Provider == StorageProvider.RedisDbBinary)
             {
                 var blockHeaderBytes = _serializer.Serialize(blockHeader);
                 //Write the redis database with the binary bytes
                 _redis.Database.Set(DataEntryPrefix.DataBlock, blockHeader.Hash.ToString(), blockHeaderBytes);
             }
 
-            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
+            if (_persistenceConfig.Provider == StorageProvider.RedisDbJson)
             {
                 var blockHeaderJson = JsonConvert.SerializeObject(blockHeader);
                 //Write the redis database with the binary bytes
@@ -76,7 +76,7 @@ namespace NeoSharp.Persistence.RedisDB
 
         public void AddTransaction(Transaction transaction)
         {
-            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb)
+            if (_persistenceConfig.Provider == StorageProvider.RedisDbBinary)
             {
                 //Convert to bytes
                 var transactionBytes = _serializer.Serialize(transaction);
@@ -84,7 +84,7 @@ namespace NeoSharp.Persistence.RedisDB
                 _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash.ToString(), transactionBytes);
             }
 
-            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
+            if (_persistenceConfig.Provider == StorageProvider.RedisDbJson)
             {
                 //Convert to bytes
                 var transactionJson = JsonConvert.SerializeObject(transaction);
@@ -122,12 +122,12 @@ namespace NeoSharp.Persistence.RedisDB
             //Retrieve the block header
             var blockHeader = _redis.Database.Get(DataEntryPrefix.DataBlock, hash);
 
-            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb)
+            if (_persistenceConfig.Provider == StorageProvider.RedisDbBinary)
             {
                 return _deserializer.Deserialize<BlockHeader>(blockHeader);
             }
 
-            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
+            if (_persistenceConfig.Provider == StorageProvider.RedisDbJson)
             {
                 return JsonConvert.DeserializeObject<BlockHeader>(blockHeader);
             }
@@ -154,12 +154,12 @@ namespace NeoSharp.Persistence.RedisDB
         {
             var transaction = _redis.Database.Get(DataEntryPrefix.DataTransaction, hash);
 
-            if (_persistenceConfig.BinaryStorageProvider == BinaryStorageProvider.RedisDb)
+            if (_persistenceConfig.Provider == StorageProvider.RedisDbBinary)
             {
                 return _deserializer.Deserialize<Transaction>(transaction);
             }
 
-            if (_persistenceConfig.JsonStorageProvider == JsonStorageProvider.RedisDb)
+            if (_persistenceConfig.Provider == StorageProvider.RedisDbJson)
             {
                 return JsonConvert.DeserializeObject<Transaction>(transaction);
             }

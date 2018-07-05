@@ -10,7 +10,7 @@ namespace NeoSharp.Core.Persistence
         /// Adds a block header to the repository storage
         /// </summary>
         /// <param name="blockHeader"></param>
-        void AddBlockHeader(BlockHeader blockHeader);
+        void AddBlockHeader(BlockHeaderBase blockHeader);
 
         /// <summary>
         /// Retrieves a hash by height / index

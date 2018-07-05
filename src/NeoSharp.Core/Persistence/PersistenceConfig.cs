@@ -8,9 +8,7 @@ namespace NeoSharp.Core.Persistence
     {
         private static PersistenceConfig _persistenceConfig;
 
-        public BinaryStorageProvider BinaryStorageProvider { get; internal set; }
-
-        public JsonStorageProvider JsonStorageProvider { get; internal set; }
+        public StorageProvider Provider { get; internal set; }
 
         public static PersistenceConfig Instance()
         {
@@ -30,17 +28,12 @@ namespace NeoSharp.Core.Persistence
         }
     }
 
-    public enum BinaryStorageProvider
+    public enum StorageProvider
     {
         None,
         RocksDb,
-        RedisDb
-    }
-
-    public enum JsonStorageProvider
-    {
-        None,
-        RedisDb,
+        RedisDbBinary,
+        RedisDbJson,
         MongoDb
     }
 }

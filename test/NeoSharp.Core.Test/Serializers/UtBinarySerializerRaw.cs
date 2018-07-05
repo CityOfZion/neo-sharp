@@ -99,6 +99,11 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(tx.Outputs.Length, 0);
 
             CollectionAssert.AreEqual(data, _serializer.Serialize(block));
+
+            var header = (BlockHeader)block;
+            header.UpdateHash(_serializer, _crypto);
+
+            Assert.AreEqual(block.Hash, header.Hash);
         }
 
         [TestMethod]

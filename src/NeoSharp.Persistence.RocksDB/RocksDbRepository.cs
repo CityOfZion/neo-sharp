@@ -6,7 +6,7 @@ using RocksDbSharp;
 
 namespace NeoSharp.Persistence.RocksDB
 {
-    public class RocksDbRepository : IRocksDbRepository, IDisposable
+    public class RocksDbRepository : IRepository, IDisposable
     {
         #region Private Fields
 
@@ -41,7 +41,7 @@ namespace NeoSharp.Persistence.RocksDB
             return _rocksDb.Get(BuildKey(DataEntryPrefix.IxHeightToHash, BitConverter.GetBytes(height)));
         }
 
-        public void AddBlockHeader(BlockHeader blockHeader)
+        public void AddBlockHeader(BlockHeaderBase blockHeader)
         {
             var hash = blockHeader.Hash.ToArray();
             var ix = BitConverter.GetBytes(blockHeader.Index);

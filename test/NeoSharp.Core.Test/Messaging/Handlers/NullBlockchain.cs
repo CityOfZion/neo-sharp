@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Models;
@@ -15,7 +14,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
 
         public Block CurrentBlock => _current;
 
-        public BlockHeader LastBlockHeader => CurrentBlock;
+        public BlockHeaderBase LastBlockHeader => CurrentBlock;
 
         public StampedPool<UInt256, Transaction> MemoryPool => new StampedPool<UInt256, Transaction>(PoolMaxBehaviour.DontAllowMore, 0, x => x.Value.Hash, null);
 
@@ -159,7 +158,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public void AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders)
+        public void AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders)
         {
             throw new NotImplementedException();
         }

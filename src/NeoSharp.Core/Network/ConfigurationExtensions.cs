@@ -35,13 +35,9 @@ namespace NeoSharp.Core.Network
 
         public static void Bind(this IConfiguration config, PersistenceConfig persistenceConfig)
         {
-            persistenceConfig.BinaryStorageProvider = config
-                .GetSection("binaryStorageProvider")
-                .Get<BinaryStorageProvider>();
-
-            persistenceConfig.JsonStorageProvider = config
-                .GetSection("jsonStorageProviders")
-                .Get<JsonStorageProvider>();
+            persistenceConfig.Provider = config
+                .GetSection("Provider")
+                .Get<StorageProvider>();
         }
 
         public static void Bind(this IConfiguration config, RocksDbConfig rocksDbConfig)

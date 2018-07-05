@@ -10,13 +10,25 @@ namespace NeoSharp.Application.DI
         public void Register(IContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterSingleton<PersistenceConfig>();
-            containerBuilder.RegisterSingleton<IRepository, NeoSharpRepository>();
 
-            containerBuilder.RegisterSingleton<RocksDbConfig>();
-            containerBuilder.RegisterSingleton<IRocksDbRepository, RocksDbRepository>();
+            var cfg = PersistenceConfig.Instance();
 
-            containerBuilder.RegisterSingleton<RedisDbConfig>();
-            containerBuilder.RegisterSingleton<IRedisDbRepository, RedisDbRepository>();
+            switch (cfg.Provider)
+            {
+                case StorageProvider.RedisDbBinary:
+                case StorageProvider.RedisDbJson:
+                    {
+                        containerBuilder.RegisterSingleton<RedisDbConfig>();
+                        containerBuilder.RegisterSingleton<IRepository, RedisDbRepository>();
+                        break;
+                    }
+                case StorageProvider.RocksDb:
+                    {
+                        containerBuilder.RegisterSingleton<RocksDbConfig>();
+                        containerBuilder.RegisterSingleton<IRepository, RocksDbRepository>();
+                        break;
+                    }
+            }
         }
     }
 }
