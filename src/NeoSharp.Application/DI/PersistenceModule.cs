@@ -1,4 +1,5 @@
-﻿using NeoSharp.Core.DI;
+﻿using System;
+using NeoSharp.Core.DI;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Persistence.RedisDB;
 using NeoSharp.Persistence.RocksDB;
@@ -15,20 +16,23 @@ namespace NeoSharp.Application.DI
 
             switch (cfg.Provider)
             {
-                case StorageProvider.RedisDbBinary:
-                case StorageProvider.RedisDbJson:
+                case RedisDbConfig.Provider:
                     {
                         containerBuilder.RegisterSingleton<RedisDbConfig>();
                         containerBuilder.RegisterSingleton<IRepository, RedisDbRepository>();
                         break;
                     }
-                case StorageProvider.RocksDb:
+
+                case RocksDbConfig.Provider:
                     {
                         containerBuilder.RegisterSingleton<RocksDbConfig>();
                         containerBuilder.RegisterSingleton<IRepository, RocksDbRepository>();
                         containerBuilder.RegisterSingleton<IRocksDbContext, RocksDbContext>();
                         break;
                     }
+
+                default:
+                    throw new Exception($"The persistence configuration contains unknown provider \"{cfg.Provider}\"");
             }
         }
     }

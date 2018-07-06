@@ -1,6 +1,5 @@
 ﻿using System.IO;
 using Microsoft.Extensions.Configuration;
-using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Persistence
 {
@@ -8,7 +7,7 @@ namespace NeoSharp.Core.Persistence
     {
         private static PersistenceConfig _persistenceConfig;
 
-        public StorageProvider Provider { get; internal set; }
+        public string Provider { get; internal set; }
 
         public static PersistenceConfig Instance()
         {
@@ -20,20 +19,12 @@ namespace NeoSharp.Core.Persistence
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", false, true);
-            var configurationRoot = (IConfiguration)builder.Build();
 
-            configurationRoot?
+            var configuration = (IConfiguration)builder.Build();
+
+            configuration?
                 .GetSection("persistence")?
                 .Bind(this);
         }
-    }
-
-    public enum StorageProvider
-    {
-        None,
-        RocksDb,
-        RedisDbBinary,
-        RedisDbJson,
-        MongoDb
     }
 }

@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
-using NeoSharp.Core.Network;
 
-namespace NeoSharp.Core.Persistence
+namespace NeoSharp.Persistence.RocksDB
 {
     public class RocksDbConfig
     {
+        public const string Provider = "RocksDb";
+
         public string FilePath { get; set; }
 
         public RocksDbConfig(IConfiguration configuration)

@@ -33,24 +33,6 @@ namespace NeoSharp.Core.Network
             rpcConfig.AclConfig = ParseAcl(config, "acl");
         }
 
-        public static void Bind(this IConfiguration config, PersistenceConfig persistenceConfig)
-        {
-            persistenceConfig.Provider = config
-                .GetSection("Provider")
-                .Get<StorageProvider>();
-        }
-
-        public static void Bind(this IConfiguration config, RocksDbConfig rocksDbConfig)
-        {
-            rocksDbConfig.FilePath = ParseString(config.GetSection("rocksDbProvider"), "filePath");
-        }
-
-        public static void Bind(this IConfiguration config, RedisDbConfig redisDbConfig)
-        {
-            redisDbConfig.ConnectionString = ParseString(config.GetSection("redidDbProvider"), "connectionString");
-            redisDbConfig.DatabaseId = ParseUInt16(config.GetSection("redidDbProvider"), "databaseId");
-        }
-
         private static uint ParseUInt32(IConfiguration config, string section, uint defaultValue = 0)
         {
             var value = config.GetSection(section)?.Get<uint>();

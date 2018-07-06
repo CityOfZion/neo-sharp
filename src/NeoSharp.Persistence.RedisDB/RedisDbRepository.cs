@@ -13,7 +13,7 @@ namespace NeoSharp.Persistence.RedisDB
     {
         #region Private Fields 
 
-        private readonly PersistenceConfig _persistenceConfig;
+        private readonly RedisDbConfig _config;
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
         private readonly RedisHelper _redis;
@@ -23,26 +23,21 @@ namespace NeoSharp.Persistence.RedisDB
         #region Construtor
 
         public RedisDbRepository(
-            PersistenceConfig persistenceConfig,
             RedisDbConfig config,
             IBinarySerializer serializer,
             IBinaryDeserializer deserializer)
         {
-            _persistenceConfig = persistenceConfig ?? throw new ArgumentNullException(nameof(persistenceConfig));
+            _config = config ?? throw new ArgumentNullException(nameof(config));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
 
             var host = string.IsNullOrEmpty(config.ConnectionString) ? "localhost" : config.ConnectionString;
             var dbId = config.DatabaseId ?? 0;
 
-            if (this._persistenceConfig.Provider == StorageProvider.RedisDbBinary ||
-                this._persistenceConfig.Provider == StorageProvider.RedisDbJson)
+            //Make the connection to the specified server and database
+            if (_redis == null)
             {
-                //Make the connection to the specified server and database
-                if (_redis == null)
-                {
-                    _redis = new RedisHelper(host, dbId);
-                }
+                _redis = new RedisHelper(host, dbId);
             }
         }
 
@@ -53,14 +48,13 @@ namespace NeoSharp.Persistence.RedisDB
         public void AddBlockHeader(BlockHeaderBase blockHeader)
         {
             //Serialize
-            if (_persistenceConfig.Provider == StorageProvider.RedisDbBinary)
+            if (_config.IsBinaryMode)
             {
                 var blockHeaderBytes = _serializer.Serialize(blockHeader);
                 //Write the redis database with the binary bytes
                 _redis.Database.Set(DataEntryPrefix.DataBlock, blockHeader.Hash.ToString(), blockHeaderBytes);
             }
-
-            if (_persistenceConfig.Provider == StorageProvider.RedisDbJson)
+            else
             {
                 var blockHeaderJson = JsonConvert.SerializeObject(blockHeader);
                 //Write the redis database with the binary bytes
@@ -77,15 +71,14 @@ namespace NeoSharp.Persistence.RedisDB
 
         public void AddTransaction(Transaction transaction)
         {
-            if (_persistenceConfig.Provider == StorageProvider.RedisDbBinary)
+            if (_config.IsBinaryMode)
             {
                 //Convert to bytes
                 var transactionBytes = _serializer.Serialize(transaction);
                 //Write the redis database with the binary bytes
                 _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash.ToString(), transactionBytes);
             }
-
-            if (_persistenceConfig.Provider == StorageProvider.RedisDbJson)
+            else
             {
                 //Convert to bytes
                 var transactionJson = JsonConvert.SerializeObject(transaction);
@@ -117,17 +110,14 @@ namespace NeoSharp.Persistence.RedisDB
             //Retrieve the block header
             var blockHeader = _redis.Database.Get(DataEntryPrefix.DataBlock, hash.ToArray());
 
-            if (_persistenceConfig.Provider == StorageProvider.RedisDbBinary)
+            if (_config.IsBinaryMode)
             {
                 return _deserializer.Deserialize<BlockHeader>(blockHeader);
             }
-
-            if (_persistenceConfig.Provider == StorageProvider.RedisDbJson)
+            else
             {
                 return JsonConvert.DeserializeObject<BlockHeader>(blockHeader);
             }
-
-            return null;
         }
 
         public void SetTotalBlockHeight(uint height)
@@ -149,17 +139,14 @@ namespace NeoSharp.Persistence.RedisDB
         {
             var transaction = _redis.Database.Get(DataEntryPrefix.DataTransaction, hash);
 
-            if (_persistenceConfig.Provider == StorageProvider.RedisDbBinary)
+            if (_config.IsBinaryMode)
             {
                 return _deserializer.Deserialize<Transaction>(transaction);
             }
-
-            if (_persistenceConfig.Provider == StorageProvider.RedisDbJson)
+            else
             {
                 return JsonConvert.DeserializeObject<Transaction>(transaction);
             }
-
-            return null;
         }
 
         #endregion
