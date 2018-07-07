@@ -135,9 +135,9 @@ namespace NeoSharp.Persistence.RedisDB
             throw new NotImplementedException();
         }
 
-        public Transaction GetTransaction(byte[] hash)
+        public Transaction GetTransaction(UInt256 hash)
         {
-            var transaction = _redis.Database.Get(DataEntryPrefix.DataTransaction, hash);
+            var transaction = _redis.Database.Get(DataEntryPrefix.DataTransaction, hash.ToArray());
 
             if (_config.IsBinaryMode)
             {

@@ -54,7 +54,7 @@ namespace NeoSharp.Core.Persistence
         /// </summary>
         /// <param name="hash">Identifier / hash of the transaction</param>
         /// <returns>Transaction with the specified id / hash</returns>
-        Transaction GetTransaction(byte[] hash);
+        Transaction GetTransaction(UInt256 hash);
 
         #endregion
     }

@@ -115,7 +115,7 @@ namespace NeoSharp.Core.Blockchain
 
             if (header != null)
             {
-                var txs = header.TransactionHashes.Select(u => _repository.GetTransaction(u.ToArray())).ToArray();
+                var txs = header.TransactionHashes.Select(u => _repository.GetTransaction(u)).ToArray();
 
                 return new Block
                 {
@@ -231,7 +231,7 @@ namespace NeoSharp.Core.Blockchain
         /// <returns></returns>
         public Transaction GetTransaction(UInt256 hash)
         {
-            return _repository.GetTransaction(hash.ToArray());
+            return _repository.GetTransaction(hash);
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace NeoSharp.Core.Blockchain
             // TODO: How to get the height?
 
             height = 0;
-            return _repository.GetTransaction(hash.ToArray());
+            return _repository.GetTransaction(hash);
         }
 
         public IEnumerable<Transaction> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes)
@@ -269,7 +269,7 @@ namespace NeoSharp.Core.Blockchain
         {
             // TODO: Optimize this
 
-            return _repository.GetTransaction(hash.ToArray()) != null;
+            return _repository.GetTransaction(hash) != null;
         }
 
         #endregion

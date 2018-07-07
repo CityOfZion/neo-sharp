@@ -67,9 +67,9 @@ namespace NeoSharp.Persistence.RocksDB
             this._rocksDbContext.Save(this._sysCurrentBlockKey, BitConverter.GetBytes(height));
         }
 
-        public Transaction GetTransaction(byte[] hash)
+        public Transaction GetTransaction(UInt256 hash)
         {
-            var bytes = this._rocksDbContext.Get(BuildKey(DataEntryPrefix.DataTransaction, hash));
+            var bytes = this._rocksDbContext.Get(BuildKey(DataEntryPrefix.DataTransaction, hash.ToArray()));
             return bytes == null ? null : this._deserializer.Deserialize<Transaction>(bytes);
         }
         #endregion
