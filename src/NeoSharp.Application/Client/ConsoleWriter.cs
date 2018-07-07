@@ -191,7 +191,7 @@ namespace NeoSharp.Application.Client
                                             var app = first ? indent : Environment.NewLine + indent;
                                             if (needComma) app = " ," + app;
 
-                                            Write(app + "\"" + reader.Value + "\":", ConsoleOutputStyle.Gray);
+                                            Write(app + ScapeJsonString(reader.Value) + ":", ConsoleOutputStyle.Gray);
                                             break;
                                         }
                                     case JsonToken.String:
@@ -202,7 +202,7 @@ namespace NeoSharp.Application.Client
                                             var app = first || last == JsonToken.PropertyName ? indent : Environment.NewLine + indent;
                                             if (needComma) app = " ," + app;
 
-                                            Write(app + "\"" + reader.Value + "\"", ConsoleOutputStyle.White);
+                                            Write(app + ScapeJsonString(reader.Value), ConsoleOutputStyle.White);
                                             break;
                                         }
                                     case JsonToken.Null:
@@ -241,7 +241,7 @@ namespace NeoSharp.Application.Client
                                             var app = first || last == JsonToken.PropertyName ? indent : Environment.NewLine + indent;
                                             if (needComma) app = " ," + app;
 
-                                            Write(app + reader.Value, ConsoleOutputStyle.White);
+                                            Write(app + ScapeJsonString(reader.Value), ConsoleOutputStyle.White);
                                             break;
                                         }
                                 }
@@ -267,6 +267,11 @@ namespace NeoSharp.Application.Client
                         break;
                     }
             }
+        }
+
+        private string ScapeJsonString(object value)
+        {
+            return JsonConvert.ToString(value.ToString());
         }
 
         private bool NeedJsonComma(JsonToken last)
