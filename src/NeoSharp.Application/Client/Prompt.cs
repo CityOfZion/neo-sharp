@@ -182,7 +182,7 @@ namespace NeoSharp.Application.Client
 
                 // Read input
 
-                var fullCmd = _consoleReader.ReadFromConsole(CancellationToken.None, _commandAutocompleteCache);
+                var fullCmd = _consoleReader.ReadFromConsole(_commandAutocompleteCache);
 
                 if (string.IsNullOrWhiteSpace(fullCmd))
                 {

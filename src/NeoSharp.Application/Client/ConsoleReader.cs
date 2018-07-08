@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using System.Security;
 using System.Text;
-using System.Threading;
 
 namespace NeoSharp.Application.Client
 {
@@ -104,10 +103,9 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Read string from console
         /// </summary>
-        /// <param name="cancel">Cancel</param>
         /// <param name="autocomplete">Autocomplete</param>
         /// <returns>Returns the readed string</returns>
-        public string ReadFromConsole(CancellationToken cancel, IDictionary<string, List<ParameterInfo[]>> autocomplete = null)
+        public string ReadFromConsole(IDictionary<string, List<ParameterInfo[]>> autocomplete = null)
         {
             State = ConsoleReaderState.Reading;
 
@@ -148,22 +146,20 @@ namespace NeoSharp.Application.Client
             var insertMode = true;
             var txt = new StringBuilder();
 
-            Console.CursorSize = !insertMode ? 100 : 25;
+            try
+            {
+                // In Mac don't work
+
+                Console.CursorSize = !insertMode ? 100 : 25;
+            }
+            catch { }
+
             _consoleWriter.GetCursorPosition(out var startX, out var startY);
 
             var i = new ConsoleKeyInfo();
 
             do
             {
-                while (!Console.KeyAvailable)
-                {
-                    if (cancel != null && cancel.IsCancellationRequested) return "";
-
-                    Thread.Sleep(5);
-                }
-
-                if (cancel != null && cancel.IsCancellationRequested) return "";
-
                 i = Console.ReadKey(true);
 
                 switch (i.Key)

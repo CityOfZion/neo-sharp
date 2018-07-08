@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Moq;
+﻿using Moq;
 using NeoSharp.Application.Client;
 
 namespace NeoSharp.Application.Test.Extensions
@@ -8,10 +7,8 @@ namespace NeoSharp.Application.Test.Extensions
     {
         public static Mock<IConsoleReader> SetupStringCommandReader(this Mock<IConsoleReader> consoleReaderMock, string cmd)
         {
-            var cancel = new CancellationTokenSource();
-
             consoleReaderMock
-                .SetupSequence(x => x.ReadFromConsole(cancel.Token, null))
+                .SetupSequence(x => x.ReadFromConsole(null))
                 .Returns(cmd)
                 .Returns("exit");
 
