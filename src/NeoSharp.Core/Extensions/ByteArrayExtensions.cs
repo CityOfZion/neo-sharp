@@ -42,6 +42,26 @@ namespace NeoSharp.Core.Extensions
             return _crypto.Sha256(value, offset, count);
         }
 
+        /// <summary>
+        /// Bytarray XOR
+        /// </summary>
+        /// <param name="x">X</param>
+        /// <param name="y">Y</param>
+        /// <returns>Return XOR bytearray</returns>
+        public static byte[] XOR(this byte[] x, byte[] y)
+        {
+            if (y == null) throw new ArgumentNullException(nameof(y));
+            if (x.Length != y.Length) throw new ArgumentException(nameof(y));
+
+            var result = new byte[x.Length];
+            for (var i = 0; i < x.Length; i++)
+            {
+                result[i] = (byte)(x[i] ^ y[i]);
+            }
+
+            return result;
+        }
+
         public static string ToHexString(this IEnumerable<byte> value, bool append0x = false)
         {
             var sb = new StringBuilder();
