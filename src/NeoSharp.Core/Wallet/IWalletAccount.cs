@@ -1,22 +1,10 @@
 ﻿using System;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Types;
-using Newtonsoft.Json.Linq;
 
 namespace NeoSharp.Core.Wallet
 {
     public interface IWalletAccount 
     {
-        /// <summary>
-        /// address is the base58 encoded address of the account.
-        /// </summary>
-        string Address { get; }
-
-        /// <summary>
-        /// ScriptHash of Address
-        /// </summary>
-        UInt160 ScriptHash { get; }
-
         /// <summary>
         /// label is a label that the user has made to the account.
         /// </summary>
@@ -50,6 +38,6 @@ namespace NeoSharp.Core.Wallet
         /// extra is an object that is defined by the implementor of the client
         /// for storing extra data. This field can be null
         /// </summary>
-        JObject Extra { get; set; }
+        object Extra { get; set; }
     }
 }

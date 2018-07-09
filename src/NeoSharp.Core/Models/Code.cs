@@ -15,7 +15,7 @@ namespace NeoSharp.Core.Models
 
         [BinaryProperty(2)]
         [JsonProperty("script")]
-        public string Script;
+        public byte[] Script;
 
         [BinaryProperty(3)]
         [JsonProperty("returntype")]

@@ -24,7 +24,12 @@ namespace NeoSharp.Core.Cryptography
             return passwordHash;
         }
 
-        internal static byte[] ToArray(this SecureString s)
+        /// <summary>
+        /// Converts a SecureString into ByteArray
+        /// </summary>
+        /// <returns>The array.</returns>
+        /// <param name="s">S.</param>
+        public static byte[] ToArray(this SecureString s)
         {
             if (s == null)
                 throw new NullReferenceException();

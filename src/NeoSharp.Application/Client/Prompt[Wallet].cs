@@ -8,50 +8,70 @@ namespace NeoSharp.Application.Client
     public partial class Prompt : IPrompt
     {
         [PromptCommand("wallet create", Category = "Wallet", Help = "Create a new wallet")]
-        private void WalletCreateCommand(FileInfo file)
+        private void WalletCreateCommand(string fileName)
         {
             try
             {
-                _walletManager.CreateWallet(file);
+                _walletManager.CreateWallet(fileName);
+                SecureString secureString = _consoleReader.ReadPassword();
+                _walletManager.CreateAccount(secureString);
             }
-            catch(System.ArgumentException)
+            catch(System.Exception exception)
             {
-                _consoleWriter.WriteLine($"File '{file.FullName}' already exist, please provide a new one", ConsoleOutputStyle.Error);
-                return;
+                _consoleWriter.WriteLine(exception.Message, ConsoleOutputStyle.Error);
             }
 
-            SecureString secureString = _consoleReader.ReadPassword();
-            //TODO: Continue / Send password to save it in json
-            _walletManager.CreateAccount();
         }
 
         [PromptCommand("wallet open", Category = "Wallet", Help = "Open wallet")]
-        private void WalletOpenCommand(FileInfo file)
+        private void WalletOpenCommand(string fileName)
         {
-            _walletManager.Load(file);
-
-            SecureString secureString = _consoleReader.ReadPassword();
-
-            _walletManager.UnlockAllAccounts(secureString.ToString());
+            try
+            {
+                _walletManager.Load(fileName);
+                SecureString secureString = _consoleReader.ReadPassword();
+                _walletManager.UnlockAllAccounts(secureString);
+            }catch (System.Exception exception)
+            {
+                _consoleWriter.WriteLine(exception.Message, ConsoleOutputStyle.Error);
+            }
         }
 
         [PromptCommand("wallet close", Category = "Wallet", Help = "Close wallet")]
         private void WalletCloseCommand()
         {
-            _walletManager.Close();
+            try{
+                _walletManager.Close();
+            }catch (System.Exception exception)
+            {
+                _consoleWriter.WriteLine(exception.Message, ConsoleOutputStyle.Error);
+            }
         }
 
         [PromptCommand("import wif", Category = "Wallet", Help = "Close wallet")]
         private void ImportWif(string wif)
         {
-            _walletManager.Import(wif);
+            try
+            {
+                SecureString secureString = _consoleReader.ReadPassword();
+                _walletManager.ImportWif(wif, secureString);
+            }catch (System.Exception exception)
+            {
+                _consoleWriter.WriteLine(exception.Message, ConsoleOutputStyle.Error);
+            }
         }
 
         [PromptCommand("import nep2", Category = "Wallet", Help = "Close wallet")]
         private void ImportNep2(string nep2key)
         {
-            SecureString secureString = _consoleReader.ReadPassword();
-            _walletManager.Import(nep2key, secureString.ToString());
+            try
+            {
+                SecureString secureString = _consoleReader.ReadPassword();
+                _walletManager.ImportEncryptedWif(nep2key, secureString);
+            }catch (System.Exception exception)
+            {
+                _consoleWriter.WriteLine(exception.Message, ConsoleOutputStyle.Error);
+            }
         }
 
         /*

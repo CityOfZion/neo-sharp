@@ -1,49 +1,32 @@
-﻿using NeoSharp.Core.Cryptography;
+﻿using System;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
-using NeoSharp.Core.Extensions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace NeoSharp.Core.Wallet.NEP6
 {
     public class NEP6Account : IWalletAccount
     {
-        private readonly ICrypto _crypto;
-        private Contract _contract;
-        private UInt160 _scriptHash;
 
-        public UInt160 ScriptHash
-        {
-            get => _scriptHash;
-            set
-            {
-                _scriptHash = value;
-                Address = _scriptHash.ToAddress(_crypto);
-            }
-        }
+        /// <inheritdoc />
+        public UInt160 ScriptHash => Contract.ScriptHash;
 
-        public string Address { get; private set; }
+        /// <inheritdoc />>
         public string Label { get; set; }
+
+        /// <inheritdoc />
         public bool IsDefault { get; set; }
+
+        /// <inheritdoc />
         public bool Lock { get; set; }
+
+        /// <inheritdoc />
         public string Key { get; set; }
-        public Contract Contract
-        {
-            get => _contract;
-            set
-            {
-                _contract = value;
-                ScriptHash = _contract.ScriptHash;
-            }
-        }
+
+        /// <inheritdoc />
+        public Contract Contract { get; set; }
 
         [JsonProperty("extra")]
-        public JObject Extra { get; set; }
-
-        public NEP6Account(ICrypto crypto)
-        {
-            _crypto = crypto;
-        }
+        public Object Extra { get; set; }
     }
 }

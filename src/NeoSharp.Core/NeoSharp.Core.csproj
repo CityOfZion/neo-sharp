@@ -24,4 +24,9 @@
     <ProjectReference Include="..\NeoSharp.VM\NeoSharp.VM.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Wallet\Helpers\" />
+    <Folder Include="Wallet\TransactionManager\" />
+    <Folder Include="Wallet\Wrappers\" />
+  </ItemGroup>
 </Project>

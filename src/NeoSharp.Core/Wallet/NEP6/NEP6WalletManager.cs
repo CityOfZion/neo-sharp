@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Security;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
+using NeoSharp.Core.Wallet.Helpers;
+using NeoSharp.Core.Wallet.Wrappers;
 using NeoSharp.VM;
 using Newtonsoft.Json;
 
@@ -16,40 +17,45 @@ namespace NeoSharp.Core.Wallet.NEP6
     public class Nep6WalletManager : IWalletManager
     {
 
-        ContractHelper _contractHelper = new ContractHelper();
-        ICrypto _crypto;
+        private WalletHelper _walletHelper;
+        private ContractHelper _contractHelper;
+        private IFileWrapper _fileWrapper;
+        private IJsonConverter _jsonConverter;
+
 
         public IWallet Wallet { get; private set; }
         // nep2, publicKey, privateKey
         public IDictionary<String, Tuple<ECPoint, byte[]>> _unlockedAccounts = new Dictionary<String, Tuple<ECPoint, byte[]>>();
 
-        public Nep6WalletManager(ICrypto crypto)
+        public Nep6WalletManager(IFileWrapper fileWrapper, IJsonConverter jsonConverter)
         {
-            _crypto = crypto;
+            _walletHelper = new WalletHelper();
+            _contractHelper = new ContractHelper();
+            _fileWrapper = fileWrapper;
+            _jsonConverter = jsonConverter;
         }
 
         /// <summary>
         /// Creates the wallet.
         /// </summary>
         /// <returns>The wallet.</returns>
-        /// <param name="fileInfo">File info.</param>
-        public void CreateWallet(FileInfo fileInfo)
+        /// <param name="filename">File name.</param>
+        public void CreateWallet(string filename)
         {
-            if (fileInfo.Exists)
+            if (_fileWrapper.Exists(filename)) 
             {
                 throw new ArgumentException("File already exists");
             }
 
-            String walletName = fileInfo.Name.Split('.')[0];
+            string walletName = filename.Split('.')[0];
             IWallet wallet = new NEP6Wallet()
             {
                 Name = walletName,
                 Version = "1.0"
             };
 
-            String json = JsonConvert.SerializeObject(wallet);
-
-            File.WriteAllText(fileInfo.FullName, json);
+            string json = _jsonConverter.SerializeObject(wallet);
+            _fileWrapper.WriteToFile(json, filename);
 
             Wallet = wallet;
         }
@@ -67,7 +73,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             }
 
             return Wallet.Accounts
-                .Where(x => x.ScriptHash.Equals(scriptHash))
+               .Where(x => x.Contract.ScriptHash.Equals(scriptHash))
                .FirstOrDefault() != null;
 
         }
@@ -76,26 +82,13 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// Creates the account with random private key.
         /// </summary>
         /// <returns>The account.</returns>
-        public IWalletAccount CreateAccount()
+        public IWalletAccount CreateAccount(SecureString password)
         {
-            
-            byte[] privateKey = CreateRandomPrivateKey();
-            IWalletAccount account = Import(privateKey);
+
+            byte[] privateKey = ICrypto.Default.GenerateRandomBytes(32);
+            IWalletAccount account = ImportPrivateKey(privateKey, password);
             Array.Clear(privateKey, 0, privateKey.Length);
             return account;
-        }
-
-        //TODO: Remove & Replace with ICrypto
-        private byte[] CreateRandomPrivateKey()
-        {
-            byte[] privateKey = new byte[32];
-            using (System.Security.Cryptography.RandomNumberGenerator rng =
-                   System.Security.Cryptography.RandomNumberGenerator.Create())
-            {
-                rng.GetBytes(privateKey);
-            }
-
-            return privateKey;
         }
 
         /// <summary>
@@ -108,7 +101,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             {
                 throw new ArgumentNullException();
             }
-            Wallet.Accounts = Wallet.Accounts.Where(x => !x.ScriptHash.Equals(scriptHash));
+            Wallet.Accounts = Wallet.Accounts.Where(x => !x.Contract.ScriptHash.Equals(scriptHash));
         }
 
         /// <summary>
@@ -124,7 +117,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             }
 
             return Wallet.Accounts
-                .Where(x => x.ScriptHash.Equals(scriptHash))
+                .Where(x => x.Contract.ScriptHash.Equals(scriptHash))
                 .FirstOrDefault();
         }
 
@@ -140,7 +133,9 @@ namespace NeoSharp.Core.Wallet.NEP6
                 throw new ArgumentNullException();
             }
 
-            return GetAccount(ScriptHashFromPublicKey(pubkey));
+            var scriptHash = _walletHelper.ScriptHashFromPublicKey(pubkey);
+
+            return GetAccount(scriptHash);
         }
 
         /// <summary>
@@ -148,7 +143,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// </summary>
         /// <returns>The account.</returns>
         /// <param name="scriptHash">Script hash.</param>
-        public IWalletAccount Import(UInt160 scriptHash)
+        public IWalletAccount ImportScriptHash(UInt160 scriptHash)
         {
             if (scriptHash == null)
             {
@@ -160,9 +155,19 @@ namespace NeoSharp.Core.Wallet.NEP6
                 throw new ArgumentException();
             }
 
-            NEP6Account account = new NEP6Account(_crypto)
+            //TODO: Load Contract from persistence?
+            Code emptyContractCode = new Code
             {
                 ScriptHash = scriptHash
+            };
+            Contract emptyContract = new Contract
+            {
+                Code = emptyContractCode
+            };
+
+            NEP6Account account = new NEP6Account
+            {
+                Contract = emptyContract
             };
 
             AddAccount(account);
@@ -174,7 +179,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// </summary>
         /// <returns>The account.</returns>
         /// <param name="privateKey">Private key.</param>
-        public IWalletAccount Import(byte[] privateKey)
+        public IWalletAccount ImportPrivateKey(byte[] privateKey, SecureString passphrase)
         {
             if (privateKey == null)
             {
@@ -186,7 +191,7 @@ namespace NeoSharp.Core.Wallet.NEP6
                 throw new ArgumentException();
             }
 
-            NEP6Account account = CreateAccountWithPrivateKey(privateKey);
+            NEP6Account account = CreateAccountWithPrivateKey(privateKey, passphrase);
             AddAccount(account);
             return account;
         }
@@ -196,14 +201,14 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// </summary>
         /// <returns>The import.</returns>
         /// <param name="wif">Wif.</param>
-        public IWalletAccount Import(string wif)
+        public IWalletAccount ImportWif(string wif, SecureString password)
         {
-            if (String.IsNullOrWhiteSpace(wif))
+            if (string.IsNullOrWhiteSpace(wif))
             {
                 throw new ArgumentNullException();
             }
 
-            NEP6Account account = CreateAccountWithPrivateKey(GetPrivateKeyFromWIF(wif));
+            NEP6Account account = CreateAccountWithPrivateKey(GetPrivateKeyFromWIF(wif), password);
             AddAccount(account);
             return account;
         }
@@ -214,9 +219,10 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <returns>The import.</returns>
         /// <param name="nep2">Nep2.</param>
         /// <param name="passphrase">Passphrase.</param>
-        public IWalletAccount Import(string nep2, string passphrase)
+        public IWalletAccount ImportEncryptedWif(string nep2, SecureString passphrase)
         {
-            NEP6Account account = CreateAccountWithPrivateKey(GetPrivateKeyFromNEP2(nep2, passphrase));
+            byte[] privateKey = _walletHelper.DecryptWif(nep2, passphrase);
+            NEP6Account account = CreateAccountWithPrivateKey(privateKey, passphrase);
             account.Key = nep2;
             AddAccount(account);
             return account;
@@ -228,7 +234,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <returns><c>true</c>, if password was verifyed, <c>false</c> otherwise.</returns>
         /// <param name="walletAccout">Wallet accout.</param>
         /// <param name="password">Password.</param>
-        public bool VerifyPassword(IWalletAccount walletAccout, string password)
+        public bool VerifyPassword(IWalletAccount walletAccout, SecureString password)
         {
             if (walletAccout == null)
             {
@@ -237,13 +243,9 @@ namespace NeoSharp.Core.Wallet.NEP6
 
             try
             {
-                GetPrivateKeyFromNEP2(
-                    walletAccout.Key,
-                    password,
-                    Wallet.Scrypt.N,
-                    Wallet.Scrypt.R,
-                    Wallet.Scrypt.P);
+                _walletHelper.DecryptWif(walletAccout.Key, password);
             }
+
             catch (FormatException)
             {
                 return false;
@@ -259,93 +261,20 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <param name="wif">Wif.</param>
         private byte[] GetPrivateKeyFromWIF(string wif)
         {
-            if (wif == null)
-            {
-                throw new ArgumentNullException();
-            }
+            var internalWif = wif ?? throw new ArgumentNullException(nameof(wif));
 
-            byte[] data = _crypto.Base58CheckDecode(wif);
+            byte[] privateKeyByteArray = ICrypto.Default.Base58CheckDecode(internalWif);
 
-            if (data.Length != 34 || data[0] != 0x80 || data[33] != 0x01)
-            {
+            if(privateKeyByteArray.IsValidPrivateKey()){
+                byte[] privateKey = new byte[32];
+                Buffer.BlockCopy(privateKeyByteArray, 1, privateKey, 0, privateKey.Length);
+                Array.Clear(privateKeyByteArray, 0, privateKeyByteArray.Length);
+                return privateKey;
+            }else{
                 throw new FormatException();
             }
-
-            byte[] privateKey = new byte[32];
-            Buffer.BlockCopy(data, 1, privateKey, 0, privateKey.Length);
-            Array.Clear(data, 0, data.Length);
-            return privateKey;
         }
 
-        /// <summary>
-        /// Script hash from public key.
-        /// </summary>
-        /// <returns>The script hash.</returns>
-        /// <param name="publicKey">Public key.</param>
-        private UInt160 ScriptHashFromPublicKey(ECPoint publicKey)
-        {
-          return _contractHelper.CreateSinglePublicKeyRedeemContract(_crypto, publicKey).ScriptHash;
-        }
-
-        /// TODO: Add full documentation with steps and links
-        private byte[] GetPrivateKeyFromNEP2(string nep2, string passphrase, int N = 16384, int r = 8, int p = 8)
-        {
-            if (String.IsNullOrWhiteSpace(nep2))
-            {
-                throw new ArgumentNullException(nameof(nep2));
-            }
-
-            if (String.IsNullOrWhiteSpace(passphrase))
-            {
-                throw new ArgumentNullException(nameof(passphrase));
-            }
-
-            byte[] data = _crypto.Base58CheckDecode(nep2);
-
-            if (data.Length != 39 || data[0] != 0x01 || data[1] != 0x42 || data[2] != 0xe0)
-            {
-                throw new FormatException();
-            }
-
-            var addresshash = new byte[4];
-            Buffer.BlockCopy(data, 3, addresshash, 0, 4);
-            var derivedkey = _crypto.SCrypt(
-                Encoding.UTF8.GetBytes(passphrase), addresshash, N, r, p, 64);
-            var derivedhalf1 = derivedkey.Take(32).ToArray();
-            var derivedhalf2 = derivedkey.Skip(32).ToArray();
-            var encryptedkey = new byte[32];
-            Buffer.BlockCopy(data, 7, encryptedkey, 0, 32);
-            //TODO: Replace with ICrypto
-            var privateKey = XOR(_crypto.AesDecrypt(encryptedkey, derivedhalf2), derivedhalf1);
-            var pubKeyInBytes = _crypto.ComputePublicKey(privateKey, true);
-            ECPoint pubkey = new ECPoint(pubKeyInBytes);
-            Contract accountContract = _contractHelper.CreateSinglePublicKeyRedeemContract(_crypto, pubkey);
-            UInt160 scriptHash = accountContract.ScriptHash;
-            var address = scriptHash.ToAddress(_crypto);
-
-            if (!Encoding.ASCII.GetBytes(address).Sha256().Sha256().Take(4).SequenceEqual(addresshash))
-            {
-                throw new FormatException();
-            }
-
-            return privateKey;
-        }
-
-        /// <summary>
-        /// Required for the decryption.
-        /// </summary>
-        /// <returns>The xor.</returns>
-        /// <param name="x">The x coordinate.</param>
-        /// <param name="y">The y coordinate.</param>
-        private byte[] XOR(byte[] x, byte[] y)
-        {
-            if (x.Length != y.Length)
-            {
-                throw new ArgumentException();
-            }
-
-            return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
-        }
 
         public void SaveWallet()
         {
@@ -360,7 +289,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <param name="account">Account.</param>
         private void AddOrReplaceAccount(IWalletAccount account)
         {
-            IWalletAccount currentAccount = TryGetAccount(account.ScriptHash);
+            IWalletAccount currentAccount = TryGetAccount(account.Contract.ScriptHash);
             if (currentAccount == null)
             {
                 AddAccount(account);
@@ -368,7 +297,16 @@ namespace NeoSharp.Core.Wallet.NEP6
             else
             {
                 //Account exists. Clone it.
-                IWalletAccount clonedAccount = CloneAndUpdateAccount(account);
+                IWalletAccount clonedAccount = new NEP6Account()
+                {
+                    Label = account.Label,
+                    IsDefault = account.IsDefault,
+                    Contract = account.Contract,
+                    Extra = account.Extra,
+                    Key = account.Key,
+                    Lock = account.Lock
+                };
+
                 RemoveAccount(clonedAccount);
                 AddAccount(clonedAccount);
             }
@@ -393,25 +331,28 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// </summary>
         /// <returns>The account.</returns>
         /// <param name="newAccountInformation">Account script hash.</param>
-        private IWalletAccount CloneAndUpdateAccount(IWalletAccount newAccountInformation)
+        private IWalletAccount CloneAndUpdate(IWalletAccount newAccountInformation)
         {
-            if (newAccountInformation.ScriptHash == null)
+            //TODO: Refactor
+            if (newAccountInformation.Contract.ScriptHash == null)
             {
                 throw new ArgumentException("Invalid ScriptHash");
             }
 
-            var currentAccountWithScriptHash = TryGetAccount(newAccountInformation.ScriptHash);
 
+            var currentAccountWithScriptHash = TryGetAccount(newAccountInformation.Contract.ScriptHash);
             if (currentAccountWithScriptHash == null)
             {
                 throw new ArgumentException("Account not found.");
             }
 
-            var clonedAccount = new NEP6Account(_crypto);
-            clonedAccount.Label = newAccountInformation.Label;
-            clonedAccount.IsDefault = newAccountInformation.IsDefault;
-            clonedAccount.Lock = newAccountInformation.Lock;
-            clonedAccount.Contract = newAccountInformation.Contract;
+            var clonedAccount = new NEP6Account
+            {
+                Label = newAccountInformation.Label,
+                IsDefault = newAccountInformation.IsDefault,
+                Lock = newAccountInformation.Lock,
+                Contract = newAccountInformation.Contract
+            };
 
             return clonedAccount;
         }
@@ -422,23 +363,23 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <param name="account">Account.</param>
         private void AddAccount(IWalletAccount account)
         {
-            if (account.ScriptHash == null)
-            {
-                throw new ArgumentException("Invalid Script Hash");
+            var internalAccount = account ?? throw new ArgumentException(nameof(account));
+
+            if(account.IsValidAccount()){
+                AddAccountIfDoesntExist(account);
             }
 
-            //TODO: Is there any other kind of validation? May the label be null?
-            //Check with the guys from coz.
+        }
 
-            var currentAccountWithScriptHash = TryGetAccount(account.ScriptHash);
+        private void AddAccountIfDoesntExist(IWalletAccount account){
 
-            if (currentAccountWithScriptHash == null)
+            var existingAccount = TryGetAccount(account.Contract.ScriptHash);
+            if (existingAccount == null)
             {
                 var lstAccounts = Wallet.Accounts.ToList();
                 lstAccounts.Add(account);
                 Wallet.Accounts = lstAccounts;
             }
-
         }
 
         /// <summary>
@@ -446,20 +387,20 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// </summary>
         /// <returns>The NEP6Account</returns>
         /// <param name="privateKey">Private key.</param>
-        private NEP6Account CreateAccountWithPrivateKey(byte[] privateKey, String label = null)
+        private NEP6Account CreateAccountWithPrivateKey(byte[] privateKey, SecureString passphrase, string label = null)
         {
 
-            var publicKeyInBytes = _crypto.ComputePublicKey(privateKey, true);
+            var publicKeyInBytes = ICrypto.Default.ComputePublicKey(privateKey, true);
             var publicKeyInEcPoint = new ECPoint(publicKeyInBytes);
-            Contract contract = _contractHelper.CreateSinglePublicKeyRedeemContract(_crypto, publicKeyInEcPoint);
+            Contract contract = _contractHelper.CreateSinglePublicKeyRedeemContract(publicKeyInEcPoint);
 
-            NEP6Account account = new NEP6Account(_crypto)
+            NEP6Account account = new NEP6Account()
             {
                 Contract = contract,
                 Label = label
             };
 
-            account.Key = GetNep2FromPublicKeyAndPrivateKey(publicKeyInEcPoint, privateKey);
+            account.Key = _walletHelper.EncryptWif(privateKey, passphrase);
             UnlockAccount(account.Key, publicKeyInEcPoint, privateKey);
             return account;
         }
@@ -472,33 +413,27 @@ namespace NeoSharp.Core.Wallet.NEP6
         private IWalletAccount TryGetAccount(UInt160 accountScriptHash)
         {
             return Wallet?.Accounts
-                .Where(x => x.ScriptHash.Equals(accountScriptHash))
+                          .Where(x => x.Contract.ScriptHash.Equals(accountScriptHash))
                           .FirstOrDefault();
         }
 
         /// <summary>
-        /// Load a wallet using a fileInfo.
+        /// Load a wallet using a file name.
         /// </summary>
-        /// <param name="fileInfo">File info.</param>
-        public void Load(FileInfo fileInfo)
+        /// <param name="fileName">File name.</param>
+        public void Load(string fileName)
         {
-            if (!fileInfo.Exists)
-            {
-                throw new ArgumentException("File not found");
-            }
-
-            String json = File.ReadAllText(fileInfo.FullName);
-
-            Wallet = JsonConvert.DeserializeObject<NEP6Wallet>(json);
+            string json = _fileWrapper.Load(fileName);
+            Wallet = _jsonConverter.DeserializeObject<NEP6Wallet>(json);
         }
 
         /// <summary>
         /// Unlocks all accounts of the loaded wallet with a password
         /// </summary>
         /// <param name="password">Password.</param>
-        public void UnlockAllAccounts(String password)
+        public void UnlockAllAccounts(SecureString password)
         {
-            Wallet?.Accounts.ForEach(account => UnlockAccount(account.Key, password));
+            Wallet.Accounts.ForEach(account => UnlockAccount(account.Key, password));
         }
 
         /// <summary>
@@ -515,20 +450,17 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// </summary>
         /// <param name="nep2Key">Nep2 key.</param>
         /// <param name="password">Password.</param>
-        public void UnlockAccount(String nep2Key, String password)
+        public void UnlockAccount(string nep2Key, SecureString password)
         {
-            var privateKey = GetPrivateKeyFromNEP2(nep2Key, password);
-            var publicKeyInBytes = _crypto.ComputePublicKey(privateKey, true);
+            var privateKey = _walletHelper.DecryptWif(nep2Key, password);
+            var publicKeyInBytes = ICrypto.Default.ComputePublicKey(privateKey, true);
             var publicKeyEcPoint = new ECPoint(publicKeyInBytes);
             UnlockAccount(nep2Key, publicKeyEcPoint, privateKey);
         }
 
-        private void UnlockAccount(String nep2Key, ECPoint publicKey, byte[] privateKey)
+        private void UnlockAccount(string nep2Key, ECPoint publicKey, byte[] privateKey)
         {
-            if (nep2Key == null)
-            {
-                throw new ArgumentException("Invalid NEP-2 Key");
-            }
+            var internalNep2Key = nep2Key ?? throw new ArgumentException(nameof(nep2Key));
 
             var entry = new Tuple<ECPoint, byte[]>(publicKey, privateKey);
 
@@ -540,42 +472,6 @@ namespace NeoSharp.Core.Wallet.NEP6
             {
                 _unlockedAccounts.Add(nep2Key, entry);
             }
-        }
-
-
-        /// <summary>
-        /// Creates a protected private key following NEP-2
-        /// https://github.com/neo-project/proposals/blob/master/nep-2.mediawiki#encryption-steps
-        /// 1 - Compute the NEO address (ASCII), and take the first four bytes of SHA256(SHA256()) of it. Let's call this "addresshash".
-        /// 2 - Derive a key from the passphrase using scrypt
-        ///     Parameters: passphrase is the passphrase itself encoded in UTF-8 and normalized using Unicode Normalization Form C(NFC). Salt is the addresshash from the earlier step, n = 16384, r = 8, p = 8, length = 64
-        ///     Let's split the resulting 64 bytes in half, and call them derivedhalf1 and derivedhalf2.
-        /// 3 - Do AES256Encrypt(block = privkey[0...15] xor derivedhalf1[0...15], key = derivedhalf2), call the 16-byte result encryptedhalf1
-        /// 4 - Do AES256Encrypt(block = privkey[16...31] xor derivedhalf1[16...31], key = derivedhalf2), call the 16-byte result encryptedhalf2
-        /// The encrypted private key is the Base58Check-encoded concatenation of the following, which totals 39 bytes without Base58 checksum:
-        /// 0x01 0x42 + flagbyte + addresshash + encryptedhalf1 + encryptedhalf2
-        /// </summary>
-        /// <returns>The nep2 from public key and private key.</returns>
-        /// <param name="publicKey">Public key.</param>
-        /// <param name="privateKey">Private key.</param>
-        /// TODO: Complete with ICrypto
-        private String GetNep2FromPublicKeyAndPrivateKey(ECPoint publicKey, byte[] privateKey)
-        {
-            //Placeholder
-            var contract = _contractHelper.CreateSinglePublicKeyRedeemContract(_crypto, publicKey);
-            return contract.ScriptHash.ToString();
-            //string address = _crypto.ToAddress(contract.ScriptHash);
-            //byte[] addresshash = Encoding.ASCII.GetBytes(address).Sha256().Sha256().Take(4).ToArray();
-            //byte[] derivedkey = _crypto.DeriveKey(Encoding.UTF8.GetBytes(passphrase), addresshash, N, r, p, 64);
-            //byte[] derivedhalf1 = derivedkey.Take(32).ToArray();
-            //byte[] derivedhalf2 = derivedkey.Skip(32).ToArray();
-            //byte[] encryptedkey = XOR(PrivateKey, derivedhalf1).AES256Encrypt(derivedhalf2);
-            //byte[] buffer = new byte[39];
-            //buffer[0] = 0x01;
-            //buffer[1] = 0x42;
-            //buffer[2] = 0xe0;
-            //Buffer.BlockCopy(addresshash, 0, buffer, 3, addresshash.Length);
-            //Buffer.BlockCopy(encryptedkey, 0, buffer, 7, encryptedkey.Length);
         }
 
     }

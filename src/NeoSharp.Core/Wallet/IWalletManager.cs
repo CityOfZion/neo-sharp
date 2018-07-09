@@ -1,7 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Security;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Types;
+using NeoSharp.Core.Wallet.Wrappers;
 
 namespace NeoSharp.Core.Wallet
 {
@@ -16,8 +18,8 @@ namespace NeoSharp.Core.Wallet
         /// Creates the wallet and saves the instance.
         /// </summary>
         /// <returns>The wallet.</returns>
-        /// <param name="fileInfo">File info.</param>
-        void CreateWallet(System.IO.FileInfo fileInfo);
+        /// <param name="filename">File name.</param>
+        void CreateWallet(string filename);
 
         /// <summary>
         /// Check if Accounts contains a script hash
@@ -30,7 +32,7 @@ namespace NeoSharp.Core.Wallet
         /// Creates the account with random private key.
         /// </summary>
         /// <returns>The account.</returns>
-        IWalletAccount CreateAccount();
+        IWalletAccount CreateAccount(SecureString password);
 
         /// <summary>
         /// Remove the account.
@@ -57,48 +59,42 @@ namespace NeoSharp.Core.Wallet
         /// </summary>
         /// <returns>The account.</returns>
         /// <param name="scriptHash">Script hash.</param>
-        IWalletAccount Import(UInt160 scriptHash);
+        IWalletAccount ImportScriptHash(UInt160 scriptHash);
 
         /// <summary>
         /// Import the account using private key
         /// </summary>
         /// <returns>The account.</returns>
         /// <param name="privateKey">Private key.</param>
-        IWalletAccount Import(byte[] privateKey);
+        IWalletAccount ImportPrivateKey(byte[] privateKey, SecureString password);
 
         /// <summary>
         /// Import the Account using wif.
         /// </summary>
         /// <returns>The account.</returns>
         /// <param name="wif">Wif.</param>
-        IWalletAccount Import(string wif);
-
-        /// <summary>
-        /// Load a wallet using a fileInfo.
-        /// </summary>
-        /// <param name="fileInfo">File info.</param>
-        void Load(FileInfo fileInfo);
+        IWalletAccount ImportWif(string wif, SecureString password);
 
         /// <summary>
         /// Unlocks all accounts of the loaded wallet with a password
         /// </summary>
         /// <param name="password">Password.</param>
-        void UnlockAllAccounts(String password);
+        void UnlockAllAccounts(SecureString password);
 
         /// <summary>
         /// Unlocks an account of the specified nep2key.
         /// </summary>
         /// <param name="nep2Key">Nep2 key.</param>
         /// <param name="password">Password.</param>
-        void UnlockAccount(String nep2Key, String password);
+        void UnlockAccount(string nep2Key, SecureString password);
 
         /// <summary>
         /// Import the Account using nep2 and passphrase.
         /// </summary>
         /// <returns>The account.</returns>
         /// <param name="nep2">Nep2.</param>
-        /// <param name="passphrase">Passphrase.</param>
-        IWalletAccount Import(String nep2, String passphrase);
+        /// <param name="password">Passphrase.</param>
+        IWalletAccount ImportEncryptedWif(string nep2, SecureString password);
 
         /// <summary>
         /// Verifies the password.
@@ -107,7 +103,7 @@ namespace NeoSharp.Core.Wallet
         /// otherwise.</returns>
         /// <param name="walletAccout">Wallet accout.</param>
         /// <param name="password">Password.</param>
-        bool VerifyPassword(IWalletAccount walletAccout, String password);
+        bool VerifyPassword(IWalletAccount walletAccout, SecureString password);
 
 
         /// <summary>
@@ -115,6 +111,12 @@ namespace NeoSharp.Core.Wallet
         /// to create this wallet.
         /// </summary>
         void SaveWallet();
+
+        /// <summary>
+        /// Load a wallet at specified fileName.
+        /// </summary>
+        /// <param name="fileName">File name.</param>
+        void Load(string fileName);
 
         /// <summary>
         /// Close wallet.

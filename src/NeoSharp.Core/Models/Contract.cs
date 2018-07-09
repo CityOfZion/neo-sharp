@@ -10,7 +10,7 @@ namespace NeoSharp.Core.Models
     public class Contract
     {
         public UInt160 ScriptHash => Code?.ScriptHash;
-        public string Script => Code?.Script;
+        public byte[] Script => Code?.Script;
         public ContractParameterType[] Parameters => Code?.Parameters;
         public ContractParameterType ReturnType => (ContractParameterType)Code?.ReturnType;
 

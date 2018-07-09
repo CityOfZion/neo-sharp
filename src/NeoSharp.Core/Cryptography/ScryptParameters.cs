@@ -1,3 +1,5 @@
+using System;
+
 ﻿namespace NeoSharp.Core.Cryptography
 {
     public class ScryptParameters

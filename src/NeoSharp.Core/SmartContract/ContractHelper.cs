@@ -6,18 +6,19 @@ using NeoSharp.Core.SmartContract;
 using System;
 using System.Linq;
 
-namespace NeoSharp.Core.Helpers
+namespace NeoSharp.Core.Wallet.Helpers
 {
     public class ContractHelper
     {
+
+
         /// <summary>
         /// Creates the single public key redeem contract ('regular account')
         /// </summary>
         /// <returns>The single public key redeem contract.</returns>
-        /// <param name="scrypt">Scrypt.</param>
         /// <param name="publicKey">Public key.</param>
-        public Contract CreateSinglePublicKeyRedeemContract(ICrypto scrypt, ECPoint publicKey){
-            String contractHexCode;
+        public Contract CreateSinglePublicKeyRedeemContract(ECPoint publicKey){
+            string contractHexCode;
             using (ScriptBuilder sb = new ScriptBuilder())
             {
                 sb.EmitPush(publicKey.EncodedData);
@@ -30,7 +31,7 @@ namespace NeoSharp.Core.Helpers
 
             Code contractCode = new Code {
                 //TODO: Double check if this is correct
-                Script = contractHexCode,
+                Script = contractHexCode.HexToBytes(),
                 ScriptHash = contractHexCode.HexToBytes().ToScriptHash(),
                 ReturnType = returnType,
                 Parameters = parameters
@@ -49,10 +50,9 @@ namespace NeoSharp.Core.Helpers
         /// Creates the multiple public key redeem contract ('multisig account')
         /// </summary>
         /// <returns>The multiple public key redeem contract.</returns>
-        /// <param name="scrypt">Scrypt.</param>
         /// <param name="numberOfRequiredPublicKeys">Number of required public keys.</param>
         /// <param name="publicKeys">Public keys.</param>
-        public Contract CreateMultiplePublicKeyRedeemContract(ICrypto scrypt, int numberOfRequiredPublicKeys, ECPoint[] publicKeys){
+        public Contract CreateMultiplePublicKeyRedeemContract(int numberOfRequiredPublicKeys, ECPoint[] publicKeys){
             string contractHexCode;
 
             if (!((1 <= numberOfRequiredPublicKeys) 
@@ -77,8 +77,7 @@ namespace NeoSharp.Core.Helpers
 
             Code contractCode = new Code
             {
-                //TODO: Double check if this is correct
-                Script = contractHexCode,
+                Script = contractHexCode.HexToBytes(),
                 ScriptHash = contractHexCode.HexToBytes().ToScriptHash(),
                 ReturnType = returnType,
                 Parameters = parameters
@@ -91,5 +90,7 @@ namespace NeoSharp.Core.Helpers
 
             return contract;
         }
+
+
     }
 }
