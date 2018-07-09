@@ -142,17 +142,18 @@ namespace NeoSharp.Core.Wallet.Test
         public void TestImportScriptHash()
         {
             // Act
-            IWalletAccount walletAccount1 = _walletManager.CreateAccount(_defaultPassword);
+            NEP6Account walletAccount1 = (NEP6Account) _walletManager.CreateAccount(_defaultPassword);
 
-            IWalletAccount walletAccount2 = _walletManager.ImportScriptHash(walletAccount1.Contract.ScriptHash);
+            NEP6Account walletAccount2 = (NEP6Account) _walletManager.ImportScriptHash(walletAccount1.ScriptHash);
 
-            // Asset
+            // Assert
             Assert.IsNotNull(walletAccount2);
+            Assert.AreEqual(walletAccount1.ScriptHash, walletAccount2.ScriptHash);
 
             //TODO: Check & improve
             //Assert.IsFalse(String.IsNullOrEmpty(walletAccount2.Address));
 
-            Assert.IsTrue(_walletManager.Wallet.Accounts.ToList().Count == 1);
+            Assert.IsTrue(_walletManager.Wallet.Accounts.Count == 1);
         }
 
         [TestMethod]

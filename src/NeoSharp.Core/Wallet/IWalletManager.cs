@@ -3,7 +3,6 @@ using System.IO;
 using System.Security;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Types;
-using NeoSharp.Core.Wallet.Wrappers;
 
 namespace NeoSharp.Core.Wallet
 {
@@ -93,7 +92,7 @@ namespace NeoSharp.Core.Wallet
         /// </summary>
         /// <returns>The account.</returns>
         /// <param name="nep2">Nep2.</param>
-        /// <param name="password">Passphrase.</param>
+        /// <param name="password">Password.</param>
         IWalletAccount ImportEncryptedWif(string nep2, SecureString password);
 
         /// <summary>

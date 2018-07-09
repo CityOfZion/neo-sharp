@@ -9,6 +9,9 @@
         /// Signature
         /// </summary>
         Signature = 0x00,
+        /// <summary>
+        /// Boolean.
+        /// </summary>
         Boolean = 0x01,
         /// <summary>
         /// Integer
@@ -26,13 +29,25 @@
         /// Byte array
         /// </summary>
         ByteArray = 0x05,
+        /// <summary>
+        /// Public key.
+        /// </summary>
         PublicKey = 0x06,
+        /// <summary>
+        /// String.
+        /// </summary>
         String = 0x07,
-
+        /// <summary>
+        /// Array.
+        /// </summary>
         Array = 0x10,
-
+        /// <summary>
+        /// Interop interface.
+        /// </summary>
         InteropInterface = 0xf0,
-
+        /// <summary>
+        /// Void
+        /// </summary>
         Void = 0xff
     }
 }

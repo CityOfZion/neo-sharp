@@ -1,5 +1,6 @@
 ﻿using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Helpers;
+using NeoSharp.Core.Wallet.Wrappers;
 
 namespace NeoSharp.Core.DI.Modules
 {
@@ -9,6 +10,8 @@ namespace NeoSharp.Core.DI.Modules
         {
             containerBuilder.RegisterSingleton<IAsyncDelayer, AsyncDelayer>();
             containerBuilder.RegisterSingleton<ICrypto, BouncyCastleCrypto>();
+            containerBuilder.RegisterSingleton<IFileWrapper, FileWrapper>();
+            containerBuilder.RegisterSingleton<IJsonConverter, JsonConverterWrapper>();
         }
     }
 }

@@ -4,6 +4,7 @@ using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
 using NeoSharp.Core.Wallet.Helpers;
 using NeoSharp.VM;
@@ -177,9 +178,8 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <returns>The validators contract.</returns>
         private static Contract GenesisValidatorsContract(){
-            var contractHelper = new ContractHelper();
             var genesisValidators = GenesisStandByValidators();
-            var genesisContract = contractHelper.CreateMultiplePublicKeyRedeemContract(genesisValidators.Length / 2 + 1, genesisValidators);
+            var genesisContract = ContractFactory.CreateMultiplePublicKeyRedeemContract(genesisValidators.Length / 2 + 1, genesisValidators);
             return genesisContract;
         }
 

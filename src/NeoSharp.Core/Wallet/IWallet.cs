@@ -31,7 +31,7 @@ namespace NeoSharp.Core.Wallet
         /// accounts is an list of Account objects which describe the details 
         /// of each account in the wallet.
         /// </summary>
-        IEnumerable<IWalletAccount> Accounts { get; set; }
+        HashSet<IWalletAccount> Accounts { get; set; }
 
         /// <summary>
         /// extra is an object that is defined by the implementor of the client

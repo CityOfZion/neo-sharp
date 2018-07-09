@@ -3,20 +3,15 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Wallet.Helpers
 {
     public class WalletHelper
     {
-        private ContractHelper _contractHelper;
-
-        public WalletHelper()
-        {
-            _contractHelper = new ContractHelper();
-        }
-
         /// <summary>
         /// Decrypts a NEP-2 into a private key.
         /// https://github.com/neo-project/proposals/blob/master/nep-2.mediawiki#decryption-steps
@@ -71,7 +66,6 @@ namespace NeoSharp.Core.Wallet.Helpers
                 throw new FormatException();
             }
 
-
             //4 bytes: SHA256(SHA256(expected_neo_address))[0...3], used both for typo checking and as salt
             var addressHash = new byte[4];
             Buffer.BlockCopy(data, 3, addressHash, 0, 4);
@@ -79,7 +73,6 @@ namespace NeoSharp.Core.Wallet.Helpers
             //Passphrase encoded in UTF - 8 and normalized using Unicode Normalization Form C(NFC). 
             //Check with Belane
             var passphraseUtf8String = Helper.ToArray(passphrase);
-
 
             //Derive derivedhalf1 and derivedhalf2 by passing the passphrase and addresshash into scrypt function.
             var derivedKey = ICrypto.Default.SCrypt(passphraseUtf8String, addressHash, ScryptParameters.Default.N, ScryptParameters.Default.R, ScryptParameters.Default.P, 64);
@@ -92,7 +85,7 @@ namespace NeoSharp.Core.Wallet.Helpers
             Buffer.BlockCopy(data, 7, encryptedkey, 0, 32);
 
             //merge the two parts and XOR the result with derivedhalf1 to form the plaintext private key.
-            var privateKey = XOR(ICrypto.Default.AesDecrypt(encryptedkey, derivedhalf2), derivedhalf1);
+            var privateKey = ICrypto.Default.AesDecrypt(encryptedkey, derivedhalf2).XOR(derivedhalf1);
 
             //Integrity check. Its necessary to rebuild the contract to get the address
             string address = privateKeyToAddress(privateKey);
@@ -145,7 +138,7 @@ namespace NeoSharp.Core.Wallet.Helpers
 
 
             /// 3 & 4  - Do AES256Encrypt(block = privkey[0...15] xor derivedhalf1[0...15], key = derivedhalf2), call the 16-byte result encryptedhalf1
-            byte[] encryptedKey = ICrypto.Default.AesEncrypt(XOR(privateKey, derivedhalf1), derivedhalf2);
+            byte[] encryptedKey = ICrypto.Default.AesEncrypt(privateKey.XOR(derivedhalf1), derivedhalf2);
 
             /// The encrypted private key is the Base58Check-encoded concatenation of the following, which totals 39 bytes without Base58 checksum:
             /// 0x01 0x42 + flagbyte + addresshash + encryptedhalf1 + encryptedhalf2
@@ -159,7 +152,6 @@ namespace NeoSharp.Core.Wallet.Helpers
             //Encrypted wif
             Buffer.BlockCopy(encryptedKey, 0, buffer, 7, encryptedKey.Length);
 
-            //TODO: Check if correct & Add unit tests
             return ICrypto.Default.Base58CheckEncode(buffer);
         }
 
@@ -173,7 +165,7 @@ namespace NeoSharp.Core.Wallet.Helpers
         /// <param name="publicKey">Public key.</param>
         public UInt160 ScriptHashFromPublicKey(ECPoint publicKey)
         {
-            return _contractHelper.CreateSinglePublicKeyRedeemContract(publicKey).ScriptHash;
+            return ContractFactory.CreateSinglePublicKeyRedeemContract(publicKey).ScriptHash;
         }
 
 
@@ -188,20 +180,8 @@ namespace NeoSharp.Core.Wallet.Helpers
         {
             var pubKeyInBytes = ICrypto.Default.ComputePublicKey(privateKey, true);
             ECPoint pubkey = new ECPoint(pubKeyInBytes);
-            Contract accountContract = _contractHelper.CreateSinglePublicKeyRedeemContract(pubkey);
+            Contract accountContract = ContractFactory.CreateSinglePublicKeyRedeemContract(pubkey);
             return accountContract.ScriptHash.ToAddress();
-        }
-
-
-        //TODO: Double check if this is the best way to do this
-        private byte[] XOR(byte[] x, byte[] y)
-        {
-            if (x.Length != y.Length)
-            {
-                throw new ArgumentException();
-            }
-
-            return x.Zip(y, (a, b) => (byte)(a ^ b)).ToArray();
         }
 
 

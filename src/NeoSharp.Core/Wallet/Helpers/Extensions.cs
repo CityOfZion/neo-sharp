@@ -46,7 +46,7 @@ namespace NeoSharp.Core.Wallet.Helpers
             return isValid;
         }
 
-        public static bool IsValidAccount(this IWalletAccount account){
+        public static void ValidateAccount(this IWalletAccount account){
             if(account.Contract == null){
                 throw new ArgumentException("Empty contract");
             }
@@ -54,8 +54,6 @@ namespace NeoSharp.Core.Wallet.Helpers
             if(account.Contract.ScriptHash == null){
                 throw new ArgumentException("Invalid Script Hash");
             }
-
-            return true;
         }
 
 

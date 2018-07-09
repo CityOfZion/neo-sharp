@@ -5,7 +5,7 @@ using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Wallet.NEP6
 {
-    public class NEP6Account : IWalletAccount
+    public class NEP6Account : IWalletAccount, IEquatable<NEP6Account>
     {
 
         /// <inheritdoc />
@@ -28,5 +28,25 @@ namespace NeoSharp.Core.Wallet.NEP6
 
         [JsonProperty("extra")]
         public Object Extra { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is NEP6Account acc)
+            {
+                return ScriptHash.Equals(acc.ScriptHash);
+            }
+
+            return false;
+        }
+         
+        public bool Equals(NEP6Account obj)
+        {
+            return ScriptHash.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return ScriptHash.GetHashCode();
+        }
     }
 }

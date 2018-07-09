@@ -17,7 +17,7 @@ namespace NeoSharp.Core.Wallet.NEP6
 
 
         [JsonConverter(typeof(NEP6AccountConverter))]
-        public IEnumerable<IWalletAccount> Accounts { get; set; }
+        public HashSet<IWalletAccount> Accounts { get; set; }
 
 
         //TODO: Replace JObject
@@ -26,7 +26,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         public NEP6Wallet()
         {
             Scrypt = ScryptParameters.Default;
-            Accounts = new List<IWalletAccount>();
+            Accounts = new HashSet<IWalletAccount>();
         }
     }
 }
