@@ -100,38 +100,29 @@ namespace NeoSharp.Application.Client
             return pwd;
         }
 
-        /// <summary>
-        /// Read string from console
-        /// </summary>
-        /// <param name="autocomplete">Autocomplete</param>
-        /// <returns>Returns the readed string</returns>
+        /// <inheritdoc />
         public string ReadFromConsole(IDictionary<string, List<ParameterInfo[]>> autocomplete = null)
         {
             State = ConsoleReaderState.Reading;
 
             // Write prompt
-
             _consoleWriter.WritePrompt();
 
             // If have something loaded
-
             if (_manualInputs.Count > 0)
             {
                 State = ConsoleReaderState.ReadingDirty;
 
                 // Get first loaded command
-
                 var input = _manualInputs[0];
                 _manualInputs.RemoveAt(0);
 
                 if (!string.IsNullOrEmpty(input))
                 {
                     // Print it
-
                     _consoleWriter.WriteLine(input, ConsoleOutputStyle.Input);
 
                     // Use it
-
                     State = ConsoleReaderState.None;
 
                     return input;
@@ -139,7 +130,6 @@ namespace NeoSharp.Application.Client
             }
 
             // Read from console
-
             string ret;
             var cursor = 0;
             var historyIndex = 0;

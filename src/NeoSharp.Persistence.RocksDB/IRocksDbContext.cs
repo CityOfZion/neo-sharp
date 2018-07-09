@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace NeoSharp.Persistence.RocksDB
 {
     public interface IRocksDbContext : IDisposable
     {
-        void Save(byte[] key, byte[] content);
+        Task Save(byte[] key, byte[] content);
 
-        byte[] Get(byte[] key);
+        Task<byte[]> Get(byte[] key);
     }
 }

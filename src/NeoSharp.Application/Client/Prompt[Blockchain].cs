@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
@@ -83,9 +84,10 @@ namespace NeoSharp.Application.Client
         /// <param name="txNumber">TxNumber</param>
         /// <param name="output">Output</param>
         [PromptCommand("tx", Category = "Blockchain", Help = "Get tx by block num/tx number")]
-        private void TxCommand(uint blockIndex, ushort txNumber, PromptOutputStyle output = PromptOutputStyle.json)
+        private async Task TxCommand(uint blockIndex, ushort txNumber, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(_blockchain?.GetBlock(blockIndex).Transactions?[txNumber], output);
+            var block = await this._blockchain.GetBlock(blockIndex);
+            this._consoleWriter.WriteObject(block.Transactions?[txNumber], output);
         }
 
         /// <summary>

@@ -1,5 +1,5 @@
 ﻿using System;
-using NeoSharp.Core.Persistence;
+using System.Threading.Tasks;
 using RocksDbSharp;
 
 namespace NeoSharp.Persistence.RocksDB
@@ -23,14 +23,14 @@ namespace NeoSharp.Persistence.RocksDB
         #endregion
 
         #region IRocksDbContext implementation 
-        public void Save(byte[] key, byte[] content)
+        public Task Save(byte[] key, byte[] content)
         {
-            this._rocksDb.Put(key, content);
+            return Task.Run(() => this._rocksDb.Put(key, content));
         }
 
-        public byte[] Get(byte[] key)
+        public Task<byte[]> Get(byte[] key)
         {
-            return this._rocksDb.Get(key);
+            return Task.Run(() => this._rocksDb.Get(key));
         }
 
         public void Dispose()

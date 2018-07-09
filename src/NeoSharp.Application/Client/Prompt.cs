@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.BinarySerialization;
@@ -74,7 +74,7 @@ namespace NeoSharp.Application.Client
 
         private readonly ConcurrentBag<LogEntry> _logs;
 
-        private readonly static Dictionary<LogLevel, ConsoleOutputStyle> _logStyle = new Dictionary<LogLevel, ConsoleOutputStyle>()
+        private static readonly Dictionary<LogLevel, ConsoleOutputStyle> _logStyle = new Dictionary<LogLevel, ConsoleOutputStyle>()
         {
             { LogLevel.Critical, ConsoleOutputStyle.Error },
             { LogLevel.Error, ConsoleOutputStyle.Error },
@@ -138,9 +138,18 @@ namespace NeoSharp.Application.Client
         /// <param name="rpcInit">Rpc server</param>
         /// <param name="serializer">Binary serializer</param>
         /// <param name="blockchain">Blockchain</param>
-        public Prompt(IConsoleReader consoleReaderInit, IConsoleWriter consoleWriterInit,
-            ILoggerFactoryExtended loggerFactory, Core.Logging.ILogger<Prompt> logger, INetworkManager networkManagerInit,
-            IServer serverInit, IRpcServer rpcInit, IBinarySerializer serializer, IBlockchain blockchain, IWalletManager walletManager)
+        /// <param name="walletManager"></param>
+        public Prompt(
+            IConsoleReader consoleReaderInit, 
+            IConsoleWriter consoleWriterInit,
+            ILoggerFactoryExtended loggerFactory, 
+            Core.Logging.ILogger<Prompt> logger, 
+            INetworkManager networkManagerInit,
+            IServer serverInit, 
+            IRpcServer rpcInit, 
+            IBinarySerializer serializer, 
+            IBlockchain blockchain, 
+            IWalletManager walletManager)
         {
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;
@@ -155,6 +164,7 @@ namespace NeoSharp.Application.Client
             _walletManager = walletManager;
         }
 
+        /// <inheritdoc />
         public void StartPrompt(string[] args)
         {
             _logger.LogInformation("Starting Prompt");
@@ -167,6 +177,8 @@ namespace NeoSharp.Application.Client
                 _consoleReader.AppendInputs(args);
             }
 
+            this._blockchain.InitializeBlockchain();
+
             while (!_exit)
             {
                 // Read log buffer
@@ -175,13 +187,12 @@ namespace NeoSharp.Application.Client
                 {
                     _consoleWriter.WriteLine
                         (
-                        "[" + log.Level.ToString() + (string.IsNullOrEmpty(log.Category) ? "" : "-" + log.Category) + "] " +
+                        "[" + log.Level + (string.IsNullOrEmpty(log.Category) ? "" : "-" + log.Category) + "] " +
                         log.MessageWithError, _logStyle[log.Level]
                         );
                 }
 
                 // Read input
-
                 var fullCmd = _consoleReader.ReadFromConsole(_commandAutocompleteCache);
 
                 if (string.IsNullOrWhiteSpace(fullCmd))
@@ -197,7 +208,7 @@ namespace NeoSharp.Application.Client
             _consoleWriter.WriteLine("Exiting", ConsoleOutputStyle.Information);
         }
 
-        IEnumerable<PromptCommandAttribute> SearchCommands(string command, List<CommandToken> cmdArgs)
+        private static IEnumerable<PromptCommandAttribute> SearchCommands(string command, List<CommandToken> cmdArgs)
         {
             // Parse arguments
 
@@ -226,9 +237,9 @@ namespace NeoSharp.Application.Client
             }
         }
 
-        PromptCommandAttribute SearchRightCommand(PromptCommandAttribute[] cmds, IEnumerable<CommandToken> args)
+        private static PromptCommandAttribute SearchRightCommand(IReadOnlyList<PromptCommandAttribute> cmds, IEnumerable<CommandToken> args)
         {
-            switch (cmds.Length)
+            switch (cmds.Count)
             {
                 case 0: return null;
                 case 1: return cmds[0];
@@ -255,11 +266,7 @@ namespace NeoSharp.Application.Client
             }
         }
 
-        /// <summary>
-        /// Execute command
-        /// </summary>
-        /// <param name="command">Command</param>
-        /// <returns>Return false if fail</returns>
+        /// <inheritdoc />
         public bool Execute(string command)
         {
             command = command.Trim();

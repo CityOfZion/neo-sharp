@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
@@ -29,48 +30,44 @@ namespace NeoSharp.Persistence.RocksDB
         #endregion
 
         #region IRepository Members
-        public UInt256 GetBlockHashFromHeight(uint height)
+        public async Task<UInt256> GetBlockHashFromHeight(uint height)
         {
-            var hash = this._rocksDbContext.Get(BuildKey(DataEntryPrefix.IxHeightToHash, BitConverter.GetBytes(height)));
+            var hash = await this._rocksDbContext.Get(height.BuildIxHeightToHashKey());
             return hash == null ? UInt256.Zero : new UInt256(hash);
         }
 
-        public void AddBlockHeader(BlockHeaderBase blockHeader)
+        public async Task AddBlockHeader(BlockHeaderBase blockHeader)
         {
-            var hash = blockHeader.Hash.ToArray();
-            var ix = BitConverter.GetBytes(blockHeader.Index);
-
-            this._rocksDbContext.Save(BuildKey(DataEntryPrefix.DataBlock, hash), _serializer.Serialize(blockHeader));
-            this._rocksDbContext.Save(BuildKey(DataEntryPrefix.IxHeightToHash, ix), hash);
+            await this._rocksDbContext.Save(blockHeader.Hash.BuildDataBlockKey(), this._serializer.Serialize(blockHeader));
+            await this._rocksDbContext.Save(blockHeader.Index.BuildIxHeightToHashKey(), blockHeader.Hash.ToArray());
         }
 
-        public void AddTransaction(Transaction transaction)
+        public async Task AddTransaction(Transaction transaction)
         {
-            var hash = transaction.Hash.ToArray();
-            this._rocksDbContext.Save(BuildKey(DataEntryPrefix.DataTransaction, hash), _serializer.Serialize(transaction));
+            await this._rocksDbContext.Save(transaction.Hash.BuildDataTransactionKey(), _serializer.Serialize(transaction));
         }
 
-        public BlockHeader GetBlockHeader(UInt256 hash)
+        public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
-            var rawHeader = this._rocksDbContext.Get(BuildKey(DataEntryPrefix.DataBlock, hash.ToArray()));
+            var rawHeader = await this._rocksDbContext.Get(hash.BuildDataBlockKey());
             return rawHeader == null ? null : this._deserializer.Deserialize<BlockHeader>(rawHeader);
         }
 
-        public uint GetTotalBlockHeight()
+        public async Task<uint> GetTotalBlockHeight()
         {
-            var raw = this._rocksDbContext.Get(this._sysCurrentBlockKey);
+            var raw = await this._rocksDbContext.Get(this._sysCurrentBlockKey);
             return raw == null ? uint.MinValue : BitConverter.ToUInt32(raw, 0);
         }
 
-        public void SetTotalBlockHeight(uint height)
+        public async Task SetTotalBlockHeight(uint height)
         {
-            this._rocksDbContext.Save(this._sysCurrentBlockKey, BitConverter.GetBytes(height));
+            await this._rocksDbContext.Save(this._sysCurrentBlockKey, BitConverter.GetBytes(height));
         }
 
-        public Transaction GetTransaction(UInt256 hash)
+        public async Task<Transaction> GetTransaction(UInt256 hash)
         {
-            var bytes = this._rocksDbContext.Get(BuildKey(DataEntryPrefix.DataTransaction, hash.ToArray()));
-            return bytes == null ? null : this._deserializer.Deserialize<Transaction>(bytes);
+            var rawTransaction = await this._rocksDbContext.Get(hash.BuildDataTransactionKey());
+            return rawTransaction == null ? null : this._deserializer.Deserialize<Transaction>(rawTransaction);
         }
         #endregion
 
@@ -78,25 +75,6 @@ namespace NeoSharp.Persistence.RocksDB
         public void Dispose()
         {
             this._rocksDbContext.Dispose();
-        }
-        #endregion
-
-        #region Private Methods 
-        /// <summary>
-        /// Builds the concatenated key based on data type and desired key
-        /// </summary>
-        /// <param name="type">Data type</param>
-        /// <param name="key">Desired key</param>
-        /// <returns>Resulting key</returns>
-        private static byte[] BuildKey(DataEntryPrefix type, byte[] key)
-        {
-            var len = key.Length;
-            var bytes = new byte[len + 1];
-
-            bytes[0] = (byte)type;
-            Array.Copy(key, 0, bytes, 1, len);
-
-            return bytes;
         }
         #endregion
     }

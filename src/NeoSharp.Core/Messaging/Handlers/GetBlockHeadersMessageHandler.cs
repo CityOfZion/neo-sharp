@@ -21,11 +21,21 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         public async Task Handle(GetBlockHeadersMessage message, IPeer sender)
         {
-            var blockHash = message.Payload.HashStart
-                .Select(p => _blockchain.GetBlockHeader(p))
-                .Where(p => p != null)
-                .OrderBy(p => p.Index)
-                .Select(p => p.Hash)
+            var blockHeadersFromPayload = new List<BlockHeader>();
+
+            foreach (var hash in message.Payload.HashStart)
+            {
+                var blockHeader = await this._blockchain.GetBlockHeader(hash);
+
+                if (blockHeader != null)
+                {
+                    blockHeadersFromPayload.Add(blockHeader);
+                }
+            }
+
+            var blockHash = blockHeadersFromPayload
+                .OrderBy(x => x.Index)
+                .Select(x => x.Hash)
                 .FirstOrDefault();
 
             if (blockHash == null || blockHash == message.Payload.HashStop) return;
@@ -34,11 +44,11 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             do
             {
-                blockHash = _blockchain.GetNextBlockHash(blockHash);
+                blockHash = await this._blockchain.GetNextBlockHash(blockHash);
 
                 if (blockHash == null || blockHash == message.Payload.HashStop) break;
 
-                blockHeaders.Add(_blockchain.GetBlockHeader(blockHash));
+                blockHeaders.Add(await this._blockchain.GetBlockHeader(blockHash));
             } while (blockHash != message.Payload.HashStop && blockHeaders.Count < MaxBlockHeadersCountToReturn);
 
             if (blockHeaders.Count == 0) return;

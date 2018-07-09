@@ -71,16 +71,12 @@ namespace NeoSharp.Application.Client
         {
             Console.Beep();
         }
-        /// <summary>
-        /// Clear
-        /// </summary>
+        /// <inheritdoc />
         public void Clear()
         {
             Console.Clear();
         }
-        /// <summary>
-        /// Write prompt
-        /// </summary>
+        /// <inheritdoc />
         public void WritePrompt()
         {
             Write(ReadPrompt, ConsoleOutputStyle.Prompt);

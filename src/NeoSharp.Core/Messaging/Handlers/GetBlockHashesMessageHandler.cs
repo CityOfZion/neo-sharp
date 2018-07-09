@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Types;
 
@@ -21,11 +22,20 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         public async Task Handle(GetBlockHashesMessage message, IPeer sender)
         {
-            var blockHash = message.Payload.HashStart
-                .Select(p => _blockchain.GetBlockHeader(p))
-                .Where(p => p != null)
-                .OrderBy(p => p.Index)
-                .Select(p => p.Hash)
+            var blockHeaders = new List<BlockHeader>();
+            foreach (var hash in message.Payload.HashStart)
+            {
+                var blockHeader = await this._blockchain.GetBlockHeader(hash);
+
+                if (blockHeader != null)
+                {
+                    blockHeaders.Add(blockHeader);
+                }
+            }
+
+            var blockHash = blockHeaders
+                .OrderBy(x => x.Index)
+                .Select(x => x.Hash)
                 .FirstOrDefault();
 
             if (blockHash == null || blockHash == message.Payload.HashStop) return;
@@ -34,7 +44,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             do
             {
-                blockHash = _blockchain.GetNextBlockHash(blockHash);
+                blockHash = await this._blockchain.GetNextBlockHash(blockHash);
 
                 if (blockHash == null || blockHash == message.Payload.HashStop) break;
 

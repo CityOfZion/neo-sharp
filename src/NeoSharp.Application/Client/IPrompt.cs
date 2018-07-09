@@ -1,4 +1,6 @@
-﻿namespace NeoSharp.Application.Client
+﻿using System.Threading.Tasks;
+
+namespace NeoSharp.Application.Client
 {
     public interface IPrompt
     {
@@ -8,6 +10,7 @@
         /// <param name="command">Command</param>
         /// <returns>Return false if fail</returns>
         bool Execute(string command);
+        
         /// <summary>
         /// Start prompt with arguments
         /// </summary>

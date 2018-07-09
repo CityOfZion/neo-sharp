@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace NeoSharp.Persistence.RedisDB
+﻿namespace NeoSharp.Persistence.RedisDB.Helpers
 {
     /// <summary>
     /// Enumeration of redis indexes

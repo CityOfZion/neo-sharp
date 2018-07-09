@@ -79,14 +79,14 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         private async Task SendTransactions(IReadOnlyCollection<UInt256> transactionHashes, IPeer peer)
         {
-            var transactions = _blockchain.GetTransactions(transactionHashes);
+            var transactions = await this._blockchain.GetTransactions(transactionHashes);
 
             await peer.Send(new TransactionMessage(transactions));
         }
 
         private async Task SendBlocks(IReadOnlyCollection<UInt256> blockHashes, IPeer peer)
         {
-            var blocks = _blockchain.GetBlocks(blockHashes);
+            var blocks = await this._blockchain.GetBlocks(blockHashes);
 
             var filter = peer.BloomFilter;
             if (filter == null)

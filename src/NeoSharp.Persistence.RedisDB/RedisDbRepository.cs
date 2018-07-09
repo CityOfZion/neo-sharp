@@ -1,6 +1,6 @@
 using System;
+using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -12,121 +12,90 @@ namespace NeoSharp.Persistence.RedisDB
     public class RedisDbRepository : IRepository
     {
         #region Private Fields 
-
-        private readonly RedisDbConfig _config;
+        private readonly IRedisDbContext _redisDbContext;
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
-        private readonly RedisHelper _redis;
-
         #endregion
 
         #region Construtor
-
         public RedisDbRepository(
-            RedisDbConfig config,
+            IRedisDbContext redisDbContext,
             IBinarySerializer serializer,
             IBinaryDeserializer deserializer)
         {
-            _config = config ?? throw new ArgumentNullException(nameof(config));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
-
-            var host = string.IsNullOrEmpty(config.ConnectionString) ? "localhost" : config.ConnectionString;
-            var dbId = config.DatabaseId ?? 0;
-
-            //Make the connection to the specified server and database
-            if (_redis == null)
-            {
-                _redis = new RedisHelper(host, dbId);
-            }
+            this._redisDbContext = redisDbContext ?? throw new ArgumentNullException(nameof(redisDbContext));
+            this._serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            this._deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
         }
-
         #endregion
 
         #region IRepository Members
-
-        public void AddBlockHeader(BlockHeaderBase blockHeader)
+        public async Task AddBlockHeader(BlockHeaderBase blockHeader)
         {
-            //Serialize
-            if (_config.IsBinaryMode)
+            if (this._redisDbContext.IsBinaryMode)
             {
-                var blockHeaderBytes = _serializer.Serialize(blockHeader);
-                //Write the redis database with the binary bytes
-                _redis.Database.Set(DataEntryPrefix.DataBlock, blockHeader.Hash.ToString(), blockHeaderBytes);
+                var blockHeaderBytes = this._serializer.Serialize(blockHeader);
+                await this._redisDbContext.Set(blockHeader.Hash.BuildDataBlockKey(), blockHeaderBytes);
             }
             else
             {
-                var blockHeaderJson = JsonConvert.SerializeObject(blockHeader);
-                //Write the redis database with the binary bytes
-                _redis.Database.Set(DataEntryPrefix.DataBlock, blockHeader.Hash.ToString(), blockHeaderJson);
+                // TODO [AboimPinto]: This serialization cannot be mocked, therefore cannot be tested properly.
+                var blockHeaderJson = JsonConvert.SerializeObject(blockHeader);                         
+                await this._redisDbContext.Set(blockHeader.Hash.BuildDataBlockKey(), blockHeaderJson);
             }
 
-            //Add secondary indexes to find block hash by timestamp or height
-            //Add to timestamp / blockhash index
-            _redis.Database.AddToIndex(RedisIndex.BlockTimestamp, blockHeader.Timestamp, blockHeader.Hash.ToString());
-
-            //Add to heignt / blockhash index
-            _redis.Database.AddToIndex(RedisIndex.BlockHeight, blockHeader.Index, blockHeader.Hash.ToString());
+            await this._redisDbContext.AddToIndex(RedisIndex.BlockTimestamp, blockHeader.Hash, blockHeader.Timestamp);
+            await this._redisDbContext.AddToIndex(RedisIndex.BlockHeight, blockHeader.Hash, blockHeader.Index);
         }
 
-        public void AddTransaction(Transaction transaction)
+        public async Task AddTransaction(Transaction transaction)
         {
-            if (_config.IsBinaryMode)
+            if (this._redisDbContext.IsBinaryMode)
             {
-                //Convert to bytes
                 var transactionBytes = _serializer.Serialize(transaction);
-                //Write the redis database with the binary bytes
-                _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash.ToString(), transactionBytes);
+                await this._redisDbContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionBytes);
             }
             else
             {
-                //Convert to bytes
                 var transactionJson = JsonConvert.SerializeObject(transaction);
-                //Write the redis database with the binary bytes
-                _redis.Database.Set(DataEntryPrefix.DataTransaction, transaction.Hash.ToString(), transactionJson);
+                await this._redisDbContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionJson);
             }
         }
 
-        public UInt256 GetBlockHashFromHeight(uint height)
+        public async Task<UInt256> GetBlockHashFromHeight(uint height)
         {
-            //Get the hash for the block at the specified height from our secondary index
-            var values = _redis.Database.GetFromIndex(RedisIndex.BlockHeight, height);
-
-            //We want only the first result
-            return values.Length > 0 ? new UInt256(values[0].HexToBytes()) : null;
+            return await this._redisDbContext.GetFromHashIndex(RedisIndex.BlockHeight, height);
         }
 
-        public BlockHeader GetBlockHeaderByTimestamp(int timestamp)
+        public async Task<BlockHeader> GetBlockHeaderByTimestamp(int timestamp)
         {
-            //Get the hash for the block with the specified timestamp from our secondary index
-            var values = _redis.Database.GetFromIndex(RedisIndex.BlockTimestamp, timestamp);
+            var hash = await this._redisDbContext.GetFromHashIndex(RedisIndex.BlockTimestamp, timestamp);
 
-            //We want only the first result
-            return values.Length > 0 ? GetBlockHeader(new UInt256(values[0].HexToBytes())) : null;
-        }
-
-        public BlockHeader GetBlockHeader(UInt256 hash)
-        {
-            //Retrieve the block header
-            var blockHeader = _redis.Database.Get(DataEntryPrefix.DataBlock, hash.ToArray());
-
-            if (_config.IsBinaryMode)
+            if (hash != null)
             {
-                return _deserializer.Deserialize<BlockHeader>(blockHeader);
+                return await this.GetBlockHeader(hash);
             }
-            else
-            {
-                return JsonConvert.DeserializeObject<BlockHeader>(blockHeader);
-            }
+
+            return null;
         }
 
-        public void SetTotalBlockHeight(uint height)
+        public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
+            var blockHeaderRedisValue = await this._redisDbContext.Get(hash.BuildDataBlockKey());
+
+            return this._redisDbContext.IsBinaryMode ? 
+                this._deserializer.Deserialize<BlockHeader>(blockHeaderRedisValue) : 
+                JsonConvert.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
+        }
+
+        public Task SetTotalBlockHeight(uint height)
+        {
+            throw new NotImplementedException();
             // TODO: redis logic
             //_redis.Database.AddToIndex(RedisIndex.BlockHeight, height);
         }
 
-        public uint GetTotalBlockHeight()
+        public Task<uint> GetTotalBlockHeight()
         {
             //Use the block height secondary index to tell us what our block height is
             //return _redis.Database.GetIndexLength(RedisIndex.BlockHeight);
@@ -135,20 +104,14 @@ namespace NeoSharp.Persistence.RedisDB
             throw new NotImplementedException();
         }
 
-        public Transaction GetTransaction(UInt256 hash)
+        public async Task<Transaction> GetTransaction(UInt256 hash)
         {
-            var transaction = _redis.Database.Get(DataEntryPrefix.DataTransaction, hash.ToArray());
+            var transactionRedisValue = await this._redisDbContext.Get(hash.BuildDataTransactionKey());
 
-            if (_config.IsBinaryMode)
-            {
-                return _deserializer.Deserialize<Transaction>(transaction);
-            }
-            else
-            {
-                return JsonConvert.DeserializeObject<Transaction>(transaction);
-            }
+            return this._redisDbContext.IsBinaryMode ? 
+                this._deserializer.Deserialize<Transaction>(transactionRedisValue) : 
+                JsonConvert.DeserializeObject<Transaction>(transactionRedisValue);
         }
-
         #endregion
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
@@ -16,6 +17,8 @@ namespace NeoSharp.Core.Blockchain
         Block CurrentBlock { get; }
 
         BlockHeaderBase LastBlockHeader { get; }
+
+        Task InitializeBlockchain();
 
         /// <summary>
         /// Add the specified block to the blockchain
@@ -81,37 +84,37 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="height"></param>
         /// <returns></returns>
-        Block GetBlock(uint height);
+        Task<Block> GetBlock(uint height);
 
         /// <summary>
         /// Return the corresponding block information according to the specified height
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        Block GetBlock(UInt256 hash);
+        Task<Block> GetBlock(UInt256 hash);
 
-        IEnumerable<Block> GetBlocks(IReadOnlyCollection<UInt256> blockHashes);
+        Task<IEnumerable<Block>> GetBlocks(IReadOnlyCollection<UInt256> blockHashes);
 
         /// <summary>
         /// Returns the hash of the corresponding block based on the specified height
         /// </summary>
         /// <param name="height"></param>
         /// <returns></returns>
-        UInt256 GetBlockHash(uint height);
+        Task<UInt256> GetBlockHash(uint height);
 
         /// <summary>
         /// Return the corresponding block header information according to the specified height
         /// </summary>
         /// <param name="height"></param>
         /// <returns></returns>
-        BlockHeader GetBlockHeader(uint height);
+        Task<BlockHeader> GetBlockHeader(uint height);
 
         /// <summary>
         /// Returns the corresponding block header information according to the specified hash value
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        BlockHeader GetBlockHeader(UInt256 hash);
+        Task<BlockHeader> GetBlockHeader(UInt256 hash);
 
         ECPoint[] GetValidators();
         IEnumerable<ECPoint> GetValidators(IEnumerable<Transaction> others);
@@ -121,21 +124,21 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        Block GetNextBlock(UInt256 hash);
+        Task<Block> GetNextBlock(UInt256 hash);
 
         /// <summary>
         /// Returns the hash value of the next block based on the specified hash value
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        UInt256 GetNextBlockHash(UInt256 hash);
+        Task<UInt256> GetNextBlockHash(UInt256 hash);
 
         /// <summary>
         /// Returns the total amount of system costs contained in the corresponding block and all previous blocks based on the specified block height
         /// </summary>
         /// <param name="height"></param>
         /// <returns></returns>
-        long GetSysFeeAmount(uint height);
+        Task<long> GetSysFeeAmount(uint height);
 
         /// <summary>
         /// Returns the total amount of system charges contained in the corresponding block and all previous blocks based on the specified block hash value
@@ -149,17 +152,18 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        Transaction GetTransaction(UInt256 hash);
+        Task<Transaction> GetTransaction(UInt256 hash);
 
-        /// <summary>
-        /// Return the corresponding transaction information and the height of the block where the transaction is located according to the specified hash value
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <param name="height"></param>
-        /// <returns></returns>
-        Transaction GetTransaction(UInt256 hash, out int height);
+        // TODO [AboimPinto] Async methods cannot have out parameters. Method not used for now.
+        ///// <summary>
+        ///// Return the corresponding transaction information and the height of the block where the transaction is located according to the specified hash value
+        ///// </summary>
+        ///// <param name="hash"></param>
+        ///// <param name="height"></param>
+        ///// <returns></returns>
+        //Task<Transaction> GetTransaction(UInt256 hash, out int height);
 
-        IEnumerable<Transaction> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes);
+        Task<IEnumerable<Transaction>> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes);
 
         /// <summary>
         /// Get the corresponding unspent assets based on the specified hash value and index
