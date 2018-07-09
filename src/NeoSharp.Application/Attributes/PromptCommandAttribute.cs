@@ -350,6 +350,37 @@ namespace NeoSharp.Application.Attributes
                 return l;
             }
 
+            if (type.IsEnum)
+            {
+                var iret = 0L;
+                var f = Enum.GetNames(type);
+
+                foreach (var en in token.Value.Split(new char[] { ',', '|' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    foreach (var v in f)
+                    {
+                        if (string.Compare(v, en, true) == 0)
+                        {
+                            var v1 = Enum.Parse(type, v);
+                            if (v1 != null)
+                            {
+                                if (iret == 0L)
+                                {
+                                    iret = Convert.ToInt64(v1);
+                                }
+                                else
+                                {
+                                    // Multienum One|Two
+                                    iret |= Convert.ToInt64(v1);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                return Enum.ToObject(type, iret);
+            }
+
             // Is Convertible
             var conv = TypeDescriptor.GetConverter(type);
             if (conv.CanConvertFrom(_stringType))

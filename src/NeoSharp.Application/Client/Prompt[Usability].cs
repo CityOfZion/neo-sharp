@@ -3,23 +3,48 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Types;
-using NeoSharp.Logging.NLog;
 
 namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
-        public enum LogMode
+        [Flags]
+        public enum LogVerbose : byte
         {
-            On,
-            Off
+            Off = 0,
+
+            Trace = 1,
+            Debug = 2,
+            Information = 4,
+            Warning = 8,
+            Error = 16,
+            Critical = 32,
+
+            All = Trace | Debug | Information | Warning | Error | Critical
         }
+
+        private readonly Dictionary<LogLevel, LogVerbose> _logFlagProxy = new Dictionary<LogLevel, LogVerbose>()
+        {
+            { LogLevel.Trace, LogVerbose.Trace},
+            { LogLevel.Debug, LogVerbose.Debug},
+            { LogLevel.Information, LogVerbose.Information},
+            { LogLevel.Warning, LogVerbose.Warning},
+            { LogLevel.Error, LogVerbose.Error},
+            { LogLevel.Critical, LogVerbose.Critical},
+        };
+        private LogVerbose _logVerbose = LogVerbose.Off;
 
         private void Log_OnLog(LogEntry log)
         {
+            if (_logVerbose.HasFlag(_logFlagProxy[log.Level]))
+            {
+                return;
+            }
+
             _logs.Add(log);
         }
 
@@ -91,9 +116,11 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="mode">Mode</param>
         [PromptCommand("log", Help = "Enable/Disable log output", Category = "Usability")]
-        private void LogCommand(LogMode mode)
+        private void LogCommand(LogVerbose mode)
         {
-            if (mode == LogMode.On)
+            _logVerbose = mode;
+
+            if (mode != LogVerbose.Off)
             {
                 _loggerFactory.OnLog -= Log_OnLog;
                 _loggerFactory.OnLog += Log_OnLog;
