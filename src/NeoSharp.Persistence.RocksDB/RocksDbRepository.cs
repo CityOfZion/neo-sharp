@@ -34,7 +34,7 @@ namespace NeoSharp.Persistence.RocksDB
         public async Task<UInt256> GetBlockHashFromHeight(uint height)
         {
             var hash = await this._rocksDbContext.Get(height.BuildIxHeightToHashKey());
-            return hash == null ? UInt256.Zero : new UInt256(hash);
+            return hash == null || hash.Length == 0 ? UInt256.Zero : new UInt256(hash);
         }
 
         public async Task AddBlockHeader(BlockHeaderBase blockHeader)
