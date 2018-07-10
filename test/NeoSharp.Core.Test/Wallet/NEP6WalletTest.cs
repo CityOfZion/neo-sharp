@@ -226,6 +226,90 @@ namespace NeoSharp.Core.Wallet.Test
         #region ExpectedException
 
         [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void TestContainsWalletIsNotOpened()
+        {
+            // Act
+            _walletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            IWalletAccount walletAccount = _walletManager.CreateAccount(_defaultPassword);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void TestCreateAccountWalletIsNotOpened()
+        {
+            // Act
+            _walletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            IWalletAccount walletAccount = _walletManager.CreateAccount(_defaultPassword);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void TestDeleteAccountWalletIsNotOpened()
+        {
+            IWalletAccount walletAccount = _walletManager.CreateAccount(_defaultPassword);
+
+            Assert.IsTrue(_walletManager.Wallet.Accounts.ToList().Count == 1);
+
+            _walletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            _walletManager.DeleteAccount(walletAccount.Contract.ScriptHash);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void TestGetAccountPublicKeyWalletIsNotOpened()
+        {
+            // Act
+            IWalletAccount walletAccount = _walletManager.ImportWif("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a", _defaultPassword);
+            byte[] privateKey = GetPrivateKeyFromWIF("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a");
+            ECPoint publicKey = new ECPoint(ICrypto.Default.ComputePublicKey(privateKey, true));
+
+            _walletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            IWalletAccount walletAccount2 = _walletManager.GetAccount(publicKey);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void TestImportNEP6AndPassphraseWalletIsNotOpened()
+        {
+            _walletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+
+            // Act
+            IWalletAccount walletAccount = _walletManager.ImportEncryptedWif("6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv", _defaultPassword);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void TestImportWifWalletIsNotOpened()
+        {
+            _walletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+
+            // Act
+            IWalletAccount walletAccount = _walletManager.ImportWif("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a", _defaultPassword);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void TestImportScriptHashWalletIsNotOpened()
+        {
+            // Act
+            NEP6Account walletAccount1 = (NEP6Account)_walletManager.CreateAccount(_defaultPassword);
+
+            _walletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            NEP6Account walletAccount2 = (NEP6Account)_walletManager.ImportScriptHash(walletAccount1.ScriptHash);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void TestImportPrivateKeyWalletIsNotOpened()
+        {
+            _walletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            byte[] privateKey = GetPrivateKeyFromWIF("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a");
+            // Act
+            IWalletAccount walletAccount = _walletManager.ImportPrivateKey(privateKey, _defaultPassword);
+        }
+
+        [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
         public void TestImportScriptHashEmpty()
         {
