@@ -98,12 +98,16 @@ namespace NeoSharp.Core.Wallet
         /// <param name="password">Password.</param>
         bool VerifyPassword(IWalletAccount walletAccout, SecureString password);
 
-
         /// <summary>
-        /// Saves the wallet. It will be save in the file used
-        /// to create this wallet.
+        /// save the open wallet into the same file
         /// </summary>
         void SaveWallet();
+
+        /// <summary>
+        /// save the open wallet into a specific filename
+        /// </summary>
+        /// <param name="filename">the filename</param>
+        void SaveWallet(string filename);
 
         /// <summary>
         /// Load a wallet at specified fileName.

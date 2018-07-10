@@ -58,6 +58,19 @@ namespace NeoSharp.Core.Wallet.Test
             _testContract = ContractFactory.CreateSinglePublicKeyRedeemContract(publicKeyInEcPoint);
         }
 
+        [TestMethod]
+        public void TestSaveWallet()
+        {
+            var random = new Random();
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var firstFileName = new string(Enumerable.Repeat(chars, 10).Select(s => s[random.Next(s.Length)]).ToArray());
+            var secondsFileName = new string(Enumerable.Repeat(chars, 10).Select(s => s[random.Next(s.Length)]).ToArray());
+
+            _walletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            _walletManager.CreateWallet(firstFileName);
+            _walletManager.SaveWallet(secondsFileName);
+        }
+
 
         [TestMethod]
         public void TestGetAccount()

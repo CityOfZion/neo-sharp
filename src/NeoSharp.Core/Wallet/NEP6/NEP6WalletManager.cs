@@ -20,6 +20,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         private readonly IFileWrapper _fileWrapper;
         private readonly IJsonConverter _jsonConverter;
 
+        private string _openWalletFilename;
         public IWallet Wallet { get; private set; }
 
         /// <summary>
@@ -57,6 +58,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             _fileWrapper.WriteToFile(json, filename);
 
             Wallet = wallet;
+            _openWalletFilename = filename;
         }
 
         /// <summary>
@@ -278,10 +280,23 @@ namespace NeoSharp.Core.Wallet.NEP6
             }
         }
 
-
+        /// <summary>
+        /// save the open wallet into the same file
+        /// </summary>
         public void SaveWallet()
         {
-            //throw new NotImplementedException();
+            SaveWallet(_openWalletFilename);
+        }
+
+        /// <summary>
+        /// save the open wallet into a specific filename
+        /// </summary>
+        /// <param name="filename">the filename</param>
+        public void SaveWallet(String filename)
+        {
+            CheckWalletIsOpen();
+            var json = _jsonConverter.SerializeObject(Wallet);
+            _fileWrapper.WriteToFile(json, filename);
         }
 
         /// <summary>
@@ -403,6 +418,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         {
             string json = _fileWrapper.Load(fileName);
             Wallet = _jsonConverter.DeserializeObject<NEP6Wallet>(json);
+            _openWalletFilename = fileName;
         }
 
         /// <summary>
@@ -411,6 +427,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         public void Close()
         {
             Wallet = null;
+            _openWalletFilename = null;
             _unlockedAccounts.Clear();
         }
 

@@ -71,6 +71,12 @@ namespace NeoSharp.Application.Client
                 _consoleWriter.WriteLine(exception.Message, ConsoleOutputStyle.Error);
             }
         }
+        
+        [PromptCommand("wallet save", Category = "Wallet", Help = "Saves the open wallet into a new file")]
+        private void WalletSaveCommand(string fileName)
+        {
+            _walletManager.SaveWallet(fileName);
+        }
 
         /*
         TODO WALLET:
