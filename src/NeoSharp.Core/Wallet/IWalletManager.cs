@@ -99,6 +99,11 @@ namespace NeoSharp.Core.Wallet
         bool VerifyPassword(IWalletAccount walletAccout, SecureString password);
 
         /// <summary>
+        /// Checks the wallet is open.
+        /// </summary>
+        void CheckWalletIsOpen();
+
+        /// <summary>
         /// save the open wallet into the same file
         /// </summary>
         void SaveWallet();

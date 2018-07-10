@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security;
 using NeoSharp.Core.Cryptography;
@@ -47,14 +48,14 @@ namespace NeoSharp.Core.Wallet.NEP6
                 throw new ArgumentException("File already exists");
             }
 
-            string walletName = filename.Split('.')[0];
-            IWallet wallet = new NEP6Wallet()
+            var walletName = Path.GetFileNameWithoutExtension(filename);
+            var wallet = new NEP6Wallet()
             {
                 Name = walletName,
                 Version = "1.0"
             };
 
-            string json = _jsonConverter.SerializeObject(wallet);
+            var json = _jsonConverter.SerializeObject(wallet);
             _fileWrapper.WriteToFile(json, filename);
 
             Wallet = wallet;
@@ -87,8 +88,8 @@ namespace NeoSharp.Core.Wallet.NEP6
         public IWalletAccount CreateAccount(SecureString password)
         {
             CheckWalletIsOpen();
-            byte[] privateKey = ICrypto.Default.GenerateRandomBytes(32);
-            IWalletAccount account = ImportPrivateKey(privateKey, password);
+            var privateKey = ICrypto.Default.GenerateRandomBytes(32);
+            var account = ImportPrivateKey(privateKey, password);
             Array.Clear(privateKey, 0, privateKey.Length);
             return account;
         }
@@ -161,16 +162,16 @@ namespace NeoSharp.Core.Wallet.NEP6
             CheckWalletIsOpen();
 
             //TODO: Load Contract from persistence?
-            Code emptyContractCode = new Code
+            var emptyContractCode = new Code
             {
                 ScriptHash = scriptHash
             };
-            Contract emptyContract = new Contract
+            var emptyContract = new Contract
             {
                 Code = emptyContractCode
             };
 
-            NEP6Account account = new NEP6Account(emptyContract);
+            var account = new NEP6Account(emptyContract);
 
             AddAccount(account);
             return account;
@@ -194,7 +195,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             }
             CheckWalletIsOpen();
 
-            NEP6Account account = CreateAccountWithPrivateKey(privateKey, passphrase);
+            var account = CreateAccountWithPrivateKey(privateKey, passphrase);
             AddAccount(account);
             return account;
         }
@@ -212,7 +213,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             }
             CheckWalletIsOpen();
 
-            NEP6Account account = CreateAccountWithPrivateKey(GetPrivateKeyFromWIF(wif), password);
+            var account = CreateAccountWithPrivateKey(GetPrivateKeyFromWIF(wif), password);
             AddAccount(account);
             return account;
         }
@@ -226,8 +227,8 @@ namespace NeoSharp.Core.Wallet.NEP6
         public IWalletAccount ImportEncryptedWif(string nep2, SecureString passphrase)
         {
             CheckWalletIsOpen();
-            byte[] privateKey = _walletHelper.DecryptWif(nep2, passphrase);
-            NEP6Account account = CreateAccountWithPrivateKey(privateKey, passphrase);
+            var privateKey = _walletHelper.DecryptWif(nep2, passphrase);
+            var account = CreateAccountWithPrivateKey(privateKey, passphrase);
             account.Key = nep2;
             AddAccount(account);
             return account;
@@ -268,10 +269,10 @@ namespace NeoSharp.Core.Wallet.NEP6
         {
             var internalWif = wif ?? throw new ArgumentNullException(nameof(wif));
 
-            byte[] privateKeyByteArray = ICrypto.Default.Base58CheckDecode(internalWif);
+            var privateKeyByteArray = ICrypto.Default.Base58CheckDecode(internalWif);
 
             if(privateKeyByteArray.IsValidPrivateKey()){
-                byte[] privateKey = new byte[32];
+                var privateKey = new byte[32];
                 Buffer.BlockCopy(privateKeyByteArray, 1, privateKey, 0, privateKey.Length);
                 Array.Clear(privateKeyByteArray, 0, privateKeyByteArray.Length);
                 return privateKey;
@@ -308,7 +309,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         private void AddOrReplaceAccount(IWalletAccount account)
         {
             CheckWalletIsOpen();
-            IWalletAccount currentAccount = TryGetAccount(account.Contract.ScriptHash);
+            var currentAccount = TryGetAccount(account.Contract.ScriptHash);
             if (currentAccount == null)
             {
                 AddAccount(account);
@@ -316,7 +317,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             else
             {
                 //Account exists. Clone it.
-                IWalletAccount clonedAccount = new NEP6Account(account.Contract)
+                var clonedAccount = new NEP6Account(account.Contract)
                 {
                     Label = account.Label,
                     IsDefault = account.IsDefault,
@@ -386,9 +387,9 @@ namespace NeoSharp.Core.Wallet.NEP6
         {
             var publicKeyInBytes = ICrypto.Default.ComputePublicKey(privateKey, true);
             var publicKeyInEcPoint = new ECPoint(publicKeyInBytes);
-            Contract contract = ContractFactory.CreateSinglePublicKeyRedeemContract(publicKeyInEcPoint);
+            var contract = ContractFactory.CreateSinglePublicKeyRedeemContract(publicKeyInEcPoint);
 
-            NEP6Account account = new NEP6Account(contract)
+            var account = new NEP6Account(contract)
             {
                 Label = label
             };
@@ -416,7 +417,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <param name="fileName">File name.</param>
         public void Load(string fileName)
         {
-            string json = _fileWrapper.Load(fileName);
+            var json = _fileWrapper.Load(fileName);
             Wallet = _jsonConverter.DeserializeObject<NEP6Wallet>(json);
             _openWalletFilename = fileName;
         }
@@ -470,7 +471,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <summary>
         /// Throw exception if wallet is not opened (aka null)
         /// </summary>
-        private void CheckWalletIsOpen()
+        public void CheckWalletIsOpen()
         {
             if (Wallet == null)
             {

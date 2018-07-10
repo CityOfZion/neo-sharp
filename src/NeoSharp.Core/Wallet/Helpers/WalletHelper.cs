@@ -39,7 +39,7 @@ namespace NeoSharp.Core.Wallet.Helpers
 
             // Data is encoded in Base58
             // https://github.com/neo-project/proposals/blob/master/nep-2.mediawiki#abstract
-            byte[] data = ICrypto.Default.Base58CheckDecode(encryptedPrivateKey);
+            var data = ICrypto.Default.Base58CheckDecode(encryptedPrivateKey);
 
             //2 bytes 0x0142 Object Identifier Prefix (see below)
             //1 byte(flagbyte): always be 0xE0
@@ -88,9 +88,9 @@ namespace NeoSharp.Core.Wallet.Helpers
             var privateKey = ICrypto.Default.AesDecrypt(encryptedkey, derivedhalf2).XOR(derivedhalf1);
 
             //Integrity check. Its necessary to rebuild the contract to get the address
-            string address = privateKeyToAddress(privateKey);
+            var address = privateKeyToAddress(privateKey);
 
-            byte[] addressBytes = Encoding.ASCII.GetBytes(address);
+            var addressBytes = Encoding.ASCII.GetBytes(address);
             var check = ICrypto.Default.Sha256(ICrypto.Default.Sha256(addressBytes)).Take(4);
 
             if (!check.SequenceEqual(addressHash))
@@ -120,8 +120,8 @@ namespace NeoSharp.Core.Wallet.Helpers
 
             //1 - Compute the NEO address(ASCII), and take the first four bytes of SHA256(SHA256()) of it. 
             // Let's call this "addresshash".
-            string address = privateKeyToAddress(privateKey);
-            byte[] addressBytes = Encoding.ASCII.GetBytes(address);
+            var address = privateKeyToAddress(privateKey);
+            var addressBytes = Encoding.ASCII.GetBytes(address);
             var addressHash = ICrypto.Default.Sha256(ICrypto.Default.Sha256(addressBytes)).Take(4).ToArray();
 
             //Passphrase encoded in UTF - 8 and normalized using Unicode Normalization Form C(NFC). 
@@ -132,17 +132,17 @@ namespace NeoSharp.Core.Wallet.Helpers
             ///     Parameters: passphrase is the passphrase itself encoded in UTF-8 and normalized using Unicode Normalization Form C(NFC). 
             ///     Salt is the addresshash from the earlier step, n = 16384, r = 8, p = 8, length = 64
             ///     Let's split the resulting 64 bytes in half, and call them derivedhalf1 and derivedhalf2.
-            byte[] derivedkey = ICrypto.Default.SCrypt(passphraseUtf8String, addressHash, ScryptParameters.Default.N, ScryptParameters.Default.R, ScryptParameters.Default.P, 64);
-            byte[] derivedhalf1 = derivedkey.Take(32).ToArray();
-            byte[] derivedhalf2 = derivedkey.Skip(32).ToArray();
+            var derivedkey = ICrypto.Default.SCrypt(passphraseUtf8String, addressHash, ScryptParameters.Default.N, ScryptParameters.Default.R, ScryptParameters.Default.P, 64);
+            var derivedhalf1 = derivedkey.Take(32).ToArray();
+            var derivedhalf2 = derivedkey.Skip(32).ToArray();
 
 
             /// 3 & 4  - Do AES256Encrypt(block = privkey[0...15] xor derivedhalf1[0...15], key = derivedhalf2), call the 16-byte result encryptedhalf1
-            byte[] encryptedKey = ICrypto.Default.AesEncrypt(privateKey.XOR(derivedhalf1), derivedhalf2);
+            var encryptedKey = ICrypto.Default.AesEncrypt(privateKey.XOR(derivedhalf1), derivedhalf2);
 
             /// The encrypted private key is the Base58Check-encoded concatenation of the following, which totals 39 bytes without Base58 checksum:
             /// 0x01 0x42 + flagbyte + addresshash + encryptedhalf1 + encryptedhalf2
-            byte[] buffer = new byte[39];
+            var buffer = new byte[39];
             buffer[0] = 0x01;
             buffer[1] = 0x42;
             buffer[2] = 0xe0;
@@ -179,8 +179,8 @@ namespace NeoSharp.Core.Wallet.Helpers
         private string privateKeyToAddress(byte[] privateKey)
         {
             var pubKeyInBytes = ICrypto.Default.ComputePublicKey(privateKey, true);
-            ECPoint pubkey = new ECPoint(pubKeyInBytes);
-            Contract accountContract = ContractFactory.CreateSinglePublicKeyRedeemContract(pubkey);
+            var pubkey = new ECPoint(pubKeyInBytes);
+            var accountContract = ContractFactory.CreateSinglePublicKeyRedeemContract(pubkey);
             return accountContract.ScriptHash.ToAddress();
         }
 

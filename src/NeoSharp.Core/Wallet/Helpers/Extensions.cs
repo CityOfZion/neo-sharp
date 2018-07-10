@@ -14,7 +14,7 @@ namespace NeoSharp.Core.Wallet.Helpers
         /// <returns>The address.</returns>
         /// <param name="scriptHash">Script hash.</param>
         public static string ToAddress(this UInt160 scriptHash){
-            byte[] data = new byte[21];
+            var data = new byte[21];
             data[0] = 0x17;
             Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
             return ICrypto.Default.Base58CheckEncode(data);
@@ -29,7 +29,7 @@ namespace NeoSharp.Core.Wallet.Helpers
         /// <param name="privateKey">Private key.</param>
         public static bool IsValidPrivateKey(this byte[] privateKey){
             //if data.LengthIsCorrect AND data.FirstByteIsCorrect AND data.LastByteIsCorrect
-            bool isValid = true;
+            var isValid = true;
 
             if(privateKey.Length != 34){
                 isValid = false;
