@@ -5,8 +5,14 @@ namespace NeoSharp.Core.Wallet
 {
     public interface IWalletAccount 
     {
+
         /// <summary>
-        /// label is a label that the user has made to the account.
+        /// Address is 'A' + Base58(scripthash)
+        /// </summary>
+        string Address { get; set; }
+
+        /// <summary>
+        /// Account name
         /// </summary>
         string Label { get; set; }
 

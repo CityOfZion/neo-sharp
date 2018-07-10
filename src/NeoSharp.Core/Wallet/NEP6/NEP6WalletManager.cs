@@ -168,10 +168,7 @@ namespace NeoSharp.Core.Wallet.NEP6
                 Code = emptyContractCode
             };
 
-            NEP6Account account = new NEP6Account
-            {
-                Contract = emptyContract
-            };
+            NEP6Account account = new NEP6Account(emptyContract);
 
             AddAccount(account);
             return account;
@@ -304,11 +301,10 @@ namespace NeoSharp.Core.Wallet.NEP6
             else
             {
                 //Account exists. Clone it.
-                IWalletAccount clonedAccount = new NEP6Account()
+                IWalletAccount clonedAccount = new NEP6Account(account.Contract)
                 {
                     Label = account.Label,
                     IsDefault = account.IsDefault,
-                    Contract = account.Contract,
                     Extra = account.Extra,
                     Key = account.Key,
                     Lock = account.Lock
@@ -341,12 +337,11 @@ namespace NeoSharp.Core.Wallet.NEP6
                 throw new ArgumentException("Account not found.");
             }
 
-            var clonedAccount = new NEP6Account
+            var clonedAccount = new NEP6Account(newAccountInformation.Contract)
             {
                 Label = newAccountInformation.Label,
                 IsDefault = newAccountInformation.IsDefault,
                 Lock = newAccountInformation.Lock,
-                Contract = newAccountInformation.Contract
             };
 
             return clonedAccount;
@@ -378,9 +373,8 @@ namespace NeoSharp.Core.Wallet.NEP6
             var publicKeyInEcPoint = new ECPoint(publicKeyInBytes);
             Contract contract = ContractFactory.CreateSinglePublicKeyRedeemContract(publicKeyInEcPoint);
 
-            NEP6Account account = new NEP6Account()
+            NEP6Account account = new NEP6Account(contract)
             {
-                Contract = contract,
                 Label = label
             };
 

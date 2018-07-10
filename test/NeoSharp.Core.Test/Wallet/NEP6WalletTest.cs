@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
 using NeoSharp.Core.Wallet.Helpers;
 using NeoSharp.Core.Wallet.NEP6;
@@ -22,6 +23,7 @@ namespace NeoSharp.Core.Wallet.Test
         Nep6WalletManager _walletManager;
         WalletHelper _walletHelper;
         SecureString _defaultPassword;
+        Contract _testContract;
 
 
         [TestInitialize]
@@ -50,6 +52,10 @@ namespace NeoSharp.Core.Wallet.Test
             _defaultPassword.AppendChar('9');
             _defaultPassword.AppendChar('0');
 
+            var privateKey = ICrypto.Default.GenerateRandomBytes(32);
+            var publicKey = ICrypto.Default.ComputePublicKey(privateKey, true);
+            var publicKeyInEcPoint = new ECPoint(publicKey);
+            _testContract = ContractFactory.CreateSinglePublicKeyRedeemContract(publicKeyInEcPoint);
         }
 
 
@@ -209,7 +215,7 @@ namespace NeoSharp.Core.Wallet.Test
             // Act
             SecureString fakeString = new SecureString();
             fakeString.AppendChar('1');
-            bool result = _walletManager.VerifyPassword(new NEP6Account() { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, fakeString);
+            bool result = _walletManager.VerifyPassword(new NEP6Account(_testContract) { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, fakeString);
 
             Assert.IsFalse(result);
         }
@@ -218,7 +224,7 @@ namespace NeoSharp.Core.Wallet.Test
         public void TestVerifyPassword()
         {
             // Act
-            bool result = _walletManager.VerifyPassword(new NEP6Account() { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, _defaultPassword);
+            bool result = _walletManager.VerifyPassword(new NEP6Account(_testContract) { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, _defaultPassword);
 
             Assert.IsTrue(result);
         }
@@ -314,14 +320,15 @@ namespace NeoSharp.Core.Wallet.Test
         public void TestImportScriptHashEmpty()
         {
             // Act
-            IWalletAccount walletAccount1 = new NEP6Account()
+
+            var contract = new Contract()
             {
-                Contract =  new Contract () { 
-                    Code = new Code { 
-                        ScriptHash = UInt160.Zero
-                    }
+                Code = new Code
+                {
+                    ScriptHash = UInt160.Zero
                 }
             };
+            IWalletAccount walletAccount1 = new NEP6Account(contract);
 
             _walletManager.ImportScriptHash(walletAccount1.Contract.ScriptHash);
         }
@@ -355,7 +362,7 @@ namespace NeoSharp.Core.Wallet.Test
         public void TestVerifyPasswordNep2KeyNull()
         {
             // Act
-            _walletManager.VerifyPassword(new NEP6Account() { Key = null }, _defaultPassword);
+            _walletManager.VerifyPassword(new NEP6Account(_testContract) { Key = null }, _defaultPassword);
         }
 
         [TestMethod]
@@ -363,7 +370,7 @@ namespace NeoSharp.Core.Wallet.Test
         public void TestVerifyPasswordNep2KeyEmpty()
         {
             // Act
-            _walletManager.VerifyPassword(new NEP6Account() { Key = String.Empty }, _defaultPassword);
+            _walletManager.VerifyPassword(new NEP6Account(_testContract) { Key = String.Empty }, _defaultPassword);
         }
 
         [TestMethod]
@@ -371,7 +378,7 @@ namespace NeoSharp.Core.Wallet.Test
         public void TestVerifyPasswordPasswordNull()
         {
             // Act
-            _walletManager.VerifyPassword(new NEP6Account() { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, null);
+            _walletManager.VerifyPassword(new NEP6Account(_testContract) { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, null);
         }
 
         [TestMethod]
@@ -379,7 +386,7 @@ namespace NeoSharp.Core.Wallet.Test
         public void TestVerifyPasswordPasswordEmpty()
         {
             // Act
-            _walletManager.VerifyPassword(new NEP6Account() { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, null);
+            _walletManager.VerifyPassword(new NEP6Account(_testContract) { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, null);
         }
 
         [TestMethod]

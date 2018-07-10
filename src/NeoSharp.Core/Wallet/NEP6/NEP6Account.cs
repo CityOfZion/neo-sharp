@@ -1,12 +1,15 @@
 ﻿using System;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
+using NeoSharp.Core.Wallet.Helpers;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Wallet.NEP6
 {
     public class NEP6Account : IWalletAccount, IEquatable<NEP6Account>
     {
+        /// <inheritdoc />
+        public string Address { get; set; }
 
         /// <inheritdoc />
         public UInt160 ScriptHash => Contract.ScriptHash;
@@ -28,6 +31,12 @@ namespace NeoSharp.Core.Wallet.NEP6
 
         [JsonProperty("extra")]
         public Object Extra { get; set; }
+
+        public NEP6Account(Contract accountContract){
+            Contract = accountContract;
+            Address = accountContract.ScriptHash.ToAddress();
+        }
+
 
         public override bool Equals(object obj)
         {
