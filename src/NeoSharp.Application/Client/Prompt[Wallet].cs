@@ -29,8 +29,6 @@ namespace NeoSharp.Application.Client
             try
             {
                 _walletManager.Load(fileName);
-                SecureString secureString = _consoleReader.ReadPassword();
-                _walletManager.UnlockAllAccounts(secureString);
             }catch (System.Exception exception)
             {
                 _consoleWriter.WriteLine(exception.Message, ConsoleOutputStyle.Error);

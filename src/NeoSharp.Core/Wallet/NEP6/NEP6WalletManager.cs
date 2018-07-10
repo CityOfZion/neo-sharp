@@ -412,15 +412,6 @@ namespace NeoSharp.Core.Wallet.NEP6
         }
 
         /// <summary>
-        /// Unlocks all accounts of the loaded wallet with a password
-        /// </summary>
-        /// <param name="password">Password.</param>
-        public void UnlockAllAccounts(SecureString password)
-        {
-            Wallet.Accounts.ForEach(account => UnlockAccount(account.Key, password));
-        }
-
-        /// <summary>
         /// Close wallet.
         /// </summary>
         public void Close()

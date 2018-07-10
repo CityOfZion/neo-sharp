@@ -75,12 +75,6 @@ namespace NeoSharp.Core.Wallet
         IWalletAccount ImportWif(string wif, SecureString password);
 
         /// <summary>
-        /// Unlocks all accounts of the loaded wallet with a password
-        /// </summary>
-        /// <param name="password">Password.</param>
-        void UnlockAllAccounts(SecureString password);
-
-        /// <summary>
         /// Unlocks an account of the specified nep2key.
         /// </summary>
         /// <param name="nep2Key">Nep2 key.</param>
