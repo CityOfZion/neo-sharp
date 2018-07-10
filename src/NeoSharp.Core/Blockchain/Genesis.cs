@@ -22,7 +22,7 @@ namespace NeoSharp.Core.Blockchain
             var utilityToken = GenesisAssets.UtilityTokenRegisterTransaction();
 
             var genesisMinerTransaction = GenesisAssets.GenesisMinerTransaction();
-            var genesisIssueTransaction = GenesisAssets.GenesisIssueTransaction();
+            var genesisIssueTransaction = GenesisAssets.GenesisIssueTransaction(governingToken);
 
             var genesisWitness = GenesisAssets.GenesisWitness();
             var genesisTimestamp = (new DateTime(2016, 7, 15, 15, 8, 21, DateTimeKind.Utc)).ToTimestamp();

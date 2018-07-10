@@ -55,7 +55,7 @@ namespace NeoSharp.Core.SmartContract
                   && (publicKeys.Length <= 1024)))
                 throw new ArgumentException("Invalid public keys. ");
 
-            string contractHexCode;
+            byte[] contractHexCode;
 
             using (ScriptBuilder sb = new ScriptBuilder())
             {
@@ -66,7 +66,7 @@ namespace NeoSharp.Core.SmartContract
                 }
                 sb.EmitPush(publicKeys.Length);
                 sb.Emit(EVMOpCode.CHECKMULTISIG);
-                contractHexCode = sb.ToArray().ToHexString();
+                contractHexCode = sb.ToArray();
             }
 
             ContractParameterType returnType = ContractParameterType.Void; 
@@ -74,8 +74,8 @@ namespace NeoSharp.Core.SmartContract
 
             Code contractCode = new Code
             {
-                Script = contractHexCode.HexToBytes(),
-                ScriptHash = contractHexCode.HexToBytes().ToScriptHash(),
+                Script = contractHexCode,
+                ScriptHash = contractHexCode.ToScriptHash(),
                 ReturnType = returnType,
                 Parameters = parameters
             };

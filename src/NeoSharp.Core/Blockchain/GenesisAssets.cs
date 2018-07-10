@@ -77,10 +77,10 @@ namespace NeoSharp.Core.Blockchain
         /// controlled by the seed validators.
         /// </summary>
         /// <returns>The genesis issue transaction.</returns>
-        public static IssueTransaction GenesisIssueTransaction()
+        /// <param name="governingToken">Governing token.</param>
+        public static IssueTransaction GenesisIssueTransaction(RegisterTransaction governingToken)
         {
-            var governingToken = GoverningTokenRegisterTransaction();
-            var transactionOutput = GenesisGoverningTokenTransactionOutput();
+            var transactionOutput = GenesisGoverningTokenTransactionOutput(governingToken);
             var genesisWitness = GenesisWitness();
             var issueTransaction = new IssueTransaction
             {
@@ -133,8 +133,8 @@ namespace NeoSharp.Core.Blockchain
         }
 
         public static UInt160 GetGenesisNextConsensusAdress(){
-            var genesisContract = GenesisValidatorsContract();
-            return genesisContract.ScriptHash;
+            var genesisValidators = GenesisStandByValidators();
+            return ContractFactory.CreateMultiplePublicKeyRedeemContract(genesisValidators.Length - (genesisValidators.Length - 1) / 3, genesisValidators).Code.ScriptHash;
         }
 
         private static ECPoint[] GenesisStandByValidators(){
@@ -157,10 +157,9 @@ namespace NeoSharp.Core.Blockchain
         /// The first transaction sends all NEO to contract 'managed' by 2/3 + 1 of the validators.
         /// </summary>
         /// <returns>The governing token transaction output.</returns>
-        private static TransactionOutput GenesisGoverningTokenTransactionOutput()
+        /// <param name="governingToken">Governing token.</param>
+        private static TransactionOutput GenesisGoverningTokenTransactionOutput(RegisterTransaction governingToken)
         {
-            
-            var governingToken = GoverningTokenRegisterTransaction();
             var genesisContract = GenesisValidatorsContract();
 
             var transactionOutput = new TransactionOutput
@@ -182,7 +181,5 @@ namespace NeoSharp.Core.Blockchain
             var genesisContract = ContractFactory.CreateMultiplePublicKeyRedeemContract(genesisValidators.Length / 2 + 1, genesisValidators);
             return genesisContract;
         }
-
-
     }
 }
