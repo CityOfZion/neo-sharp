@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
@@ -68,6 +69,37 @@ namespace NeoSharp.Persistence.RocksDB
         {
             var rawTransaction = await this._rocksDbContext.Get(hash.BuildDataTransactionKey());
             return rawTransaction == null ? null : this._deserializer.Deserialize<Transaction>(rawTransaction);
+        }
+
+        
+        public Task<uint> GetIndexHeight()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetIndexHeight(uint height)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<HashSet<CoinReference>> GetIndexConfirmed(UInt160 scriptHash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetIndexConfirmed(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<HashSet<CoinReference>> GetIndexClaimable(UInt160 scriptHash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
+        {
+            throw new NotImplementedException();
         }
         #endregion
 
