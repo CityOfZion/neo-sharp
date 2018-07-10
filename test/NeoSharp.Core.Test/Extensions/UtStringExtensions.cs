@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Extensions;
@@ -62,6 +63,16 @@ namespace NeoSharp.Core.Test.Extensions
             var value = "FF".HexToBytes();
 
             value.Should().BeEquivalentTo(new byte[] { 255 });
+        }
+
+        [TestMethod]
+        public void SecureStringToByteArray()
+        {
+            var secureS = new SecureString();
+            secureS.AppendChar('x');
+            var value = secureS.ToByteArray();
+
+            value.Should().BeEquivalentTo(new byte[] { 120 });
         }
     }
 }

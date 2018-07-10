@@ -8,6 +8,7 @@ using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
+using NeoSharp.Core.Wallet.Exceptions;
 using NeoSharp.Core.Wallet.Helpers;
 using NeoSharp.Core.Wallet.Wrappers;
 
@@ -27,7 +28,9 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <summary>
         /// Nep2Key to (publicKey, privateKey)
         /// </summary>
-        public IDictionary<String, Tuple<ECPoint, byte[]>> _unlockedAccounts = new Dictionary<String, Tuple<ECPoint, byte[]>>();
+        private readonly IDictionary<string, Tuple<ECPoint, byte[]>> _unlockedAccounts = new Dictionary<String, Tuple<ECPoint, byte[]>>();
+
+        private byte[] _accountPasswordHashCache;
 
         public Nep6WalletManager(IFileWrapper fileWrapper, IJsonConverter jsonConverter)
         {
@@ -88,9 +91,12 @@ namespace NeoSharp.Core.Wallet.NEP6
         public IWalletAccount CreateAccount(SecureString password)
         {
             CheckWalletIsOpen();
+            ValidateAccountsPasswordMismatch(password);
+
             var privateKey = ICrypto.Default.GenerateRandomBytes(32);
             var account = ImportPrivateKey(privateKey, password);
             Array.Clear(privateKey, 0, privateKey.Length);
+            _accountPasswordHashCache = GetPasswordHash(password);
             return account;
         }
 
@@ -430,6 +436,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             Wallet = null;
             _openWalletFilename = null;
             _unlockedAccounts.Clear();
+            _accountPasswordHashCache = null;
         }
 
         /// <summary>
@@ -438,8 +445,9 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <param name="nep2Key">Nep2 key.</param>
         /// <param name="password">Password.</param>
         public void UnlockAccount(string nep2Key, SecureString password)
-        {
+        {   
             var privateKey = _walletHelper.DecryptWif(nep2Key, password);
+            _accountPasswordHashCache = GetPasswordHash(password);
             var publicKeyInBytes = ICrypto.Default.ComputePublicKey(privateKey, true);
             var publicKeyEcPoint = new ECPoint(publicKeyInBytes);
             UnlockAccount(nep2Key, publicKeyEcPoint, privateKey);
@@ -475,8 +483,37 @@ namespace NeoSharp.Core.Wallet.NEP6
         {
             if (Wallet == null)
             {
-                throw new Exception("Wallet is not opened");
+                throw new WalletNotOpenException();
             }
         }
+        
+        private byte[] GetPasswordHash(SecureString password)
+        {
+            return ICrypto.Default.Sha256(ICrypto.Default.Sha256(password.ToByteArray()));
+        }
+
+        private void ValidateAccountsPasswordMismatch(SecureString password)
+        {
+            CheckWalletIsOpen();
+            
+            if (_accountPasswordHashCache != null) {
+                if (!GetPasswordHash(password).SequenceEqual(_accountPasswordHashCache))
+                {
+                    throw new AccountsPasswordMismatchException();
+                }
+            }
+            else if (Wallet.Accounts != null && Wallet.Accounts.Count > 0)
+            {
+                try
+                {
+                    _walletHelper.DecryptWif(Wallet.Accounts.First().Key, password);
+                }
+                catch (FormatException)
+                {
+                    throw new AccountsPasswordMismatchException();
+                }
+            }
+        }
+
     }
 }

@@ -54,6 +54,13 @@ namespace NeoSharp.Application.Client
         {
             _walletManager.SaveWallet(fileName);
         }
+        
+        [PromptCommand("create account", Category = "Account", Help = "Create a new account")]
+        private void AccountCreateCommand()
+        {    
+            SecureString secureString = _consoleReader.ReadPassword();
+            _walletManager.CreateAccount(secureString);
+        }
 
         /*
         TODO WALLET:

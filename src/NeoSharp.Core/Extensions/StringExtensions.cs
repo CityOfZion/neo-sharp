@@ -2,6 +2,9 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.InteropServices;
+using System.Security;
+using System.Text;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Extensions
@@ -74,6 +77,32 @@ namespace NeoSharp.Core.Extensions
             for (var i = 0; i < result.Length; i++)
                 result[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier);
             return result;
+        }
+        
+        
+        public static byte[] ToByteArray(this SecureString secureString, Encoding encoding = null)
+        {
+            if (secureString == null)
+            {
+                throw new ArgumentNullException(nameof(secureString));
+            }
+
+            encoding = encoding ?? Encoding.UTF8;
+
+            var unmanagedString = IntPtr.Zero;
+            try
+            {
+                unmanagedString = Marshal.SecureStringToGlobalAllocUnicode(secureString);
+
+                return encoding.GetBytes(Marshal.PtrToStringUni(unmanagedString));
+            }
+            finally
+            {
+                if (unmanagedString != IntPtr.Zero)
+                {
+                    Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
+                }
+            }
         }
     }
 }
