@@ -40,7 +40,7 @@ namespace NeoSharp.Application.Client
 
         private void Log_OnLog(LogEntry log)
         {
-            if (_logVerbose.HasFlag(_logFlagProxy[log.Level]))
+            if (!_logVerbose.HasFlag(_logFlagProxy[log.Level]))
             {
                 return;
             }
