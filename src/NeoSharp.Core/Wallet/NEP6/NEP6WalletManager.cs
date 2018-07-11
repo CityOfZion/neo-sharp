@@ -112,7 +112,9 @@ namespace NeoSharp.Core.Wallet.NEP6
                 throw new ArgumentNullException();
             }
             CheckWalletIsOpen();
+            
             Wallet.Accounts = Wallet.Accounts.Where(x => !x.Contract.ScriptHash.Equals(scriptHash)).ToHashSet();
+            SaveWallet();
         }
 
         /// <summary>
@@ -382,6 +384,7 @@ namespace NeoSharp.Core.Wallet.NEP6
 
             //Accounts is a set, it cannot contain duplicates.
             Wallet.Accounts.Add(account);
+            SaveWallet();
         }
 
 

@@ -1,5 +1,5 @@
-﻿using System.Security;
 using NeoSharp.Application.Attributes;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Application.Client
 {
@@ -58,6 +58,12 @@ namespace NeoSharp.Application.Client
         {    
             var secureString = _consoleReader.ReadPassword();
             _walletManager.CreateAccount(secureString);
+        }
+        
+        [PromptCommand("account delete", Category = "Account", Help = "Deletes an account")]
+        private void AccountDeleteCommand(UInt160 scriptHash)
+        {    
+            _walletManager.DeleteAccount(scriptHash);
         }
 
         /*
