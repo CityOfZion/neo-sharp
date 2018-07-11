@@ -14,6 +14,7 @@ namespace NeoSharp.BinarySerialization.SerializationHooks
         /// <param name="settings">Settings</param>
         /// <returns>Deserialized object</returns>
         object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null);
+     
         /// <summary>
         /// Serialize logic
         /// </summary>

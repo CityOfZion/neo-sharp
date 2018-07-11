@@ -4,7 +4,6 @@ using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Converters;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 

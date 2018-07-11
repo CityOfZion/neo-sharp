@@ -7,12 +7,27 @@ namespace NeoSharp.Core.Persistence
 {
     public interface IRepository
     {
-        #region Blocks
+        #region Blocks & Headers
+        
         /// <summary>
         /// Adds a block header to the repository storage
         /// </summary>
-        /// <param name="blockHeader"></param>
+        /// <param name="blockHeader">Block header</param>
         Task AddBlockHeader(BlockHeaderBase blockHeader);
+
+        /// <summary>
+        /// Retrieves a block header by hash
+        /// </summary>
+        /// <param name="hash">Block id / hash</param>
+        /// <returns>Block header with specified id</returns>
+        Task<BlockHeader> GetBlockHeaderExtended(UInt256 hash);
+
+        /// <summary>
+        /// Retrieves a block header by hash
+        /// </summary>
+        /// <param name="hash">Block id / hash</param>
+        /// <returns>Block header with specified id</returns>
+        Task<BlockHeaderBase> GetBlockHeader(UInt256 hash);
 
         /// <summary>
         /// Retrieves a hash by height / index
@@ -20,13 +35,6 @@ namespace NeoSharp.Core.Persistence
         /// <param name="height">The block height / index to retrieve</param>
         /// <returns>Block hash at specified height / index</returns>
         Task<UInt256> GetBlockHashFromHeight(uint height);
-
-        /// <summary>
-        /// Retrieves a block header by hash
-        /// </summary>
-        /// <param name="hash">Block id / hash</param>
-        /// <returns>Block header with specified id</returns>
-        Task<BlockHeader> GetBlockHeader(UInt256 hash);
 
         /// <summary>
         /// Retrieves the total / current block height
@@ -39,9 +47,23 @@ namespace NeoSharp.Core.Persistence
         /// </summary>
         /// <param name="height">Total / current block height</param>
         Task SetTotalBlockHeight(uint height);
+
+        /// <summary>
+        /// Retrieves the total / current block header height
+        /// </summary>
+        /// <returns>Total / current block header height</returns>
+        Task<uint> GetTotalBlockHeaderHeight();
+
+        /// <summary>
+        /// Set the total/ current block header height
+        /// </summary>
+        /// <param name="height">Total / current block header height</param>
+        Task SetTotalBlockHeaderHeight(uint height);
+
         #endregion
 
         #region Transactions
+
         /// <summary>
         /// Adds a transaction to the repository
         /// </summary>
@@ -54,9 +76,11 @@ namespace NeoSharp.Core.Persistence
         /// <param name="hash">Identifier / hash of the transaction</param>
         /// <returns>Transaction with the specified id / hash</returns>
         Task<Transaction> GetTransaction(UInt256 hash);
+
         #endregion
 
         #region Index
+
         /// <summary>
         /// Retrieves the height of the index
         /// </summary>
@@ -89,6 +113,7 @@ namespace NeoSharp.Core.Persistence
         /// <param name="scriptHash">Address</param>
         /// <param name="coinReferences">List of CoinReferences to write</param>
         Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences);
+  
         #endregion
     }
 }

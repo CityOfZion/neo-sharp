@@ -49,6 +49,11 @@ namespace NeoSharp.Core.Network.Tcp
 
             ipAddress = _forceIPv6 ? ipAddress.MapToIPv6() : ipAddress;
 
+            if (!_forceIPv6 && ipAddress.IsIPv4MappedToIPv6)
+            {
+                ipAddress = ipAddress.MapToIPv4();
+            }
+
             var ipEp = new IPEndPoint(ipAddress, endPoint.Port);
 
             _logger?.LogInformation($"Connecting to {ipEp}");

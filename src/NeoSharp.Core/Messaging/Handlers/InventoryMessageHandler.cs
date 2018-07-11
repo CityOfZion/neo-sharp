@@ -46,7 +46,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             // TODO: exclude known hashes
 
-            if (hashes.Any() == false)
+            if (!hashes.Any())
             {
                 _logger.LogWarning($"The payload of {nameof(InventoryMessage)} contains no hashes.");
 

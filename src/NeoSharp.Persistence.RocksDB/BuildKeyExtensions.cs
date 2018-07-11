@@ -8,22 +8,22 @@ namespace NeoSharp.Persistence.RocksDB
     {
         public static byte[] BuildDataBlockKey(this UInt256 hash)
         {
-            return hash.ToArray().BuildKey(DataEntryPrefix.DataBlock);
+            return DataEntryPrefix.DataBlock.BuildKey(hash.ToArray());
         }
 
         public static byte[] BuildDataTransactionKey(this UInt256 hash)
         {
-            return hash.ToArray().BuildKey(DataEntryPrefix.DataTransaction);
+            return DataEntryPrefix.DataTransaction.BuildKey(hash.ToArray());
         }
 
         public static byte[] BuildIxHeightToHashKey(this uint index)
         {
             var indexByteArray = BitConverter.GetBytes(index);
 
-            return indexByteArray.BuildKey(DataEntryPrefix.IxHeightToHash);
+            return DataEntryPrefix.IxHeightToHash.BuildKey(indexByteArray);
         }
 
-        private static byte[] BuildKey(this byte[] key, DataEntryPrefix dataEntryPrefix)
+        private static byte[] BuildKey(this DataEntryPrefix dataEntryPrefix, byte[] key)
         {
             var len = key.Length;
             var bytes = new byte[len + 1];

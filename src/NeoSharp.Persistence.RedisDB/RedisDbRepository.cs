@@ -13,79 +13,81 @@ namespace NeoSharp.Persistence.RedisDB
     public class RedisDbRepository : IRepository
     {
         #region Private Fields 
+
         private readonly IRedisDbContext _redisDbContext;
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
+        
         #endregion
 
         #region Construtor
+
         public RedisDbRepository(
             IRedisDbContext redisDbContext,
             IBinarySerializer serializer,
             IBinaryDeserializer deserializer)
         {
-            this._redisDbContext = redisDbContext ?? throw new ArgumentNullException(nameof(redisDbContext));
-            this._serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
-            this._deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
+            _redisDbContext = redisDbContext ?? throw new ArgumentNullException(nameof(redisDbContext));
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
         }
+        
         #endregion
 
         #region IRepository Members
+
         public async Task AddBlockHeader(BlockHeaderBase blockHeader)
         {
-            if (this._redisDbContext.IsBinaryMode)
+            if (_redisDbContext.IsBinaryMode)
             {
-                var blockHeaderBytes = this._serializer.Serialize(blockHeader);
-                await this._redisDbContext.Set(blockHeader.Hash.BuildDataBlockKey(), blockHeaderBytes);
+                var blockHeaderBytes = _serializer.Serialize(blockHeader);
+                await _redisDbContext.Set(blockHeader.Hash.BuildDataBlockKey(), blockHeaderBytes);
             }
             else
             {
                 // TODO [AboimPinto]: This serialization cannot be mocked, therefore cannot be tested properly.
                 var blockHeaderJson = JsonConvert.SerializeObject(blockHeader);                         
-                await this._redisDbContext.Set(blockHeader.Hash.BuildDataBlockKey(), blockHeaderJson);
+                await _redisDbContext.Set(blockHeader.Hash.BuildDataBlockKey(), blockHeaderJson);
             }
 
-            await this._redisDbContext.AddToIndex(RedisIndex.BlockTimestamp, blockHeader.Hash, blockHeader.Timestamp);
-            await this._redisDbContext.AddToIndex(RedisIndex.BlockHeight, blockHeader.Hash, blockHeader.Index);
+            await _redisDbContext.AddToIndex(RedisIndex.BlockTimestamp, blockHeader.Hash, blockHeader.Timestamp);
+            await _redisDbContext.AddToIndex(RedisIndex.BlockHeight, blockHeader.Hash, blockHeader.Index);
         }
 
         public async Task AddTransaction(Transaction transaction)
         {
-            if (this._redisDbContext.IsBinaryMode)
+            if (_redisDbContext.IsBinaryMode)
             {
                 var transactionBytes = _serializer.Serialize(transaction);
-                await this._redisDbContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionBytes);
+                await _redisDbContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionBytes);
             }
             else
             {
                 var transactionJson = JsonConvert.SerializeObject(transaction);
-                await this._redisDbContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionJson);
+                await _redisDbContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionJson);
             }
         }
 
         public async Task<UInt256> GetBlockHashFromHeight(uint height)
         {
-            return await this._redisDbContext.GetFromHashIndex(RedisIndex.BlockHeight, height);
+            return await _redisDbContext.GetFromHashIndex(RedisIndex.BlockHeight, height);
         }
 
-        public async Task<BlockHeader> GetBlockHeaderByTimestamp(int timestamp)
+        public async Task<BlockHeaderBase> GetBlockHeader(UInt256 hash)
         {
-            var hash = await this._redisDbContext.GetFromHashIndex(RedisIndex.BlockTimestamp, timestamp);
+            var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());
 
-            if (hash != null)
-            {
-                return await this.GetBlockHeader(hash);
-            }
-
-            return null;
+            return _redisDbContext.IsBinaryMode ? 
+                _deserializer.Deserialize<BlockHeaderBase>(blockHeaderRedisValue) : 
+                JsonConvert.DeserializeObject<BlockHeaderBase>(blockHeaderRedisValue);
         }
 
-        public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
+        public async Task<BlockHeader> GetBlockHeaderExtended(UInt256 hash)
         {
-            var blockHeaderRedisValue = await this._redisDbContext.Get(hash.BuildDataBlockKey());
+            var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());
 
-            return this._redisDbContext.IsBinaryMode ? 
-                this._deserializer.Deserialize<BlockHeader>(blockHeaderRedisValue) : 
+            return _redisDbContext.IsBinaryMode ?
+                _deserializer.Deserialize<BlockHeader>(blockHeaderRedisValue) :
                 JsonConvert.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
         }
 
@@ -107,10 +109,10 @@ namespace NeoSharp.Persistence.RedisDB
 
         public async Task<Transaction> GetTransaction(UInt256 hash)
         {
-            var transactionRedisValue = await this._redisDbContext.Get(hash.BuildDataTransactionKey());
+            var transactionRedisValue = await _redisDbContext.Get(hash.BuildDataTransactionKey());
 
-            return this._redisDbContext.IsBinaryMode ? 
-                this._deserializer.Deserialize<Transaction>(transactionRedisValue) : 
+            return _redisDbContext.IsBinaryMode ? 
+                _deserializer.Deserialize<Transaction>(transactionRedisValue) : 
                 JsonConvert.DeserializeObject<Transaction>(transactionRedisValue);
         }
 
@@ -143,6 +145,17 @@ namespace NeoSharp.Persistence.RedisDB
         {
             throw new NotImplementedException();
         }
+
+        public Task<uint> GetTotalBlockHeaderHeight()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetTotalBlockHeaderHeight(uint height)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }

@@ -52,60 +52,74 @@ namespace NeoSharp.Core.Messaging.Handlers
             switch (inventoryType)
             {
                 case InventoryType.Transaction:
-                {
-                    await SendTransactions(hashes, sender);
-                    break;
-                }
+                    {
+                        await SendTransactions(hashes, sender);
+                        break;
+                    }
 
                 case InventoryType.Block:
-                {
-                    await SendBlocks(hashes, sender);
-                    break;
-                }
+                    {
+                        await SendBlocks(hashes, sender);
+                        break;
+                    }
 
                 case InventoryType.Consensus:
-                {
-                    // TODO: Implement after consensus
-                    break;
-                }
+                    {
+                        // TODO: Implement after consensus
+                        break;
+                    }
 
                 default:
-                {
-                    _logger.LogError($"The payload of {nameof(InventoryMessage)} contains unknown {nameof(InventoryType)} \"{inventoryType}\".");
-                    break;
-                }
+                    {
+                        _logger.LogError($"The payload of {nameof(InventoryMessage)} contains unknown {nameof(InventoryType)} \"{inventoryType}\".");
+                        break;
+                    }
             }
         }
 
         private async Task SendTransactions(IReadOnlyCollection<UInt256> transactionHashes, IPeer peer)
         {
-            var transactions = await this._blockchain.GetTransactions(transactionHashes);
+            var transactions = await _blockchain.GetTransactions(transactionHashes);
 
-            await peer.Send(new TransactionMessage(transactions));
+            if (transactions.Count() > 0)
+            {
+                // TODO: shall we send an empty message?
+
+                await peer.Send(new TransactionMessage(transactions));
+            }
         }
 
         private async Task SendBlocks(IReadOnlyCollection<UInt256> blockHashes, IPeer peer)
         {
-            var blocks = await this._blockchain.GetBlocks(blockHashes);
+            var blocks = await _blockchain.GetBlocks(blockHashes);
 
-            var filter = peer.BloomFilter;
-            if (filter == null)
+            if (blocks.Count() > 0)
             {
-                await peer.Send(new BlockMessage(blocks));
-            }
-            else
-            {
-                var merkleBlocks = blocks
-                    .ToDictionary(
-                        b => b,
-                        b => new BitArray(b.Transactions
-                            .Select(tx => TestFilter(filter, tx))
-                            .ToArray()
-                        )
-                    );
+                // TODO: shall we send an empty message?
 
-                // TODO: Why don't we have this message?
-                // await peer.Send(new MerkleBlockMessage(merkleBlocks));
+                var filter = peer.BloomFilter;
+
+                if (filter == null)
+                {
+                    foreach (var block in blocks)
+                    {
+                        await peer.Send(new BlockMessage(block));
+                    }
+                }
+                else
+                {
+                    var merkleBlocks = blocks
+                        .ToDictionary(
+                            b => b,
+                            b => new BitArray(b.Transactions
+                                .Select(tx => TestFilter(filter, tx))
+                                .ToArray()
+                            )
+                        );
+
+                    // TODO: Why don't we have this message?
+                    // await peer.Send(new MerkleBlockMessage(merkleBlocks));
+                }
             }
         }
 

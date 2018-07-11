@@ -3,9 +3,19 @@
     public enum EVMOpCode : byte
     {
         // Constants
-        PUSH0 = 0x00, // An empty array of bytes is pushed onto the stack.
-        PUSHBYTES1 = 0x01, // 0x01-0x4B The next opcode bytes is data to be pushed onto the stack
-        PUSHBYTES2 = 0X02,
+
+        /// <summary>
+        /// An empty array of bytes is pushed onto the stack.
+        /// </summary>
+        PUSH0 = 0x00,
+        /// <summary>
+        /// 0x01 The next opcode bytes is data to be pushed onto the stack
+        /// </summary>
+        PUSHBYTES1 = 0x01,
+        /// <summary>
+        /// 0x02 The next opcode bytes is data to be pushed onto the stack
+        /// </summary>
+        PUSHBYTES2 = 0X02,// 0x01-0x4B The next opcode bytes is data to be pushed onto the stack
         PUSHBYTES3 = 0X03,
         PUSHBYTES4 = 0X04,
         PUSHBYTES5 = 0X05,
@@ -79,29 +89,93 @@
         PUSHBYTES73 = 0X49,
         PUSHBYTES74 = 0X4A,
         PUSHBYTES75 = 0x4B,
-        PUSHDATA1 = 0x4C, // The next byte contains the number of bytes to be pushed onto the stack.
-        PUSHDATA2 = 0x4D, // The next two bytes contain the number of bytes to be pushed onto the stack.
-        PUSHDATA4 = 0x4E, // The next four bytes contain the number of bytes to be pushed onto the stack.
-        PUSHM1 = 0x4F, // The number -1 is pushed onto the stack.
-        PUSH1 = 0x51, // The number 1 is pushed onto the stack.
-        PUSH2 = 0x52, // The number 2 is pushed onto the stack.
-        PUSH3 = 0x53, // The number 3 is pushed onto the stack.
-        PUSH4 = 0x54, // The number 4 is pushed onto the stack.
-        PUSH5 = 0x55, // The number 5 is pushed onto the stack.
-        PUSH6 = 0x56, // The number 6 is pushed onto the stack.
-        PUSH7 = 0x57, // The number 7 is pushed onto the stack.
-        PUSH8 = 0x58, // The number 8 is pushed onto the stack.
-        PUSH9 = 0x59, // The number 9 is pushed onto the stack.
-        PUSH10 = 0x5A, // The number 10 is pushed onto the stack.
-        PUSH11 = 0x5B, // The number 11 is pushed onto the stack.
-        PUSH12 = 0x5C, // The number 12 is pushed onto the stack.
-        PUSH13 = 0x5D, // The number 13 is pushed onto the stack.
-        PUSH14 = 0x5E, // The number 14 is pushed onto the stack.
-        PUSH15 = 0x5F, // The number 15 is pushed onto the stack.
-        PUSH16 = 0x60, // The number 16 is pushed onto the stack.
+        /// <summary>
+        /// The next byte contains the number of bytes to be pushed onto the stack.
+        /// </summary>
+        PUSHDATA1 = 0x4C,
+        /// <summary>
+        /// The next two bytes contain the number of bytes to be pushed onto the stack.
+        /// </summary>
+        PUSHDATA2 = 0x4D,
+        /// <summary>
+        /// The next four bytes contain the number of bytes to be pushed onto the stack.
+        /// </summary>
+        PUSHDATA4 = 0x4E,
+        /// <summary>
+        /// The number -1 is pushed onto the stack.
+        /// </summary>
+        PUSHM1 = 0x4F,
+        /// <summary>
+        /// The number 1 is pushed onto the stack.
+        /// </summary>
+        PUSH1 = 0x51,
+        /// <summary>
+        /// The number 2 is pushed onto the stack.
+        /// </summary>
+        PUSH2 = 0x52,
+        /// <summary>
+        /// The number 3 is pushed onto the stack.
+        /// </summary>
+        PUSH3 = 0x53,
+        /// <summary>
+        /// The number 4 is pushed onto the stack.
+        /// </summary>
+        PUSH4 = 0x54,
+        /// <summary>
+        /// The number 5 is pushed onto the stack.
+        /// </summary>
+        PUSH5 = 0x55,
+        /// <summary>
+        /// The number 6 is pushed onto the stack.
+        /// </summary>
+        PUSH6 = 0x56,
+        /// <summary>
+        /// The number 7 is pushed onto the stack.
+        /// </summary>
+        PUSH7 = 0x57,
+        /// <summary>
+        /// The number 8 is pushed onto the stack.
+        /// </summary>
+        PUSH8 = 0x58,
+        /// <summary>
+        /// The number 9 is pushed onto the stack.
+        /// </summary>
+        PUSH9 = 0x59,
+        /// <summary>
+        /// The number 10 is pushed onto the stack.
+        /// </summary>
+        PUSH10 = 0x5A,
+        /// <summary>
+        /// The number 11 is pushed onto the stack.
+        /// </summary>
+        PUSH11 = 0x5B,
+        /// <summary>
+        /// The number 12 is pushed onto the stack.
+        /// </summary>
+        PUSH12 = 0x5C,
+        /// <summary>
+        /// The number 13 is pushed onto the stack.
+        /// </summary>
+        PUSH13 = 0x5D,
+        /// <summary>
+        /// The number 14 is pushed onto the stack.
+        /// </summary>
+        PUSH14 = 0x5E,
+        /// <summary>
+        /// The number 15 is pushed onto the stack.
+        /// </summary>
+        PUSH15 = 0x5F,
+        /// <summary>
+        /// The number 16 is pushed onto the stack.
+        /// </summary>
+        PUSH16 = 0x60,
 
         // Flow control
-        NOP = 0x61, // Does nothing.
+
+        /// <summary>
+        /// Does nothing.
+        /// </summary>
+        NOP = 0x61,
         JMP = 0x62,
         JMPIF = 0x63,
         JMPIFNOT = 0x64,

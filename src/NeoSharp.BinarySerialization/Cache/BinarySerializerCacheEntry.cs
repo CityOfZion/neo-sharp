@@ -53,7 +53,7 @@ namespace NeoSharp.BinarySerialization.Cache
         {
             GetValue = fi.GetValue;
             SetValue = fi.SetValue;
-            ReadOnly = false;
+            ReadOnly = fi.IsInitOnly;
         }
         /// <summary>
         /// Constructor
@@ -94,7 +94,9 @@ namespace NeoSharp.BinarySerialization.Cache
                     type = type.GetElementType();
                 }
 
-                if (type.IsEnum)
+                var isEnum = type.IsEnum;
+
+                if (isEnum)
                 {
                     type = Enum.GetUnderlyingType(type);
                 }
@@ -126,6 +128,10 @@ namespace NeoSharp.BinarySerialization.Cache
                 else if (isList)
                 {
                     Serializer = new BinaryListSerializer(Type, Serializer, MaxLength);
+                }
+                else if (isEnum)
+                {
+                    Serializer = new BinaryEnumSerializer(Type, Serializer);
                 }
 
                 if (Serializer == null)

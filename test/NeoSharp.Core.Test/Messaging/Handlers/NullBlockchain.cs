@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Caching;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
 
@@ -13,7 +13,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
     {
         public Block CurrentBlock { get; } = new Block();
 
-        public BlockHeaderBase LastBlockHeader => CurrentBlock;
+        public BlockHeaderBase LastBlockHeader => CurrentBlock.GetBlockHeaderBase();
 
         public StampedPool<UInt256, Transaction> MemoryPool => new StampedPool<UInt256, Transaction>(PoolMaxBehaviour.DontAllowMore, 0, x => x.Value.Hash, null);
 
@@ -22,12 +22,12 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public bool AddBlock(Block block)
+        public Task<bool> AddBlock(Block block)
         {
             throw new NotImplementedException();
         }
 
-        public bool ContainsBlock(UInt256 hash)
+        public Task<bool> ContainsBlock(UInt256 hash)
         {
             throw new NotImplementedException();
         }
@@ -62,7 +62,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public Contract GetContract(UInt256 hash)
+        public Contract GetContract(UInt160 hash)
         {
             throw new NotImplementedException();
         }
@@ -92,12 +92,12 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public Task<BlockHeader> GetBlockHeader(uint height)
+        public Task<BlockHeaderBase> GetBlockHeader(uint height)
         {
             throw new NotImplementedException();
         }
 
-        public Task<BlockHeader> GetBlockHeader(UInt256 hash)
+        public Task<BlockHeaderBase> GetBlockHeader(UInt256 hash)
         {
             throw new NotImplementedException();
         }
@@ -162,7 +162,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public void AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders)
+        public Task AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders)
         {
             throw new NotImplementedException();
         }

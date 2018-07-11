@@ -140,15 +140,15 @@ namespace NeoSharp.Application.Client
         /// <param name="blockchain">Blockchain</param>
         /// <param name="walletManager"></param>
         public Prompt(
-            IConsoleReader consoleReaderInit, 
+            IConsoleReader consoleReaderInit,
             IConsoleWriter consoleWriterInit,
-            ILoggerFactoryExtended loggerFactory, 
-            Core.Logging.ILogger<Prompt> logger, 
+            ILoggerFactoryExtended loggerFactory,
+            Core.Logging.ILogger<Prompt> logger,
             INetworkManager networkManagerInit,
-            IServer serverInit, 
-            IRpcServer rpcInit, 
-            IBinarySerializer serializer, 
-            IBlockchain blockchain, 
+            IServer serverInit,
+            IRpcServer rpcInit,
+            IBinarySerializer serializer,
+            IBlockchain blockchain,
             IWalletManager walletManager)
         {
             _consoleReader = consoleReaderInit;
@@ -177,7 +177,7 @@ namespace NeoSharp.Application.Client
                 _consoleReader.AppendInputs(args);
             }
 
-            this._blockchain.InitializeBlockchain();
+            _blockchain.InitializeBlockchain();
 
             while (!_exit)
             {
@@ -215,15 +215,15 @@ namespace NeoSharp.Application.Client
             cmdArgs.AddRange(command.SplitCommandLine());
             if (cmdArgs.Count <= 0) yield break;
 
-            foreach (KeyValuePair<string[], PromptCommandAttribute> key in _commandCache)
+            foreach (var key in _commandCache)
             {
                 if (key.Key.Length > cmdArgs.Count) continue;
 
-                bool equal = true;
+                var equal = true;
                 for (int x = 0, m = key.Key.Length; x < m; x++)
                 {
-                    CommandToken c = cmdArgs[x];
-                    if (c.Value.ToLowerInvariant() != key.Key[x])
+                    var c = cmdArgs[x];
+                    if (!string.Equals(c.Value, key.Key[x], StringComparison.InvariantCultureIgnoreCase))
                     {
                         equal = false;
                         break;

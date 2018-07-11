@@ -113,7 +113,18 @@ namespace NeoSharp.BinarySerialization.Serializers
                 if (e.ReadOnly)
                 {
                     // Consume it
-                    e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
+
+                    var val = e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
+
+                    // Should be equal
+
+                    if (!val.Equals(e.GetValue(ret)))
+                    {
+                        // If a readonly property or field is not the same, throw and exception !
+
+                        throw new FormatException();
+                    }
+
                     continue;
                 }
 

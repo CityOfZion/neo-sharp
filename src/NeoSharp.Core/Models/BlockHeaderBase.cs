@@ -6,9 +6,24 @@ using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models
 {
+    /// <summary>
+    /// Header
+    /// </summary>
     [Serializable]
     public class BlockHeaderBase
     {
+        public enum HeaderType : byte
+        {
+            /// <summary>
+            /// Block unavailable, no hashes, no TX data
+            /// </summary>
+            Header = 0,
+            /// <summary>
+            /// Block available, with TX hashes
+            /// </summary>
+            Extended = 1,
+        }
+
         #region Serializable data
 
         [BinaryProperty(0)]
@@ -40,10 +55,10 @@ namespace NeoSharp.Core.Models
         public UInt160 NextConsensus;
 
         /// <summary>
-        /// Required for NEO serialization, without sense
+        /// Set the kind of the header
         /// </summary>
         [BinaryProperty(7)]
-        public byte ScriptPrefix;
+        public HeaderType Type;
 
         [BinaryProperty(8)]
         [JsonProperty("script")]
@@ -59,6 +74,23 @@ namespace NeoSharp.Core.Models
         #endregion
 
         /// <summary>
+        /// Constructor
+        /// </summary>
+        public BlockHeaderBase()
+        {
+            Type = HeaderType.Header;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="type">Type</param>
+        public BlockHeaderBase(HeaderType type)
+        {
+            Type = type;
+        }
+
+        /// <summary>
         /// Update hash
         /// </summary>
         /// <param name="serializer">Serializer</param>
@@ -67,7 +99,7 @@ namespace NeoSharp.Core.Models
         {
             Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
             {
-                Filter = (a) => a != nameof(Script) && a != nameof(ScriptPrefix)
+                Filter = (a) => a != nameof(Script) && a != nameof(Type)
             })));
 
             Script?.UpdateHash(serializer, crypto);

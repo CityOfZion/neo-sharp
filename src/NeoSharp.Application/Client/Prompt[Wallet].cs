@@ -1,7 +1,5 @@
-﻿using NeoSharp.Application.Attributes;
-using NeoSharp.Core.Wallet;
-using System.IO;
-using System.Security;
+﻿using System.Security;
+using NeoSharp.Application.Attributes;
 
 namespace NeoSharp.Application.Client
 {

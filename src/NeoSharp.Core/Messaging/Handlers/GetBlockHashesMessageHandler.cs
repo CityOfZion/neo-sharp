@@ -22,10 +22,11 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         public async Task Handle(GetBlockHashesMessage message, IPeer sender)
         {
-            var blockHeaders = new List<BlockHeader>();
+            var blockHeaders = new List<BlockHeaderBase>();
+
             foreach (var hash in message.Payload.HashStart)
             {
-                var blockHeader = await this._blockchain.GetBlockHeader(hash);
+                var blockHeader = await _blockchain.GetBlockHeader(hash);
 
                 if (blockHeader != null)
                 {

@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Caching;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -13,6 +14,12 @@ namespace NeoSharp.Core.Blockchain
     public class Blockchain : IDisposable, IBlockchain
     {
         private readonly IRepository _repository;
+        private readonly IBinarySerializer _serializer;
+        private readonly ICrypto _crypto;
+
+        public Block CurrentBlock { get; private set; }
+
+        public BlockHeaderBase LastBlockHeader { get; private set; }
 
         public static event EventHandler<Block> PersistCompleted;
 
@@ -34,24 +41,30 @@ namespace NeoSharp.Core.Blockchain
         /// Constructor
         /// </summary>
         /// <param name="repository">Repository</param>
-        public Blockchain(IRepository repository)
+        /// <param name="serializer">Serializer</param>
+        /// <param name="crypto">Crypto</param>
+        public Blockchain(IRepository repository, IBinarySerializer serializer, ICrypto crypto)
         {
-            this._repository = repository;
+            _repository = repository;
+            _serializer = serializer;
+            _crypto = crypto;
         }
 
         public async Task InitializeBlockchain()
         {
-            LastBlockHeader = CurrentBlock = await GetBlock(0);
+            var bHeight = await _repository.GetTotalBlockHeight();
+            var bHeader = await _repository.GetTotalBlockHeaderHeight();
 
-            if (CurrentBlock == null)
+            CurrentBlock = await GetBlock(bHeight);
+            LastBlockHeader = await GetBlockHeader(bHeader);
+
+            if (CurrentBlock == null || LastBlockHeader == null)
             {
-                AddBlock(Genesis.GenesisBlock);
+                // This update last block header too
+
+                await AddBlock(Genesis.GenesisBlock);
             }
         }
-
-        public Block CurrentBlock { get; private set; }
-
-        public BlockHeaderBase LastBlockHeader { get; private set; }
 
         static int TransactionComparer(Stamp<Transaction> a, Stamp<Transaction> b)
         {
@@ -69,8 +82,13 @@ namespace NeoSharp.Core.Blockchain
         #region Blocks
 
         /// <inheritdoc />
-        public bool AddBlock(Block block)
+        public async Task<bool> AddBlock(Block block)
         {
+            if (block.Hash == null)
+            {
+                block.UpdateHash(_serializer, _crypto);
+            }
+
             if (CurrentBlock != null)
             {
                 // Do some checks
@@ -83,29 +101,39 @@ namespace NeoSharp.Core.Blockchain
                 }
             }
 
-            LastBlockHeader = CurrentBlock = block;
-
-            _repository.AddBlockHeader(LastBlockHeader);
-            _repository.SetTotalBlockHeight(block.Index);
+            var header = block.GetBlockHeader();
 
             foreach (var tx in block.Transactions)
             {
-                _repository.AddTransaction(tx);
+                await _repository.AddTransaction(tx);
+            }
+
+            await _repository.AddBlockHeader(header);
+            await _repository.SetTotalBlockHeight(block.Index);
+
+            CurrentBlock = block;
+
+            if (LastBlockHeader == null || LastBlockHeader.Index < block.Index)
+            {
+                LastBlockHeader = block;
+                await _repository.SetTotalBlockHeaderHeight(block.Index);
             }
 
             return true;
         }
 
         /// <inheritdoc />
-        public bool ContainsBlock(UInt256 hash)
+        public async Task<bool> ContainsBlock(UInt256 hash)
         {
-            return _repository.GetBlockHeader(hash) != null;
+            var header = await _repository.GetBlockHeader(hash);
+
+            return header != null && header.Type == BlockHeaderBase.HeaderType.Extended;
         }
 
         /// <inheritdoc />
         public async Task<Block> GetBlock(uint height)
         {
-            var hash = await this.GetBlockHash(height);
+            var hash = await GetBlockHash(height);
 
             return hash == null ? null : await GetBlock(hash);
         }
@@ -113,34 +141,20 @@ namespace NeoSharp.Core.Blockchain
         /// <inheritdoc />
         public async Task<Block> GetBlock(UInt256 hash)
         {
-            var header = await this._repository.GetBlockHeader(hash);
+            var header = await _repository.GetBlockHeaderExtended(hash);
 
-            if (header != null)
+            if (header == null || header.Type != BlockHeaderBase.HeaderType.Extended) return null;
+
+            var transactions = new Transaction[header.TransactionCount];
+
+            for (int x = 0, m = header.TransactionCount; x < m; x++)
             {
-                var transactions = new List<Transaction>();
-                foreach (var transactionHash in header.TransactionHashes)
-                {
-                    var transaction = await this._repository.GetTransaction(transactionHash);
-                    transactions.Add(transaction);
-                }
-
-                return new Block
-                {
-                    ConsensusData = header.ConsensusData,
-                    Index = header.Index,
-                    Hash = header.Hash,
-                    MerkleRoot = header.MerkleRoot,
-                    NextConsensus = header.NextConsensus,
-                    PreviousBlockHash = header.PreviousBlockHash,
-                    Script = header.Script,
-                    ScriptPrefix = header.ScriptPrefix,
-                    Timestamp = header.Timestamp,
-                    Version = header.Version,
-                    Transactions = transactions.ToArray(),
-                };
+                transactions[x] = await _repository.GetTransaction(header.TransactionHashes[x]);
             }
 
-            return null;
+            header.Hash = hash;
+
+            return header.GetBlock(transactions);
         }
 
         public async Task<IEnumerable<Block>> GetBlocks(IReadOnlyCollection<UInt256> blockHashes)
@@ -149,7 +163,7 @@ namespace NeoSharp.Core.Blockchain
 
             foreach (var hash in blockHashes)
             {
-                var block = await this.GetBlock(hash);
+                var block = await GetBlock(hash);
 
                 if (block == null) continue;
 
@@ -168,11 +182,11 @@ namespace NeoSharp.Core.Blockchain
         /// <inheritdoc />
         public async Task<Block> GetNextBlock(UInt256 hash)
         {
-            var header = await this._repository.GetBlockHeader(hash);
+            var header = await _repository.GetBlockHeader(hash);
 
             if (header != null)
             {
-                return await this.GetBlock(header.Index + 1);
+                return await GetBlock(header.Index + 1);
             }
 
             return null;
@@ -181,11 +195,11 @@ namespace NeoSharp.Core.Blockchain
         /// <inheritdoc />
         public async Task<UInt256> GetNextBlockHash(UInt256 hash)
         {
-            var header = await this._repository.GetBlockHeader(hash);
+            var header = await _repository.GetBlockHeader(hash);
 
             if (header != null)
             {
-                return await this._repository.GetBlockHashFromHeight(header.Index + 1);
+                return await _repository.GetBlockHashFromHeight(header.Index + 1);
             }
 
             return UInt256.Zero;
@@ -196,30 +210,57 @@ namespace NeoSharp.Core.Blockchain
         #region BlockHeaders
 
         /// <inheritdoc />
-        public void AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders)
+        public Task AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders)
         {
-            // TODO: finish this logic
-
             foreach (var header in blockHeaders)
             {
+                // Validate
+
+                if (LastBlockHeader != null)
+                {
+                    if (LastBlockHeader.Index + 1 != header.Index ||
+                        !LastBlockHeader.Hash.Equals(header.PreviousBlockHash))
+                    {
+                        break;
+                    }
+                }
+                else
+                {
+                    if (LastBlockHeader.Index != 0 || !LastBlockHeader.Hash.Equals(Genesis.GenesisBlock.Hash))
+                    {
+                        break;
+                    }
+                }
+
+                // Write
+
                 _repository.AddBlockHeader(header);
+                _repository.SetTotalBlockHeaderHeight(header.Index);
+
+                LastBlockHeader = header;
             }
+
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        public async Task<BlockHeader> GetBlockHeader(uint height)
+        public async Task<BlockHeaderBase> GetBlockHeader(uint height)
         {
-            var hash = await this._repository.GetBlockHashFromHeight(height);
+            var hash = await _repository.GetBlockHashFromHeight(height);
 
-            if (hash != null) return await this._repository.GetBlockHeader(hash);
+            if (hash != null) return await GetBlockHeader(hash);
 
             return null;
         }
 
         /// <inheritdoc />
-        public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
+        public async Task<BlockHeaderBase> GetBlockHeader(UInt256 hash)
         {
-            return await _repository.GetBlockHeader(hash);
+            var header = await _repository.GetBlockHeader(hash);
+
+            if (header != null) header.Hash = hash;
+
+            return header;
         }
 
         #endregion
@@ -229,7 +270,7 @@ namespace NeoSharp.Core.Blockchain
         /// <inheritdoc />
         public async Task<Transaction> GetTransaction(UInt256 hash)
         {
-            return await this._repository.GetTransaction(hash);
+            return await _repository.GetTransaction(hash);
         }
 
         // TODO [AboimPinto] Async methods cannot have out parameters. Method not used for now.
@@ -239,7 +280,7 @@ namespace NeoSharp.Core.Blockchain
         //    // TODO: How to get the height?
 
         //    height = 0;
-        //    return await this._repository.GetTransaction(hash);
+        //    return await _repository.GetTransaction(hash);
         //}
 
         public async Task<IEnumerable<Transaction>> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes)
@@ -248,7 +289,7 @@ namespace NeoSharp.Core.Blockchain
 
             foreach (var hash in transactionHashes)
             {
-                var tx = await this.GetTransaction(hash);
+                var tx = await GetTransaction(hash);
 
                 if (tx == null) continue;
                 transactions.Add(tx);
@@ -372,7 +413,7 @@ namespace NeoSharp.Core.Blockchain
         }
 
         /// <inheritdoc />
-        public Contract GetContract(UInt256 hash)
+        public Contract GetContract(UInt160 hash)
         {
             return null;
         }
@@ -422,7 +463,7 @@ namespace NeoSharp.Core.Blockchain
 
         public virtual IEnumerable<ECPoint> GetValidators(IEnumerable<Transaction> others)
         {
-            return Enumerable.Empty<ECPoint>();
+            yield break;
             //DataCache<UInt160, AccountState> accounts = GetStates<UInt160, AccountState>();
             //DataCache<ECPoint, ValidatorState> validators = GetStates<ECPoint, ValidatorState>();
             //MetaDataCache<ValidatorsCountState> validators_count = GetMetaData<ValidatorsCountState>();
@@ -520,7 +561,7 @@ namespace NeoSharp.Core.Blockchain
         /// <inheritdoc />
         public virtual async Task<long> GetSysFeeAmount(uint height)
         {
-            return this.GetSysFeeAmount(await GetBlockHash(height));
+            return GetSysFeeAmount(await GetBlockHash(height));
         }
 
         /// <inheritdoc />

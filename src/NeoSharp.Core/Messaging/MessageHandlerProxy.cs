@@ -54,7 +54,15 @@ namespace NeoSharp.Core.Messaging
 
             return handleMessageTask.ContinueWith(t =>
             {
-                if (!t.IsCompletedSuccessfully) return;
+                if (!t.IsCompletedSuccessfully)
+                {
+                    if (handleMessageTask.IsFaulted)
+                    {
+                        LogMessageHandlingEnd(startedAt, messageHandlerName, handleMessageTask.Exception);
+                    }
+
+                    return;
+                }
 
                 LogMessageHandlingEnd(startedAt, messageHandlerName);
             });
@@ -111,6 +119,21 @@ namespace NeoSharp.Core.Messaging
                 $"The message handler \"{messageHandlerName}\" started message handling at {startedAt:yyyy-MM-dd HH:mm:ss}.");
 
             return startedAt;
+        }
+
+        /// <summary>
+        /// Log end with error
+        /// </summary>
+        /// <param name="startedAt">Start date</param>
+        /// <param name="messageHandlerName">Message handler name</param>
+        /// <param name="error">Error</param>
+        private void LogMessageHandlingEnd(DateTime startedAt, string messageHandlerName, Exception error)
+        {
+            var completedAt = DateTime.Now;
+            var handledWithin = (completedAt - startedAt).TotalMilliseconds;
+
+            _logger.LogError(error,
+                $"The message handler \"{messageHandlerName}\" faulted message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
         }
 
         /// <summary>

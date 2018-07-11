@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.SmartContract;
 
@@ -53,11 +53,18 @@ namespace NeoSharp.Core.Test.Serializers
 
             foreach (var key in dic)
             {
-                var header = _deserializer.Deserialize<HeaderPayload>(key.Value.HexToBytes());
+                BlockHeader header;
 
-                header.Header.UpdateHash(_serializer, _crypto);
+                using (var stream = new MemoryStream(key.Value.HexToBytes()))
+                {
+                    header = _deserializer.Deserialize<BlockHeader>(stream);
 
-                Assert.AreEqual(key.Key, header.Header.Hash.ToString(true));
+                    Assert.AreEqual(stream.Position, stream.Length);
+                }
+
+                header.UpdateHash(_serializer, _crypto);
+
+                Assert.AreEqual(key.Key, header.Hash.ToString(true));
                 Assert.AreEqual(key.Value, _serializer.Serialize(header).ToHexString(true));
             }
         }
@@ -100,7 +107,7 @@ namespace NeoSharp.Core.Test.Serializers
 
             CollectionAssert.AreEqual(data, _serializer.Serialize(block));
 
-            var header = (BlockHeader)block;
+            var header = block.GetBlockHeader();
             header.UpdateHash(_serializer, _crypto);
 
             Assert.AreEqual(block.Hash, header.Hash);

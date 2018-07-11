@@ -1,34 +1,19 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Models;
+﻿using NeoSharp.Core.Models;
 
 namespace NeoSharp.Core.Messaging.Messages
 {
-    public class BlockMessage : Message<BlockPayload>
+    public class BlockMessage : Message<Block>
     {
         public BlockMessage()
         {
             Command = MessageCommand.block;
-            Payload = new BlockPayload();
+            Payload = new Block();
         }
 
         public BlockMessage(Block block)
         {
             Command = MessageCommand.block;
-            Payload = new BlockPayload { Blocks = new[] { block } };
+            Payload = block;
         }
-
-        public BlockMessage(IEnumerable<Block> blocks)
-        {
-            Command = MessageCommand.block;
-            Payload = new BlockPayload { Blocks = blocks.ToArray() };
-        }
-    }
-
-    public class BlockPayload
-    {
-        [BinaryProperty(0)]
-        public Block[] Blocks;
     }
 }

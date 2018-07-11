@@ -21,7 +21,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         public async Task Handle(GetBlockHeadersMessage message, IPeer sender)
         {
-            var blockHeadersFromPayload = new List<BlockHeader>();
+            var blockHeadersFromPayload = new List<BlockHeaderBase>();
 
             foreach (var hash in message.Payload.HashStart)
             {
@@ -40,7 +40,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             if (blockHash == null || blockHash == message.Payload.HashStop) return;
 
-            var blockHeaders = new List<BlockHeader>();
+            var blockHeaders = new List<BlockHeaderBase>();
 
             do
             {

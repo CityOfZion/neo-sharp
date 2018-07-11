@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using NeoSharp.Core.Caching;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
 
@@ -14,31 +14,97 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         StampedPool<UInt256, Transaction> MemoryPool { get; }
 
+        Task InitializeBlockchain();
+
+        #region Blocks & BlockHeaders
+
+        /// <summary>
+        /// Current block
+        /// </summary>
         Block CurrentBlock { get; }
 
+        /// <summary>
+        /// Last block header
+        /// </summary>
         BlockHeaderBase LastBlockHeader { get; }
-
-        Task InitializeBlockchain();
 
         /// <summary>
         /// Add the specified block to the blockchain
         /// </summary>
         /// <param name="block"></param>
         /// <returns></returns>
-        bool AddBlock(Block block);
+        Task<bool> AddBlock(Block block);
 
         /// <summary>
         /// Add the specified block headers to the blockchain
         /// </summary>
         /// <param name="blockHeaders"></param>
-        void AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders);
+        Task AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders);
 
         /// <summary>
         /// Determine whether the specified block is contained in the blockchain
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        bool ContainsBlock(UInt256 hash);
+        Task<bool> ContainsBlock(UInt256 hash);
+
+        /// <summary>
+        /// Return the corresponding block information according to the specified height
+        /// </summary>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        Task<Block> GetBlock(uint height);
+
+        /// <summary>
+        /// Return the corresponding block information according to the specified height
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        Task<Block> GetBlock(UInt256 hash);
+
+        /// <summary>
+        /// Get blocks
+        /// </summary>
+        /// <param name="blockHashes">Block hashes</param>
+        /// <returns>Block</returns>
+        Task<IEnumerable<Block>> GetBlocks(IReadOnlyCollection<UInt256> blockHashes);
+
+        /// <summary>
+        /// Returns the hash of the corresponding block based on the specified height
+        /// </summary>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        Task<UInt256> GetBlockHash(uint height);
+
+        /// <summary>
+        /// Return the corresponding block header information according to the specified height
+        /// </summary>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        Task<BlockHeaderBase> GetBlockHeader(uint height);
+
+        /// <summary>
+        /// Returns the corresponding block header information according to the specified hash value
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        Task<BlockHeaderBase> GetBlockHeader(UInt256 hash);
+
+        /// <summary>
+        /// Returns the information for the next block based on the specified hash value
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        Task<Block> GetNextBlock(UInt256 hash);
+
+        /// <summary>
+        /// Returns the hash value of the next block based on the specified hash value
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        Task<UInt256> GetNextBlockHash(UInt256 hash);
+
+        #endregion
 
         /// <summary>
         /// Determine whether the specified transaction is included in the blockchain
@@ -65,7 +131,7 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="hash">Hash</param>
         /// <returns></returns>
-        Contract GetContract(UInt256 hash);
+        Contract GetContract(UInt160 hash);
 
         /// <summary>
         /// Return all contracts
@@ -79,59 +145,8 @@ namespace NeoSharp.Core.Blockchain
         /// <returns></returns>
         IEnumerable<Asset> GetAssets();
 
-        /// <summary>
-        /// Return the corresponding block information according to the specified height
-        /// </summary>
-        /// <param name="height"></param>
-        /// <returns></returns>
-        Task<Block> GetBlock(uint height);
-
-        /// <summary>
-        /// Return the corresponding block information according to the specified height
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
-        Task<Block> GetBlock(UInt256 hash);
-
-        Task<IEnumerable<Block>> GetBlocks(IReadOnlyCollection<UInt256> blockHashes);
-
-        /// <summary>
-        /// Returns the hash of the corresponding block based on the specified height
-        /// </summary>
-        /// <param name="height"></param>
-        /// <returns></returns>
-        Task<UInt256> GetBlockHash(uint height);
-
-        /// <summary>
-        /// Return the corresponding block header information according to the specified height
-        /// </summary>
-        /// <param name="height"></param>
-        /// <returns></returns>
-        Task<BlockHeader> GetBlockHeader(uint height);
-
-        /// <summary>
-        /// Returns the corresponding block header information according to the specified hash value
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
-        Task<BlockHeader> GetBlockHeader(UInt256 hash);
-
         ECPoint[] GetValidators();
         IEnumerable<ECPoint> GetValidators(IEnumerable<Transaction> others);
-
-        /// <summary>
-        /// Returns the information for the next block based on the specified hash value
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
-        Task<Block> GetNextBlock(UInt256 hash);
-
-        /// <summary>
-        /// Returns the hash value of the next block based on the specified hash value
-        /// </summary>
-        /// <param name="hash"></param>
-        /// <returns></returns>
-        Task<UInt256> GetNextBlockHash(UInt256 hash);
 
         /// <summary>
         /// Returns the total amount of system costs contained in the corresponding block and all previous blocks based on the specified block height
