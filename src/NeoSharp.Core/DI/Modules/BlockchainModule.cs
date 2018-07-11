@@ -7,6 +7,7 @@ namespace NeoSharp.Core.DI.Modules
         public void Register(IContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterSingleton<IBlockchain, Blockchain.Blockchain>();
+            containerBuilder.RegisterSingleton<ICoinIndex, CoinIndex>();
         }
     }
 }
