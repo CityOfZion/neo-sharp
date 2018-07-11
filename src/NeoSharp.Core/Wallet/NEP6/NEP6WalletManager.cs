@@ -91,12 +91,13 @@ namespace NeoSharp.Core.Wallet.NEP6
         public IWalletAccount CreateAccount(SecureString password)
         {
             CheckWalletIsOpen();
-            ValidateAccountsPasswordMismatch(password);
+            byte[] passwordHash;
+            ValidateAccountsPasswordMismatch(password, out passwordHash);
 
             var privateKey = ICrypto.Default.GenerateRandomBytes(32);
             var account = ImportPrivateKey(privateKey, password);
             Array.Clear(privateKey, 0, privateKey.Length);
-            _accountPasswordHashCache = GetPasswordHash(password);
+            _accountPasswordHashCache = passwordHash;
             return account;
         }
 
@@ -445,7 +446,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <param name="nep2Key">Nep2 key.</param>
         /// <param name="password">Password.</param>
         public void UnlockAccount(string nep2Key, SecureString password)
-        {   
+        {
             var privateKey = _walletHelper.DecryptWif(nep2Key, password);
             _accountPasswordHashCache = GetPasswordHash(password);
             var publicKeyInBytes = ICrypto.Default.ComputePublicKey(privateKey, true);
@@ -492,12 +493,14 @@ namespace NeoSharp.Core.Wallet.NEP6
             return ICrypto.Default.Sha256(ICrypto.Default.Sha256(password.ToByteArray()));
         }
 
-        private void ValidateAccountsPasswordMismatch(SecureString password)
+        private void ValidateAccountsPasswordMismatch(SecureString password, out byte[] passwordHash)
         {
             CheckWalletIsOpen();
+
+            passwordHash = GetPasswordHash(password);
             
             if (_accountPasswordHashCache != null) {
-                if (!GetPasswordHash(password).SequenceEqual(_accountPasswordHashCache))
+                if (!passwordHash.SequenceEqual(_accountPasswordHashCache))
                 {
                     throw new AccountsPasswordMismatchException();
                 }
