@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
@@ -16,19 +17,20 @@ namespace NeoSharp.Persistence.RocksDB
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
 
-        private readonly byte[] _sysCurrentBlockKey = { (byte)DataEntryPrefix.SysCurrentBlock };
-        private readonly byte[] _sysCurrentBlockHeaderKey = { (byte)DataEntryPrefix.SysCurrentHeader };
+        private readonly byte[] _sysCurrentBlockKey = {(byte) DataEntryPrefix.SysCurrentBlock};
+        private readonly byte[] _sysCurrentBlockHeaderKey = {(byte) DataEntryPrefix.SysCurrentHeader};
+        private readonly byte[] _sysCurrentIndexHeightKey = {(byte) DataEntryPrefix.IxIndexHeight};
 
         #endregion
 
         #region Constructor
 
         public RocksDbRepository
-            (
+        (
             IRocksDbContext rocksDbContext,
             IBinarySerializer serializer,
             IBinaryDeserializer deserializer
-            )
+        )
         {
             _rocksDbContext = rocksDbContext ?? throw new ArgumentNullException(nameof(rocksDbContext));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
@@ -101,34 +103,43 @@ namespace NeoSharp.Persistence.RocksDB
             return rawTransaction == null ? null : _deserializer.Deserialize<Transaction>(rawTransaction);
         }
 
-        public Task<uint> GetIndexHeight()
+        public async Task<uint> GetIndexHeight()
         {
-            throw new NotImplementedException();
+            var raw = await _rocksDbContext.Get(_sysCurrentIndexHeightKey);
+            return raw == null ? uint.MinValue : BitConverter.ToUInt32(raw, 0);
         }
 
-        public Task SetIndexHeight(uint height)
+        public async Task SetIndexHeight(uint height)
         {
-            throw new NotImplementedException();
+            await _rocksDbContext.Save(_sysCurrentIndexHeightKey, BitConverter.GetBytes(height));
         }
 
-        public Task<HashSet<CoinReference>> GetIndexConfirmed(UInt160 scriptHash)
+        public async Task<HashSet<CoinReference>> GetIndexConfirmed(UInt160 hash)
         {
-            throw new NotImplementedException();
+            var raw = await _rocksDbContext.Get(hash.BuildIndexConfirmedKey());
+            return raw == null
+                ? new HashSet<CoinReference>()
+                : _deserializer.Deserialize<CoinReference[]>(raw).ToHashSet();
         }
 
-        public Task SetIndexConfirmed(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
+        public async Task SetIndexConfirmed(UInt160 hash, HashSet<CoinReference> coinReferences)
         {
-            throw new NotImplementedException();
+            var bytes = _serializer.Serialize(coinReferences.ToArray());
+            await _rocksDbContext.Save(hash.BuildIndexConfirmedKey(), bytes);
         }
 
-        public Task<HashSet<CoinReference>> GetIndexClaimable(UInt160 scriptHash)
+        public async Task<HashSet<CoinReference>> GetIndexClaimable(UInt160 hash)
         {
-            throw new NotImplementedException();
+            var raw = await _rocksDbContext.Get(hash.BuildIndexClaimableKey());
+            return raw == null
+                ? new HashSet<CoinReference>()
+                : _deserializer.Deserialize<CoinReference[]>(raw).ToHashSet();
         }
 
-        public Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
+        public async Task SetIndexClaimable(UInt160 hash, HashSet<CoinReference> coinReferences)
         {
-            throw new NotImplementedException();
+            var bytes = _serializer.Serialize(coinReferences.ToArray());
+            await _rocksDbContext.Save(hash.BuildIndexClaimableKey(), bytes);
         }
 
         #endregion

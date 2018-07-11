@@ -35,6 +35,24 @@ namespace NeoSharp.TestHelpers
         }
 
         /// <summary>
+        /// Generate a random integer
+        /// </summary>
+        /// <returns>A positive integer</returns>
+        public int RandomInt()
+        {
+            return _rand.Next();
+        }
+        /// <summary>
+        /// Generate a random integer with a max value
+        /// </summary>
+        /// <param name="max"></param>
+        /// <returns>A positive integer that is smaller than max</returns>
+        public int RandomInt(int max = int.MaxValue)
+        {
+            return _rand.Next(max);
+        }
+
+        /// <summary>
         /// Verify All
         /// </summary>
         public void VerifyAll()
