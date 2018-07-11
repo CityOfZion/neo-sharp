@@ -9,7 +9,6 @@ using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Network;
 using NeoSharp.Core.Test.Types;
 using NeoSharp.Core.Types;
 
@@ -26,8 +25,35 @@ namespace NeoSharp.Core.Test.Serializers
         public void WarmUpSerializer()
         {
             _crypto = new BouncyCastleCrypto();
+
+            BinarySerializer.RegisterTypes(typeof(SetTest));
             _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
             _deserializer = new BinaryDeserializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
+        }
+
+        public class SetTest
+        {
+            [BinaryProperty(0)]
+            public HashSet<int> Sample = new HashSet<int>();
+        }
+
+        [TestMethod]
+        public void Serialize_HashSet()
+        {
+            var set = new SetTest();
+            var random = new Random(Environment.TickCount);
+
+            for (int x = 0, m = random.Next(1, ushort.MaxValue); x < m; x++)
+            {
+                set.Sample.Add(random.Next());
+            }
+
+            var ret = _serializer.Serialize(set);
+            var clone = _deserializer.Deserialize<SetTest>(ret);
+
+            Assert.AreEqual(set.Sample.Count, clone.Sample.Count);
+
+            CollectionAssert.AreEqual(set.Sample.ToArray(), clone.Sample.ToArray());
         }
 
         [TestMethod]

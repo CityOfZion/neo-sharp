@@ -1,14 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
+using System.Reflection;
 using NeoSharp.BinarySerialization.SerializationHooks;
 
 namespace NeoSharp.BinarySerialization.Serializers
 {
-    public class BinaryArraySerializer : IBinaryCustomSerializable
+    public class BinaryHashSetSerializer : IBinaryCustomSerializable
     {
         #region Private fields
 
         private readonly Type _type, _itemType;
+        private readonly MethodInfo _addMethod;
+        private readonly PropertyInfo _countMethod;
         private readonly IBinaryCustomSerializable _serializer;
 
         #endregion
@@ -25,27 +29,29 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="typeArray">Type array</param>
+        /// <param name="typeSet">Type set</param>
         /// <param name="serializer">Serializer</param>
         /// <param name="maxLength">Max length</param>
-        public BinaryArraySerializer(Type typeArray, IBinaryCustomSerializable serializer, int maxLength = ushort.MaxValue)
+        public BinaryHashSetSerializer(Type typeSet, IBinaryCustomSerializable serializer, int maxLength = ushort.MaxValue)
         {
-            _type = typeArray;
-            _itemType = typeArray.GetElementType();
-            _serializer = serializer;
             MaxLength = maxLength;
+            _type = typeSet;
+            _itemType = typeSet.GetElementType();
+            _serializer = serializer;
+            _addMethod = typeSet.GetMethod("Add");
+            _countMethod = typeSet.GetProperty("Count");
         }
 
         public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
-            var ar = (Array)value;
+            var ar = (IEnumerable)value;
 
             if (ar == null)
             {
                 return writer.WriteVarInt(0);
             }
 
-            var x = writer.WriteVarInt(ar.Length);
+            var x = writer.WriteVarInt((int)_countMethod.GetValue(value));
 
             if (x > MaxLength) throw new FormatException(nameof(MaxLength));
 
@@ -62,11 +68,11 @@ namespace NeoSharp.BinarySerialization.Serializers
             var l = (int)reader.ReadVarInt(ushort.MaxValue);
             if (l > MaxLength) throw new FormatException(nameof(MaxLength));
 
-            var a = (Array)Activator.CreateInstance(_type, l);
+            var a = Activator.CreateInstance(_type);
 
             for (var ix = 0; ix < l; ix++)
             {
-                a.SetValue(_serializer.Deserialize(deserializer, reader, _itemType, settings), ix);
+                _addMethod.Invoke(a, new object[] { _serializer.Deserialize(deserializer, reader, _itemType, settings) });
             }
 
             return a;

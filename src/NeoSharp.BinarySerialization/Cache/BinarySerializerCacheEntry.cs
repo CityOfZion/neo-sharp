@@ -1,5 +1,7 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.BinarySerialization.Serializers;
@@ -32,6 +34,7 @@ namespace NeoSharp.BinarySerialization.Cache
         // Cache
 
         private static Type _iListType = typeof(IList);
+        private static Type _iHashSetType = typeof(HashSet<>);
 
         /// <summary>
         /// Constructor
@@ -68,6 +71,7 @@ namespace NeoSharp.BinarySerialization.Cache
             Type = type;
             var isArray = type.IsArray;
             var isList = _iListType.IsAssignableFrom(type);
+            var isHashSet = type.IsGenericType && _iHashSetType == type.GetGenericTypeDefinition();
 
             if (atr == null)
             {
@@ -91,7 +95,17 @@ namespace NeoSharp.BinarySerialization.Cache
                 if (isArray || isList)
                 {
                     // Extract type of array
+
                     type = type.GetElementType();
+                }
+                else
+                {
+                    if (isHashSet)
+                    {
+                        // Extract type of hashset
+
+                        type = type.GetGenericArguments().FirstOrDefault();
+                    }
                 }
 
                 var isEnum = type.IsEnum;
@@ -128,6 +142,10 @@ namespace NeoSharp.BinarySerialization.Cache
                 else if (isList)
                 {
                     Serializer = new BinaryListSerializer(Type, Serializer, MaxLength);
+                }
+                else if (isHashSet)
+                {
+                    Serializer = new BinaryHashSetSerializer(Type, Serializer, MaxLength);
                 }
                 else if (isEnum)
                 {

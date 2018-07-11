@@ -36,6 +36,15 @@ namespace NeoSharp.BinarySerialization
         }
 
         /// <summary>
+        /// Register types (call me if you load a new plugin or module)
+        /// </summary>
+        /// <param name="types">Types</param>
+        public static void RegisterTypes(params Type[] types)
+        {
+            BinarySerializerCache.RegisterTypes(types);
+        }
+
+        /// <summary>
         /// Serialize
         /// </summary>
         /// <param name="obj">Object</param>

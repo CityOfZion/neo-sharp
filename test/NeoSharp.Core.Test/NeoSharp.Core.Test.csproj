@@ -6,8 +6,11 @@
 
   <ItemGroup>
     <Compile Remove="Network\Tcp\**" />
+    <Compile Remove="Persistence\**" />
     <EmbeddedResource Remove="Network\Tcp\**" />
+    <EmbeddedResource Remove="Persistence\**" />
     <None Remove="Network\Tcp\**" />
+    <None Remove="Persistence\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,7 +32,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Persistence\" />
     <Folder Include="Wallet\" />
   </ItemGroup>
 </Project>

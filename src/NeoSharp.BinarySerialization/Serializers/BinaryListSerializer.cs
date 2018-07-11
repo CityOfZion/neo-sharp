@@ -7,13 +7,21 @@ namespace NeoSharp.BinarySerialization.Serializers
 {
     public class BinaryListSerializer : IBinaryCustomSerializable
     {
-        private readonly Type Type, ItemType;
-        private readonly IBinaryCustomSerializable Serializer;
+        #region Private fields
+
+        private readonly Type _type, _itemType;
+        private readonly IBinaryCustomSerializable _serializer;
+
+        #endregion
+
+        #region Public fields
 
         /// <summary>
         /// Max length
         /// </summary>
         public readonly int MaxLength;
+
+        #endregion
 
         /// <summary>
         /// Constructor
@@ -23,9 +31,9 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="maxLength">Max length</param>
         public BinaryListSerializer(Type typeList, IBinaryCustomSerializable serializer, int maxLength = ushort.MaxValue)
         {
-            Type = typeList;
-            ItemType = typeList.GetElementType();
-            Serializer = serializer;
+            _type = typeList;
+            _itemType = typeList.GetElementType();
+            _serializer = serializer;
             MaxLength = maxLength;
         }
 
@@ -40,11 +48,11 @@ namespace NeoSharp.BinarySerialization.Serializers
 
             var x = writer.WriteVarInt(ar.Count);
 
-            if (x > MaxLength) throw new FormatException("MaxLength");
+            if (x > MaxLength) throw new FormatException(nameof(MaxLength));
 
             foreach (var o in ar)
             {
-                x += Serializer.Serialize(serializer, writer, o, settings);
+                x += _serializer.Serialize(serializer, writer, o, settings);
             }
 
             return x;
@@ -55,11 +63,11 @@ namespace NeoSharp.BinarySerialization.Serializers
             var l = (int)reader.ReadVarInt(ushort.MaxValue);
             if (l > MaxLength) throw new FormatException(nameof(MaxLength));
 
-            var a = (IList)Activator.CreateInstance(Type);
+            var a = (IList)Activator.CreateInstance(_type);
 
             for (var ix = 0; ix < l; ix++)
             {
-                a.Add(Serializer.Deserialize(deserializer, reader, ItemType, settings));
+                a.Add(_serializer.Deserialize(deserializer, reader, _itemType, settings));
             }
 
             return a;

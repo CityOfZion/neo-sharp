@@ -21,12 +21,21 @@ namespace NeoSharp.BinarySerialization.Cache
         /// <param name="asms">Assemblies</param>
         public static void RegisterTypes(params Assembly[] asms)
         {
-            foreach (Assembly asm in asms)
+            foreach (var asm in asms)
             {
-                foreach (var t in asm.GetTypes())
-                {
-                    InternalRegisterTypes(t);
-                }
+                RegisterTypes(asm.GetTypes());
+            }
+        }
+
+        /// <summary>
+        /// Cache types (call me if you load a new plugin or module)
+        /// </summary>
+        /// <param name="types">Types</param>
+        public static void RegisterTypes(params Type[] types)
+        {
+            foreach (var t in types)
+            {
+                InternalRegisterTypes(t);
             }
         }
 
@@ -64,7 +73,7 @@ namespace NeoSharp.BinarySerialization.Cache
                 {
                     // Register array too
 
-                    Type array = type.MakeArrayType();
+                    var array = type.MakeArrayType();
                     Cache.Add(array, new BinaryArraySerializer(array, serializer));
                 }
 
