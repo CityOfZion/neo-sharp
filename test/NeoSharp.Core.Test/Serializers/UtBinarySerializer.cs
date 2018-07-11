@@ -329,7 +329,7 @@ namespace NeoSharp.Core.Test.Serializers
                     Attributes=new TransactionAttribute[]{ },
                     Inputs=new CoinReference[]{ },
                     Outputs=new TransactionOutput[]{},
-                    Scripts=new Witness[]{ },
+                    Witness=new Witness[]{ },
                     Script=new byte[]{ 0x01 },
                     Version=0
                     }

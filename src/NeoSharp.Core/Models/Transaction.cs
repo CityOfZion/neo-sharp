@@ -50,8 +50,8 @@ namespace NeoSharp.Core.Models
         #region Signature
 
         [BinaryProperty(255)]
-        [JsonProperty("scripts")]
-        public Witness[] Scripts;
+        [JsonProperty("witness")]
+        public Witness[] Witness;
 
         #endregion
 
@@ -102,10 +102,10 @@ namespace NeoSharp.Core.Models
 
             // Deserialize signature
 
-            if (settings?.Filter?.Invoke(nameof(Scripts)) != false)
+            if (settings?.Filter?.Invoke(nameof(Witness)) != false)
             {
-                Scripts = deserializer.Deserialize<Witness[]>(reader, settings);
-                if (Scripts.Length > ushort.MaxValue) throw new FormatException(nameof(Scripts));
+                Witness = deserializer.Deserialize<Witness[]>(reader, settings);
+                if (Witness.Length > ushort.MaxValue) throw new FormatException(nameof(Witness));
             }
         }
 
@@ -137,9 +137,9 @@ namespace NeoSharp.Core.Models
 
             // Serialize sign
 
-            if (settings?.Filter?.Invoke(nameof(Scripts)) != false)
+            if (settings?.Filter?.Invoke(nameof(Witness)) != false)
             {
-                ret += serializer.Serialize(Scripts, writer, settings);
+                ret += serializer.Serialize(Witness, writer, settings);
             }
 
             return ret;
@@ -180,14 +180,14 @@ namespace NeoSharp.Core.Models
         {
             Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
             {
-                Filter = (a) => a != nameof(Scripts)
+                Filter = (a) => a != nameof(Witness)
             })));
 
-            if (Scripts != null)
+            if (Witness != null)
             {
-                foreach (var script in Scripts)
+                foreach (var w in Witness)
                 {
-                    script.UpdateHash(serializer, crypto);
+                    w.UpdateHash(serializer, crypto);
                 }
             }
         }

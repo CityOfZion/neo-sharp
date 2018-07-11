@@ -13,6 +13,10 @@
         /// <summary>
         /// Virtual machine execution with errors
         /// </summary>
-        Fault = 2
+        Fault = 2,
+        /// <summary>
+        /// Out of gas
+        /// </summary>
+        FaultByGas = 3
     };
 }

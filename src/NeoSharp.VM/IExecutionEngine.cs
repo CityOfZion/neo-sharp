@@ -43,6 +43,10 @@ namespace NeoSharp.VM
         /// Is disposed
         /// </summary>
         public abstract bool IsDisposed { get; }
+        /// <summary>
+        /// Consumed Gas
+        /// </summary>
+        public abstract ulong ConsumedGas { get; }
 
         #region Shortcuts
 
@@ -96,6 +100,11 @@ namespace NeoSharp.VM
         /// Execute
         /// </summary>
         public abstract bool Execute();
+        /// <summary>
+        /// Execute until x of Gas
+        /// </summary>
+        /// <param name="gas">Gas</param>
+        public abstract bool ExecuteUntil(ulong gas);
         /// <summary>
         /// Step Into
         /// </summary>

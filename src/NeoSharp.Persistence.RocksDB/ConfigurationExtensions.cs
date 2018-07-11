@@ -4,7 +4,6 @@ namespace NeoSharp.Persistence.RocksDB
 {
     public static class ConfigurationExtensions
     {
-
         public static void Bind(this IConfiguration config, RocksDbConfig rocksDbConfig)
         {
             rocksDbConfig.FilePath = ParseString(config.GetSection("rocksDbProvider"), "filePath");

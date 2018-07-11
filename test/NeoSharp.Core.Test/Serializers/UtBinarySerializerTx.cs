@@ -316,7 +316,7 @@ namespace NeoSharp.Core.Test.Serializers
             tx.Attributes = RandomTransactionAtrributes().ToArray();
             tx.Inputs = RandomCoinReferences(_random.Next(1, 255)).ToArray();
             tx.Outputs = RandomTransactionOutputs().ToArray();
-            tx.Scripts = RandomWitness().ToArray();
+            tx.Witness = RandomWitness().ToArray();
 
             tx.UpdateHash(_serializer, _crypto);
         }
@@ -333,7 +333,7 @@ namespace NeoSharp.Core.Test.Serializers
                 CollectionAssert.AreEqual(original.Attributes, copy.Attributes);
                 CollectionAssert.AreEqual(original.Inputs, copy.Inputs);
                 CollectionAssert.AreEqual(original.Outputs, copy.Outputs);
-                CollectionAssert.AreEqual(original.Scripts, copy.Scripts);
+                CollectionAssert.AreEqual(original.Witness, copy.Witness);
 
                 // Recompute hash
 

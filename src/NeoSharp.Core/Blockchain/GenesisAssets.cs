@@ -37,7 +37,7 @@ namespace NeoSharp.Core.Blockchain
                 Attributes = new TransactionAttribute[0],
                 Inputs = new CoinReference[0],
                 Outputs = new TransactionOutput[0],
-                Scripts = new Witness[0]
+                Witness = new Witness[0]
             };
 
             neoToken.UpdateHash(BinarySerializer.Default, ICrypto.Default);
@@ -64,7 +64,7 @@ namespace NeoSharp.Core.Blockchain
                 Attributes = new TransactionAttribute[0],
                 Inputs = new CoinReference[0],
                 Outputs = new TransactionOutput[0],
-                Scripts = new Witness[0]
+                Witness = new Witness[0]
             };
 
             gasToken.UpdateHash(BinarySerializer.Default, ICrypto.Default);
@@ -89,7 +89,7 @@ namespace NeoSharp.Core.Blockchain
                 Outputs = new[]{
                     transactionOutput
                 },
-                Scripts = new []{
+                Witness = new[]{
                     genesisWitness
                 }
 
@@ -111,7 +111,7 @@ namespace NeoSharp.Core.Blockchain
                 Attributes = new TransactionAttribute[0],
                 Inputs = new CoinReference[0],
                 Outputs = new TransactionOutput[0],
-                Scripts = new Witness[0]
+                Witness = new Witness[0]
             };
 
             return genesisMinerTransaction;
@@ -132,12 +132,14 @@ namespace NeoSharp.Core.Blockchain
             return witness;
         }
 
-        public static UInt160 GetGenesisNextConsensusAdress(){
+        public static UInt160 GetGenesisNextConsensusAdress()
+        {
             var genesisValidators = GenesisStandByValidators();
             return ContractFactory.CreateMultiplePublicKeyRedeemContract(genesisValidators.Length - (genesisValidators.Length - 1) / 3, genesisValidators).Code.ScriptHash;
         }
 
-        private static ECPoint[] GenesisStandByValidators(){
+        private static ECPoint[] GenesisStandByValidators()
+        {
             // TODO: Extract from config
             var standByValidators = new string[]
                 {
@@ -176,7 +178,8 @@ namespace NeoSharp.Core.Blockchain
         /// This is a Multisignature contract that requires 2/3 + 1 of the validators signatures
         /// </summary>
         /// <returns>The validators contract.</returns>
-        private static Contract GenesisValidatorsContract(){
+        private static Contract GenesisValidatorsContract()
+        {
             var genesisValidators = GenesisStandByValidators();
             var genesisContract = ContractFactory.CreateMultiplePublicKeyRedeemContract(genesisValidators.Length / 2 + 1, genesisValidators);
             return genesisContract;

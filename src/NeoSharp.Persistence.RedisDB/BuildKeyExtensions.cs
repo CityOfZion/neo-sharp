@@ -7,20 +7,20 @@ namespace NeoSharp.Persistence.RedisDB
     {
         public static string BuildDataBlockKey(this UInt256 hash)
         {
-            return BuildKey(DataEntryPrefix.DataBlock, hash.ToString());
+            return DataEntryPrefix.DataBlock.BuildKey(hash.ToString());
         }
 
         public static string BuildDataTransactionKey(this UInt256 hash)
         {
-            return BuildKey(DataEntryPrefix.DataTransaction, hash.ToString());
+            return DataEntryPrefix.DataTransaction.BuildKey(hash.ToString());
         }
 
         public static string BuildIxHeightToHashKey(this uint index)
         {
-            return BuildKey(DataEntryPrefix.IxHeightToHash, index.ToString());
+            return DataEntryPrefix.IxHeightToHash.BuildKey(index.ToString());
         }
 
-        private static string BuildKey(DataEntryPrefix type, string key)
+        private static string BuildKey(this DataEntryPrefix type, string key)
         {
             return string.Format("{0}:{1}", key, type);
         }
