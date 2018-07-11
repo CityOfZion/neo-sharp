@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
@@ -7,17 +8,18 @@ using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 using NeoSharp.Persistence.RedisDB.Helpers;
 using Newtonsoft.Json;
+using StackExchange.Redis;
 
 namespace NeoSharp.Persistence.RedisDB
 {
     public class RedisDbRepository : IRepository
     {
-        #region Private Fields 
+        #region Private Fields
 
         private readonly IRedisDbContext _redisDbContext;
         private readonly IBinarySerializer _serializer;
         private readonly IBinaryDeserializer _deserializer;
-        
+
         #endregion
 
         #region Construtor
@@ -31,7 +33,7 @@ namespace NeoSharp.Persistence.RedisDB
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
         }
-        
+
         #endregion
 
         #region IRepository Members
@@ -46,7 +48,7 @@ namespace NeoSharp.Persistence.RedisDB
             else
             {
                 // TODO [AboimPinto]: This serialization cannot be mocked, therefore cannot be tested properly.
-                var blockHeaderJson = JsonConvert.SerializeObject(blockHeader);                         
+                var blockHeaderJson = JsonConvert.SerializeObject(blockHeader);
                 await _redisDbContext.Set(blockHeader.Hash.BuildDataBlockKey(), blockHeaderJson);
             }
 
@@ -77,18 +79,18 @@ namespace NeoSharp.Persistence.RedisDB
         {
             var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());
 
-            return _redisDbContext.IsBinaryMode ? 
-                _deserializer.Deserialize<BlockHeaderBase>(blockHeaderRedisValue) : 
-                JsonConvert.DeserializeObject<BlockHeaderBase>(blockHeaderRedisValue);
+            return _redisDbContext.IsBinaryMode
+                ? _deserializer.Deserialize<BlockHeaderBase>(blockHeaderRedisValue)
+                : JsonConvert.DeserializeObject<BlockHeaderBase>(blockHeaderRedisValue);
         }
 
         public async Task<BlockHeader> GetBlockHeaderExtended(UInt256 hash)
         {
             var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());
 
-            return _redisDbContext.IsBinaryMode ?
-                _deserializer.Deserialize<BlockHeader>(blockHeaderRedisValue) :
-                JsonConvert.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
+            return _redisDbContext.IsBinaryMode
+                ? _deserializer.Deserialize<BlockHeader>(blockHeaderRedisValue)
+                : JsonConvert.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
         }
 
         public Task SetTotalBlockHeight(uint height)
@@ -107,45 +109,6 @@ namespace NeoSharp.Persistence.RedisDB
             throw new NotImplementedException();
         }
 
-        public async Task<Transaction> GetTransaction(UInt256 hash)
-        {
-            var transactionRedisValue = await _redisDbContext.Get(hash.BuildDataTransactionKey());
-
-            return _redisDbContext.IsBinaryMode ? 
-                _deserializer.Deserialize<Transaction>(transactionRedisValue) : 
-                JsonConvert.DeserializeObject<Transaction>(transactionRedisValue);
-        }
-
-        public Task<uint> GetIndexHeight()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetIndexHeight(uint height)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<HashSet<CoinReference>> GetIndexConfirmed(UInt160 scriptHash)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetIndexConfirmed(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<HashSet<CoinReference>> GetIndexClaimable(UInt160 scriptHash)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
-        {
-            throw new NotImplementedException();
-        }
-
         public Task<uint> GetTotalBlockHeaderHeight()
         {
             throw new NotImplementedException();
@@ -154,6 +117,56 @@ namespace NeoSharp.Persistence.RedisDB
         public Task SetTotalBlockHeaderHeight(uint height)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task<Transaction> GetTransaction(UInt256 hash)
+        {
+            var transactionRedisValue = await _redisDbContext.Get(hash.BuildDataTransactionKey());
+
+            return _redisDbContext.IsBinaryMode
+                ? _deserializer.Deserialize<Transaction>(transactionRedisValue)
+                : JsonConvert.DeserializeObject<Transaction>(transactionRedisValue);
+        }
+
+        public async Task<uint> GetIndexHeight()
+        {
+            var raw = await _redisDbContext.Get(DataEntryPrefix.IxIndexHeight.ToString());
+            return raw == RedisValue.Null ? uint.MinValue : (uint) raw;
+        }
+
+        public async Task SetIndexHeight(uint height)
+        {
+            await _redisDbContext.Set(DataEntryPrefix.IxIndexHeight.ToString(), height);
+        }
+
+        public async Task<HashSet<CoinReference>> GetIndexConfirmed(UInt160 scriptHash)
+        {
+            var redisVal = await _redisDbContext.Get(scriptHash.BuildIxConfirmedKey());
+            if (redisVal == RedisValue.Null) return new HashSet<CoinReference>();
+            return _redisDbContext.IsBinaryMode
+                ? _deserializer.Deserialize<HashSet<CoinReference>>(redisVal)
+                : JsonConvert.DeserializeObject<HashSet<CoinReference>>(redisVal);
+        }
+
+        public async Task SetIndexConfirmed(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
+        {
+            var val = _serializer.Serialize(coinReferences.ToArray());
+            await _redisDbContext.Set(scriptHash.BuildIxConfirmedKey(), val);
+        }
+
+        public async Task<HashSet<CoinReference>> GetIndexClaimable(UInt160 scriptHash)
+        {
+            var redisVal = await _redisDbContext.Get(scriptHash.BuildIxClaimableKey());
+            if (redisVal == RedisValue.Null) return new HashSet<CoinReference>();
+            return _redisDbContext.IsBinaryMode
+                ? _deserializer.Deserialize<HashSet<CoinReference>>(redisVal)
+                : JsonConvert.DeserializeObject<HashSet<CoinReference>>(redisVal);
+        }
+
+        public async Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
+        {
+            var val = _serializer.Serialize(coinReferences.ToArray());
+            await _redisDbContext.Set(scriptHash.BuildIxClaimableKey(), val);
         }
 
         #endregion

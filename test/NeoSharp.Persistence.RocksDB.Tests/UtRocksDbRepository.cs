@@ -162,7 +162,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             var input = UInt160.Parse(RandomInt().ToString("X40"));
             var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
             rocksDbContextMock
-                .Setup(m => m.Get(input.BuildIndexConfirmedKey()))
+                .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildIndexConfirmedKey()))))
                 .ReturnsAsync((byte[]) null);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
@@ -189,7 +189,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
                     PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
                     PrevIndex = (ushort) RandomInt(10)
                 }
-            }.ToArray();
+            }.ToHashSet();
 
             var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
             rocksDbContextMock
@@ -197,16 +197,15 @@ namespace NeoSharp.Persistence.RocksDB.Tests
                 .ReturnsAsync(expectedBytes);
             var deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             deserializerMock
-                .Setup(m => m.Deserialize<CoinReference[]>(expectedBytes, null))
+                .Setup(m => m.Deserialize<HashSet<CoinReference>>(expectedBytes, null))
                 .Returns(expectedReferences);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
             var result = await testee.GetIndexConfirmed(input);
 
             result.Should().BeOfType<HashSet<CoinReference>>();
-            result.Count.Should().Be(2);
-            result.Contains(expectedReferences[0]).Should().BeTrue();
-            result.Contains(expectedReferences[1]).Should().BeTrue();
+            result.Count.Should().Be(expectedReferences.Count);
+            result.SetEquals(expectedReferences).Should().BeTrue();
         }
 
         [TestMethod]
@@ -226,19 +225,18 @@ namespace NeoSharp.Persistence.RocksDB.Tests
                     PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
                     PrevIndex = (ushort) RandomInt(10)
                 }
-            }.ToArray();
-            var inputSet = inputReferences.ToHashSet();
+            }.ToHashSet();
             var expectedBytes = new byte[1];
             var serializerMock = AutoMockContainer.GetMock<IBinarySerializer>();
             serializerMock
-                .Setup(m => m.Serialize(It.Is<CoinReference[]>(arr => arr.SequenceEqual(inputReferences)), null))
+                .Setup(m => m.Serialize(It.Is<HashSet<CoinReference>>(arr => arr.SetEquals(inputReferences)), null))
                 .Returns(expectedBytes);
             var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
-            await testee.SetIndexConfirmed(inputHash, inputSet);
+            await testee.SetIndexConfirmed(inputHash, inputReferences);
 
-            rocksDbContextMock.Verify(m => m.Save(expectedKey, expectedBytes));
+            rocksDbContextMock.Verify(m => m.Save(It.Is<byte[]>(b => b.SequenceEqual(expectedKey)), expectedBytes));
         }
 
         [TestMethod]
@@ -247,7 +245,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             var input = UInt160.Parse(RandomInt().ToString("X40"));
             var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
             rocksDbContextMock
-                .Setup(m => m.Get(input.BuildIndexClaimableKey()))
+                .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildIndexClaimableKey()))))
                 .ReturnsAsync((byte[]) null);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
@@ -274,7 +272,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
                     PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
                     PrevIndex = (ushort) RandomInt(10)
                 }
-            }.ToArray();
+            }.ToHashSet();
 
             var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
             rocksDbContextMock
@@ -282,16 +280,15 @@ namespace NeoSharp.Persistence.RocksDB.Tests
                 .ReturnsAsync(expectedBytes);
             var deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             deserializerMock
-                .Setup(m => m.Deserialize<CoinReference[]>(expectedBytes, null))
+                .Setup(m => m.Deserialize<HashSet<CoinReference>>(expectedBytes, null))
                 .Returns(expectedReferences);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
             var result = await testee.GetIndexClaimable(input);
 
             result.Should().BeOfType<HashSet<CoinReference>>();
-            result.Count.Should().Be(2);
-            result.Contains(expectedReferences[0]).Should().BeTrue();
-            result.Contains(expectedReferences[1]).Should().BeTrue();
+            result.Count.Should().Be(expectedReferences.Count);
+            result.SetEquals(expectedReferences).Should().BeTrue();
         }
 
         [TestMethod]
@@ -311,17 +308,16 @@ namespace NeoSharp.Persistence.RocksDB.Tests
                     PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
                     PrevIndex = (ushort) RandomInt(10)
                 }
-            };
-            var inputSet = inputReferences.ToHashSet();
+            }.ToHashSet();
             var expectedBytes = new byte[1];
             var serializerMock = AutoMockContainer.GetMock<IBinarySerializer>();
             serializerMock
-                .Setup(m => m.Serialize(It.Is<CoinReference[]>(arr => arr.SequenceEqual(inputReferences)), null))
+                .Setup(m => m.Serialize(It.Is<HashSet<CoinReference>>(arr => arr.SetEquals(inputReferences)), null))
                 .Returns(expectedBytes);
             var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
-            await testee.SetIndexClaimable(inputHash, inputSet);
+            await testee.SetIndexClaimable(inputHash, inputReferences);
 
             rocksDbContextMock.Verify(m => m.Save(expectedKey, expectedBytes));
         }

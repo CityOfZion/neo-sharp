@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.4.1" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.6.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.2.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.2.0" />
@@ -16,6 +17,7 @@
     <ProjectReference Include="..\..\src\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj" />
     <ProjectReference Include="..\..\src\NeoSharp.Core\NeoSharp.Core.csproj" />
     <ProjectReference Include="..\..\src\NeoSharp.Persistence.RedisDB\NeoSharp.Persistence.RedisDB.csproj" />
+    <ProjectReference Include="..\NeoSharp.TestHelpers\NeoSharp.TestHelpers.csproj" />
   </ItemGroup>
 
 </Project>

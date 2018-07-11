@@ -119,12 +119,12 @@ namespace NeoSharp.Persistence.RocksDB
             var raw = await _rocksDbContext.Get(hash.BuildIndexConfirmedKey());
             return raw == null
                 ? new HashSet<CoinReference>()
-                : _deserializer.Deserialize<CoinReference[]>(raw).ToHashSet();
+                : _deserializer.Deserialize<HashSet<CoinReference>>(raw);
         }
 
         public async Task SetIndexConfirmed(UInt160 hash, HashSet<CoinReference> coinReferences)
         {
-            var bytes = _serializer.Serialize(coinReferences.ToArray());
+            var bytes = _serializer.Serialize(coinReferences);
             await _rocksDbContext.Save(hash.BuildIndexConfirmedKey(), bytes);
         }
 
@@ -133,12 +133,12 @@ namespace NeoSharp.Persistence.RocksDB
             var raw = await _rocksDbContext.Get(hash.BuildIndexClaimableKey());
             return raw == null
                 ? new HashSet<CoinReference>()
-                : _deserializer.Deserialize<CoinReference[]>(raw).ToHashSet();
+                : _deserializer.Deserialize<HashSet<CoinReference>>(raw);
         }
 
         public async Task SetIndexClaimable(UInt160 hash, HashSet<CoinReference> coinReferences)
         {
-            var bytes = _serializer.Serialize(coinReferences.ToArray());
+            var bytes = _serializer.Serialize(coinReferences);
             await _rocksDbContext.Save(hash.BuildIndexClaimableKey(), bytes);
         }
 
