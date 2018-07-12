@@ -71,8 +71,8 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             await messageHandler.Handle(verAckMessage, peerMock.Object);
 
             // Assert
-            peerMock.Verify(x => x.Send(It.IsAny<GetBlockHeadersMessage>()), Times.Once);   // TODO: This need to evalueate correctly that the right GetBlockHeadersMessage is been generated.
-            peerMock.Verify(x => x.Send<GetAddrMessage>(), Times.Once);
+            // TODO: This need to evaluate correctly that the right GetBlockHeadersMessage is been generated.
+            peerMock.Verify(x => x.Send(It.IsAny<GetBlockHeadersMessage>()), Times.Once);
         }
     }
 }

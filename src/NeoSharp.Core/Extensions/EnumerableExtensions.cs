@@ -69,5 +69,19 @@ namespace NeoSharp.Core.Extensions
                 action(item);
             }
         }
+
+        public static IEnumerable<TSource> Distinct<TSource, TKey>
+            (this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
+        {
+            var keys = new HashSet<TKey>();
+
+            foreach (var item in source)
+            {
+                if (keys.Add(keySelector(item)))
+                {
+                    yield return item;
+                }
+            }
+        }
     }
 }

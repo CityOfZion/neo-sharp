@@ -35,21 +35,19 @@ namespace NeoSharp.Core.Network
         /// Constructor
         /// </summary>
         /// <param name="protocol">Protocol</param>
-        /// <param name="endPoint">Endpoint</param>
-        public EndPoint(Protocol protocol, IPEndPoint endPoint)
+        /// <param name="ipEndPoint">IP Endpoint</param>
+        public EndPoint(Protocol protocol, IPEndPoint ipEndPoint)
         {
             Protocol = protocol;
-            Host = endPoint.Address.ToString();
-            Port = endPoint.Port;
+            Host = ipEndPoint.Address.ToString();
+            Port = ipEndPoint.Port;
         }
 
         /// <summary>
         /// Get IpEndPoint
         /// </summary>
-        public IPEndPoint ToEndPoint()
+        public IPEndPoint ToIpEndPoint()
         {
-            // TODO: check dns
-
             return new IPEndPoint(IPAddress.Parse(Host), Port);
         }
 

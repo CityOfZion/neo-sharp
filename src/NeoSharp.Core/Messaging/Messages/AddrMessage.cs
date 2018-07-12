@@ -38,8 +38,8 @@ namespace NeoSharp.Core.Messaging.Messages
         public ulong Services;
 
         [BinaryProperty(2)]
-        [TypeConverter(typeof(IPEndPointConverter))]
-        [BinaryTypeSerializer(typeof(IPEndPointConverter))]
+        [TypeConverter(typeof(IpEndPointConverter))]
+        [BinaryTypeSerializer(typeof(IpEndPointConverter))]
         public IPEndPoint EndPoint;
 
         /// <summary>

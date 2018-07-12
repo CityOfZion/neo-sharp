@@ -24,7 +24,7 @@ namespace NeoSharp.Core.Messaging
 
         [ReflectionCache(typeof(GetAddrMessage))]
         getaddr = 0x08,
-        [ReflectionCache(typeof(GetBlockHashesMessage))]
+        [ReflectionCache(typeof(GetBlocksMessage))]
         getblocks = 0x09,
         [ReflectionCache(typeof(GetDataMessage))]
         getdata = 0x0A,

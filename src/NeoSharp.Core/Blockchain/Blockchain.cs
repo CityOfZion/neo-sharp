@@ -214,6 +214,8 @@ namespace NeoSharp.Core.Blockchain
         {
             foreach (var header in blockHeaders)
             {
+                header.UpdateHash(_serializer, _crypto);
+
                 // Validate
 
                 if (LastBlockHeader != null)

@@ -10,17 +10,17 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class GetBlockHeadersMessageHandler : IMessageHandler<GetBlockHeadersMessage>
+    public class GetBlocksMessageHandler : IMessageHandler<GetBlocksMessage>
     {
-        private const int MaxBlockHeadersCountToReturn = 2000;
+        private const int MaxBlocksCountToReturn = 500;
         private readonly IBlockchain _blockchain;
 
-        public GetBlockHeadersMessageHandler(IBlockchain blockchain)
+        public GetBlocksMessageHandler(IBlockchain blockchain)
         {
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
         }
 
-        public async Task Handle(GetBlockHeadersMessage message, IPeer sender)
+        public async Task Handle(GetBlocksMessage message, IPeer sender)
         {
             var hashStart = (message.Payload.HashStart ?? new UInt256[0])
                 .Where(h => h != null)
@@ -39,7 +39,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             if (blockHash == null || blockHash == hashStop) return;
 
-            var blockHeaders = new List<BlockHeaderBase>();
+            var blockHashes = new List<UInt256>();
 
             do
             {
@@ -47,12 +47,12 @@ namespace NeoSharp.Core.Messaging.Handlers
 
                 if (blockHash == null || blockHash == hashStop) break;
 
-                blockHeaders.Add(await _blockchain.GetBlockHeader(blockHash));
-            } while (blockHeaders.Count < MaxBlockHeadersCountToReturn);
+                blockHashes.Add(blockHash);
+            } while (blockHashes.Count < MaxBlocksCountToReturn);
 
-            if (blockHeaders.Count == 0) return;
+            if (blockHashes.Count == 0) return;
 
-            await sender.Send(new BlockHeadersMessage(blockHeaders));
+            await sender.Send(new InventoryMessage(InventoryType.Block, blockHashes));
         }
 
         private Task<BlockHeaderBase> GetBlockHeader(UInt256 hash) => _blockchain.GetBlockHeader(hash);

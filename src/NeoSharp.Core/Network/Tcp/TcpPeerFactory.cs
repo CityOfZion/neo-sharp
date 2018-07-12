@@ -26,12 +26,18 @@ namespace NeoSharp.Core.Network.Tcp
         /// <param name="protocolSelector">Protocol selector</param>
         /// <param name="logger">TcpPeerFactory Logger</param>
         /// <param name="peerLogger">TcpPeer logger</param>
-        public TcpPeerFactory(NetworkConfig config, ProtocolSelector protocolSelector, ILogger<TcpPeerFactory> logger, ILogger<TcpPeer> peerLogger)
+        public TcpPeerFactory(
+            NetworkConfig config,
+            ProtocolSelector protocolSelector,
+            ILogger<TcpPeerFactory> logger,
+            ILogger<TcpPeer> peerLogger)
         {
+            if (config == null) throw new ArgumentNullException(nameof(config));
+
             _forceIPv6 = config.ForceIPv6;
-            _protocolSelector = protocolSelector;
-            _logger = logger;
-            _peerLogger = peerLogger;
+            _protocolSelector = protocolSelector ?? throw new ArgumentNullException(nameof(protocolSelector));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _peerLogger = peerLogger ?? throw new ArgumentNullException(nameof(peerLogger));
         }
 
         /// <summary>
@@ -47,21 +53,23 @@ namespace NeoSharp.Core.Network.Tcp
                 throw new InvalidOperationException($"\"{endPoint.Host}\" cannot be resolved to an ip address.");
             }
 
-            ipAddress = _forceIPv6 ? ipAddress.MapToIPv6() : ipAddress;
-
-            if (!_forceIPv6 && ipAddress.IsIPv4MappedToIPv6)
+            if (_forceIPv6)
+            {
+                ipAddress = ipAddress.MapToIPv6();
+            }
+            else if (ipAddress.IsIPv4MappedToIPv6)
             {
                 ipAddress = ipAddress.MapToIPv4();
             }
 
             var ipEp = new IPEndPoint(ipAddress, endPoint.Port);
 
-            _logger?.LogInformation($"Connecting to {ipEp}");
+            _logger.LogInformation($"Connecting to {ipEp}...");
 
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             await socket.ConnectAsync(ipEp.Address, ipEp.Port);
 
-            _logger?.LogInformation($"Connected to {ipEp}");
+            _logger.LogInformation($"Connected to {ipEp}");
 
             return CreateFrom(socket);
         }
@@ -78,11 +86,9 @@ namespace NeoSharp.Core.Network.Tcp
                 return ipAddress;
             }
 
-            IPHostEntry ipHostEntry;
-
             try
             {
-                ipHostEntry = await Dns.GetHostEntryAsync(hostNameOrAddress);
+                var ipHostEntry = await Dns.GetHostEntryAsync(hostNameOrAddress);
 
                 return ipHostEntry.AddressList
                     .FirstOrDefault(p => p.AddressFamily == AddressFamily.InterNetwork || p.IsIPv6Teredo);

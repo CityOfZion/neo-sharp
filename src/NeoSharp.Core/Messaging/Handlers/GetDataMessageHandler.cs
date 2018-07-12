@@ -81,7 +81,7 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             var transactions = await _blockchain.GetTransactions(transactionHashes);
 
-            if (transactions.Count() > 0)
+            if (transactions.Any())
             {
                 // TODO: shall we send an empty message?
 
@@ -93,7 +93,7 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             var blocks = await _blockchain.GetBlocks(blockHashes);
 
-            if (blocks.Count() > 0)
+            if (blocks.Any())
             {
                 // TODO: shall we send an empty message?
 

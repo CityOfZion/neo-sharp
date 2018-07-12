@@ -3,9 +3,9 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Messaging.Messages
 {
-    public class GetBlockHashesMessage : Message<GetBlocksPayload>
+    public class GetBlocksMessage : Message<GetBlocksPayload>
     {
-        public GetBlockHashesMessage()
+        public GetBlocksMessage()
         {
             Command = MessageCommand.getblocks;
             Payload = new GetBlocksPayload
@@ -14,7 +14,7 @@ namespace NeoSharp.Core.Messaging.Messages
             };
         }
 
-        public GetBlockHashesMessage(UInt256 hashStart)
+        public GetBlocksMessage(UInt256 hashStart)
         {
             Command = MessageCommand.getblocks;
             Payload = new GetBlocksPayload
@@ -27,7 +27,6 @@ namespace NeoSharp.Core.Messaging.Messages
     public class GetBlocksPayload
     {
         // TODO: Why is it an array if it is always initialized with a single value?
-
         [BinaryProperty(0)]
         public UInt256[] HashStart;
 

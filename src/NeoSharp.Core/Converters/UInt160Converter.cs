@@ -4,7 +4,6 @@ using System.Globalization;
 using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
-using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Converters

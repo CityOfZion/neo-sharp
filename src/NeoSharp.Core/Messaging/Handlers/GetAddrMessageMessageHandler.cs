@@ -40,7 +40,7 @@ namespace NeoSharp.Core.Messaging.Handlers
             var networkAddressWithTimes = peers
                 .Select(p => new NetworkAddressWithTime
                 {
-                    EndPoint = p.EndPoint.ToEndPoint(),
+                    EndPoint = p.EndPoint.ToIpEndPoint(),
                     Services = p.Version.Services,
                     Timestamp = p.Version.Timestamp
                 }

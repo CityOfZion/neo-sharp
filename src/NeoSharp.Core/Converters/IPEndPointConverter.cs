@@ -8,18 +8,18 @@ using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Converters
 {
-    class IPEndPointConverter : IBinaryCustomSerializable
+    internal class IpEndPointConverter : IBinaryCustomSerializable
     {
         public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
-            byte[] data = reader.ReadBytes(16);
+            var data = reader.ReadBytes(16);
             if (data.Length != 16) throw new FormatException();
 
-            IPAddress address = new IPAddress(data);
+            var address = new IPAddress(data);
             data = reader.ReadBytes(2);
 
             if (data.Length != 2) throw new FormatException();
-            ushort port = data.Reverse().ToArray().ToUInt16(0);
+            var port = data.Reverse().ToArray().ToUInt16(0);
 
             return new IPEndPoint(address, port);
         }

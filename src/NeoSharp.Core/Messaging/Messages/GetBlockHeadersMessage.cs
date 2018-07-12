@@ -2,7 +2,7 @@
 
 namespace NeoSharp.Core.Messaging.Messages
 {
-    public class GetBlockHeadersMessage : GetBlockHashesMessage
+    public class GetBlockHeadersMessage : GetBlocksMessage
     {
         public GetBlockHeadersMessage()
             : base(null)
