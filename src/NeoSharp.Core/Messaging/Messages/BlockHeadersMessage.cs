@@ -5,18 +5,18 @@ using NeoSharp.Core.Models;
 
 namespace NeoSharp.Core.Messaging.Messages
 {
-    public class BlockHeadersMessage : Message<HeadersPayload>
+    public class BlockHeadersMessage : Message<BlockHeadersPayload>
     {
         public BlockHeadersMessage()
         {
             Command = MessageCommand.headers;
-            Payload = new HeadersPayload { Headers = new HeaderPayload[0] };
+            Payload = new BlockHeadersPayload { Headers = new HeaderPayload[0] };
         }
 
         public BlockHeadersMessage(IEnumerable<BlockHeaderBase> headers)
         {
             Command = MessageCommand.headers;
-            Payload = new HeadersPayload
+            Payload = new BlockHeadersPayload
             {
                 Headers = headers.Select
                 (
@@ -61,7 +61,7 @@ namespace NeoSharp.Core.Messaging.Messages
         #endregion
     }
 
-    public class HeadersPayload
+    public class BlockHeadersPayload
     {
         #region Serializable data
 

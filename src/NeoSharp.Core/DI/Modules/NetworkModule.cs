@@ -1,13 +1,13 @@
-﻿using NeoSharp.Core.Extensions;
+﻿using System.Linq;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Protocols;
-using NeoSharp.Core.Network.Tcp;
-using System.Linq;
-using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Network.Security;
+using NeoSharp.Core.Network.Tcp;
 
 namespace NeoSharp.Core.DI.Modules
 {
@@ -23,13 +23,12 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<ProtocolSelector>();
             containerBuilder.RegisterSingleton<INetworkAclLoader, NetworkAclLoader>();
             containerBuilder.RegisterSingleton<INetworkManager, NetworkManager>();
+            containerBuilder.RegisterSingleton<IBroadcaster, Server>();
             containerBuilder.RegisterSingleton<IServer, Server>();
             containerBuilder.RegisterSingleton<IRpcServer, RpcServer>();
             containerBuilder.RegisterSingleton<IPeerFactory, PeerFactory>();
             containerBuilder.RegisterSingleton<IPeerListener, TcpPeerListener>();
             containerBuilder.RegisterSingleton<ITcpPeerFactory, TcpPeerFactory>();
-
-            containerBuilder.RegisterSingleton<IBroadcast, Server>();
 
             var messageHandlerTypes = typeof(VersionMessageHandler).Assembly
                 .GetExportedTypes()

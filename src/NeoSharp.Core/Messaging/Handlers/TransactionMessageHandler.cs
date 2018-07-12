@@ -6,10 +6,11 @@ using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class TransactionMessageHandler : InventoryMessageHandler<TransactionMessage>
+    public class TransactionMessageHandler : IMessageHandler<TransactionMessage>
     {
         #region Variables
 
+        private readonly IBroadcaster _broadcaster;
         private readonly ILogger<TransactionMessageHandler> _logger;
 
         #endregion
@@ -17,21 +18,22 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="broadcast">Broadcast</param>
+        /// <param name="broadcaster">Broadcaster</param>
         /// <param name="logger">Logger</param>
-        public TransactionMessageHandler(IBroadcast broadcast, ILogger<TransactionMessageHandler> logger) : base(broadcast)
+        public TransactionMessageHandler(IBroadcaster broadcaster, ILogger<TransactionMessageHandler> logger)
         {
+            _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public override Task Handle(TransactionMessage message, IPeer sender)
+        public Task Handle(TransactionMessage message, IPeer sender)
         {
             foreach (var tx in message.Payload.Transactions)
             {
 
             }
 
-            return base.Handle(message, sender);
+            return Task.CompletedTask;
         }
     }
 }

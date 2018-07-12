@@ -54,17 +54,17 @@ namespace NeoSharp.Core.Messaging
 
             return handleMessageTask.ContinueWith(t =>
             {
-                if (!t.IsCompletedSuccessfully)
+                if (t.IsCompletedSuccessfully)
                 {
-                    if (handleMessageTask.IsFaulted)
-                    {
-                        LogMessageHandlingEnd(startedAt, messageHandlerName, handleMessageTask.Exception);
-                    }
-
+                    LogMessageHandlingEnd(startedAt, messageHandlerName);
                     return;
                 }
 
-                LogMessageHandlingEnd(startedAt, messageHandlerName);
+                if (t.IsFaulted)
+                {
+                    LogMessageHandlingEnd(startedAt, messageHandlerName, handleMessageTask.Exception);
+                    return;
+                }
             });
         }
 

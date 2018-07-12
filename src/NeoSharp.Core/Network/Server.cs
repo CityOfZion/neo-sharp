@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,7 +11,7 @@ using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
 {
-    public class Server : IServer, IDisposable
+    public class Server : IServer, IBroadcaster, IDisposable
     {
         #region Variables
 
@@ -125,21 +126,14 @@ namespace NeoSharp.Core.Network
             });
         }
 
+        #endregion
+
+        #region IBroadcaster implementation
+
         /// <inheritdoc />
-        public async Task SendBroadcast(Message message, Func<IPeer, bool> filter = null)
+        public void Broadcast(Message message, IPeer source)
         {
-            Parallel.ForEach(_connectedPeers, async (peer) =>
-            {
-                // Check filter
-
-                if (filter != null && !filter(peer)) return;
-
-                // Send
-
-                await peer.Send(message);
-            });
-
-            await Task.CompletedTask;
+            Parallel.ForEach(_connectedPeers.Where(p => p != source), p => p.Send(message));
         }
 
         #endregion

@@ -122,15 +122,13 @@ namespace NeoSharp.Core.Blockchain
 
                 return PersistBlock();
             }
-            else
-            {
-                // Small verification
+            
+            // Small verification
 
-                if (block.Timestamp <= CurrentBlock.Timestamp ||
-                    block.Index <= CurrentBlock.Index)
-                {
-                    return Task.FromResult(false);
-                }
+            if (block.Timestamp <= CurrentBlock.Timestamp ||
+                block.Index <= CurrentBlock.Index)
+            {
+                return Task.FromResult(false);
             }
 
             return Task.FromResult(BlockPool.Push(block));

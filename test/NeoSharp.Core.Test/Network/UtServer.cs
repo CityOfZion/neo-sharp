@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -155,35 +153,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
-        public async Task SendBroadcast_FilterIsNull_MessageSendToConnectedPeers()
-        {
-            // Arrange
-            var peerMock = AutoMockContainer.GetMock<IPeer>();
-
-            peerMock
-                .SetupGet(x => x.EndPoint)
-                .Returns(_peerEndPoint);
-
-            var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
-
-            peerFactoryMock
-                .Setup(x => x.ConnectTo(_peerEndPoint))
-                .Returns(Task.FromResult(peerMock.Object));
-
-            var server = AutoMockContainer.Create<Server>();
-            var message = new Message();
-
-            // Act
-            server.Start();
-
-            await server.SendBroadcast(message);
-
-            // Assert
-            peerMock.Verify(x => x.Send(message), Times.AtLeastOnce);
-        }
-
-        [TestMethod]
-        public async Task SendBroadcast_FilterEqualFalse_MessageNotSendToBroadcaster()
+        public void Broadcast_PeerIsTheSameAsSource_MessageNotSendToPeer()
         {
             // Arrange
             var peerMock = AutoMockContainer.GetMock<IPeer>();
@@ -204,14 +174,14 @@ namespace NeoSharp.Core.Test.Network
             // Act
             server.Start();
 
-            await server.SendBroadcast(message, peer => false);
+            server.Broadcast(message, peerMock.Object);
 
             // Assert
             peerMock.Verify(x => x.Send(message), Times.Never);
         }
 
         [TestMethod]
-        public async Task SendBroadcast_FilterEqualTrue_MessageSendToPeer()
+        public void SendBroadcast_PeerIsNotTheSameAsSource_MessageSendToPeer()
         {
             // Arrange
             var peerMock = AutoMockContainer.GetMock<IPeer>();
@@ -232,7 +202,7 @@ namespace NeoSharp.Core.Test.Network
             // Act
             server.Start();
 
-            await server.SendBroadcast(message, peer => true);
+            server.Broadcast(message, null);
 
             // Assert
             peerMock.Verify(x => x.Send(message), Times.Once);

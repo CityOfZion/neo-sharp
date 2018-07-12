@@ -2,7 +2,7 @@
 
 namespace NeoSharp.Core.Network
 {
-    public interface IServer : IBroadcast
+    public interface IServer
     {
         /// <summary>
         /// Connected peers
