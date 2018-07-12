@@ -13,20 +13,20 @@ namespace NeoSharp.Core.Types
     /// </summary>
     [TypeConverter(typeof(Fixed8TypeConverter))]
     [BinaryTypeSerializer(typeof(Fixed8TypeConverter))]
-    public struct Fixed8 : IComparable<Fixed8>, IEquatable<Fixed8>, IFormattable, ISerializable
+    public struct Fixed8 : IComparable<Fixed8>, IEquatable<Fixed8>, IFormattable
     {
         #region Private Fields 
         private const long D = 100_000_000;
-        internal long Value;
+        internal readonly long Value;
         #endregion
 
-        public static readonly Fixed8 MaxValue = new Fixed8 { Value = long.MaxValue };
+        public static readonly Fixed8 MaxValue = new Fixed8 (long.MaxValue);
 
-        public static readonly Fixed8 MinValue = new Fixed8 { Value = long.MinValue };
+        public static readonly Fixed8 MinValue = new Fixed8 (long.MinValue);
 
-        public static readonly Fixed8 One = new Fixed8 { Value = D };
+        public static readonly Fixed8 One = new Fixed8 (D);
 
-        public static readonly Fixed8 Satoshi = new Fixed8 { Value = 1 };
+        public static readonly Fixed8 Satoshi = new Fixed8 (1);
 
         public static readonly Fixed8 Zero = default(Fixed8);
 
@@ -41,19 +41,7 @@ namespace NeoSharp.Core.Types
         }
         #endregion
 
-        #region ISerializable implementation 
         public int Size => sizeof(long);
-
-        public void Deserialize(BinaryReader reader)
-        {
-            Value = reader.ReadInt64();
-        }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(Value);
-        }
-        #endregion
 
         #region IComparable Implementation 
         public int CompareTo(Fixed8 other)
@@ -100,10 +88,7 @@ namespace NeoSharp.Core.Types
         public Fixed8 Abs()
         {
             if (Value >= 0) return this;
-            return new Fixed8
-            {
-                Value = -Value
-            };
+            return new Fixed8(-Value);
         }
 
         public Fixed8 Ceiling()
@@ -111,15 +96,9 @@ namespace NeoSharp.Core.Types
             var remainder = Value % D;
             if (remainder == 0) return this;
             if (remainder > 0)
-                return new Fixed8
-                {
-                    Value = Value - remainder + D
-                };
+                return new Fixed8(Value - remainder + D);
             else
-                return new Fixed8
-                {
-                    Value = Value - remainder
-                };
+                return new Fixed8(Value - remainder);
         }
         
         public static Fixed8 FromDecimal(decimal value)
@@ -130,10 +109,7 @@ namespace NeoSharp.Core.Types
                 throw new OverflowException();
             }
 
-            return new Fixed8
-            {
-                Value = (long)value
-            };
+            return new Fixed8((long)value);
         }
 
         public string ToString(string format)
@@ -160,10 +136,7 @@ namespace NeoSharp.Core.Types
                 result = default(Fixed8);
                 return false;
             }
-            result = new Fixed8
-            {
-                Value = (long)d
-            };
+            result = new Fixed8((long)D);
             return true;
         }
 
@@ -233,38 +206,32 @@ namespace NeoSharp.Core.Types
             if (rd < rl)
                 ++rh;
             var r = rh * quo + rd / D;
-            x.Value = (long)r * sign;
-            return x;
+            return new Fixed8((long)r * sign);
         }
 
         public static Fixed8 operator *(Fixed8 x, long y)
         {
-            x.Value *= y;
-            return x;
+            return new Fixed8(x.Value * y);
         }
 
         public static Fixed8 operator /(Fixed8 x, long y)
         {
-            x.Value /= y;
-            return x;
+            return new Fixed8(x.Value / y);
         }
 
         public static Fixed8 operator +(Fixed8 x, Fixed8 y)
         {
-            x.Value = checked(x.Value + y.Value);
-            return x;
+            return new Fixed8(checked(x.Value + y.Value));
         }
 
         public static Fixed8 operator -(Fixed8 x, Fixed8 y)
         {
-            x.Value = checked(x.Value - y.Value);
-            return x;
+            return new Fixed8(checked(x.Value - y.Value));
         }
 
         public static Fixed8 operator -(Fixed8 value)
         {
-            value.Value = -value.Value;
-            return value;
+            return new Fixed8(-value.Value);
         }
         #endregion
     }

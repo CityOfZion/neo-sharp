@@ -227,28 +227,6 @@ namespace NeoSharp.Core.Test.Types
         }
 
         [TestMethod]
-        public void SerializeDeserialize_SerializeAndDeserializeFixed8AsTheSameValue()
-        {
-            var memoryByteArray = new byte[255];
-            var actual = new Fixed8(1000);
-            var afterReadFixed8 = new Fixed8();
-
-            using (var writer = new BinaryWriter(new MemoryStream(memoryByteArray)))
-            {
-                actual.Serialize(writer);
-            }
-
-            using (var reader = new BinaryReader(new MemoryStream(memoryByteArray)))
-            {
-                afterReadFixed8.Deserialize(reader);
-            }
-
-            Asserting
-                .That(actual)
-                .IsEqual(afterReadFixed8);
-        }
-
-        [TestMethod]
         public void Abs_ProvidePositiveFixed8_ReturnTheSameValue()
         {
             var positiveFixed8 = new Fixed8(1);

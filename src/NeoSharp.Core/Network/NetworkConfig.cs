@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
@@ -25,6 +26,10 @@ namespace NeoSharp.Core.Network
         /// Acl Config
         /// </summary>
         public NetworkAclConfig AclConfig { get; internal set; }
+        /// <summary>
+        /// StandByValidator config
+        /// </summary>
+        public string[] StandByValidator { get; internal set; }
 
         /// <summary>
         /// Constructor

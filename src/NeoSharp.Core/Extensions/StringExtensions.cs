@@ -85,7 +85,7 @@ namespace NeoSharp.Core.Extensions
         {
             if (string.IsNullOrEmpty(value))
                 return new byte[0];
-            if (value.StartsWith("0x"))
+            if (value.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
                 value = value.Substring(2);
             if (value.Length % 2 == 1)
                 throw new FormatException();

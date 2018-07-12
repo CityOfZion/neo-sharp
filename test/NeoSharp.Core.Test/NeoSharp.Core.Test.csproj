@@ -34,4 +34,9 @@
   <ItemGroup>
     <Folder Include="Wallet\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

@@ -55,10 +55,11 @@ namespace NeoSharp.Core.Models
 
         protected override int SerializeExclusiveData(IBinarySerializer serializer, BinaryWriter writer, BinarySerializerSettings settings = null)
         {
-            int l = 1;
+            var l = 1;
             writer.Write((byte)AssetType);
             l += writer.WriteVarString(Name);
-            writer.Write(Amount.Value); l += Amount.Size;
+            writer.Write(Amount.Value); 
+            l += Amount.Size;
             writer.Write(Precision); l++;
             l += serializer.Serialize(Owner, writer, settings);
             l += serializer.Serialize(Admin, writer, settings);

@@ -18,11 +18,11 @@ namespace NeoSharp.Core.Blockchain
         {
             BinarySerializer.RegisterTypes(typeof(PublishTransaction).Assembly, typeof(BlockHeader).Assembly);
 
-            var governingToken = GenesisAssets.GoverningTokenRegisterTransaction();
-            var utilityToken = GenesisAssets.UtilityTokenRegisterTransaction();
+            var governingToken = GenesisAssets.GoverningTokenRegisterTransaction;
+            var utilityToken = GenesisAssets.UtilityTokenRegisterTransaction;
 
             var genesisMinerTransaction = GenesisAssets.GenesisMinerTransaction();
-            var genesisIssueTransaction = GenesisAssets.GenesisIssueTransaction(governingToken);
+            var genesisIssueTransaction = GenesisAssets.GenesisIssueTransaction();
 
             var genesisWitness = GenesisAssets.GenesisWitness();
             var genesisTimestamp = (new DateTime(2016, 7, 15, 15, 8, 21, DateTimeKind.Utc)).ToTimestamp();

@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Microsoft.Extensions.Configuration;
+using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Network.Security;
 using NeoSharp.Core.Persistence;
@@ -19,6 +21,7 @@ namespace NeoSharp.Core.Network
             networkConfig.ForceIPv6 = ParseBool(config, "forceIPv6");
             networkConfig.AclConfig = ParseAcl(config, "acl");
             networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
+            networkConfig.StandByValidator = ParseStandByValidators(config);
         }
 
         public static void Bind(this IConfiguration config, RpcConfig rpcConfig)
@@ -79,15 +82,29 @@ namespace NeoSharp.Core.Network
                 .ToArray();
         }
 
+        private static String[] ParseStandByValidators(this IConfiguration config)
+        {
+            var standByValidators = config.GetSection("standByValidators")?.Get<string[]>().Distinct();
+            if (standByValidators == null) return new string[0];
+
+            return standByValidators.ToArray();
+        }
+
         private static IPEndPoint ParseIpEndPoint(IConfiguration config, string section)
         {
             var host = ParseString(config, section);
             if (host == null) return null;
 
             var split = host.Split(',', StringSplitOptions.RemoveEmptyEntries);
+            if (split.Length != 2) return null;
 
-            // TODO: More safe parsing
-            return new IPEndPoint(IPAddress.Parse(split[0]), Convert.ToInt32(split[1]));
+            IPEndPoint ipEndPoint = null;
+            IPAddress ipAddress;
+            int port;
+            if (IPAddress.TryParse(split[0], out ipAddress) && Int32.TryParse(split[1], out port)) {
+                ipEndPoint = new IPEndPoint(ipAddress, port);
+            }
+            return ipEndPoint;
         }
 
         private static NetworkAclConfig ParseAcl(IConfiguration config, string section)

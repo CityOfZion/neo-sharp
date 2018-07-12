@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -22,7 +24,7 @@ namespace NeoSharp.Core.Test.Network
         [TestInitialize]
         public void Initialize()
         {
-            var networkConfig = GetNetworkConfig("tcp://localhost:8081");
+            var networkConfig = GetNetworkConfig();
             _peerEndPoint = networkConfig.PeerEndPoints[0];
 
             AutoMockContainer.Register(networkConfig);
@@ -236,24 +238,15 @@ namespace NeoSharp.Core.Test.Network
             peerMock.Verify(x => x.Send(message), Times.Once);
         }
 
-        private static NetworkConfig GetNetworkConfig(params string[] peerEndPoints)
+        private static NetworkConfig GetNetworkConfig()
         {
-            var initialData = new Dictionary<string, string>
-            {
-                { "network:port", "8000" },
-                { "network:forceIPv6", "false" },
-            };
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json", false, true);
 
-            for (var i = 0; i < peerEndPoints.Length; i++)
-            {
-                initialData.Add($"network:peerEndPoints:{i}", peerEndPoints[i]);
-            }
+            var configuration = builder.Build();
 
-            var config = new ConfigurationBuilder()
-                .AddInMemoryCollection(initialData)
-                .Build();
-
-            return new NetworkConfig(config);
+            return new NetworkConfig(configuration);
         }
     }
 }
