@@ -98,20 +98,19 @@ namespace NeoSharp.Core.Persistence
         Task AddAccount(Account acct);
 
         /// <summary>
-        /// Retrieves a coin by its transaction hash and index
+        /// Retrieves coin states by its transaction hash
         /// </summary>
         /// <param name="txHash"></param>
-        /// <param name="index"></param>
         /// <returns></returns>
-        Task<Coin> GetCoin(UInt256 txHash, uint index);
+        Task<CoinState[]> GetCoinStates(UInt256 txHash);
 
         /// <summary>
-        /// Adds an coin
+        /// Adds a transaction's outputs as coin states
         /// </summary>
         /// <param name="txHash"></param>
-        /// <param name="index"></param>
+        /// <param name="coinStates"></param>
         /// <returns></returns>
-        Task AddCoin(UInt256 txHash, uint index);
+        Task AddCoinStates(UInt256 txHash, CoinState[] coinStates);
 
         /// <summary>
         /// Retrieves a validator by its public key

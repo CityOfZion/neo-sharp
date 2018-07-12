@@ -143,12 +143,12 @@ namespace NeoSharp.Persistence.RedisDB
             throw new NotImplementedException();
         }
 
-        public async Task<Coin> GetCoin(UInt256 txHash, uint index)
+        public async Task<CoinState[]> GetCoinStates(UInt256 txHash)
         {
             throw new NotImplementedException();
         }
 
-        public async Task AddCoin(UInt256 txHash, uint index)
+        public async Task AddCoinStates(UInt256 txHash, CoinState[] coinStates)
         {
             throw new NotImplementedException();
         }

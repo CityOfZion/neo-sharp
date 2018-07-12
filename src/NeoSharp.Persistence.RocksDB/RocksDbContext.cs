@@ -6,11 +6,11 @@ namespace NeoSharp.Persistence.RocksDB
 {
     public class RocksDbContext : IRocksDbContext
     {
-        #region Private Fields 
+        #region Private Fields
         private readonly RocksDb _rocksDb;
         #endregion
 
-        #region Constructor 
+        #region Constructor
         public RocksDbContext(RocksDbConfig config)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
@@ -22,7 +22,7 @@ namespace NeoSharp.Persistence.RocksDB
         }
         #endregion
 
-        #region IRocksDbContext implementation 
+        #region IRocksDbContext implementation
         public Task Save(byte[] key, byte[] content)
         {
             return Task.Run(() => this._rocksDb.Put(key, content));
@@ -31,6 +31,11 @@ namespace NeoSharp.Persistence.RocksDB
         public Task<byte[]> Get(byte[] key)
         {
             return Task.Run(() => this._rocksDb.Get(key));
+        }
+
+        public Task Delete(byte[] key)
+        {
+            return Task.Run(() => _rocksDb.Remove(key));
         }
 
         public void Dispose()

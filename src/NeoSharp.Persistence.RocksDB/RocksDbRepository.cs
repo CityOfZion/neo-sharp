@@ -105,57 +105,72 @@ namespace NeoSharp.Persistence.RocksDB
 
         #endregion
 
+        #region IRepository State Members
+
         public async Task<Account> GetAccount(UInt160 hash)
         {
-            throw new NotImplementedException();
+            var raw = await _rocksDbContext.Get(hash.BuildStateAccountKey());
+            return raw == null
+                ? null
+                : _deserializer.Deserialize<Account>(raw);
         }
 
         public async Task AddAccount(Account acct)
         {
-            throw new NotImplementedException();
+            await _rocksDbContext.Save(acct.ScriptHash.BuildStateAccountKey(), _serializer.Serialize(acct));
         }
 
-        public async Task<Coin> GetCoin(UInt256 txHash, uint index)
+        public async Task<CoinState[]> GetCoinStates(UInt256 txHash)
         {
-            throw new NotImplementedException();
+            var raw = await _rocksDbContext.Get(txHash.BuildStateCoinKey());
+            return raw == null
+                ? null
+                : _deserializer.Deserialize<CoinState[]>(raw);
         }
 
-        public async Task AddCoin(UInt256 txHash, uint index)
+        public async Task AddCoinStates(UInt256 txHash, CoinState[] coinstates)
         {
-            throw new NotImplementedException();
+            await _rocksDbContext.Save(txHash.BuildStateCoinKey(), _serializer.Serialize(coinstates));
         }
 
         public async Task<Validator> GetValidator(ECPoint publicKey)
         {
-            throw new NotImplementedException();
+            var raw = await _rocksDbContext.Get(publicKey.BuildStateValidatorKey());
+            return raw == null
+                ? null
+                : _deserializer.Deserialize<Validator>(raw);
         }
 
         public async Task AddValidator(Validator validator)
         {
-            throw new NotImplementedException();
+            await _rocksDbContext.Save(validator.PublicKey.BuildStateValidatorKey(), _serializer.Serialize(validator));
         }
 
         public async Task<Contract> GetContract(UInt160 contractHash)
         {
-            throw new NotImplementedException();
+            var raw = await _rocksDbContext.Get(contractHash.BuildStateContractKey());
+            return raw == null
+                ? null
+                : _deserializer.Deserialize<Contract>(raw);
         }
 
         public async Task AddContract(Contract contract)
         {
-            throw new NotImplementedException();
+            await _rocksDbContext.Save(contract.ScriptHash.BuildStateContractKey(), _serializer.Serialize(contract));
         }
 
         public async Task<StorageValue> GetStorage(StorageKey key)
         {
-            throw new NotImplementedException();
+            var raw = await _rocksDbContext.Get(key.BuildStateStorageKey());
+            return raw == null
+                ? null
+                : _deserializer.Deserialize<StorageValue>(raw);
         }
 
         public async Task AddStorage(StorageKey key, StorageValue val)
         {
-            throw new NotImplementedException();
+            await _rocksDbContext.Save(key.BuildStateStorageKey(), val.Value);
         }
-
-        #region IRepository State Members
 
         #endregion
 

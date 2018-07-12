@@ -8,5 +8,7 @@ namespace NeoSharp.Persistence.RocksDB
         Task Save(byte[] key, byte[] content);
 
         Task<byte[]> Get(byte[] key);
+
+        Task Delete(byte[] key);
     }
 }
