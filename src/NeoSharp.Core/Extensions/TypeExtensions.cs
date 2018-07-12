@@ -5,6 +5,12 @@ namespace NeoSharp.Core.Extensions
 {
     public static class TypeExtensions
     {
+        /// <summary>
+        /// Checks if a type is assignable to a type
+        /// </summary>
+        /// <param name="source">Source</param>
+        /// <param name="openGenericType">Type</param>
+        /// <returns>True if assignable</returns>
         public static bool IsAssignableToGenericType(this Type source, Type openGenericType)
         {
             var interfaceTypes = source.GetInterfaces();
@@ -15,7 +21,9 @@ namespace NeoSharp.Core.Extensions
             }
 
             if (source.IsGenericType && source.GetGenericTypeDefinition() == openGenericType)
+            {
                 return true;
+            }
 
             var baseType = source.BaseType;
 

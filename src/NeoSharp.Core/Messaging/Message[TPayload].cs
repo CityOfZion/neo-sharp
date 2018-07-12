@@ -1,6 +1,6 @@
 ﻿namespace NeoSharp.Core.Messaging
 {
-    public class Message<TPayload> : Message, ICarryPayload where TPayload : new()
+    public abstract class Message<TPayload> : Message, ICarryPayload where TPayload : new()
     {
         /// <summary>
         /// Payload

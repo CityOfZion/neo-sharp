@@ -3,35 +3,64 @@ using System.Runtime.CompilerServices;
 
 namespace NeoSharp.Core.Extensions
 {
-    //TODO: How can we remove unsafe code calls?  Is it necessary here?
     public static class IntExtensions
     {
+        /// <summary>
+        /// Convert Byte Array to Int32
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <param name="startIndex">Start index</param>
+        /// <returns>Int32</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static int ToInt32(this byte[] value, int startIndex = 0)
+        public static int ToInt32(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToInt32(value, startIndex);
         }
 
+        /// <summary>
+        /// Convert Byte Array to Int64
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <param name="startIndex">Start index</param>
+        /// <returns>Int64</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static long ToInt64(this byte[] value, int startIndex = 0)
+        public static long ToInt64(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToInt64(value, startIndex);
         }
 
+        /// <summary>
+        /// Convert Byte Array to UInt16
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <param name="startIndex">Start index</param>
+        /// <returns>UInt16</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ushort ToUInt16(this byte[] value, int startIndex = 0)
+        public static ushort ToUInt16(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToUInt16(value, startIndex);
         }
 
+        /// <summary>
+        /// Convert Byte Array to UInt32
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <param name="startIndex">Start index</param>
+        /// <returns>UInt32</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static uint ToUInt32(this byte[] value, int startIndex = 0)
+        public static uint ToUInt32(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToUInt32(value, startIndex);
         }
 
+        /// <summary>
+        /// Convert Byte Array to UInt64
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <param name="startIndex">Start index</param>
+        /// <returns>UInt64</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static ulong ToUInt64(this byte[] value, int startIndex = 0)
+        public static ulong ToUInt64(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToUInt64(value, startIndex);
         }

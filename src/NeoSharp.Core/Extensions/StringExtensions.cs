@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
@@ -37,6 +37,12 @@ namespace NeoSharp.Core.Extensions
                 .Where(arg => !string.IsNullOrEmpty(arg.Value));
         }
 
+        /// <summary>
+        /// Split string into enumerable
+        /// </summary>
+        /// <param name="str">String</param>
+        /// <param name="controller">Controller Func</param>
+        /// <returns></returns>
         public static IEnumerable<string> Split(this string str, Func<char, bool> controller)
         {
             var nextPiece = 0;
@@ -53,6 +59,12 @@ namespace NeoSharp.Core.Extensions
             yield return str.Substring(nextPiece);
         }
 
+        /// <summary>
+        /// Remove quote from string
+        /// </summary>
+        /// <param name="input">Input</param>
+        /// <param name="quote">Quote</param>
+        /// <returns>String</returns>
         public static string TrimMatchingQuotes(this string input, char quote)
         {
             if ((input.Length >= 2) && (input[0] == quote) && (input[input.Length - 1] == quote))
@@ -63,6 +75,12 @@ namespace NeoSharp.Core.Extensions
             return input;
         }
 
+        /// <summary>
+        /// Convert Hex string to byte array
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <param name="limit">Limit</param>
+        /// <returns>Byte Array</returns>
         public static byte[] HexToBytes(this string value, int limit = 0)
         {
             if (string.IsNullOrEmpty(value))
@@ -78,8 +96,13 @@ namespace NeoSharp.Core.Extensions
                 result[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier);
             return result;
         }
-        
-        
+
+        /// <summary>
+        /// Converts SecureString to byte array
+        /// </summary>
+        /// <param name="secureString">SecureString</param>
+        /// <param name="encoding">Encoding</param>
+        /// <returns>Byte Array</returns>
         public static byte[] ToByteArray(this SecureString secureString, Encoding encoding = null)
         {
             if (secureString == null)

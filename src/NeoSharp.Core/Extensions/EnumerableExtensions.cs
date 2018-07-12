@@ -56,6 +56,12 @@ namespace NeoSharp.Core.Extensions
             }
         }
 
+        /// <summary>
+        /// Performs the action for each element
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">Source</param>
+        /// <param name="action">Action</param>
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
             foreach (var item in source)

@@ -6,7 +6,13 @@ namespace NeoSharp.Core.Extensions
 {
     public static class BigIntegerExtensions
     {
-        internal static BigInteger Mod(this BigInteger x, BigInteger y)
+        /// <summary>
+        /// Mod
+        /// </summary>
+        /// <param name="x">Source</param>
+        /// <param name="y">Operand</param>
+        /// <returns>Result</returns>
+        public static BigInteger Mod(this BigInteger x, BigInteger y)
         {
             x %= y;
             if (x.Sign < 0)
@@ -14,7 +20,13 @@ namespace NeoSharp.Core.Extensions
             return x;
         }
 
-        internal static BigInteger ModInverse(this BigInteger a, BigInteger n)
+        /// <summary>
+        /// Mod Inverse
+        /// </summary>
+        /// <param name="a">Source</param>
+        /// <param name="n">Operand</param>
+        /// <returns>Result</returns>
+        public static BigInteger ModInverse(this BigInteger a, BigInteger n)
         {
             BigInteger i = n, v = 0, d = 1;
             while (a > 0)
@@ -31,10 +43,12 @@ namespace NeoSharp.Core.Extensions
             return v;
         }
 
-        internal static BigInteger NextBigInteger(this Random rand, int sizeInBits)
+
+        public static BigInteger NextBigInteger(this Random rand, int sizeInBits)
         {
-            if (sizeInBits < 0)
-                throw new ArgumentException("sizeInBits must be non-negative");
+            // TODO: check accuracy and ut
+
+            if (sizeInBits < 0) throw new ArgumentOutOfRangeException(nameof(sizeInBits));
             if (sizeInBits == 0)
                 return 0;
             var b = new byte[sizeInBits / 8 + 1];
@@ -46,10 +60,11 @@ namespace NeoSharp.Core.Extensions
             return new BigInteger(b);
         }
 
-        internal static BigInteger NextBigInteger(this RandomNumberGenerator rng, int sizeInBits)
+        public static BigInteger NextBigInteger(this RandomNumberGenerator rng, int sizeInBits)
         {
-            if (sizeInBits < 0)
-                throw new ArgumentException("sizeInBits must be non-negative");
+            // TODO: check accuracy and ut
+
+            if (sizeInBits < 0) throw new ArgumentOutOfRangeException(nameof(sizeInBits));
             if (sizeInBits == 0)
                 return 0;
             var b = new byte[sizeInBits / 8 + 1];
@@ -61,7 +76,7 @@ namespace NeoSharp.Core.Extensions
             return new BigInteger(b);
         }
 
-        internal static bool TestBit(this BigInteger i, int index)
+        public static bool TestBit(this BigInteger i, int index)
         {
             return (i & (BigInteger.One << index)) > BigInteger.Zero;
         }

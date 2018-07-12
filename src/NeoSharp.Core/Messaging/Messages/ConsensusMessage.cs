@@ -34,6 +34,15 @@ namespace NeoSharp.Core.Messaging.Messages
         /// <summary>
         /// Constructor
         /// </summary>
+        public ConsensusMessage()
+        {
+            Command = MessageCommand.consensus;
+            Payload = new ConsensusPayload();
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
         /// <param name="serializer">Serializer</param>
         /// <param name="crypto">Crypto</param>
         public ConsensusMessage(IBinarySerializer serializer, ICrypto crypto)

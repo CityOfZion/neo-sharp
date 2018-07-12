@@ -16,17 +16,5 @@ namespace NeoSharp.Core.Extensions
                 return ms.ToArray();
             }
         }
-
-        public static byte[] ToByteArray<T>(this T[] value) where T : ISerializable
-        {
-            using (var ms = new MemoryStream())
-            using (var writer = new BinaryWriter(ms, Encoding.UTF8))
-            {
-                writer.Write(value);
-                writer.Flush();
-                return ms.ToArray();
-            }
-        }
-
     }
 }

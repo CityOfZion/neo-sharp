@@ -6,7 +6,12 @@ namespace NeoSharp.Core.Extensions
 {
     public static class BitExtensions
     {
-        private static int BitLen(int w)
+        /// <summary>
+        /// Bit Length
+        /// </summary>
+        /// <param name="w">Source</param>
+        /// <returns>Length</returns>
+        public static int BitLen(this int w)
         {
             return (w < 1 << 15 ? (w < 1 << 7
                 ? (w < 1 << 3 ? (w < 1 << 1
@@ -23,13 +28,23 @@ namespace NeoSharp.Core.Extensions
                 : (w < 1 << 29 ? (w < 1 << 28 ? 28 : 29) : (w < 1 << 30 ? 30 : 31)))));
         }
 
-        internal static int GetBitLength(this BigInteger i)
+        /// <summary>
+        /// Get Bit Length
+        /// </summary>
+        /// <param name="i">Source</param>
+        /// <returns>Length</returns>
+        public static int GetBitLength(this BigInteger i)
         {
             var b = i.ToByteArray();
             return (b.Length - 1) * 8 + BitLen(i.Sign > 0 ? b[b.Length - 1] : 255 - b[b.Length - 1]);
         }
 
-        internal static int GetLowestSetBit(this BigInteger i)
+        /// <summary>
+        /// Get Lowest Set Bit
+        /// </summary>
+        /// <param name="i">Source</param>
+        /// <returns>Lowest Set Bit</returns>
+        public static int GetLowestSetBit(this BigInteger i)
         {
             if (i.Sign == 0)
                 return -1;
