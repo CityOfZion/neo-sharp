@@ -32,8 +32,6 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             if (message.Payload != null)
             {
-                // TODO: Pools, Queues, orders, etc, etc
-
                 await _blockchain.AddBlock(message.Payload);
             }
 

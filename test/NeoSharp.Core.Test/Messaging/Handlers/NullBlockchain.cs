@@ -17,6 +17,8 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
 
         public StampedPool<UInt256, Transaction> MemoryPool => new StampedPool<UInt256, Transaction>(PoolMaxBehaviour.DontAllowMore, 0, x => x.Value.Hash, null);
 
+        public Pool<uint, Block> BlockPool => new Pool<uint, Block>(PoolMaxBehaviour.RemoveFromEnd, 0, x => x.Index, null);
+
         public Task InitializeBlockchain()
         {
             throw new NotImplementedException();

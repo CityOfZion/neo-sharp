@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Core.Logging;
@@ -129,9 +131,64 @@ namespace NeoSharp.Application.Client
             }
             else
             {
+                _logs.Clear();
                 _logger.LogDebug("Log output is disabled");
 
                 _loggerFactory.OnLog -= Log_OnLog;
+            }
+        }
+
+        /// <summary>
+        /// Watch
+        /// </summary>
+        /// <param name="ms">Miliseconds</param>
+        /// <param name="line">Line</param>
+        [PromptCommand("watch", Help = "Watch command", Category = "Usability")]
+        private void WatchCommand(uint ms, [PromptCommandParameterBody] string line)
+        {
+            if (line.Trim().ToLowerInvariant().StartsWith("watch"))
+            {
+                throw new InvalidOperationException();
+            }
+
+            using (var cancel = new CancellationTokenSource())
+            {
+                // Cancellation listener (wait any key)
+
+                new Task(async () =>
+                  {
+                      while (!cancel.IsCancellationRequested)
+                      {
+                          if (_consoleReader.KeyAvailable)
+                          {
+                              cancel.Cancel();
+                              return;
+                          }
+                          await Task.Delay(10, cancel.Token);
+                      }
+                  }).Start();
+
+                // watch logic
+
+                while (!cancel.IsCancellationRequested)
+                {
+                    _consoleWriter.Clear();
+
+                    if (!Execute(line))
+                    {
+                        break;
+                    }
+
+                    try
+                    {
+                        var ret = Task.Delay((int)ms, cancel.Token);
+                        ret.Wait();
+                    }
+                    catch
+                    {
+                        break;
+                    }
+                }
             }
         }
 

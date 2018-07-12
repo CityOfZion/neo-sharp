@@ -1,36 +1,78 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NeoSharp.Core.Types
 {
     public class Pool<TKey, TValue> where TKey : IEquatable<TKey>
     {
+        class EntryComparer : IEqualityComparer<Entry>
+        {
+            public bool Equals(Entry x, Entry y)
+            {
+                return x.Key.Equals(y.Key);
+            }
+
+            public int GetHashCode(Entry obj)
+            {
+                return 0;
+            }
+        }
+
         class Entry : IEquatable<TKey>
         {
+            /// <summary>
+            /// Key
+            /// </summary>
             public TKey Key;
+
+            /// <summary>
+            /// Value
+            /// </summary>
             public TValue Value;
 
+            /// <summary>
+            /// Check if is equal by the key
+            /// </summary>
+            /// <param name="other">Other</param>
+            /// <returns>Return true if is equal</returns>
             public bool Equals(TKey other)
             {
                 return Key.Equals(other);
             }
 
+            /// <summary>
+            /// Return equal value
+            /// </summary>
+            public override int GetHashCode()
+            {
+                return 0;
+            }
+
+            /// <summary>
+            /// String representation
+            /// </summary>
             public override string ToString()
             {
                 return Key.ToString();
             }
         }
 
-        #region Variables
-
-        public int Count => _list.Count;
-        public readonly PoolMaxBehaviour Behaviour;
-        public readonly int Max;
+        #region Private fields
 
         private bool _isSorted;
         private readonly Func<TValue, TKey> _key;
         private readonly Comparison<TValue> _order;
         private readonly List<Entry> _list;
+        private readonly EntryComparer _comparer;
+
+        #endregion
+
+        #region Public fields
+
+        public int Count => _list.Count;
+        public readonly PoolMaxBehaviour Behaviour;
+        public readonly int Max;
 
         #endregion
 
@@ -51,6 +93,7 @@ namespace NeoSharp.Core.Types
             _order = order;
             _isSorted = false;
             _list = new List<Entry>();
+            _comparer = new EntryComparer();
         }
 
         /// <summary>
@@ -90,7 +133,7 @@ namespace NeoSharp.Core.Types
 
             lock (_list)
             {
-                if (_list.Contains(entry)) return false;
+                if (_list.Contains(entry, _comparer)) return false;
 
                 // Add
 
@@ -150,6 +193,28 @@ namespace NeoSharp.Core.Types
         }
 
         /// <summary>
+        /// Peek one elements from the pool
+        /// </summary>
+        /// <returns>Return the element</returns>
+        public TValue PeekFirstOrDefault()
+        {
+            return Peek(1).FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Remove
+        /// </summary>
+        /// <param name="key">Key</param>
+        /// <returns>Return true if is removed</returns>
+        public bool Remove(TKey key)
+        {
+            lock (_list)
+            {
+                return _list.RemoveAll(a => a.Key.Equals(key)) > 0;
+            }
+        }
+
+        /// <summary>
         /// Pop x elements from the pool
         /// </summary>
         /// <param name="count">Count</param>
@@ -162,6 +227,15 @@ namespace NeoSharp.Core.Types
                 _list.RemoveRange(0, ret.Length);
                 return ret;
             }
+        }
+
+        /// <summary>
+        /// Pop one element from the pool
+        /// </summary>
+        /// <returns>Return the element</returns>
+        public TValue PopFirstOrDefault()
+        {
+            return Pop(1).FirstOrDefault();
         }
     }
 }

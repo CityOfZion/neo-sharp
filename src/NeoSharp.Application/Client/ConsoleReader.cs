@@ -25,6 +25,11 @@ namespace NeoSharp.Application.Client
         /// </summary>
         public ConsoleReaderState State { get; private set; } = ConsoleReaderState.None;
 
+        /// <summary>
+        /// Key available
+        /// </summary>
+        public bool KeyAvailable => Console.KeyAvailable;
+
         #endregion
 
         #region Private fields

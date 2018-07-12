@@ -14,6 +14,11 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         StampedPool<UInt256, Transaction> MemoryPool { get; }
 
+        /// <summary>
+        /// Blocks pool
+        /// </summary>
+        Pool<uint, Block> BlockPool { get; }
+
         Task InitializeBlockchain();
 
         #region Blocks & BlockHeaders

@@ -10,10 +10,84 @@ namespace NeoSharp.Core.Test.Types
     public class UtPool : TestBase
     {
         [TestMethod]
+        public void Test_Pool_SamePush()
+        {
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
+
+            var add = new UInt256[]
+            {
+                new UInt256("3A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+                new UInt256("3A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+            };
+
+            Assert.IsTrue(pool.Push(add[0]));
+            Assert.IsFalse(pool.Push(add[1]));
+
+            Assert.AreEqual(1, pool.Count);
+        }
+
+        [TestMethod]
+        public void Test_Pool_PeekFirstOrDefault()
+        {
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
+
+            var add = new UInt256[]
+            {
+                new UInt256("3A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+                new UInt256("2A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+                new UInt256("1A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+            };
+
+            foreach (var t in add) Assert.IsTrue(pool.Push(t));
+
+            Assert.AreEqual(pool.PeekFirstOrDefault(), add[2]);
+            Assert.AreEqual(3, pool.Count);
+        }
+
+        [TestMethod]
+        public void Test_Pool_PopFirstOrDefault()
+        {
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
+
+            var add = new UInt256[]
+            {
+                new UInt256("3A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+                new UInt256("2A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+                new UInt256("1A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+            };
+
+            foreach (var t in add) Assert.IsTrue(pool.Push(t));
+
+            Assert.AreEqual(pool.PopFirstOrDefault(), add[2]);
+            Assert.AreEqual(2, pool.Count);
+        }
+
+        [TestMethod]
+        public void Test_Pool_Remove()
+        {
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
+
+            var add = new UInt256[]
+            {
+                new UInt256("3A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+                new UInt256("2A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+                new UInt256("1A259DBA256600620C6C91094F3A300B30F0CBAECEE19C6114DEFFD3288957D7".HexToBytes()),
+            };
+
+            foreach (var t in add) Assert.IsTrue(pool.Push(t));
+
+            Assert.IsFalse(pool.Remove(UInt256.Zero));
+            Assert.IsTrue(pool.Remove(add[0]));
+            Assert.IsTrue(pool.Remove(add[1]));
+            Assert.IsTrue(pool.Remove(add[2]));
+
+            Assert.AreEqual(0, pool.Count);
+        }
+
+        [TestMethod]
         public void Test_Pool_RemoveFromEnd()
         {
-            Pool<UInt256, UInt256> pool = new Pool<UInt256, UInt256>(
-                PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
 
             Assert.AreEqual(PoolMaxBehaviour.RemoveFromEnd, pool.Behaviour);
             Assert.AreEqual(3, pool.Max);
@@ -55,8 +129,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_Pool_DontAllowMore()
         {
-            Pool<UInt256, UInt256> pool = new Pool<UInt256, UInt256>(
-                PoolMaxBehaviour.DontAllowMore, 3, x => x, (a, b) => a.CompareTo(b));
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.DontAllowMore, 3, x => x, (a, b) => a.CompareTo(b));
 
             Assert.AreEqual(PoolMaxBehaviour.DontAllowMore, pool.Behaviour);
             Assert.AreEqual(3, pool.Max);

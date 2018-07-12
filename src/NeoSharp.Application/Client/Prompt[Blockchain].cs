@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Core.Extensions;
@@ -9,6 +8,16 @@ namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
+        void WriteStatePercent(string title, string msg, long value, long max)
+        {
+            _consoleWriter.Write(title + ": " + msg + " ");
+
+            using (var pg = _consoleWriter.CreatePercent(max))
+            {
+                pg.Value = value;
+            }
+        }
+
         /// <summary>
         /// Show state
         /// </summary>
@@ -16,41 +25,28 @@ namespace NeoSharp.Application.Client
         private void StateCommand()
         {
             var memStr = _blockchain.MemoryPool.Count.ToString("###,###,###,###,##0");
+            var blockStr = _blockchain.BlockPool.Count.ToString("###,###,###,###,##0");
+
             var headStr = _blockchain.LastBlockHeader.Index.ToString("###,###,###,###,##0");
             var blStr = _blockchain.CurrentBlock.Index.ToString("###,###,###,###,##0");
             var blIndex = 0.ToString("###,###,###,###,##0"); // TODO: Change me
 
-            var numSpaces = new int[] { blIndex.Length, memStr.Length, headStr.Length, blStr.Length }.Max() + 1;
+            var numSpaces = new int[] { memStr.Length, blockStr.Length, blIndex.Length, headStr.Length, blStr.Length }.Max() + 1;
 
             _consoleWriter.WriteLine("Pools", ConsoleOutputStyle.Information);
             _consoleWriter.WriteLine("");
-            _consoleWriter.Write("Memory: " + memStr.PadLeft(numSpaces, ' ') + " ");
 
-            using (var pg = _consoleWriter.CreatePercent(_blockchain.MemoryPool.Max))
-            {
-                pg.Value = _blockchain.MemoryPool.Count;
-            }
+            WriteStatePercent("Memory", memStr.PadLeft(numSpaces, ' '), _blockchain.MemoryPool.Count, _blockchain.MemoryPool.Max);
+            WriteStatePercent("Blocks", blockStr.PadLeft(numSpaces, ' '), _blockchain.BlockPool.Count, _blockchain.BlockPool.Max);
 
             _consoleWriter.WriteLine("");
             _consoleWriter.WriteLine("Blockchain height", ConsoleOutputStyle.Information);
             _consoleWriter.WriteLine("");
 
             _consoleWriter.WriteLine("Header: " + headStr.PadLeft(numSpaces, ' ') + " ");
-            _consoleWriter.Write("Blocks: " + blStr.PadLeft(numSpaces, ' ') + " ");
 
-            using (var pg = _consoleWriter.CreatePercent(_blockchain.LastBlockHeader.Index))
-            {
-                pg.Value = _blockchain.CurrentBlock.Index;
-            }
-
-            _consoleWriter.Write(" Index: " + blIndex.PadLeft(numSpaces, ' ') + " ");
-
-            using (var pg = _consoleWriter.CreatePercent(_blockchain.LastBlockHeader.Index))
-            {
-                //TODO: Fix me
-
-                pg.Value = 0;
-            }
+            WriteStatePercent("Blocks", blStr.PadLeft(numSpaces, ' '), _blockchain.CurrentBlock.Index, _blockchain.LastBlockHeader.Index);
+            WriteStatePercent(" Index", blIndex.PadLeft(numSpaces, ' '), 0, _blockchain.CurrentBlock.Index);
         }
 
         /// <summary>

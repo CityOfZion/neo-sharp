@@ -177,7 +177,7 @@ namespace NeoSharp.Application.Client
                 _consoleReader.AppendInputs(args);
             }
 
-            _blockchain.InitializeBlockchain();
+            _blockchain.InitializeBlockchain().Wait();
 
             while (!_exit)
             {
@@ -193,6 +193,7 @@ namespace NeoSharp.Application.Client
                 }
 
                 // Read input
+
                 var fullCmd = _consoleReader.ReadFromConsole(_commandAutocompleteCache);
 
                 if (string.IsNullOrWhiteSpace(fullCmd))

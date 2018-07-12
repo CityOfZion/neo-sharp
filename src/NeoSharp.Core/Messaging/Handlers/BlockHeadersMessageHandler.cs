@@ -34,13 +34,15 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             if (missingBlockHeaders.Count == 0) return;
 
-            var missingBlockHashes = missingBlockHeaders
-                .Select(bh => bh.Hash)
-                .ToList();
-
             await _blockchain.AddBlockHeaders(missingBlockHeaders);
 
             // TODO: Find a better place for block sync
+
+            var missingBlockHashes = missingBlockHeaders
+                .Select(bh => bh.Hash)
+                .Where(bh => bh != null)
+                .ToList();
+
             await SynchronizeBlocks(missingBlockHashes, sender);
 
             if (_blockchain.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
