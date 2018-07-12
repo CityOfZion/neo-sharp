@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -36,7 +37,7 @@ namespace NeoSharp.Persistence.RedisDB
 
         #endregion
 
-        #region IRepository Members
+        #region IRepository Data Members
 
         public async Task AddBlockHeader(BlockHeaderBase blockHeader)
         {
@@ -127,6 +128,64 @@ namespace NeoSharp.Persistence.RedisDB
                 ? _deserializer.Deserialize<Transaction>(transactionRedisValue)
                 : JsonConvert.DeserializeObject<Transaction>(transactionRedisValue);
         }
+
+        #endregion
+
+        #region IRepository State Members
+
+        public async Task<Account> GetAccount(UInt160 hash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddAccount(Account acct)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Coin> GetCoin(UInt256 txHash, uint index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddCoin(UInt256 txHash, uint index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Validator> GetValidator(ECPoint publicKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddValidator(Validator validator)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Contract> GetContract(UInt160 contractHash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddContract(Contract contract)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<StorageValue> GetStorage(StorageKey key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddStorage(StorageKey key, StorageValue val)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region IRepository Index Members
 
         public async Task<uint> GetIndexHeight()
         {

@@ -1,14 +1,16 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
+using Validator = NeoSharp.Core.Models.Validator;
 
 namespace NeoSharp.Core.Persistence
 {
     public interface IRepository
     {
         #region Blocks & Headers
-        
+
         /// <summary>
         /// Adds a block header to the repository storage
         /// </summary>
@@ -79,6 +81,83 @@ namespace NeoSharp.Core.Persistence
 
         #endregion
 
+        #region State
+
+        /// <summary>
+        /// Retrieves an account
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        Task<Account> GetAccount(UInt160 hash);
+
+        /// <summary>
+        /// Adds the state of the account
+        /// </summary>
+        /// <param name="acct"></param>
+        /// <returns></returns>
+        Task AddAccount(Account acct);
+
+        /// <summary>
+        /// Retrieves a coin by its transaction hash and index
+        /// </summary>
+        /// <param name="txHash"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        Task<Coin> GetCoin(UInt256 txHash, uint index);
+
+        /// <summary>
+        /// Adds an coin
+        /// </summary>
+        /// <param name="txHash"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
+        Task AddCoin(UInt256 txHash, uint index);
+
+        /// <summary>
+        /// Retrieves a validator by its public key
+        /// </summary>
+        /// <param name="publicKey"></param>
+        /// <returns></returns>
+        Task<Validator> GetValidator(ECPoint publicKey);
+
+        /// <summary>
+        /// Adds a validator
+        /// </summary>
+        /// <param name="validator"></param>
+        /// <returns></returns>
+        Task AddValidator(Validator validator);
+
+        /// <summary>
+        /// Retrieves a smart contract by its hash
+        /// </summary>
+        /// <param name="contractHash"></param>
+        /// <returns></returns>
+        Task<Contract> GetContract(UInt160 contractHash);
+
+        /// <summary>
+        /// Adds a smart contract
+        /// </summary>
+        /// <param name="contract"></param>
+        /// <returns></returns>
+        Task AddContract(Contract contract);
+
+        /// <summary>
+        /// Retrieves a StorageValue by its StorageKey
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        Task<StorageValue> GetStorage(StorageKey key);
+
+        /// <summary>
+        /// Adds a StorageValue
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="val"></param>
+        /// <returns></returns>
+        Task AddStorage(StorageKey key, StorageValue val);
+
+        #endregion
+
         #region Index
 
         /// <summary>
@@ -113,7 +192,7 @@ namespace NeoSharp.Core.Persistence
         /// <param name="scriptHash">Address</param>
         /// <param name="coinReferences">List of CoinReferences to write</param>
         Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences);
-  
+
         #endregion
     }
 }

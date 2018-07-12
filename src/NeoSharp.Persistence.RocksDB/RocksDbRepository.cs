@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -39,7 +39,7 @@ namespace NeoSharp.Persistence.RocksDB
 
         #endregion
 
-        #region IRepository Members
+        #region IRepository Data Members
 
         public async Task<UInt256> GetBlockHashFromHeight(uint height)
         {
@@ -102,6 +102,64 @@ namespace NeoSharp.Persistence.RocksDB
 
             return rawTransaction == null ? null : _deserializer.Deserialize<Transaction>(rawTransaction);
         }
+
+        #endregion
+
+        public async Task<Account> GetAccount(UInt160 hash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddAccount(Account acct)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Coin> GetCoin(UInt256 txHash, uint index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddCoin(UInt256 txHash, uint index)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Validator> GetValidator(ECPoint publicKey)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddValidator(Validator validator)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Contract> GetContract(UInt160 contractHash)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddContract(Contract contract)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<StorageValue> GetStorage(StorageKey key)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddStorage(StorageKey key, StorageValue val)
+        {
+            throw new NotImplementedException();
+        }
+
+        #region IRepository State Members
+
+        #endregion
+
+        #region IRepository Index Members
 
         public async Task<uint> GetIndexHeight()
         {
