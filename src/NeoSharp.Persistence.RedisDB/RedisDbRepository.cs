@@ -79,7 +79,7 @@ namespace NeoSharp.Persistence.RedisDB
 
         #region IRepository Data Members
 
-        public async Task AddBlockHeader(BlockHeaderBase blockHeader)
+        public async Task AddBlockHeader(BlockHeader blockHeader)
         {
             if (_redisDbContext.IsBinaryMode)
             {
@@ -116,16 +116,7 @@ namespace NeoSharp.Persistence.RedisDB
             return await _redisDbContext.GetFromHashIndex(RedisIndex.BlockHeight, height);
         }
 
-        public async Task<BlockHeaderBase> GetBlockHeader(UInt256 hash)
-        {
-            var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());
-
-            return _redisDbContext.IsBinaryMode
-                ? _deserializer.Deserialize<BlockHeaderBase>(blockHeaderRedisValue)
-                : JsonConvert.DeserializeObject<BlockHeaderBase>(blockHeaderRedisValue);
-        }
-
-        public async Task<BlockHeader> GetBlockHeaderExtended(UInt256 hash)
+        public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
             var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());
 

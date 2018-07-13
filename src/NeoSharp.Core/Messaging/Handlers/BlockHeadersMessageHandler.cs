@@ -27,17 +27,12 @@ namespace NeoSharp.Core.Messaging.Handlers
         public async Task Handle(BlockHeadersMessage message, IPeer sender)
         {
             var lastBlockHeaderIndex = _blockchain.LastBlockHeader.Index;
-            var missingBlockHeaders = (message.Payload.Headers ?? new HeaderPayload[0])
-                .Where(h => h?.Header != null && h.Header.Index > lastBlockHeaderIndex)
-                .Select(h => h.Header)
+            var missingBlockHeaders = (message.Payload.Headers ?? new BlockHeader[0])
+                .Where(h => h != null && h.Index > lastBlockHeaderIndex)
                 .Distinct(h => h.Index)
                 .ToList();
 
             if (missingBlockHeaders.Count == 0) return;
-
-            // TODO: headers was sent sometimes with "Extend" format, because in the other chain is like this , maybe we need to check if is block, if TX is inside
-
-            Parallel.ForEach(missingBlockHeaders, p => p.Type = BlockHeaderBase.HeaderType.Header);
 
             await _blockchain.AddBlockHeaders(missingBlockHeaders);
 

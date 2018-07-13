@@ -37,7 +37,7 @@ namespace NeoSharp.Core.Blockchain
                 Index = 0,
                 ConsensusData = genesisConsensusData,
                 NextConsensus = nextConsensusAddress,
-                Script = genesisWitness,
+                Witness = genesisWitness,
                 Transactions = new Transaction[]
                    {
                     //First transaction is always a miner transaction

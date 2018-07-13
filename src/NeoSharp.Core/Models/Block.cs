@@ -10,14 +10,14 @@ namespace NeoSharp.Core.Models
     /// Header and complete TX data
     /// </summary>
     [Serializable]
-    public class Block : BlockHeaderBase
+    public class Block : BlockHeader
     {
         #region Serializable data
 
         /// <summary>
         /// Transactions
         /// </summary>
-        [BinaryProperty(100, MaxLength = 0x10000)]
+        [BinaryProperty(100, MaxLength = 0x10000, Override = true)]
         public Transaction[] Transactions;
 
         #endregion
@@ -36,21 +36,25 @@ namespace NeoSharp.Core.Models
         {
             // Compute tx hashes
 
-            foreach (var tx in Transactions)
+            var txSize = Transactions.Length;
+            TransactionHashes = new UInt256[txSize];
+
+            for (var x = 0; x < txSize; x++)
             {
-                tx.UpdateHash(serializer, crypto);
+                Transactions[x].UpdateHash(serializer, crypto);
+                TransactionHashes[x] = Transactions[x].Hash;
             }
 
-            MerkleRoot = MerkleTree.ComputeRoot(crypto, Transactions.Select(u => u.Hash).ToArray());
+            MerkleRoot = MerkleTree.ComputeRoot(crypto, TransactionHashes.ToArray());
 
             // Compute hash
 
             Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
             {
-                Filter = (a) => a != nameof(Script) && a != nameof(Transactions) && a != nameof(Type)
+                Filter = (a) => a != nameof(Witness) && a != nameof(Transactions) && a != nameof(TransactionHashes) && a != nameof(Type)
             })));
 
-            Script?.UpdateHash(serializer, crypto);
+            Witness?.UpdateHash(serializer, crypto);
         }
 
         /// <summary>
@@ -58,7 +62,7 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public BlockHeader GetBlockHeader()
         {
-            return new BlockHeader()
+            return new BlockHeader(HeaderType.Extended)
             {
                 ConsensusData = ConsensusData,
                 Hash = Hash,
@@ -66,28 +70,9 @@ namespace NeoSharp.Core.Models
                 MerkleRoot = MerkleRoot,
                 NextConsensus = NextConsensus,
                 PreviousBlockHash = PreviousBlockHash,
-                Script = Script,
+                Witness = Witness,
                 Timestamp = Timestamp,
                 TransactionHashes = Transactions?.Select(u => u.Hash).ToArray(),
-                Version = Version
-            };
-        }
-
-        /// <summary>
-        /// Get block header base
-        /// </summary>
-        public BlockHeaderBase GetBlockHeaderBase()
-        {
-            return new BlockHeaderBase()
-            {
-                ConsensusData = ConsensusData,
-                Hash = Hash,
-                Index = Index,
-                MerkleRoot = MerkleRoot,
-                NextConsensus = NextConsensus,
-                PreviousBlockHash = PreviousBlockHash,
-                Script = Script,
-                Timestamp = Timestamp,
                 Version = Version
             };
         }

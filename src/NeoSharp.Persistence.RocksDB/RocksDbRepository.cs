@@ -85,7 +85,7 @@ namespace NeoSharp.Persistence.RocksDB
             return hash == null || hash.Length == 0 ? UInt256.Zero : new UInt256(hash);
         }
 
-        public async Task AddBlockHeader(BlockHeaderBase blockHeader)
+        public async Task AddBlockHeader(BlockHeader blockHeader)
         {
             await _rocksDbContext.Save(blockHeader.Hash.BuildDataBlockKey(), _serializer.Serialize(blockHeader));
             await _rocksDbContext.Save(blockHeader.Index.BuildIxHeightToHashKey(), blockHeader.Hash.ToArray());
@@ -96,13 +96,7 @@ namespace NeoSharp.Persistence.RocksDB
             await _rocksDbContext.Save(transaction.Hash.BuildDataTransactionKey(), _serializer.Serialize(transaction));
         }
 
-        public async Task<BlockHeaderBase> GetBlockHeader(UInt256 hash)
-        {
-            var rawHeader = await _rocksDbContext.Get(hash.BuildDataBlockKey());
-            return rawHeader == null ? null : _deserializer.Deserialize<BlockHeaderBase>(rawHeader);
-        }
-
-        public async Task<BlockHeader> GetBlockHeaderExtended(UInt256 hash)
+        public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
             var rawHeader = await _rocksDbContext.Get(hash.BuildDataBlockKey());
             return rawHeader == null ? null : _deserializer.Deserialize<BlockHeader>(rawHeader);

@@ -13,7 +13,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
     {
         public Block CurrentBlock { get; } = new Block();
 
-        public BlockHeaderBase LastBlockHeader => CurrentBlock.GetBlockHeaderBase();
+        public BlockHeader LastBlockHeader => CurrentBlock.GetBlockHeader();
 
         public StampedPool<UInt256, Transaction> MemoryPool => new StampedPool<UInt256, Transaction>(PoolMaxBehaviour.DontAllowMore, 0, x => x.Value.Hash, null);
 
@@ -99,12 +99,12 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public Task<BlockHeaderBase> GetBlockHeader(uint height)
+        public Task<BlockHeader> GetBlockHeader(uint height)
         {
             throw new NotImplementedException();
         }
 
-        public Task<BlockHeaderBase> GetBlockHeader(UInt256 hash)
+        public Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
             throw new NotImplementedException();
         }
@@ -169,7 +169,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public Task AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders)
+        public Task AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders)
         {
             throw new NotImplementedException();
         }

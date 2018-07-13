@@ -57,21 +57,14 @@ namespace NeoSharp.Core.Persistence
         /// Adds a block header to the repository storage
         /// </summary>
         /// <param name="blockHeader">Block header</param>
-        Task AddBlockHeader(BlockHeaderBase blockHeader);
+        Task AddBlockHeader(BlockHeader blockHeader);
 
         /// <summary>
         /// Retrieves a block header by hash
         /// </summary>
         /// <param name="hash">Block id / hash</param>
         /// <returns>Block header with specified id</returns>
-        Task<BlockHeader> GetBlockHeaderExtended(UInt256 hash);
-
-        /// <summary>
-        /// Retrieves a block header by hash
-        /// </summary>
-        /// <param name="hash">Block id / hash</param>
-        /// <returns>Block header with specified id</returns>
-        Task<BlockHeaderBase> GetBlockHeader(UInt256 hash);
+        Task<BlockHeader> GetBlockHeader(UInt256 hash);
 
         /// <summary>
         /// Retrieves a hash by height / index

@@ -236,7 +236,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             const uint index = 0;
             var indexByteArray = index.BuildIxHeightToHashKey();
 
-            var blockHeaderParameter = new BlockHeaderBase
+            var blockHeaderParameter = new BlockHeader
             {
                 Hash = hash,
                 Index = index

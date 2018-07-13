@@ -39,7 +39,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             if (blockHash == null || blockHash == hashStop) return;
 
-            var blockHeaders = new List<BlockHeaderBase>();
+            var blockHeaders = new List<BlockHeader>();
 
             do
             {
@@ -55,6 +55,6 @@ namespace NeoSharp.Core.Messaging.Handlers
             await sender.Send(new BlockHeadersMessage(blockHeaders));
         }
 
-        private Task<BlockHeaderBase> GetBlockHeader(UInt256 hash) => _blockchain.GetBlockHeader(hash);
+        private Task<BlockHeader> GetBlockHeader(UInt256 hash) => _blockchain.GetBlockHeader(hash);
     }
 }

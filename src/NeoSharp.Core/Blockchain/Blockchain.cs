@@ -29,7 +29,7 @@ namespace NeoSharp.Core.Blockchain
 
         public Block CurrentBlock { get; private set; }
 
-        public BlockHeaderBase LastBlockHeader { get; private set; }
+        public BlockHeader LastBlockHeader { get; private set; }
 
         public static event EventHandler<Block> PersistCompleted;
 
@@ -194,7 +194,7 @@ namespace NeoSharp.Core.Blockchain
         {
             var header = await _repository.GetBlockHeader(hash);
 
-            return header != null && header.Type == BlockHeaderBase.HeaderType.Extended;
+            return header != null && header.Type == BlockHeader.HeaderType.Extended;
         }
 
         /// <inheritdoc />
@@ -208,9 +208,9 @@ namespace NeoSharp.Core.Blockchain
         /// <inheritdoc />
         public async Task<Block> GetBlock(UInt256 hash)
         {
-            var header = await _repository.GetBlockHeaderExtended(hash);
+            var header = await _repository.GetBlockHeader(hash);
 
-            if (header == null || header.Type != BlockHeaderBase.HeaderType.Extended) return null;
+            if (header == null || header.Type != BlockHeader.HeaderType.Extended) return null;
 
             var transactions = new Transaction[header.TransactionCount];
 
@@ -277,7 +277,7 @@ namespace NeoSharp.Core.Blockchain
         #region BlockHeaders
 
         /// <inheritdoc />
-        public Task AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders)
+        public Task AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders)
         {
             foreach (var header in blockHeaders)
             {
@@ -286,6 +286,14 @@ namespace NeoSharp.Core.Blockchain
                 if (header.Hash == null)
                 {
                     header.UpdateHash(_serializer, _crypto);
+                }
+
+                if (header.TransactionCount == 0)
+                {
+                    // We receive the header as extended on "BlockHeadersMessage" when is serialized from one complete Block
+                    // but we want to know when is a header and when not, without checking the hashes
+
+                    header.Type = BlockHeader.HeaderType.Header;
                 }
 
                 // Validate
@@ -318,7 +326,7 @@ namespace NeoSharp.Core.Blockchain
         }
 
         /// <inheritdoc />
-        public async Task<BlockHeaderBase> GetBlockHeader(uint height)
+        public async Task<BlockHeader> GetBlockHeader(uint height)
         {
             var hash = await _repository.GetBlockHashFromHeight(height);
 
@@ -328,7 +336,7 @@ namespace NeoSharp.Core.Blockchain
         }
 
         /// <inheritdoc />
-        public async Task<BlockHeaderBase> GetBlockHeader(UInt256 hash)
+        public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
             var header = await _repository.GetBlockHeader(hash);
 

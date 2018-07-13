@@ -10,10 +10,10 @@ namespace NeoSharp.Core.Messaging.Messages
         public BlockHeadersMessage()
         {
             Command = MessageCommand.headers;
-            Payload = new BlockHeadersPayload { Headers = new HeaderPayload[0] };
+            Payload = new BlockHeadersPayload { Headers = new BlockHeader[0] };
         }
 
-        public BlockHeadersMessage(IEnumerable<BlockHeaderBase> headers)
+        public BlockHeadersMessage(IEnumerable<BlockHeader> headers)
         {
             Command = MessageCommand.headers;
             Payload = new BlockHeadersPayload
@@ -22,23 +22,9 @@ namespace NeoSharp.Core.Messaging.Messages
                 (
                     u =>
                     {
-                        if (u.Type == BlockHeaderBase.HeaderType.Extended)
-                        {
-                            if (u is BlockHeader header)
-                            {
-                                // We need to send 
+                        // We need to ensure that is sent without TX 
 
-                                return new HeaderPayload() { Header = header.GetBlockHeaderBase() };
-                            }
-                            else if (u is Block block)
-                            {
-                                // We need to send 
-
-                                return new HeaderPayload() { Header = block.GetBlockHeaderBase() };
-                            }
-                        }
-
-                        return new HeaderPayload() { Header = u };
+                        return u.Trim();
                     }
                 )
                 .ToArray()
@@ -46,28 +32,9 @@ namespace NeoSharp.Core.Messaging.Messages
         }
     }
 
-    public class HeaderPayload
-    {
-        #region Serializable data
-
-        [BinaryProperty(0)]
-        public BlockHeaderBase Header;
-
-        // if (reader.ReadByte() != 0) throw new FormatException();
-
-        [BinaryProperty(1)]
-        public byte FakeTxSize = 0;
-
-        #endregion
-    }
-
     public class BlockHeadersPayload
     {
-        #region Serializable data
-
         [BinaryProperty(0)]
-        public HeaderPayload[] Headers;
-
-        #endregion
+        public BlockHeader[] Headers;
     }
 }

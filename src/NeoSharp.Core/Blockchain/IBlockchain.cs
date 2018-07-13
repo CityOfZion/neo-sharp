@@ -31,7 +31,7 @@ namespace NeoSharp.Core.Blockchain
         /// <summary>
         /// Last block header
         /// </summary>
-        BlockHeaderBase LastBlockHeader { get; }
+        BlockHeader LastBlockHeader { get; }
 
         /// <summary>
         /// Add the specified block to the blockchain
@@ -44,7 +44,7 @@ namespace NeoSharp.Core.Blockchain
         /// Add the specified block headers to the blockchain
         /// </summary>
         /// <param name="blockHeaders"></param>
-        Task AddBlockHeaders(IEnumerable<BlockHeaderBase> blockHeaders);
+        Task AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders);
 
         /// <summary>
         /// Determine whether the specified block is contained in the blockchain
@@ -86,14 +86,14 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="height"></param>
         /// <returns></returns>
-        Task<BlockHeaderBase> GetBlockHeader(uint height);
+        Task<BlockHeader> GetBlockHeader(uint height);
 
         /// <summary>
         /// Returns the corresponding block header information according to the specified hash value
         /// </summary>
         /// <param name="hash"></param>
         /// <returns></returns>
-        Task<BlockHeaderBase> GetBlockHeader(UInt256 hash);
+        Task<BlockHeader> GetBlockHeader(UInt256 hash);
 
         /// <summary>
         /// Returns the information for the next block based on the specified hash value

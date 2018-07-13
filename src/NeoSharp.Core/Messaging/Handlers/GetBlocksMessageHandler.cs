@@ -55,6 +55,6 @@ namespace NeoSharp.Core.Messaging.Handlers
             await sender.Send(new InventoryMessage(InventoryType.Block, blockHashes));
         }
 
-        private Task<BlockHeaderBase> GetBlockHeader(UInt256 hash) => _blockchain.GetBlockHeader(hash);
+        private Task<BlockHeader> GetBlockHeader(UInt256 hash) => _blockchain.GetBlockHeader(hash);
     }
 }

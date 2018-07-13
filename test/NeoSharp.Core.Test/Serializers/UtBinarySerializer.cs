@@ -352,7 +352,7 @@ namespace NeoSharp.Core.Test.Serializers
                 PreviousBlockHash = UInt256.Zero,
                 Timestamp = 3,
                 Version = 4,
-                Script = new Witness
+                Witness = new Witness
                 {
                     InvocationScript = new byte[0],
                     VerificationScript = new byte[0],
@@ -384,8 +384,8 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(blockHeader.Timestamp, blockHeaderCopy.Timestamp);
             Assert.AreEqual(blockHeader.Version, blockHeaderCopy.Version);
 
-            Assert.IsTrue(blockHeader.Script.InvocationScript.SequenceEqual(blockHeaderCopy.Script.InvocationScript));
-            Assert.IsTrue(blockHeader.Script.VerificationScript.SequenceEqual(blockHeaderCopy.Script.VerificationScript));
+            Assert.IsTrue(blockHeader.Witness.InvocationScript.SequenceEqual(blockHeaderCopy.Witness.InvocationScript));
+            Assert.IsTrue(blockHeader.Witness.VerificationScript.SequenceEqual(blockHeaderCopy.Witness.VerificationScript));
         }
     }
 }
