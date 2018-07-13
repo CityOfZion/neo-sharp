@@ -49,6 +49,7 @@ namespace NeoSharp.BinarySerialization.Serializers
                 .Select(u => new BinarySerializerCacheEntry(u.atr, u.prop))
             )
             .OrderBy(u => u.Order)
+            .GroupBy(u => u.Order, (a, b) => b.OrderByDescending(u => u.Override).FirstOrDefault())
             .ToArray();
         }
 

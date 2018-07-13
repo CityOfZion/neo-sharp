@@ -29,6 +29,7 @@ namespace NeoSharp.BinarySerialization.Cache
         public readonly string Name;
         public readonly int MaxLength;
         public readonly bool ReadOnly;
+        public readonly bool Override;
         public readonly BinaryPropertyAttribute Context;
 
         // Cache
@@ -78,11 +79,12 @@ namespace NeoSharp.BinarySerialization.Cache
             if (atr == null)
             {
                 Context = null;
-                MaxLength = 0;
-                Order = 0;
+                MaxLength = Order = 0;
+                Override = false;
             }
             else
             {
+                Override = atr.Override;
                 Context = atr;
                 MaxLength = atr.MaxLength;
                 Order = atr.Order;
