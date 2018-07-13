@@ -8,6 +8,7 @@ namespace NeoSharp.Core.Types
         /// Store the creation date
         /// </summary>
         public readonly DateTime Date;
+
         /// <summary>
         /// Store the value
         /// </summary>
@@ -43,5 +44,14 @@ namespace NeoSharp.Core.Types
         /// <param name="order">Order</param>
         public StampedPool(PoolMaxBehaviour behaviour, int max, Func<Stamp<TValue>, TKey> key, Comparison<Stamp<TValue>> order)
             : base(behaviour, max, key, order) { }
+
+        /// <summary>
+        /// Push
+        /// </summary>
+        /// <param name="value">Value</param>
+        public bool Push(TValue value)
+        {
+            return Push(new Stamp<TValue>(value));
+        }
     }
 }

@@ -46,7 +46,8 @@ namespace NeoSharp.Core.Messaging.Handlers
             // Transaction is not added right away but queued to be verified and added.
             // It is the reason why we do not broadcast immediately.
 
-            var transactionAdded = await _blockchain.AddTransaction(transaction);
+            var transactionAdded = _blockchain.MemoryPool.Push(transaction);
+
             if (!transactionAdded)
             {
                 _logger.LogWarning($"The transaction \"{transaction.Hash.ToString(true)}\" was not added to the blockchain.");
