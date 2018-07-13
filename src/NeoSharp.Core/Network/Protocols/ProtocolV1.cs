@@ -101,7 +101,7 @@ namespace NeoSharp.Core.Network.Protocols
 
                     // TODO: Prevent create the dummy object
 
-                    messageWithPayload.Payload = _serializer.Deserialize(payloadBuffer,messageWithPayload.Payload.GetType());
+                    messageWithPayload.Payload = _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
                 }
 
                 return message;

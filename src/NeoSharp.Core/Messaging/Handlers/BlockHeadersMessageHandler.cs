@@ -6,6 +6,7 @@ using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Types;
 
@@ -33,6 +34,10 @@ namespace NeoSharp.Core.Messaging.Handlers
                 .ToList();
 
             if (missingBlockHeaders.Count == 0) return;
+
+            // TODO: headers was sent sometimes with "Extend" format, because in the other chain is like this , maybe we need to check if is block, if TX is inside
+
+            Parallel.ForEach(missingBlockHeaders, p => p.Type = BlockHeaderBase.HeaderType.Header);
 
             await _blockchain.AddBlockHeaders(missingBlockHeaders);
 

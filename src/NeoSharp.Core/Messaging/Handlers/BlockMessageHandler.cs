@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
@@ -35,7 +37,10 @@ namespace NeoSharp.Core.Messaging.Handlers
             var block = message.Payload;
             if (block == null) return;
 
-            // TODO: check if the hash of the block is known already
+            if (block.Hash == null)
+            {
+                block.UpdateHash(BinarySerializer.Default, ICrypto.Default);
+            }
 
             var blockExists = await _blockchain.ContainsBlock(block.Hash);
             if (blockExists)

@@ -49,14 +49,16 @@ namespace NeoSharp.Core.Network
         public IPEndPoint ToIpEndPoint()
         {
             var uriType = Uri.CheckHostName(Host);
-            if (uriType == UriHostNameType.Dns) {
+            if (uriType == UriHostNameType.Dns)
+            {
                 //check dns
                 var hostEntry = Dns.GetHostEntry(Host);
                 if (hostEntry.AddressList.Length == 0) return null;
             }
             IPAddress ipAddress;
             IPEndPoint ipEndPoint = null;
-            if (IPAddress.TryParse(Host, out ipAddress)) {
+            if (IPAddress.TryParse(Host, out ipAddress))
+            {
                 ipEndPoint = new IPEndPoint(ipAddress, Port);
             }
             return ipEndPoint;
@@ -122,12 +124,14 @@ namespace NeoSharp.Core.Network
                 port = int.Parse(address.Substring(portIndex + 1));
             }
 
-            Protocol protocolEnum;
-            Enum.TryParse<Protocol>(protocol, out protocolEnum);
+            if (!Enum.TryParse(typeof(Protocol), protocol, true, out var protocolEnum))
+            {
+                protocolEnum = Protocol.Unknown;
+            }
 
             return new EndPoint
             {
-                Protocol = protocolEnum,
+                Protocol = (Protocol)protocolEnum,
                 Host = host,
                 Port = port
             };
