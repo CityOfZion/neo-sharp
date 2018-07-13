@@ -25,6 +25,149 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             testee.Should().BeOfType<RocksDbRepository>();
         }
 
+        #region IRepository System Members
+
+        [TestMethod]
+        public async Task GetTotalBlockHeight_NoValueFound_ReturnsUIntMinValue()
+        {
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            rocksDbContextMock
+                .Setup(x => x.Get(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysCurrentBlock}))))
+                .ReturnsAsync((byte[]) null);
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            var result = await testee.GetTotalBlockHeight();
+
+            result.Should().Be(uint.MinValue);
+        }
+
+        [TestMethod]
+        public async Task GetTotalBlockHeight_ValueFound_ReturnsValue()
+        {
+            var expectedResult = (uint) RandomInt();
+            var expectedBytes = BitConverter.GetBytes(expectedResult);
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            rocksDbContextMock
+                .Setup(x => x.Get(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysCurrentBlock}))))
+                .ReturnsAsync(expectedBytes);
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            var result = await testee.GetTotalBlockHeight();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [TestMethod]
+        public async Task SetTotalBlockHeight_SaveCorrectKeyValue()
+        {
+            var input = (uint) RandomInt();
+            var expectedValue = BitConverter.GetBytes(input);
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            await testee.SetTotalBlockHeight(input);
+
+            rocksDbContextMock.Verify(m =>
+                m.Save(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysCurrentBlock})),
+                    It.Is<byte[]>(b => b.SequenceEqual(expectedValue))));
+        }
+
+        [TestMethod]
+        public async Task GetVersion_NoValueFound_ReturnsUIntMinValue()
+        {
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            rocksDbContextMock
+                .Setup(x => x.Get(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysVersion}))))
+                .ReturnsAsync((byte[]) null);
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            var result = await testee.GetVersion();
+
+            result.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetVersion_ValueFound_ReturnsValue()
+        {
+            var expectedResult = RandomString(RandomInt(10));
+            var expectedBytes = new byte[1];
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            rocksDbContextMock
+                .Setup(x => x.Get(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysVersion}))))
+                .ReturnsAsync(expectedBytes);
+            var serializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
+            serializerMock.Setup(m => m.Deserialize<string>(expectedBytes, null)).Returns(expectedResult);
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            var result = await testee.GetVersion();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [TestMethod]
+        public async Task SetVersion_SaveCorrectKeyValue()
+        {
+            var input = RandomString(RandomInt(10));
+            var expectedValue = new byte[1];
+            var serializerMock = AutoMockContainer.GetMock<IBinarySerializer>();
+            serializerMock.Setup(m => m.Serialize(input, null)).Returns(expectedValue);
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            await testee.SetVersion(input);
+
+            rocksDbContextMock.Verify(m =>
+                m.Save(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysVersion})),
+                    expectedValue));
+        }
+
+        [TestMethod]
+        public async Task GetTotalBlockHeaderHeight_NoValueFound_ReturnsUIntMinValue()
+        {
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            rocksDbContextMock
+                .Setup(x => x.Get(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysCurrentHeader}))))
+                .ReturnsAsync((byte[]) null);
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            var result = await testee.GetTotalBlockHeaderHeight();
+
+            result.Should().Be(uint.MinValue);
+        }
+
+        [TestMethod]
+        public async Task GetTotalBlockHeaderHeight_ValueFound_ReturnsValue()
+        {
+            var expectedResult = (uint) RandomInt();
+            var expectedBytes = BitConverter.GetBytes(expectedResult);
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            rocksDbContextMock
+                .Setup(x => x.Get(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysCurrentHeader}))))
+                .ReturnsAsync(expectedBytes);
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            var result = await testee.GetTotalBlockHeaderHeight();
+
+            result.Should().Be(expectedResult);
+        }
+
+        [TestMethod]
+        public async Task SetTotalBlockHeaderHeight_SaveCorrectKeyValue()
+        {
+            var input = (uint) RandomInt();
+            var expectedValue = BitConverter.GetBytes(input);
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            await testee.SetTotalBlockHeaderHeight(input);
+
+            rocksDbContextMock.Verify(m =>
+                m.Save(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysCurrentHeader})),
+                    It.Is<byte[]>(b => b.SequenceEqual(expectedValue))));
+        }
+
+        #endregion
+
         #region IRepository Data Members
 
         [TestMethod]
@@ -36,7 +179,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
             rocksDbContextMock
                 .Setup(x => x.Get(heightParameter.BuildIxHeightToHashKey()))
-                .Returns(() => Task.FromResult<byte[]>(null));
+                .ReturnsAsync((byte[]) null);
 
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
@@ -66,7 +209,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(x => x.Get(It.Is<byte[]>(a =>
                     a.Where((b, i) => b == heightByteArray[i]).Count() == heightByteArray.Length)))
-                .Returns(() => Task.FromResult(byteArrayParameter));
+                .ReturnsAsync(byteArrayParameter);
 
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
@@ -327,6 +470,69 @@ namespace NeoSharp.Persistence.RocksDB.Tests
 
             rocksDbContextMock.Verify(
                 m => m.Delete(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateValidatorKey()))));
+        }
+
+        [TestMethod]
+        public async Task GetAsset_NoValue_ReturnsNull()
+        {
+            var input = UInt256.Parse(RandomInt().ToString("X64"));
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            rocksDbContextMock
+                .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateAssetKey()))))
+                .ReturnsAsync((byte[]) null);
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            var result = await testee.GetAsset(input);
+
+            result.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task GetAsset_ValueFound_ReturnsValidator()
+        {
+            var input = UInt256.Parse(RandomInt().ToString("X64"));
+            var expectedBytes = new byte[1];
+            var expectedResult = new Asset();
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            rocksDbContextMock
+                .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateAssetKey()))))
+                .ReturnsAsync(expectedBytes);
+            var deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
+            deserializerMock.Setup(m => m.Deserialize<Asset>(expectedBytes, null)).Returns(expectedResult);
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            var result = await testee.GetAsset(input);
+
+            result.Should().Be(expectedResult);
+        }
+
+        [TestMethod]
+        public async Task AddAsset_WritesCorrectKeyValue()
+        {
+            var inputHash = UInt256.Parse(RandomInt().ToString("X64"));
+            var input = new Asset {Id = inputHash};
+            var expectedBytes = new byte[1];
+            var serializerMock = AutoMockContainer.GetMock<IBinarySerializer>();
+            serializerMock.Setup(m => m.Serialize(input, null)).Returns(expectedBytes);
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+            await testee.AddAsset(input);
+
+            rocksDbContextMock.Verify(m =>
+                m.Save(It.Is<byte[]>(b => b.SequenceEqual(inputHash.BuildStateAssetKey())), expectedBytes));
+        }
+
+        [TestMethod]
+        public async Task DeleteAsset_DeletesCorrectKey()
+        {
+            var input = UInt256.Parse(RandomInt().ToString("X64"));
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            await testee.DeleteAsset(input);
+
+            rocksDbContextMock.Verify(
+                m => m.Delete(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateAssetKey()))));
         }
 
         [TestMethod]

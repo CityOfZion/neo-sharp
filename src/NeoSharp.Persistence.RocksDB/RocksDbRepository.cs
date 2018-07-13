@@ -19,7 +19,8 @@ namespace NeoSharp.Persistence.RocksDB
 
         private readonly byte[] _sysCurrentBlockKey = {(byte) DataEntryPrefix.SysCurrentBlock};
         private readonly byte[] _sysCurrentBlockHeaderKey = {(byte) DataEntryPrefix.SysCurrentHeader};
-        private readonly byte[] _sysCurrentIndexHeightKey = {(byte) DataEntryPrefix.IxIndexHeight};
+        private readonly byte[] _sysVersionKey = {(byte) DataEntryPrefix.SysVersion};
+        private readonly byte[] _indexHeightKey = {(byte) DataEntryPrefix.IxIndexHeight};
 
         #endregion
 
@@ -35,6 +36,43 @@ namespace NeoSharp.Persistence.RocksDB
             _rocksDbContext = rocksDbContext ?? throw new ArgumentNullException(nameof(rocksDbContext));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
+        }
+
+        #endregion
+
+        #region IRepository System Members
+
+        public async Task<uint> GetTotalBlockHeight()
+        {
+            var raw = await _rocksDbContext.Get(_sysCurrentBlockKey);
+            return raw == null ? uint.MinValue : BitConverter.ToUInt32(raw, 0);
+        }
+
+        public async Task SetTotalBlockHeight(uint height)
+        {
+            await _rocksDbContext.Save(_sysCurrentBlockKey, BitConverter.GetBytes(height));
+        }
+
+        public async Task<uint> GetTotalBlockHeaderHeight()
+        {
+            var raw = await _rocksDbContext.Get(_sysCurrentBlockHeaderKey);
+            return raw == null ? uint.MinValue : BitConverter.ToUInt32(raw, 0);
+        }
+
+        public async Task SetTotalBlockHeaderHeight(uint height)
+        {
+            await _rocksDbContext.Save(_sysCurrentBlockHeaderKey, BitConverter.GetBytes(height));
+        }
+
+        public async Task<string> GetVersion()
+        {
+            var raw = await _rocksDbContext.Get(_sysVersionKey);
+            return raw == null ? null : _deserializer.Deserialize<string>(raw);
+        }
+
+        public async Task SetVersion(string version)
+        {
+            await _rocksDbContext.Save(_sysVersionKey, _serializer.Serialize(version));
         }
 
         #endregion
@@ -61,45 +99,18 @@ namespace NeoSharp.Persistence.RocksDB
         public async Task<BlockHeaderBase> GetBlockHeader(UInt256 hash)
         {
             var rawHeader = await _rocksDbContext.Get(hash.BuildDataBlockKey());
-
             return rawHeader == null ? null : _deserializer.Deserialize<BlockHeaderBase>(rawHeader);
         }
 
         public async Task<BlockHeader> GetBlockHeaderExtended(UInt256 hash)
         {
             var rawHeader = await _rocksDbContext.Get(hash.BuildDataBlockKey());
-
             return rawHeader == null ? null : _deserializer.Deserialize<BlockHeader>(rawHeader);
-        }
-
-        public async Task<uint> GetTotalBlockHeight()
-        {
-            var raw = await _rocksDbContext.Get(_sysCurrentBlockKey);
-
-            return raw == null ? uint.MinValue : BitConverter.ToUInt32(raw, 0);
-        }
-
-        public async Task SetTotalBlockHeight(uint height)
-        {
-            await _rocksDbContext.Save(_sysCurrentBlockKey, BitConverter.GetBytes(height));
-        }
-
-        public async Task<uint> GetTotalBlockHeaderHeight()
-        {
-            var raw = await _rocksDbContext.Get(_sysCurrentBlockHeaderKey);
-
-            return raw == null ? uint.MinValue : BitConverter.ToUInt32(raw, 0);
-        }
-
-        public async Task SetTotalBlockHeaderHeight(uint height)
-        {
-            await _rocksDbContext.Save(_sysCurrentBlockHeaderKey, BitConverter.GetBytes(height));
         }
 
         public async Task<Transaction> GetTransaction(UInt256 hash)
         {
             var rawTransaction = await _rocksDbContext.Get(hash.BuildDataTransactionKey());
-
             return rawTransaction == null ? null : _deserializer.Deserialize<Transaction>(rawTransaction);
         }
 
@@ -161,6 +172,22 @@ namespace NeoSharp.Persistence.RocksDB
             await _rocksDbContext.Delete(point.BuildStateValidatorKey());
         }
 
+        public async Task<Asset> GetAsset(UInt256 assetId)
+        {
+            var raw = await _rocksDbContext.Get(assetId.BuildStateAssetKey());
+            return raw == null ? null : _deserializer.Deserialize<Asset>(raw);
+        }
+
+        public async Task AddAsset(Asset asset)
+        {
+            await _rocksDbContext.Save(asset.Id.BuildStateAssetKey(), _serializer.Serialize(asset));
+        }
+
+        public async Task DeleteAsset(UInt256 assetId)
+        {
+            await _rocksDbContext.Delete(assetId.BuildStateAssetKey());
+        }
+
         public async Task<Contract> GetContract(UInt160 contractHash)
         {
             var raw = await _rocksDbContext.Get(contractHash.BuildStateContractKey());
@@ -203,13 +230,13 @@ namespace NeoSharp.Persistence.RocksDB
 
         public async Task<uint> GetIndexHeight()
         {
-            var raw = await _rocksDbContext.Get(_sysCurrentIndexHeightKey);
+            var raw = await _rocksDbContext.Get(_indexHeightKey);
             return raw == null ? uint.MinValue : BitConverter.ToUInt32(raw, 0);
         }
 
         public async Task SetIndexHeight(uint height)
         {
-            await _rocksDbContext.Save(_sysCurrentIndexHeightKey, BitConverter.GetBytes(height));
+            await _rocksDbContext.Save(_indexHeightKey, BitConverter.GetBytes(height));
         }
 
         public async Task<HashSet<CoinReference>> GetIndexConfirmed(UInt160 hash)

@@ -23,7 +23,7 @@ namespace NeoSharp.Persistence.RedisDB
 
         #endregion
 
-        #region Construtor
+        #region Constructor
 
         public RedisDbRepository(
             IRedisDbContext redisDbContext,
@@ -33,6 +33,46 @@ namespace NeoSharp.Persistence.RedisDB
             _redisDbContext = redisDbContext ?? throw new ArgumentNullException(nameof(redisDbContext));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _deserializer = deserializer ?? throw new ArgumentNullException(nameof(deserializer));
+        }
+
+        #endregion
+
+        #region IRepository System Members
+
+        public Task SetTotalBlockHeight(uint height)
+        {
+            throw new NotImplementedException();
+            // TODO: redis logic
+            //_redis.Database.AddToIndex(RedisIndex.BlockHeight, height);
+        }
+
+        public Task<uint> GetTotalBlockHeight()
+        {
+            //Use the block height secondary index to tell us what our block height is
+            //return _redis.Database.GetIndexLength(RedisIndex.BlockHeight);
+
+            // TODO: redis logic
+            throw new NotImplementedException();
+        }
+
+        public Task<uint> GetTotalBlockHeaderHeight()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task SetTotalBlockHeaderHeight(uint height)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<string> GetVersion()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task SetVersion(string version)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -94,32 +134,6 @@ namespace NeoSharp.Persistence.RedisDB
                 : JsonConvert.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
         }
 
-        public Task SetTotalBlockHeight(uint height)
-        {
-            throw new NotImplementedException();
-            // TODO: redis logic
-            //_redis.Database.AddToIndex(RedisIndex.BlockHeight, height);
-        }
-
-        public Task<uint> GetTotalBlockHeight()
-        {
-            //Use the block height secondary index to tell us what our block height is
-            //return _redis.Database.GetIndexLength(RedisIndex.BlockHeight);
-
-            // TODO: redis logic
-            throw new NotImplementedException();
-        }
-
-        public Task<uint> GetTotalBlockHeaderHeight()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task SetTotalBlockHeaderHeight(uint height)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<Transaction> GetTransaction(UInt256 hash)
         {
             var transactionRedisValue = await _redisDbContext.Get(hash.BuildDataTransactionKey());
@@ -174,6 +188,21 @@ namespace NeoSharp.Persistence.RedisDB
         }
 
         public async Task DeleteValidator(ECPoint point)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<Asset> GetAsset(UInt256 assetId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task AddAsset(Asset asset)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task DeleteAsset(UInt256 assetId)
         {
             throw new NotImplementedException();
         }
