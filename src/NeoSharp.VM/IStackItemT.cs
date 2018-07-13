@@ -19,6 +19,15 @@
         }
 
         /// <summary>
+        /// Get raw object
+        /// </summary>
+        /// <returns>Raw object</returns>
+        public override object GetRawObject()
+        {
+            return Value;
+        }
+
+        /// <summary>
         /// String representation
         /// </summary>
         public override string ToString()

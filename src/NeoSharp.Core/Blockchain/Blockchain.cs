@@ -81,7 +81,7 @@ namespace NeoSharp.Core.Blockchain
 
             // TODO: Check Task system
 
-            IntervalScheduler.RunTask(TimeSpan.FromSeconds(1), _cancelPersistTask, async () =>
+            IntervalScheduler.Run(TimeSpan.FromSeconds(1), _cancelPersistTask, async () =>
               {
                   while (await PersistBlock())
                   {

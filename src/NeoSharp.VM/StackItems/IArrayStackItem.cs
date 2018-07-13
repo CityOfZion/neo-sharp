@@ -52,6 +52,26 @@ namespace NeoSharp.VM
         public IArrayStackItem(IExecutionEngine engine, bool isStruct) : base(engine, isStruct ? EStackItemType.Struct : EStackItemType.Array) { }
 
         /// <summary>
+        /// Get raw object
+        /// </summary>
+        /// <returns>Raw object</returns>
+        public override object GetRawObject()
+        {
+            var size = Count;
+            var ret = new object[size];
+
+            for (var x = 0; x < size; x++)
+            {
+                using (var item = this[x])
+                {
+                    ret[x] = item.GetRawObject();
+                }
+            }
+
+            return ret;
+        }
+
+        /// <summary>
         /// Is Equal
         /// </summary>
         /// <param name="other">Other</param>

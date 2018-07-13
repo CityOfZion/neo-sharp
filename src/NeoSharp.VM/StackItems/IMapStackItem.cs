@@ -53,6 +53,26 @@ namespace NeoSharp.VM
 
         #region Read
 
+        /// <summary>
+        /// Get raw object
+        /// </summary>
+        /// <returns>Raw object</returns>
+        public override object GetRawObject()
+        {
+            var ret = new Dictionary<object, object>();
+
+            foreach (KeyValuePair<IStackItem, IStackItem> keyValue in this)
+            {
+                using (keyValue.Key)
+                using (keyValue.Value)
+                {
+                    ret.Add(keyValue.Key.GetRawObject(), keyValue.Value.GetRawObject());
+                }
+            }
+
+            return ret;
+        }
+
         public abstract bool ContainsKey(IStackItem key);
 
         public abstract bool TryGetValue(IStackItem key, out IStackItem value);

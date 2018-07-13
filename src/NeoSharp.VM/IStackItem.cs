@@ -20,7 +20,7 @@ namespace NeoSharp.VM
         /// Is Disposed
         /// </summary>
         public abstract bool IsDisposed { get; }
-
+        
         /// <summary>
         /// Constructor
         /// </summary>
@@ -36,6 +36,12 @@ namespace NeoSharp.VM
         /// Convert to Byte array
         /// </summary>
         public abstract byte[] ToByteArray();
+
+        /// <summary>
+        /// Get Raw object
+        /// </summary>
+        /// <returns>Raw object</returns>
+        public abstract object GetRawObject();
 
         /// <summary>
         /// Equals
