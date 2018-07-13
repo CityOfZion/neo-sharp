@@ -377,16 +377,23 @@ namespace NeoSharp.Core.Blockchain
             return transactions;
         }
 
+        public async Task<bool> AddTransaction(Transaction transaction)
+        {
+            // TODO: It is a bit more complicated
+            await _repository.AddTransaction(transaction);
+
+            return true;
+        }
+
         /// <summary>
         /// Determine whether the specified transaction is included in the blockchain
         /// </summary>
         /// <param name="hash">Transaction hash</param>
         /// <returns>Return true if the specified transaction is included</returns>
-        public bool ContainsTransaction(UInt256 hash)
+        public async Task<bool> ContainsTransaction(UInt256 hash)
         {
             // TODO: Optimize this
-
-            return _repository.GetTransaction(hash) != null;
+            return await _repository.GetTransaction(hash) != null;
         }
 
         #endregion

@@ -34,7 +34,12 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public bool ContainsTransaction(UInt256 hash)
+        public Task<bool> AddTransaction(Transaction transaction)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ContainsTransaction(UInt256 hash)
         {
             throw new NotImplementedException();
         }

@@ -58,6 +58,14 @@ namespace NeoSharp.Core.Models
         /// <summary>
         /// Constructor
         /// </summary>
+        public Transaction()
+        {
+            // Just for serialization
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
         /// <param name="type">Type</param>
         protected Transaction(TransactionType type)
         {

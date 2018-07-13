@@ -111,12 +111,18 @@ namespace NeoSharp.Core.Blockchain
 
         #endregion
 
+        #region Transactions
+
+        Task<bool> AddTransaction(Transaction transaction);
+
         /// <summary>
         /// Determine whether the specified transaction is included in the blockchain
         /// </summary>
         /// <param name="hash">Transaction hash</param>
         /// <returns>Return true if the specified transaction is included</returns>
-        bool ContainsTransaction(UInt256 hash);
+        Task<bool> ContainsTransaction(UInt256 hash);
+
+        #endregion
 
         bool ContainsUnspent(CoinReference input);
 

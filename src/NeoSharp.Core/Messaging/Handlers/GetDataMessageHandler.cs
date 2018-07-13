@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
@@ -81,45 +82,38 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             var transactions = await _blockchain.GetTransactions(transactionHashes);
 
-            if (transactions.Any())
-            {
-                // TODO: shall we send an empty message?
-
-                await peer.Send(new TransactionMessage(transactions));
-            }
+            // TODO: The more efficient operation would be to send many transactions per one message
+            // but it breaks backward compatibility
+            await Task.WhenAll(transactions.Select(t => peer.Send(new TransactionMessage(t))));
         }
 
         private async Task SendBlocks(IReadOnlyCollection<UInt256> blockHashes, IPeer peer)
         {
             var blocks = await _blockchain.GetBlocks(blockHashes);
 
-            if (blocks.Any())
+            if (!blocks.Any()) return;
+
+            var filter = peer.BloomFilter;
+
+            if (filter == null)
             {
-                // TODO: shall we send an empty message?
+                // TODO: The more efficient operation would be to send many blocks per one message
+                // but it breaks backward compatibility
+                await Task.WhenAll(blocks.Select(b => peer.Send(new BlockMessage(b))));
+            }
+            else
+            {
+                var merkleBlocks = blocks
+                    .ToDictionary(
+                        b => b,
+                        b => new BitArray(b.Transactions
+                            .Select(tx => TestFilter(filter, tx))
+                            .ToArray()
+                        )
+                    );
 
-                var filter = peer.BloomFilter;
-
-                if (filter == null)
-                {
-                    foreach (var block in blocks)
-                    {
-                        await peer.Send(new BlockMessage(block));
-                    }
-                }
-                else
-                {
-                    var merkleBlocks = blocks
-                        .ToDictionary(
-                            b => b,
-                            b => new BitArray(b.Transactions
-                                .Select(tx => TestFilter(filter, tx))
-                                .ToArray()
-                            )
-                        );
-
-                    // TODO: Why don't we have this message?
-                    // await peer.Send(new MerkleBlockMessage(merkleBlocks));
-                }
+                // TODO: Why don't we have this message?
+                // await peer.Send(new MerkleBlockMessage(merkleBlocks));
             }
         }
 

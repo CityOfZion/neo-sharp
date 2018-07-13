@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
+using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
@@ -10,7 +12,7 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Variables
 
-        private readonly IBroadcaster _broadcaster;
+        private readonly IBlockchain _blockchain;
         private readonly ILogger<TransactionMessageHandler> _logger;
 
         #endregion
@@ -18,22 +20,38 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="broadcaster">Broadcaster</param>
+        /// <param name="blockchain">Blockchain</param>
         /// <param name="logger">Logger</param>
-        public TransactionMessageHandler(IBroadcaster broadcaster, ILogger<TransactionMessageHandler> logger)
+        public TransactionMessageHandler(IBlockchain blockchain, ILogger<TransactionMessageHandler> logger)
         {
-            _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
+            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public Task Handle(TransactionMessage message, IPeer sender)
+        public async Task Handle(TransactionMessage message, IPeer sender)
         {
-            foreach (var tx in message.Payload.Transactions)
-            {
+            var transaction = message.Payload;
 
+            if (transaction is MinerTransaction) return;
+
+            // TODO: check if the hash of the transaction is known already
+
+            var transactionExists = await _blockchain.ContainsTransaction(transaction.Hash);
+            if (transactionExists)
+            {
+                _logger.LogInformation($"The transaction \"{transaction.Hash.ToString(true)}\" exists already on the blockchain.");
+                return;
             }
 
-            return Task.CompletedTask;
+            // Transaction is not added right away but queued to be verified and added.
+            // It is the reason why we do not broadcast immediately.
+
+            var transactionAdded = await _blockchain.AddTransaction(transaction);
+            if (!transactionAdded)
+            {
+                _logger.LogWarning($"The transaction \"{transaction.Hash.ToString(true)}\" was not added to the blockchain.");
+                return;
+            }
         }
     }
 }
