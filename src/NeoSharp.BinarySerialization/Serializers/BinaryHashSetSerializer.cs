@@ -34,9 +34,15 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="maxLength">Max length</param>
         public BinaryHashSetSerializer(Type typeSet, IBinaryCustomSerializable serializer, int maxLength = ushort.MaxValue)
         {
-            MaxLength = maxLength;
             _type = typeSet;
             _itemType = typeSet.GetElementType();
+
+            if (_type.IsInterface)
+            {
+                // TODO: Compose a HashTag<T> type
+            }
+
+            MaxLength = maxLength;
             _serializer = serializer;
             _addMethod = typeSet.GetMethod("Add");
             _countMethod = typeSet.GetProperty("Count");

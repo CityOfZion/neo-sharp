@@ -11,11 +11,12 @@ using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Test.Types;
 using NeoSharp.Core.Types;
+using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Core.Test.Serializers
 {
     [TestClass]
-    public class UtBinarySerializer
+    public class UtBinarySerializer : TestBase
     {
         private ICrypto _crypto;
         private IBinarySerializer _serializer;
@@ -34,26 +35,32 @@ namespace NeoSharp.Core.Test.Serializers
         public class SetTest
         {
             [BinaryProperty(0)]
-            public HashSet<int> Sample = new HashSet<int>();
+            public HashSet<int> Set = new HashSet<int>();
+
+            [BinaryProperty(1)]
+            public Dictionary<int, string> Dictionary = new Dictionary<int, string>();
         }
 
         [TestMethod]
-        public void Serialize_HashSet()
+        public void Serialize_Sets()
         {
             var set = new SetTest();
-            var random = new Random(Environment.TickCount);
 
-            for (int x = 0, m = random.Next(1, ushort.MaxValue); x < m; x++)
+            for (int x = 0, m = RandomInt(byte.MaxValue) * 2; x < m; x++)
             {
-                set.Sample.Add(random.Next());
+                set.Set.Add(RandomInt());
+                set.Dictionary.Add(RandomInt(), RandomString(RandomInt(ushort.MaxValue)));
             }
 
             var ret = _serializer.Serialize(set);
             var clone = _deserializer.Deserialize<SetTest>(ret);
 
-            Assert.AreEqual(set.Sample.Count, clone.Sample.Count);
+            Assert.AreEqual(set.Set.Count, clone.Set.Count);
+            Assert.AreEqual(set.Dictionary.Count, clone.Dictionary.Count);
 
-            CollectionAssert.AreEqual(set.Sample.ToArray(), clone.Sample.ToArray());
+            CollectionAssert.AreEqual(set.Set.ToArray(), clone.Set.ToArray());
+            CollectionAssert.AreEqual(set.Dictionary.Keys.ToArray(), clone.Dictionary.Keys.ToArray());
+            CollectionAssert.AreEqual(set.Dictionary.Values.ToArray(), clone.Dictionary.Values.ToArray());
         }
 
         [TestMethod]

@@ -36,17 +36,17 @@ namespace NeoSharp.Application.Client
             _consoleWriter.WriteLine("Pools", ConsoleOutputStyle.Information);
             _consoleWriter.WriteLine("");
 
-            WriteStatePercent("Memory", memStr.PadLeft(numSpaces, ' '), _blockchain.MemoryPool.Count, _blockchain.MemoryPool.Max);
-            WriteStatePercent("Blocks", blockStr.PadLeft(numSpaces, ' '), _blockchain.BlockPool.Count, _blockchain.BlockPool.Max);
+            WriteStatePercent(" Memory", memStr.PadLeft(numSpaces, ' '), _blockchain.MemoryPool.Count, _blockchain.MemoryPool.Max);
+            WriteStatePercent(" Blocks", blockStr.PadLeft(numSpaces, ' '), _blockchain.BlockPool.Count, _blockchain.BlockPool.Max);
 
             _consoleWriter.WriteLine("");
-            _consoleWriter.WriteLine("Blockchain height", ConsoleOutputStyle.Information);
+            _consoleWriter.WriteLine("Heights", ConsoleOutputStyle.Information);
             _consoleWriter.WriteLine("");
 
-            _consoleWriter.WriteLine("Header: " + headStr.PadLeft(numSpaces, ' ') + " ");
+            _consoleWriter.WriteLine("Headers: " + headStr.PadLeft(numSpaces, ' ') + " ");
 
-            WriteStatePercent("Blocks", blStr.PadLeft(numSpaces, ' '), _blockchain.CurrentBlock.Index, _blockchain.LastBlockHeader.Index);
-            WriteStatePercent(" Index", blIndex.PadLeft(numSpaces, ' '), 0, _blockchain.CurrentBlock.Index);
+            WriteStatePercent(" Blocks", blStr.PadLeft(numSpaces, ' '), _blockchain.CurrentBlock.Index, _blockchain.LastBlockHeader.Index);
+            WriteStatePercent("  Index", blIndex.PadLeft(numSpaces, ' '), 0, _blockchain.CurrentBlock.Index);
         }
 
         /// <summary>

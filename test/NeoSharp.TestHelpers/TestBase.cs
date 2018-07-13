@@ -30,8 +30,10 @@ namespace NeoSharp.TestHelpers
         public string RandomString(int length)
         {
             const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            return new string(Enumerable.Repeat(chars, length)
-              .Select(s => s[_rand.Next(s.Length)]).ToArray());
+
+            // TODO: Very slow method, for 65K iteration with long text string
+
+            return new string(Enumerable.Repeat(chars, length).Select(s => s[_rand.Next(s.Length)]).ToArray());
         }
 
         /// <summary>
