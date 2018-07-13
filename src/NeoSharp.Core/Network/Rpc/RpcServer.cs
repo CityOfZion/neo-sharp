@@ -173,7 +173,7 @@ namespace NeoSharp.Core.Network.Rpc
         }
 
         /// <summary>
-        /// Start server
+        /// Starts the server
         /// </summary>
         public void Start()
         {
@@ -218,9 +218,9 @@ namespace NeoSharp.Core.Network.Rpc
         }
 
         /// <summary>
-        /// Stop server
+        /// Stops the server
         /// </summary>
-        public void Stop()
+        public  void Stop()
         {
             if (_host == null)
             {
@@ -243,6 +243,82 @@ namespace NeoSharp.Core.Network.Rpc
         public void Dispose()
         {
             Stop();
+        }
+
+        /// <summary>
+        /// Register an operation that can be called by the server.
+        /// Usage:
+        /// server.BindOperation("controllerName", "operationName", new Func<int, bool>(MyMethod));
+        /// </summary>
+        /// <param name="controllerName">controller name is used to organize many operations in a group</param>
+        /// <param name="operationName">operation name</param>
+        /// <param name="anyMethod">the method to be called when the operation is called</param>
+        public void BindOperation(string controllerName, string operationName, Delegate anyMethod)
+        {
+            throw new NotImplementedException();
+        }
+        
+        /// <summary>
+        /// Register many operations organized in a controller class,
+        /// The operations should be methods annotated with [RpcOperation] or [RpcOperation("operationName")]
+        /// </summary>
+        /// <param name="controller">the controller class</param>
+        public void BindController(Type controller)
+        {
+            throw new NotImplementedException();
+        }
+        
+        /// <summary>
+        /// Calls the server operation
+        /// </summary>
+        /// <param name="controllerName">the controller name</param>
+        /// <param name="operationName">the operation name</param>
+        /// <param name="parameters">all parameters expected by the operation</param>
+        /// <typeparam name="T">the return type</typeparam>
+        /// <returns>the return of the operation</returns>
+        public T CallOperation<T>(string controllerName, string operationName, params object[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+        
+        /// <summary>
+        /// Calls the server operation
+        /// </summary>
+        /// <param name="controllerName">the controller name</param>
+        /// <param name="operationName">the operation name</param>
+        /// <param name="parameters">all parameters expected by the operation</param>
+        /// <returns>the return of the operation, not casted</returns>
+        public object CallOperation(string controllerName, string operationName, params object[] parameters)
+        {
+            throw new NotImplementedException();
+        }
+        
+        /// <summary>
+        /// removes a previous registered operation from the server
+        /// </summary>
+        /// <param name="controllerName">the controller name</param>
+        /// <param name="operationName">the operation name</param>
+        public void UnbindOperation(string controllerName, string operationName)
+        {
+            throw new NotImplementedException();
+        }
+        
+        /// <summary>
+        /// removes all operations of a previous registered controller and registered operation with the informed
+        /// controller name
+        /// </summary>
+        /// <param name="controllerName">the controller name</param>
+        public void UnbindController(string controllerName)
+        {
+            throw new NotImplementedException();
+        }
+        
+        /// <summary>
+        /// removes all registered operations and controllers
+        /// </summary>
+        public void UnbindAllOperations()
+        {
+            throw new NotImplementedException();
         }
     }
 }
