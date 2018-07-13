@@ -8,6 +8,7 @@ using NeoSharp.Core.Caching;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
+using NeoSharp.Core.TaskManagers;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Blockchain
@@ -80,15 +81,13 @@ namespace NeoSharp.Core.Blockchain
 
             // TODO: Check Task system
 
-            var task = IntervalScheduler.IntervalScheduler.Run(TimeSpan.FromSeconds(1), _cancelPersistTask, async () =>
-               {
-                   while (await PersistBlock())
-                   {
+            IntervalScheduler.RunTask(TimeSpan.FromSeconds(1), _cancelPersistTask, async () =>
+              {
+                  while (await PersistBlock())
+                  {
 
-                   }
-               });
-
-            task.Start();
+                  }
+              });
         }
 
         static int TransactionComparer(Stamp<Transaction> a, Stamp<Transaction> b)
@@ -122,7 +121,7 @@ namespace NeoSharp.Core.Blockchain
 
                 return PersistBlock();
             }
-            
+
             // Small verification
 
             if (block.Timestamp <= CurrentBlock.Timestamp ||
@@ -171,11 +170,7 @@ namespace NeoSharp.Core.Blockchain
 
             foreach (var tx in block.Transactions)
             {
-                await _repository.AddTransaction(tx);
-
-                // Try to remove the TX from the pool
-
-                MemoryPool.Remove(tx.Hash);
+                await AddTransaction(tx);
             }
 
             await _repository.AddBlockHeader(header);
@@ -379,8 +374,18 @@ namespace NeoSharp.Core.Blockchain
 
         public async Task<bool> AddTransaction(Transaction transaction)
         {
+            if (transaction.Hash == null)
+            {
+                transaction.UpdateHash(_serializer, _crypto);
+            }
+
             // TODO: It is a bit more complicated
+
             await _repository.AddTransaction(transaction);
+
+            // Try to remove the TX from the pool
+
+            MemoryPool.Remove(transaction.Hash);
 
             return true;
         }
