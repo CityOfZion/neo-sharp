@@ -143,12 +143,22 @@ namespace NeoSharp.Persistence.RedisDB
             throw new NotImplementedException();
         }
 
+        public async Task DeleteAccount(UInt160 hash)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<CoinState[]> GetCoinStates(UInt256 txHash)
         {
             throw new NotImplementedException();
         }
 
         public async Task AddCoinStates(UInt256 txHash, CoinState[] coinStates)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task DeleteCoinStates(UInt256 txHash)
         {
             throw new NotImplementedException();
         }
@@ -163,6 +173,11 @@ namespace NeoSharp.Persistence.RedisDB
             throw new NotImplementedException();
         }
 
+        public async Task DeleteValidator(ECPoint point)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Contract> GetContract(UInt160 contractHash)
         {
             throw new NotImplementedException();
@@ -173,12 +188,22 @@ namespace NeoSharp.Persistence.RedisDB
             throw new NotImplementedException();
         }
 
+        public async Task DeleteContract(UInt160 contractHash)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<StorageValue> GetStorage(StorageKey key)
         {
             throw new NotImplementedException();
         }
 
         public async Task AddStorage(StorageKey key, StorageValue val)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task DeleteStorage(StorageKey key)
         {
             throw new NotImplementedException();
         }

@@ -185,6 +185,18 @@ namespace NeoSharp.Persistence.RocksDB.Tests
         }
 
         [TestMethod]
+        public async Task DeleteAccount_DeletesCorrectKey()
+        {
+            var input = UInt160.Parse(RandomInt().ToString("X40"));
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            await testee.DeleteAccount(input);
+
+            rocksDbContextMock.Verify(m => m.Delete(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateAccountKey()))));
+        }
+
+        [TestMethod]
         public async Task GetCoinStates_NoValue_ReturnsNull()
         {
             var input = UInt256.Parse(RandomInt().ToString("X64"));
@@ -232,6 +244,18 @@ namespace NeoSharp.Persistence.RocksDB.Tests
 
             rocksDbContextMock.Verify(m =>
                 m.Save(It.Is<byte[]>(b => b.SequenceEqual(inputHash.BuildStateCoinKey())), expectedBytes));
+        }
+
+        [TestMethod]
+        public async Task DeleteCoinStates_DeletesCorrectKey()
+        {
+            var input = UInt256.Parse(RandomInt().ToString("X64"));
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            await testee.DeleteCoinStates(input);
+
+            rocksDbContextMock.Verify(m => m.Delete(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateCoinKey()))));
         }
 
         [TestMethod]
@@ -291,6 +315,21 @@ namespace NeoSharp.Persistence.RocksDB.Tests
         }
 
         [TestMethod]
+        public async Task DeleteValidator_DeletesCorrectKey()
+        {
+            var pubkey = new byte[33];
+            pubkey[0] = 0x02;
+            var input = new ECPoint(pubkey);
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            await testee.DeleteValidator(input);
+
+            rocksDbContextMock.Verify(
+                m => m.Delete(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateValidatorKey()))));
+        }
+
+        [TestMethod]
         public async Task GetContract_NoValue_ReturnsNull()
         {
             var input = UInt160.Parse(RandomInt().ToString("X40"));
@@ -338,6 +377,19 @@ namespace NeoSharp.Persistence.RocksDB.Tests
 
             rocksDbContextMock.Verify(m =>
                 m.Save(It.Is<byte[]>(b => b.SequenceEqual(inputHash.BuildStateContractKey())), expectedBytes));
+        }
+
+        [TestMethod]
+        public async Task DeleteContract_DeletesCorrectKey()
+        {
+            var input = UInt160.Parse(RandomInt().ToString("X40"));
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            await testee.DeleteContract(input);
+
+            rocksDbContextMock.Verify(m =>
+                m.Delete(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateContractKey()))));
         }
 
         [TestMethod]
@@ -394,6 +446,19 @@ namespace NeoSharp.Persistence.RocksDB.Tests
 
             rocksDbContextMock.Verify(m =>
                 m.Save(It.Is<byte[]>(b => b.SequenceEqual(inputKey.BuildStateStorageKey())), inputValue.Value));
+        }
+
+        [TestMethod]
+        public async Task DeleteStorage_DeletesCorrectKey()
+        {
+            var inputHash = UInt160.Parse(RandomInt().ToString("X40"));
+            var input = new StorageKey {ScriptHash = inputHash, Key = new byte[0]};
+            var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
+            var testee = AutoMockContainer.Create<RocksDbRepository>();
+
+            await testee.DeleteStorage(input);
+
+            rocksDbContextMock.Verify(m => m.Delete(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateStorageKey()))));
         }
 
         #endregion

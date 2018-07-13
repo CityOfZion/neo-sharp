@@ -120,6 +120,11 @@ namespace NeoSharp.Persistence.RocksDB
             await _rocksDbContext.Save(acct.ScriptHash.BuildStateAccountKey(), _serializer.Serialize(acct));
         }
 
+        public async Task DeleteAccount(UInt160 hash)
+        {
+            await _rocksDbContext.Delete(hash.BuildStateAccountKey());
+        }
+
         public async Task<CoinState[]> GetCoinStates(UInt256 txHash)
         {
             var raw = await _rocksDbContext.Get(txHash.BuildStateCoinKey());
@@ -131,6 +136,11 @@ namespace NeoSharp.Persistence.RocksDB
         public async Task AddCoinStates(UInt256 txHash, CoinState[] coinstates)
         {
             await _rocksDbContext.Save(txHash.BuildStateCoinKey(), _serializer.Serialize(coinstates));
+        }
+
+        public async Task DeleteCoinStates(UInt256 txHash)
+        {
+            await _rocksDbContext.Delete(txHash.BuildStateCoinKey());
         }
 
         public async Task<Validator> GetValidator(ECPoint publicKey)
@@ -146,6 +156,11 @@ namespace NeoSharp.Persistence.RocksDB
             await _rocksDbContext.Save(validator.PublicKey.BuildStateValidatorKey(), _serializer.Serialize(validator));
         }
 
+        public async Task DeleteValidator(ECPoint point)
+        {
+            await _rocksDbContext.Delete(point.BuildStateValidatorKey());
+        }
+
         public async Task<Contract> GetContract(UInt160 contractHash)
         {
             var raw = await _rocksDbContext.Get(contractHash.BuildStateContractKey());
@@ -159,6 +174,11 @@ namespace NeoSharp.Persistence.RocksDB
             await _rocksDbContext.Save(contract.ScriptHash.BuildStateContractKey(), _serializer.Serialize(contract));
         }
 
+        public async Task DeleteContract(UInt160 contractHash)
+        {
+            await _rocksDbContext.Delete(contractHash.BuildStateContractKey());
+        }
+
         public async Task<StorageValue> GetStorage(StorageKey key)
         {
             var raw = await _rocksDbContext.Get(key.BuildStateStorageKey());
@@ -170,6 +190,11 @@ namespace NeoSharp.Persistence.RocksDB
         public async Task AddStorage(StorageKey key, StorageValue val)
         {
             await _rocksDbContext.Save(key.BuildStateStorageKey(), val.Value);
+        }
+
+        public async Task DeleteStorage(StorageKey key)
+        {
+            await _rocksDbContext.Delete(key.BuildStateStorageKey());
         }
 
         #endregion

@@ -98,6 +98,13 @@ namespace NeoSharp.Core.Persistence
         Task AddAccount(Account acct);
 
         /// <summary>
+        /// Deletes an account
+        /// </summary>
+        /// <param name="hash"></param>
+        /// <returns></returns>
+        Task DeleteAccount(UInt160 hash);
+
+        /// <summary>
         /// Retrieves coin states by its transaction hash
         /// </summary>
         /// <param name="txHash"></param>
@@ -111,6 +118,13 @@ namespace NeoSharp.Core.Persistence
         /// <param name="coinStates"></param>
         /// <returns></returns>
         Task AddCoinStates(UInt256 txHash, CoinState[] coinStates);
+
+        /// <summary>
+        /// Deletes all coin states associated with the transaction hash
+        /// </summary>
+        /// <param name="txHash"></param>
+        /// <returns></returns>
+        Task DeleteCoinStates(UInt256 txHash);
 
         /// <summary>
         /// Retrieves a validator by its public key
@@ -127,6 +141,13 @@ namespace NeoSharp.Core.Persistence
         Task AddValidator(Validator validator);
 
         /// <summary>
+        /// Deletes a validator
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
+        Task DeleteValidator(ECPoint point);
+
+        /// <summary>
         /// Retrieves a smart contract by its hash
         /// </summary>
         /// <param name="contractHash"></param>
@@ -139,6 +160,13 @@ namespace NeoSharp.Core.Persistence
         /// <param name="contract"></param>
         /// <returns></returns>
         Task AddContract(Contract contract);
+
+        /// <summary>
+        /// Delete a smart contract by its hash
+        /// </summary>
+        /// <param name="contractHash"></param>
+        /// <returns></returns>
+        Task DeleteContract(UInt160 contractHash);
 
         /// <summary>
         /// Retrieves a StorageValue by its StorageKey
@@ -154,6 +182,13 @@ namespace NeoSharp.Core.Persistence
         /// <param name="val"></param>
         /// <returns></returns>
         Task AddStorage(StorageKey key, StorageValue val);
+
+        /// <summary>
+        /// Deletes a StorageKey and its associated StorageValue
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        Task DeleteStorage(StorageKey key);
 
         #endregion
 
