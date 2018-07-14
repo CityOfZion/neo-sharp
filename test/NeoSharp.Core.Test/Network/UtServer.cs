@@ -153,7 +153,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
-        public async void Broadcast_PeerIsTheSameAsSource_MessageNotSendToPeer()
+        public async Task Broadcast_PeerIsTheSameAsSource_MessageNotSendToPeer()
         {
             // Arrange
             var peerMock = AutoMockContainer.GetMock<IPeer>();
@@ -181,7 +181,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
-        public async void SendBroadcast_PeerIsNotTheSameAsSource_MessageSendToPeer()
+        public async Task SendBroadcast_PeerIsNotTheSameAsSource_MessageSendToPeer()
         {
             // Arrange
             var peerMock = AutoMockContainer.GetMock<IPeer>();
