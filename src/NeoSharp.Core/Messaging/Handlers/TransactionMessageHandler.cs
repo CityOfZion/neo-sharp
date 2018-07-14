@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
@@ -36,6 +38,8 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             // TODO: check if the hash of the transaction is known already
 
+            transaction.UpdateHash(BinarySerializer.Default, ICrypto.Default);
+
             var transactionExists = await _blockchain.ContainsTransaction(transaction.Hash);
             if (transactionExists)
             {
@@ -46,7 +50,7 @@ namespace NeoSharp.Core.Messaging.Handlers
             // Transaction is not added right away but queued to be verified and added.
             // It is the reason why we do not broadcast immediately.
 
-            var transactionAdded = _blockchain.MemoryPool.Push(transaction);
+            var transactionAdded = await _blockchain.AddTransaction(transaction);
 
             if (!transactionAdded)
             {

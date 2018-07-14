@@ -23,10 +23,14 @@ namespace NeoSharp.Core.Messaging.Messages
 
     public class InventoryPayload
     {
+        // The max is defined on https://github.com/neo-project/neo/blob/6d5cf6311d8e132f5edca7c24ab3df38b3224412/neo/IO/Helper.cs#L121
+
+        public const int MaxHashes = 0x10000000;
+
         [BinaryProperty(0)]
         public InventoryType Type;
 
-        [BinaryProperty(1)]
+        [BinaryProperty(1, MaxLength = MaxHashes)]
         public UInt256[] Hashes;
     }
 }

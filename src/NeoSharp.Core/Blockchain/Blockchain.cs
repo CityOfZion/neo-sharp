@@ -170,7 +170,11 @@ namespace NeoSharp.Core.Blockchain
 
             foreach (var tx in block.Transactions)
             {
-                await AddTransaction(tx);
+                await _repository.AddTransaction(tx);
+
+                // Try to remove the TX from the pool
+
+                MemoryPool.Remove(tx.Hash);
             }
 
             await _repository.AddBlockHeader(header);
@@ -380,7 +384,7 @@ namespace NeoSharp.Core.Blockchain
             return transactions;
         }
 
-        public async Task<bool> AddTransaction(Transaction transaction)
+        public Task<bool> AddTransaction(Transaction transaction)
         {
             if (transaction.Hash == null)
             {
@@ -389,13 +393,9 @@ namespace NeoSharp.Core.Blockchain
 
             // TODO: It is a bit more complicated
 
-            await _repository.AddTransaction(transaction);
+            MemoryPool.Push(transaction);
 
-            // Try to remove the TX from the pool
-
-            MemoryPool.Remove(transaction.Hash);
-
-            return true;
+            return Task.FromResult(true);
         }
 
         /// <summary>

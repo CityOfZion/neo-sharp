@@ -33,7 +33,7 @@ namespace NeoSharp.Core.Messaging.Handlers
         public async Task Handle(MemPoolMessage message, IPeer sender)
         {
             var hashes = _blockchain.MemoryPool
-                .Peek(_blockchain.MemoryPool.Max)
+                .Peek(InventoryPayload.MaxHashes)
                 .Select(tx => tx.Value.Hash)
                 .ToArray();
 
