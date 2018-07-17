@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Blockchain.Processors;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
@@ -20,6 +21,7 @@ namespace NeoSharp.Core.Blockchain
         private readonly IRepository _repository;
         private readonly IBinarySerializer _serializer;
         private readonly ICrypto _crypto;
+        private readonly IProcessor<Block> _processor;
         private CancellationTokenSource _cancelPersistTask;
         private int _initialized;
 
@@ -49,11 +51,12 @@ namespace NeoSharp.Core.Blockchain
         /// <param name="repository">Repository</param>
         /// <param name="serializer">Serializer</param>
         /// <param name="crypto">Crypto</param>
-        public Blockchain(IRepository repository, IBinarySerializer serializer, ICrypto crypto)
+        public Blockchain(IRepository repository, IBinarySerializer serializer, ICrypto crypto, IProcessor<Block> blockProcessor)
         {
             _repository = repository;
             _serializer = serializer;
             _crypto = crypto;
+            _processor = blockProcessor;
             _initialized = 0;
         }
 
@@ -166,19 +169,13 @@ namespace NeoSharp.Core.Blockchain
                 }
             }
 
-            var header = block.GetBlockHeader();
+            await _processor.Process(block);
 
             foreach (var tx in block.Transactions)
             {
-                await _repository.AddTransaction(tx);
-
                 // Try to remove the TX from the pool
-
                 MemoryPool.Remove(tx.Hash);
             }
-
-            await _repository.AddBlockHeader(header);
-            await _repository.SetTotalBlockHeight(block.Index);
 
             CurrentBlock = block;
 
