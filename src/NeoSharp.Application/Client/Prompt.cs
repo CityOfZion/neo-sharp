@@ -319,6 +319,9 @@ namespace NeoSharp.Application.Client
             {
                 var msg = e.InnerException != null ? e.InnerException.Message : e.Message;
                 _consoleWriter.WriteLine(msg, ConsoleOutputStyle.Error);
+#if DEBUG
+                _consoleWriter.WriteLine(e.ToString(), ConsoleOutputStyle.Error);
+#endif
 
                 PrintHelp(cmds);
                 return false;
