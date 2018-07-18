@@ -118,7 +118,8 @@ namespace NeoSharp.BinarySerialization.Cache
 
                             var gen = type.GetGenericArguments();
 
-                            if (!TryRecursive(member, gen[0], out var key) || !TryRecursive(member, gen[1], out var value))
+                            if (!TryRecursive(member, gen[0], out var key, MaxLength) ||
+                                !TryRecursive(member, gen[1], out var value, MaxLength))
                             {
                                 throw new NotImplementedException();
                             }
@@ -138,7 +139,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
                 // Try to extract the BinarySerializer
 
-                if (!TryRecursive(member, type, out Serializer))
+                if (!TryRecursive(member, type, out Serializer, MaxLength))
                 {
                     throw new NotImplementedException();
                 }
@@ -169,13 +170,16 @@ namespace NeoSharp.BinarySerialization.Cache
 
         #region Helpers
 
-        private bool TryRecursive(MemberInfo member, Type type, out IBinaryCustomSerializable serializer)
+        internal static bool TryRecursive(MemberInfo member, Type type, out IBinaryCustomSerializable serializer, int maxLength)
         {
             // Default types
 
-            var serializerAttr = member.GetCustomAttribute<BinaryTypeSerializerAttribute>();
+            var serializerAttr = member?.GetCustomAttribute<BinaryTypeSerializerAttribute>();
+
             if (serializerAttr == null)
+            {
                 serializerAttr = type.GetCustomAttribute<BinaryTypeSerializerAttribute>();
+            }
 
             if (serializerAttr != null)
             {
@@ -183,7 +187,7 @@ namespace NeoSharp.BinarySerialization.Cache
             }
             else if (type == typeof(string))
             {
-                serializer = new BinaryStringSerializer(MaxLength);
+                serializer = new BinaryStringSerializer(maxLength);
                 return true;
             }
             else if (type == typeof(long))

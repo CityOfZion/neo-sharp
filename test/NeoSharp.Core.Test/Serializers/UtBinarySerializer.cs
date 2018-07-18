@@ -242,6 +242,15 @@ namespace NeoSharp.Core.Test.Serializers
         }
 
         [TestMethod]
+        public void Serialize_EnumArray()
+        {
+            var test = new CoinState[] { CoinState.Confirmed, CoinState.Locked };
+            var copy = BinaryDeserializer.Default.Deserialize<CoinState[]>(BinarySerializer.Default.Serialize(test));
+
+            CollectionAssert.AreEqual(test, copy);
+        }
+
+        [TestMethod]
         public void DeserializeReadOnly()
         {
             var readOnly = new DummyReadOnly();

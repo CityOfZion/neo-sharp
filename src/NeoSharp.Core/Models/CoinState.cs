@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
-using System;
 
 namespace NeoSharp.Core.Models
 {
+    [Flags]
     [Serializable]
     [JsonConverter(typeof(StringEnumConverter))]
-    [Flags]
     public enum CoinState : byte
     {
         New = 0x00,
