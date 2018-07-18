@@ -39,7 +39,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             if (block.Hash == null)
             {
-                block.UpdateHash(BinarySerializer.Default, ICrypto.Default);
+                block.UpdateHash();
             }
 
             var blockExists = await _blockchain.ContainsBlock(block.Hash);

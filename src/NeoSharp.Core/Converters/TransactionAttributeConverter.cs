@@ -13,12 +13,12 @@ namespace NeoSharp.Core.Converters
         /// <summary>
         /// Deserialize logic
         /// </summary>
-        /// <param name="deserializer">Deserializer</param>
+        /// <param name="binaryDeserializer">Deserializer</param>
         /// <param name="reader">Reader</param>
         /// <param name="type">Type</param>
         /// <param name="settings">Settigns</param>
         /// <returns>Return object</returns>
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinaryDeserializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             byte[] data;
             var usage = (TransactionAttributeUsage)reader.ReadByte();
@@ -59,11 +59,11 @@ namespace NeoSharp.Core.Converters
         /// <summary>
         /// Serialize logic
         /// </summary>
-        /// <param name="serializer">Serializer</param>
+        /// <param name="binarySerializer">Serializer</param>
         /// <param name="writer">Writer</param>
         /// <param name="value">Value</param>
         /// <param name="settings">Settigns</param>
-        public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
+        public int Serialize(IBinarySerializer binarySerializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             var v = (TransactionAttribute)value;
 

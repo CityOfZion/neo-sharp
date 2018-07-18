@@ -20,21 +20,11 @@ namespace NeoSharp.Application.Client
         public const string DoubleFixedPoint = "0.###################################################################################################################################################################################################################################################################################################################################################";
 
         private object _lockObject = new object();
-        private readonly IBinarySerializer _serializer;
 
         static readonly ReflectionCache<ConsoleOutputStyle, ConsoleOutputStyleAttribute> _cache =
             ReflectionCache<ConsoleOutputStyle, ConsoleOutputStyleAttribute>.CreateFromEnum();
 
         #endregion
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="serializer">Serializer</param>
-        public ConsoleWriter(IBinarySerializer serializer)
-        {
-            _serializer = serializer;
-        }
 
         /// <summary>
         /// Get current cursor positon
@@ -257,7 +247,7 @@ namespace NeoSharp.Application.Client
                         }
                         else
                         {
-                            WriteLine(_serializer.Serialize(obj).ToHexString(true));
+                            WriteLine(BinarySerializer.Default.Serialize(obj).ToHexString(true));
                             WriteLine(obj.ToString(), style);
                         }
                         break;

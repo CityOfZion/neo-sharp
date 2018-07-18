@@ -30,9 +30,7 @@ namespace NeoSharp.Core.Models
         /// <summary>
         /// Update hash
         /// </summary>
-        /// <param name="serializer">Serializer</param>
-        /// <param name="crypto">Crypto</param>
-        public override void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
+        public override void UpdateHash()
         {
             // Compute tx hashes
 
@@ -41,20 +39,22 @@ namespace NeoSharp.Core.Models
 
             for (var x = 0; x < txSize; x++)
             {
-                Transactions[x].UpdateHash(serializer, crypto);
+                Transactions[x].UpdateHash();
                 TransactionHashes[x] = Transactions[x].Hash;
             }
 
-            MerkleRoot = MerkleTree.ComputeRoot(crypto, TransactionHashes.ToArray());
+            MerkleRoot = MerkleTree.ComputeRoot(TransactionHashes.ToArray());
 
             // Compute hash
 
-            Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
+            var serializedBlock = BinarySerializer.Default.Serialize(this, new BinarySerializerSettings()
             {
                 Filter = (a) => a != nameof(Witness) && a != nameof(Transactions) && a != nameof(TransactionHashes) && a != nameof(Type)
-            })));
+            });
 
-            Witness?.UpdateHash(serializer, crypto);
+            Hash = new UInt256(ICrypto.Default.Hash256(serializedBlock));
+
+            Witness?.UpdateHash();
         }
 
         /// <summary>

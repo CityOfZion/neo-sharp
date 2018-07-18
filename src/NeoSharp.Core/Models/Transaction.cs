@@ -182,11 +182,9 @@ namespace NeoSharp.Core.Models
         /// <summary>
         /// Update Hash
         /// </summary>
-        /// <param name="serializer">Serializer</param>
-        /// <param name="crypto">Crypto</param>
-        public void UpdateHash(IBinarySerializer serializer, ICrypto crypto)
+        public void UpdateHash()
         {
-            Hash = new UInt256(crypto.Hash256(serializer.Serialize(this, new BinarySerializerSettings()
+            Hash = new UInt256(ICrypto.Default.Hash256(BinarySerializer.Default.Serialize(this, new BinarySerializerSettings()
             {
                 Filter = (a) => a != nameof(Witness)
             })));
@@ -195,7 +193,7 @@ namespace NeoSharp.Core.Models
             {
                 foreach (var w in Witness)
                 {
-                    w.UpdateHash(serializer, crypto);
+                    w.UpdateHash();
                 }
             }
         }

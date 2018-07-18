@@ -54,7 +54,7 @@ namespace NeoSharp.Core.Blockchain
             };
 
             // Compute hash
-            GenesisBlock.UpdateHash(BinarySerializer.Default, ICrypto.Default);
+            GenesisBlock.UpdateHash();
 
         }
 

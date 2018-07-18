@@ -62,14 +62,14 @@ namespace NeoSharp.Core.Converters
             return base.ConvertFrom(context, culture, value);
         }
 
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinaryDeserializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             var val = reader.ReadInt64();
 
             return new Fixed8(val);
         }
 
-        public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
+        public int Serialize(IBinarySerializer binarySerializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             if (value is Fixed8 f8)
             {

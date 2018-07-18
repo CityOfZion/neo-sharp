@@ -18,20 +18,13 @@ namespace NeoSharp.Core.Test.Cryptography
                 new UInt256("a3e5514bcfd79e7649e30fbf98826208f3da47833b4223b68cff2db23beb3801".HexToBytes()),
                 new UInt256("e69601364bdac76eeebf277bea25b850aa4c7d9f7d28f670084f7ee801560ea5".HexToBytes())
             };
-        ICrypto _crypto;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _crypto = AutoMockContainer.Create<BouncyCastleCrypto>();
-        }
 
         [TestMethod]
         public void Test_Tree()
         {
             // Act
-            var root = MerkleTree.ComputeRoot(_crypto, _hashes);
-            var tree = MerkleTree.ComputeTree(_crypto, _hashes);
+            var root = MerkleTree.ComputeRoot(_hashes);
+            var tree = MerkleTree.ComputeTree(_hashes);
 
             // Assert
             Assert.AreEqual(root.ToString(), "0x04948a9f4b7d5d1c7ed2cbd7f7034cfa095ce08d0b7a25959a083dc446aa8743");
@@ -49,14 +42,14 @@ namespace NeoSharp.Core.Test.Cryptography
             UInt256[] hashes = new UInt256[] { };
 
             // Act
-            var tree = MerkleTree.ComputeTree(_crypto, hashes);
+            var tree = MerkleTree.ComputeTree(hashes);
         }
 
         [TestMethod]
         public void Search_Node()
         {
             // Act
-            var tree = MerkleTree.ComputeTree(_crypto, _hashes);
+            var tree = MerkleTree.ComputeTree(_hashes);
             var node = tree.Search(UInt256.Parse("d7578928d3ffde14619ce1ceaecbf0300b303a4f09916c0c62006625ba9d251a"));
             var node_none = tree.Search(UInt256.Parse("f6049de2a1ce95dc4fbff3c66af5900ff2733d78c0eaab7c723c92f0a1e62f23"));
 
@@ -69,7 +62,7 @@ namespace NeoSharp.Core.Test.Cryptography
         public void Get_Leafs()
         {
             // Arrange
-            var tree = MerkleTree.ComputeTree(_crypto, _hashes);
+            var tree = MerkleTree.ComputeTree(_hashes);
 
             // Act
             var leafs = tree.Root.GetLeafs().Select(u => u.Hash).ToArray();

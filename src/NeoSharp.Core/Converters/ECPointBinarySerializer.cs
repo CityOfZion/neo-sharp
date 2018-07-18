@@ -11,7 +11,7 @@ namespace NeoSharp.Core.Converters
     {
         const int expectedLength = 32;// (curve.Q.GetBitLength() + 7) / 8;
 
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinaryDeserializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             var prefix = reader.ReadByte();
 
@@ -41,7 +41,7 @@ namespace NeoSharp.Core.Converters
             }
         }
 
-        public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
+        public int Serialize(IBinarySerializer binarySerializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             var ec = (ECPoint)value;
 

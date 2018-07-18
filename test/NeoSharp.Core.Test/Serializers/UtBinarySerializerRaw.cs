@@ -3,6 +3,7 @@ using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.SmartContract;
@@ -12,14 +13,12 @@ namespace NeoSharp.Core.Test.Serializers
     [TestClass]
     public class UtBinarySerializerRaw
     {
-        private ICrypto _crypto;
         private IBinarySerializer _serializer;
         private IBinaryDeserializer _deserializer;
 
         [TestInitialize]
         public void WarmUpSerializer()
         {
-            _crypto = new BouncyCastleCrypto();
             _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
             _deserializer = new BinaryDeserializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
         }
@@ -62,7 +61,7 @@ namespace NeoSharp.Core.Test.Serializers
                     Assert.AreEqual(stream.Position, stream.Length);
                 }
 
-                header.UpdateHash(_serializer, _crypto);
+                header.UpdateHash();
 
                 Assert.AreEqual(key.Key, header.Hash.ToString(true));
                 Assert.AreEqual(key.Value, _serializer.Serialize(header).ToHexString(true));
@@ -85,7 +84,7 @@ namespace NeoSharp.Core.Test.Serializers
             Assert.AreEqual(block.ConsensusData, 7814431937225855044UL);
             Assert.AreEqual(block.NextConsensus.ToString(true), "0x55bfa4cc95efe9bb65c104bf27385d2b655de759");
 
-            block.UpdateHash(_serializer, _crypto);
+            block.UpdateHash();
 
             Assert.AreEqual(block.Witness.InvocationScript.ToHexString(true), "0x404edf5005771de04619235d5a4c7a9a11bb78e008541f1da7725f654c33380a3c87e2959a025da706d7255cb3a3fa07ebe9c6559d0d9e6213c68049168eb1056f4038a338f879930c8adc168983f60aae6f8542365d844f004976346b70fb0dd31aa1dbd4abd81e4a4aeef9941ecd4e2dd2c1a5b05e1cc74454d0403edaee6d7a4d4099d33c0b889bf6f3e6d87ab1b11140282e9a3265b0b9b918d6020b2c62d5a040c7e0c2c7c1dae3af9b19b178c71552ebd0b596e401c175067c70ea75717c8c00404e0ebd369e81093866fe29406dbf6b402c003774541799d08bf9bb0fc6070ec0f6bad908ab95f05fa64e682b485800b3c12102a8596e6c715ec76f4564d5eff34070e0521979fcd2cbbfa1456d97cc18d9b4a6ad87a97a2a0bcdedbf71b6c9676c645886056821b6f3fec8694894c66f41b762bc4e29e46ad15aee47f05d27d822");
             Assert.AreEqual(block.Witness.VerificationScript.ToHexString(true), "0x552102486fd15702c4490a26703112a5cc1d0923fd697a33406bd5a1c00e0013b09a7021024c7b7fb6c310fccf1ba33b082519d82964ea93868d676662d4a59ad548df0e7d2102aaec38470f6aad0042c6e877cfd8087d2676b0f516fddd362801b9bd3936399e2103b209fd4f53a7170ea4444e0cb0a6bb6a53c2bd016926989cf85f9b0fba17a70c2103b8d9d5771d8f513aa0869b9cc8d50986403b78c6da36890638c3d46a5adce04a2102ca0e27697b9c248f6f16e085fd0061e26f44da85b58ee835c110caa5ec3ba5542102df48f60e8f3e01c48ff40b9b7f1310d7a8b2a193188befe1c2e3df740e89509357ae");
@@ -97,7 +96,7 @@ namespace NeoSharp.Core.Test.Serializers
 
             MinerTransaction tx = block.Transactions[0] as MinerTransaction;
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0xd6ba8b0f381897a59396394e9ce266a3d1d0857b5e3827941c2d2cedc38ef918");
             Assert.AreEqual(tx.Nonce, 3151007812);
@@ -110,10 +109,10 @@ namespace NeoSharp.Core.Test.Serializers
             var headerTrim = block.Trim();
             var headerNotTrim = block.GetBlockHeader();
 
-            headerTrim.UpdateHash(_serializer, _crypto);
+            headerTrim.UpdateHash();
             Assert.AreEqual(block.Hash, headerTrim.Hash);
 
-            headerNotTrim.UpdateHash(_serializer, _crypto);
+            headerNotTrim.UpdateHash();
             Assert.AreEqual(block.Hash, headerNotTrim.Hash);
         }
 
@@ -125,7 +124,7 @@ namespace NeoSharp.Core.Test.Serializers
             var data = "020001fda149910702cc19ed967c32f883a322f2e1713790c1398f538a42e489d485ee0000000001e72d286979ee6cb1b7e65dfddfb2e384100b8d148e7758de42e4168b71792c60c074110000000000f41cdd4b7ec41847443fa36bf8dde0009d7ecebc01414019fcb645e67b870a657fe028bcb057f866347d211dc26a25fe0570250f41d0c881113e1820ac55a029e6fc5acab80587f9bebf8b84dbd4503ba816c417b8bf522321039f07df7861c216de3b78c647b77f8b01404b400a437302b651cdf206ec1af626ac".HexToBytes();
             var tx = (ClaimTransaction)_deserializer.Deserialize<Transaction>(data);
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0x462c0e6fcd68853dd44f4055e2aa759548038d3b1362b6182398a6d44c0d1bf0");
             Assert.AreEqual(tx.Attributes.Length, 0);
@@ -159,7 +158,7 @@ namespace NeoSharp.Core.Test.Serializers
             var data = "80000730cf62fd54fc761f291d07d68088dd81b8b35a7c444f3af8acd78a3ad4ff75d16330aac6d49da8f63cf6442c5f707317bc3e7490029af1a75b83adc0ec3b1b3e1f0f30febc956626564e8318c1f6c11cb4e36d4ded9af1be07e25b40af39d73e4b3dc630ce2e790a02d3794e60109450943358d280389e9cdba1d09f6c105d136f38e731303329124a4a2ea122fa14dbfee41b0fae43a35b29eed33ac81c699202018dfe1530509da7d029445f07d8218fcb73a0cff2acaf76659d1f5eda826b9e896eba991030c214154a649ce8ac5ee97f3c170b6574c122731f757f2a425e5eaeab62d66586012346ed8739bb9d76afb4df8254dc237eff14013041ed694c7dab2e76753d319f0000019b7cffdaa674beae0f930ebe6085af9093e5fe56b34a5c220ccdcf6efc336fc50080e03779c311005fa99d93303775fe50ca119c327759313eccfa1c01fd0401403d2ccc242d953c3b312f37b1b3aaa21a372cbb7adc1efcfc8e07f3704caa0e82aecbff5f28f17935b6432a571754060881d221a6069270c2e532f58f68248aea408cecfdd1639cae103fcf853bdf44600a6617592928fba26fa9301a222a9b4a384751453c793c2c99460a0e6e324f340abb54daf229b807cf4c8a634e5a4a1f574078891ade2cf73114de7e47b454cb88c71cca614162a7728df5f2511fd20e809ed12827139f6efae0d152cfa411d3e072f63f27f2cef4ee698327f600cc4281ff4056d91a17c56287aba509877eedc2e0541370880fb9bd4cb24a9fc754442048c29975018fbe5d16f27eeb47ca7d17d53d70fbefb8fd5c8144a82c3b72e6ca190cf1542102486fd15702c4490a26703112a5cc1d0923fd697a33406bd5a1c00e0013b09a7021024c7b7fb6c310fccf1ba33b082519d82964ea93868d676662d4a59ad548df0e7d2102aaec38470f6aad0042c6e877cfd8087d2676b0f516fddd362801b9bd3936399e2103b209fd4f53a7170ea4444e0cb0a6bb6a53c2bd016926989cf85f9b0fba17a70c2103b8d9d5771d8f513aa0869b9cc8d50986403b78c6da36890638c3d46a5adce04a2102ca0e27697b9c248f6f16e085fd0061e26f44da85b58ee835c110caa5ec3ba5542102df48f60e8f3e01c48ff40b9b7f1310d7a8b2a193188befe1c2e3df740e89509357ae".HexToBytes();
             var tx = (ContractTransaction)_deserializer.Deserialize<Transaction>(data);
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0x01a6e985c1c1da04996b3472f04dfcacc4384d8b5b2f21f17367ea92f6a9cb26");
             Assert.AreEqual(tx.Attributes.Length, 7);
@@ -205,7 +204,7 @@ namespace NeoSharp.Core.Test.Serializers
             var data = "010000017ded1c83bd63e8871c8c2ad57607fe1423e8796606f2f5c2fe25be3f27f89a430000037ded1c83bd63e8871c8c2ad57607fe1423e8796606f2f5c2fe25be3f27f89a43001f8ed117000000f41cdd4b7ec41847443fa36bf8dde0009d7ecebc7ded1c83bd63e8871c8c2ad57607fe1423e8796606f2f5c2fe25be3f27f89a4300e1f5050000000055d6bc2c5a139c894df2344e03d1d2e1fbb7b609e72d286979ee6cb1b7e65dfddfb2e384100b8d148e7758de42e4168b71792c6040469af32a020000f41cdd4b7ec41847443fa36bf8dde0009d7ecebc014140420d9cdc020c525f95ae8464f7c51d0b84ee820e0073536a658f35428bd44e1941f4b1697a27cbdf3975da3366db6d3e6ec8e4aef3c50eff376a330bf728b5b42321039f07df7861c216de3b78c647b77f8b01404b400a437302b651cdf206ec1af626ac".HexToBytes();
             var tx = (IssueTransaction)_deserializer.Deserialize<Transaction>(data);
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0xf1ec2baf76c47bb3460369a0f962321d30423e1329d0c0734d9cd7fce8ed89c2");
             Assert.AreEqual(tx.Attributes.Length, 0);
@@ -245,7 +244,7 @@ namespace NeoSharp.Core.Test.Serializers
             var data = "00004490d0bb00000000".HexToBytes();
             var tx = (MinerTransaction)_deserializer.Deserialize<Transaction>(data);
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0xd6ba8b0f381897a59396394e9ce266a3d1d0857b5e3827941c2d2cedc38ef918");
             Assert.AreEqual(tx.Nonce, 3151007812);
@@ -266,7 +265,7 @@ namespace NeoSharp.Core.Test.Serializers
             var data = "d1015e0800e1f50500000000209b7cffdaa674beae0f930ebe6085af9093e5fe56b34a5c220ccdcf6efc336fc5141e542e30389997d4c076ed65d0a7438719969cd653c1076465706f73697467bd097b2fcf70e1fd30a5c3ef51e662feeafeba0100000000000000000001a50be4db475e02e665229d22e82d8820e5bf8b4022c60a5806d9f1c801672cb10100019b7cffdaa674beae0f930ebe6085af9093e5fe56b34a5c220ccdcf6efc336fc500e1f50500000000bd097b2fcf70e1fd30a5c3ef51e662feeafeba010141409d689aa663e04da2b74d1eba6608e4a3bacdd416a68b0102df7072e25263b63a7bfd1de1d2d3c951efa3c10c456ab41f6e3a6edaa021a309c6e31e12604132922321021958d772f0cb49220752c74c8ff6e873b8b3f69905d32c2d688cfae570fb98e0ac".HexToBytes();
             var tx = (InvocationTransaction)_deserializer.Deserialize<Transaction>(data);
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0xf76206631e9664c3251790ee362039a253bb6763a43343e852499d182883b32b");
             Assert.AreEqual(tx.Attributes.Length, 0);
@@ -304,7 +303,7 @@ namespace NeoSharp.Core.Test.Serializers
             var tx = (RegisterTransaction)_deserializer.Deserialize<Transaction>(data);
 #pragma warning restore CS0612 // Type or member is obsolete
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0x439af8273fbe25fec2f5f2066679e82314fe0776d52a8c1c87e863bd831ced7d");
             Assert.AreEqual(tx.Attributes.Length, 0);
@@ -344,7 +343,7 @@ namespace NeoSharp.Core.Test.Serializers
             var data = "9000014821025bdf3f181f53e9696227843950deb72dcd374ded17c057159513c3d0abe20b640a52656769737465726564010100015a8e6d99a868ae249878516ac521441b3f5098221ce15bcdd712efb58dda494900000001414098910b485b34a52340ac3baab13a63695b5ca44538c968ca6f2aa540654e8394ee08cc7a312144f794e780f56510f5f581e1df41859813d4bb3746b02fab15bb2321025bdf3f181f53e9696227843950deb72dcd374ded17c057159513c3d0abe20b64ac".HexToBytes();
             var tx = (StateTransaction)_deserializer.Deserialize<Transaction>(data);
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0xccf1404325a601ce7a33291f196bab2c9d4e80581736bfdb5a2325c7aa74427e");
             Assert.AreEqual(tx.Attributes.Length, 0);
@@ -382,7 +381,7 @@ namespace NeoSharp.Core.Test.Serializers
             var tx = (PublishTransaction)_deserializer.Deserialize<Transaction>(data);
 #pragma warning restore CS0612 // Type or member is obsolete
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0x353ec4caad7b5c8d6aaa2d2dece5f4d3ca6428d64ce98b667af76340e4427f1d");
 
@@ -433,7 +432,7 @@ namespace NeoSharp.Core.Test.Serializers
             var tx = (EnrollmentTransaction)_deserializer.Deserialize<Transaction>(data);
 #pragma warning restore CS0612 // Type or member is obsolete
 
-            tx.UpdateHash(_serializer, _crypto);
+            tx.UpdateHash();
 
             Assert.AreEqual(tx.Hash.ToString(true), "0x63d175ffd43a8ad7acf83a4f447c5ab3b881dd8880d6071d291f76fc54fd62cf");
             Assert.AreEqual(tx.Attributes.Length, 0);

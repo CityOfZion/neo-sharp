@@ -19,8 +19,6 @@ namespace NeoSharp.Core.Blockchain
         #region Private fields
 
         private readonly IRepository _repository;
-        private readonly IBinarySerializer _serializer;
-        private readonly ICrypto _crypto;
         private readonly IProcessor<Block> _processor;
         private CancellationTokenSource _cancelPersistTask;
         private int _initialized;
@@ -49,13 +47,9 @@ namespace NeoSharp.Core.Blockchain
         /// Constructor
         /// </summary>
         /// <param name="repository">Repository</param>
-        /// <param name="serializer">Serializer</param>
-        /// <param name="crypto">Crypto</param>
-        public Blockchain(IRepository repository, IBinarySerializer serializer, ICrypto crypto, IProcessor<Block> blockProcessor)
+        public Blockchain(IRepository repository, IProcessor<Block> blockProcessor)
         {
             _repository = repository;
-            _serializer = serializer;
-            _crypto = crypto;
             _processor = blockProcessor;
             _initialized = 0;
         }
@@ -113,7 +107,7 @@ namespace NeoSharp.Core.Blockchain
         {
             if (block.Hash == null)
             {
-                block.UpdateHash(_serializer, _crypto);
+                block.UpdateHash();
             }
 
             if (CurrentBlock == null)
@@ -145,7 +139,7 @@ namespace NeoSharp.Core.Blockchain
 
             if (block.Hash == null)
             {
-                block.UpdateHash(_serializer, _crypto);
+                block.UpdateHash();
             }
 
             if (CurrentBlock != null)
@@ -286,7 +280,7 @@ namespace NeoSharp.Core.Blockchain
 
                 if (header.Hash == null)
                 {
-                    header.UpdateHash(_serializer, _crypto);
+                    header.UpdateHash();
                 }
 
                 if (header.TransactionCount == 0)
@@ -385,7 +379,7 @@ namespace NeoSharp.Core.Blockchain
         {
             if (transaction.Hash == null)
             {
-                transaction.UpdateHash(_serializer, _crypto);
+                transaction.UpdateHash();
             }
 
             // TODO: It is a bit more complicated

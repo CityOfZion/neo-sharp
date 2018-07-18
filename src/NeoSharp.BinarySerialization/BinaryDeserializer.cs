@@ -9,9 +9,13 @@ namespace NeoSharp.BinarySerialization
 {
     public class BinaryDeserializer : IBinaryDeserializer
     {
-        // TODO: When we solve the injection problem we can remove this
+        public static IBinaryDeserializer Default { get; private set; } = new BinaryDeserializer();
 
-        public static readonly IBinaryDeserializer Default = new BinaryDeserializer();
+        //Use BinaryInitializer to inject IBinaryDeserializer
+        public static void Initialize(IBinaryDeserializer binaryDeserializer)
+        {
+            Default = binaryDeserializer;
+        }
 
         /// <summary>
         /// Constructor

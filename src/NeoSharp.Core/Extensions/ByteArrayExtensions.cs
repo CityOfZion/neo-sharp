@@ -8,10 +8,6 @@ namespace NeoSharp.Core.Extensions
 {
     public static class ByteArrayExtensions
     {
-        // TODO: How to inject this?
-
-        private static ICrypto _crypto = new BouncyCastleCrypto();
-
         /// <summary>
         /// Generate Script Hash
         /// </summary>
@@ -19,7 +15,7 @@ namespace NeoSharp.Core.Extensions
         /// <returns>ScriptHash</returns>
         public static UInt160 ToScriptHash(this byte[] script)
         {
-            return new UInt160(_crypto.Hash160(script));
+            return new UInt160(ICrypto.Default.Hash160(script));
         }
 
         /// <summary>
@@ -31,7 +27,7 @@ namespace NeoSharp.Core.Extensions
         /// <returns>Return SHA256 digests</returns>
         public static byte[] Sha256(this byte[] value, int offset, int count)
         {
-            return _crypto.Sha256(value, offset, count);
+            return ICrypto.Default.Sha256(value, offset, count);
         }
 
         /// <summary>
@@ -41,7 +37,7 @@ namespace NeoSharp.Core.Extensions
         /// <returns>Return SHA256 digests</returns>
         public static byte[] Sha256(this byte[] value)
         {
-            return _crypto.Sha256(value);
+            return ICrypto.Default.Sha256(value);
         }
 
         /// <summary>
@@ -53,7 +49,7 @@ namespace NeoSharp.Core.Extensions
         /// <returns>Return SHA256 hash</returns>
         public static byte[] Hash256(this byte[] value, int offset, int count)
         {
-            return _crypto.Hash256(value, offset, count);
+            return ICrypto.Default.Hash256(value, offset, count);
         }
 
         /// <summary>
@@ -63,7 +59,7 @@ namespace NeoSharp.Core.Extensions
         /// <returns>Return SHA256 hash</returns>
         public static byte[] Hash256(this byte[] value)
         {
-            return _crypto.Hash256(value);
+            return ICrypto.Default.Hash256(value);
         }
 
         /// <summary>

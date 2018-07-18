@@ -43,7 +43,7 @@ namespace NeoSharp.Core.Blockchain
                 Witness = new Witness[0]
             };
 
-            GoverningTokenRegisterTransaction.UpdateHash(BinarySerializer.Default, ICrypto.Default);
+            GoverningTokenRegisterTransaction.UpdateHash();
 
             // GAS Token is represented as a RegisterTransaction of type UtilityToken
             UtilityTokenRegisterTransaction = new RegisterTransaction
@@ -61,7 +61,7 @@ namespace NeoSharp.Core.Blockchain
                 Witness = new Witness[0]
             };
 
-            UtilityTokenRegisterTransaction.UpdateHash(BinarySerializer.Default, ICrypto.Default);
+            UtilityTokenRegisterTransaction.UpdateHash();
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())

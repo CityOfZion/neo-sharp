@@ -10,8 +10,6 @@ namespace NeoSharp.Core.Messaging.Messages
         #region Variables 
 
         UInt256 _hash;
-        readonly ICrypto _crypto;
-        readonly IBinarySerializer _serializer;
 
         #endregion
 
@@ -24,7 +22,7 @@ namespace NeoSharp.Core.Messaging.Messages
             {
                 if (_hash == null)
                 {
-                    _hash = new UInt256(_crypto.Hash256(_serializer.Serialize(Payload.Unsigned)));
+                    _hash = new UInt256(ICrypto.Default.Hash256(BinarySerializer.Default.Serialize(Payload.Unsigned)));
                 }
 
                 return _hash;
@@ -36,20 +34,6 @@ namespace NeoSharp.Core.Messaging.Messages
         /// </summary>
         public ConsensusMessage()
         {
-            Command = MessageCommand.consensus;
-            Payload = new ConsensusPayload();
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="serializer">Serializer</param>
-        /// <param name="crypto">Crypto</param>
-        public ConsensusMessage(IBinarySerializer serializer, ICrypto crypto)
-        {
-            _crypto = crypto;
-            _serializer = serializer;
-
             Command = MessageCommand.consensus;
             Payload = new ConsensusPayload();
         }

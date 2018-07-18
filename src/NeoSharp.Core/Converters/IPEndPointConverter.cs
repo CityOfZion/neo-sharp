@@ -10,7 +10,7 @@ namespace NeoSharp.Core.Converters
 {
     internal class IpEndPointConverter : IBinaryCustomSerializable
     {
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinaryDeserializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             var data = reader.ReadBytes(16);
             if (data.Length != 16) throw new FormatException();
@@ -24,7 +24,7 @@ namespace NeoSharp.Core.Converters
             return new IPEndPoint(address, port);
         }
 
-        public int Serialize(IBinarySerializer serializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
+        public int Serialize(IBinarySerializer binarySerializer, BinaryWriter writer, object value, BinarySerializerSettings settings = null)
         {
             if (value is IPEndPoint ep)
             {

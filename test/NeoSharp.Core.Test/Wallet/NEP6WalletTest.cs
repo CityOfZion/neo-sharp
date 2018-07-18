@@ -5,6 +5,7 @@ using System.Security;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.DI;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
@@ -24,7 +25,6 @@ namespace NeoSharp.Core.Wallet.Test
         WalletHelper _walletHelper;
         SecureString _defaultPassword;
         Contract _testContract;
-
 
         [TestInitialize]
         public void Init()

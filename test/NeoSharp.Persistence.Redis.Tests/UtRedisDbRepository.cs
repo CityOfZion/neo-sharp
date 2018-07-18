@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.BinarySerialization;
+using NeoSharp.BinarySerialization.DI;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -81,6 +82,7 @@ namespace NeoSharp.Persistence.Redis.Tests
                 .Returns(expectedSet);
             var testee = AutoMockContainer.Create<RedisDbRepository>();
 
+            var binaryInitializer = new BinaryInitializer(null, deserializerMock.Object);
             var result = await testee.GetIndexConfirmed(input);
 
             result.SetEquals(expectedSet).Should().BeTrue();
@@ -124,6 +126,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             var deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             deserializerMock.Setup(m => m.Deserialize<HashSet<CoinReference>>(expectedBytes, null))
                 .Returns(expectedSet);
+            var binaryInitializer = new BinaryInitializer(null, deserializerMock.Object);
             var testee = AutoMockContainer.Create<RedisDbRepository>();
 
             var result = await testee.GetIndexClaimable(input);

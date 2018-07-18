@@ -8,9 +8,13 @@ namespace NeoSharp.Core.Cryptography
 {
     public abstract class ICrypto
     {
-        // TODO: When we solve the injection problem we can remove this
+        //Use StaticDI to inject ICrypto
+        public static ICrypto Default { get; private set; } = new BouncyCastleCrypto();
 
-        public static readonly ICrypto Default = new BouncyCastleCrypto();
+        public static void Initialize(ICrypto crypto) 
+        {
+            Default = crypto;
+        }
 
         /// <summary>
         /// base58 Alphabet

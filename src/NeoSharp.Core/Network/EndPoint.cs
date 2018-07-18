@@ -9,8 +9,6 @@ namespace NeoSharp.Core.Network
         private static readonly Regex EndPointPattern =
             new Regex(@"^(?<proto>\w+)://(?<address>[^/]+)/?$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        private static readonly Protocol DefaultProtocol = Protocol.Tcp;
-
         /// <summary>
         /// Protocol
         /// </summary>

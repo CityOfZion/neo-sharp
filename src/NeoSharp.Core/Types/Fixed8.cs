@@ -73,8 +73,6 @@ namespace NeoSharp.Core.Types
 
         public override int GetHashCode()
         {
-            // TODO: It has to be readonly
-            // ReSharper disable once NonReadonlyMemberInGetHashCode
             return Value.GetHashCode();
         }
 

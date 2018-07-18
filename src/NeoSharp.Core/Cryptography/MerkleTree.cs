@@ -33,13 +33,12 @@ namespace NeoSharp.Core.Cryptography
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="crypto">ICrypto</param>
         /// <param name="hashes">Hash Array</param>
-        private MerkleTree(ICrypto crypto, UInt256[] hashes)
+        private MerkleTree(UInt256[] hashes)
         {
             if (hashes.Length == 0) throw new ArgumentException();
 
-            Root = Build(crypto, hashes.Select(p => new MerkleTreeNode(p)).ToArray());
+            Root = Build(hashes.Select(p => new MerkleTreeNode(p)).ToArray());
             int depth = 1;
             for (MerkleTreeNode i = Root; i.LeftChild != null; i = i.LeftChild)
                 depth++;
@@ -50,14 +49,12 @@ namespace NeoSharp.Core.Cryptography
         /// <summary>
         /// Build a node
         /// </summary>
-        /// <param name="crypto">ICrypto</param>
         /// <param name="leaves">Leaves nodes</param>
         /// <returns>Node</returns>
-        private static MerkleTreeNode Build(ICrypto crypto, MerkleTreeNode[] leaves)
+        private static MerkleTreeNode Build(MerkleTreeNode[] leaves)
         {
             if (leaves.Length == 0) throw new ArgumentException();
             if (leaves.Length == 1) return leaves[0];
-            if (crypto == null) throw new ArgumentNullException(nameof(crypto));
 
             MerkleTreeNode current;
             MerkleTreeNode[] parents = new MerkleTreeNode[(leaves.Length + 1) / 2];
@@ -87,38 +84,36 @@ namespace NeoSharp.Core.Cryptography
                 Array.Copy(current.LeftChild.Hash.ToArray(), 0, hash, 0, hash_size);
                 Array.Copy(current.RightChild.Hash.ToArray(), 0, hash, hash_size, hash_size);
 
-                current.Hash = new UInt256(crypto.Hash256(hash));
+                current.Hash = new UInt256(ICrypto.Default.Hash256(hash));
             }
 
-            return Build(crypto, parents); //TailCall
+            return Build(parents); //TailCall
         }
 
         /// <summary>
         /// Calculate Root node value
         /// </summary>
-        /// <param name="crypto">ICrypto</param>
         /// <param name="hashes">Hash list</param>
         /// <returns>Result of the calculation</returns>
-        public static UInt256 ComputeRoot(ICrypto crypto, UInt256[] hashes)
+        public static UInt256 ComputeRoot(UInt256[] hashes)
         {
             if (hashes == null || hashes.Length == 0) throw new ArgumentException();
             if (hashes.Length == 1) return hashes[0];
 
-            var tree = new MerkleTree(crypto, hashes);
+            var tree = new MerkleTree(hashes);
             return tree.Root.Hash;
         }
 
         /// <summary>
         /// Calculate Tree
         /// </summary>
-        /// <param name="crypto">ICrypto</param>
         /// <param name="hashes">Hash list</param>
         /// <returns>Result of the calculation</returns>
-        public static MerkleTree ComputeTree(ICrypto crypto, UInt256[] hashes)
+        public static MerkleTree ComputeTree(UInt256[] hashes)
         {
             if (hashes == null || hashes.Length == 0) throw new ArgumentException();
 
-            return new MerkleTree(crypto, hashes);
+            return new MerkleTree(hashes);
         }
 
         private static void DepthFirstSearch(MerkleTreeNode node, IList<UInt256> hashes)

@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.BinarySerialization;
+using NeoSharp.BinarySerialization.DI;
 using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
@@ -149,7 +151,9 @@ namespace NeoSharp.Application.Client
             IRpcServer rpcInit,
             IBinarySerializer serializer,
             IBlockchain blockchain,
-            IWalletManager walletManager)
+            IWalletManager walletManager,
+            ICryptoInitializer cryptoInitializer,
+            IBinaryInitializer binaryInitializer)
         {
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;

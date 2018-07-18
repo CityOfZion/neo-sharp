@@ -8,19 +8,11 @@ namespace NeoSharp.Core.Test.Cryptography
     [TestClass]
     public class UtBloomFilter : TestBase
     {
-        ICrypto _crypto;
-
-        [TestInitialize]
-        public void Init()
-        {
-            _crypto = AutoMockContainer.Create<BouncyCastleCrypto>();
-        }
-
         [TestMethod]
         public void Add()
         {
             // Arrange
-            var bloomfilter = new BloomFilter(_crypto, 256, 2, 1);
+            var bloomfilter = new BloomFilter(256, 2, 1);
             byte[] element = { 0x01, 0x01, 0x01, 0x01 };
             var result = new byte[32];
 
@@ -36,7 +28,7 @@ namespace NeoSharp.Core.Test.Cryptography
         public void Check()
         {
             // Arrange
-            var bloomfilter = new BloomFilter(_crypto, 256, 2, 1);
+            var bloomfilter = new BloomFilter(256, 2, 1);
             byte[] element1 = { 0x01, 0x02, 0x03, 0x04 };
             byte[] element2 = { 0xDE, 0xAD, 0xBE, 0xEF };
 
@@ -52,7 +44,7 @@ namespace NeoSharp.Core.Test.Cryptography
         public void GetBits()
         {
             // Arrange
-            var bloomfilter = new BloomFilter(_crypto, 32, 3, 2);
+            var bloomfilter = new BloomFilter(32, 3, 2);
             byte[] element1 = { 0x01, 0x02, 0x03, 0x04 };
             byte[] element2 = { 0xDE, 0xAD, 0xBE, 0xEF };
             byte[] element3 = { 0x22, 0x22, 0x22, 0x22 };
