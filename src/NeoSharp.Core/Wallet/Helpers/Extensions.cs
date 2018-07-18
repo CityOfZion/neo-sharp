@@ -17,7 +17,7 @@ namespace NeoSharp.Core.Wallet.Helpers
             var data = new byte[21];
             data[0] = 0x17;
             Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
-            return ICrypto.Default.Base58CheckEncode(data);
+            return Crypto.Default.Base58CheckEncode(data);
         }
 
 

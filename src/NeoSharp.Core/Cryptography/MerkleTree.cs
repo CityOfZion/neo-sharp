@@ -84,7 +84,7 @@ namespace NeoSharp.Core.Cryptography
                 Array.Copy(current.LeftChild.Hash.ToArray(), 0, hash, 0, hash_size);
                 Array.Copy(current.RightChild.Hash.ToArray(), 0, hash, hash_size, hash_size);
 
-                current.Hash = new UInt256(ICrypto.Default.Hash256(hash));
+                current.Hash = new UInt256(Crypto.Default.Hash256(hash));
             }
 
             return Build(parents); //TailCall

@@ -85,7 +85,7 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public void UpdateHash()
         {
-            _hash = new UInt160(ICrypto.Default.Hash160(GetHashData()));
+            _hash = new UInt160(Crypto.Default.Hash160(GetHashData()));
         }
 
         byte[] GetHashData()

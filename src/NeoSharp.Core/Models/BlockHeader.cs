@@ -114,7 +114,7 @@ namespace NeoSharp.Core.Models
                 Filter = (a) => a != nameof(Witness) && a != nameof(Type) && a != nameof(TransactionHashes)
             });
 
-            Hash = new UInt256(ICrypto.Default.Hash256(serializedBlockHeader));
+            Hash = new UInt256(Crypto.Default.Hash256(serializedBlockHeader));
 
             Witness?.UpdateHash();
         }

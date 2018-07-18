@@ -53,8 +53,8 @@ namespace NeoSharp.Core.Cryptography
         {
             IsInfinity = false;
 
-            EncodedData = ICrypto.Default.DecodePublicKey(point, true, out X, out Y);
-            DecodedData = ICrypto.Default.DecodePublicKey(point, false, out X, out Y);
+            EncodedData = Crypto.Default.DecodePublicKey(point, true, out X, out Y);
+            DecodedData = Crypto.Default.DecodePublicKey(point, false, out X, out Y);
         }
 
         /// <summary>

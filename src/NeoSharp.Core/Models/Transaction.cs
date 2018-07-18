@@ -184,7 +184,7 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public void UpdateHash()
         {
-            Hash = new UInt256(ICrypto.Default.Hash256(BinarySerializer.Default.Serialize(this, new BinarySerializerSettings()
+            Hash = new UInt256(Crypto.Default.Hash256(BinarySerializer.Default.Serialize(this, new BinarySerializerSettings()
             {
                 Filter = (a) => a != nameof(Witness)
             })));

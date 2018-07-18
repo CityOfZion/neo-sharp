@@ -22,7 +22,7 @@ namespace NeoSharp.Core.Messaging.Messages
             {
                 if (_hash == null)
                 {
-                    _hash = new UInt256(ICrypto.Default.Hash256(BinarySerializer.Default.Serialize(Payload.Unsigned)));
+                    _hash = new UInt256(Crypto.Default.Hash256(BinarySerializer.Default.Serialize(Payload.Unsigned)));
                 }
 
                 return _hash;

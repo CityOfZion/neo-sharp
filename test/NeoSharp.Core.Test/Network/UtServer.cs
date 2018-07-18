@@ -10,6 +10,7 @@ using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.Network.Security;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Core.Test.Network
@@ -204,6 +205,41 @@ namespace NeoSharp.Core.Test.Network
 
             // Assert
             peerMock.Verify(x => x.Send(message), Times.Once);
+        }
+
+        [TestMethod]
+        public void Start_PeerIsNotAllowed_WarningLoggedAndPeerDisconnected()
+        {
+            // Arrange 
+            var networkAcl = new NetworkAcl(NetworkAclType.Blacklist, new[] { new NetworkAcl.Entry("localhost") } );
+
+            var networkAclLoaderMock = this.AutoMockContainer.GetMock<INetworkAclLoader>();
+            networkAclLoaderMock
+                .Setup(x => x.Load(It.IsAny<NetworkAclConfig>()))
+                .Returns(networkAcl);
+
+            var loggerMock = this.AutoMockContainer.GetMock<ILogger<Server>>();
+
+            var peerMock = AutoMockContainer.GetMock<IPeer>();
+            peerMock
+                .SetupGet(x => x.EndPoint)
+                .Returns(_peerEndPoint);
+
+            var peer = peerMock.Object;
+            var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
+
+            peerFactoryMock
+                .Setup(x => x.ConnectTo(_peerEndPoint))
+                .Returns(Task.FromResult(peer));
+
+            var server = AutoMockContainer.Create<Server>();
+
+            // Act
+            server.Start();
+
+            // Assert
+            loggerMock.Verify(x => x.LogWarning(It.Is<string>(s => s.StartsWith("Something went wrong with "))), Times.Once);
+            peerMock.Verify(x => x.Disconnect(), Times.Once);
         }
 
         private static NetworkConfig GetNetworkConfig()

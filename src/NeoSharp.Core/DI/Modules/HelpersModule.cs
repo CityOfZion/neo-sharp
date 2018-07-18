@@ -9,7 +9,7 @@ namespace NeoSharp.Core.DI.Modules
         public void Register(IContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterSingleton<IAsyncDelayer, AsyncDelayer>();
-            containerBuilder.RegisterSingleton<ICrypto, BouncyCastleCrypto>();
+            containerBuilder.RegisterSingleton<Crypto, BouncyCastleCrypto>();
             containerBuilder.RegisterSingleton<IFileWrapper, FileWrapper>();
             containerBuilder.RegisterSingleton<IJsonConverter, JsonConverterWrapper>();
         }

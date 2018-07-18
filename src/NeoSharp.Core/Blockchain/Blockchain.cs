@@ -87,9 +87,10 @@ namespace NeoSharp.Core.Blockchain
               });
         }
 
-        static int TransactionComparer(Stamp<Transaction> a, Stamp<Transaction> b)
+        private static int TransactionComparer(Stamp<Transaction> a, Stamp<Transaction> b)
         {
-            int c = 0;// TODO: by fee a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
+            var c = 0;// TODO: by fee a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
+
             if (c == 0)
             {
                 // TODO: Check ASC or DESC
@@ -130,7 +131,10 @@ namespace NeoSharp.Core.Blockchain
             return Task.FromResult(BlockPool.Push(block));
         }
 
-        /// <inheritdoc />
+        /// <summary>
+        /// Persist block
+        /// </summary>
+        /// <returns>Bool</returns>
         public async Task<bool> PersistBlock()
         {
             var block = BlockPool.PopFirstOrDefault();
@@ -389,11 +393,7 @@ namespace NeoSharp.Core.Blockchain
             return Task.FromResult(true);
         }
 
-        /// <summary>
-        /// Determine whether the specified transaction is included in the blockchain
-        /// </summary>
-        /// <param name="hash">Transaction hash</param>
-        /// <returns>Return true if the specified transaction is included</returns>
+        /// <inheritdoc />
         public async Task<bool> ContainsTransaction(UInt256 hash)
         {
             // TODO: Optimize this
@@ -503,11 +503,7 @@ namespace NeoSharp.Core.Blockchain
             return Enumerable.Empty<TransactionOutput>();
         }
 
-        /// <summary>
-        /// Determine if the transaction is double
-        /// </summary>
-        /// <param name="tx"></param>
-        /// <returns></returns>
+        /// <inheritdoc />
         public bool IsDoubleSpend(Transaction tx)
         {
             return false;
@@ -527,9 +523,7 @@ namespace NeoSharp.Core.Blockchain
             PersistCompleted?.Invoke(this, block);
         }
 
-        /// <summary>
-        /// Clean resources
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             _cancelPersistTask?.Cancel();

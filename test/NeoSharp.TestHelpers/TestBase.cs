@@ -8,7 +8,7 @@ namespace NeoSharp.TestHelpers
     public abstract class TestBase
     {
         private readonly MockRepository _mockRepository;
-        protected readonly Random _rand;
+        private readonly Random _rand;
 
         public IAutoMockContainer AutoMockContainer { get; private set; }
 
@@ -54,6 +54,10 @@ namespace NeoSharp.TestHelpers
             return _rand.Next(max);
         }
 
+        public int RandomInt(int minValue = 0, int maxValue = int.MaxValue)
+        {
+            return _rand.Next(minValue, maxValue);
+        }
         /// <summary>
         /// Verify All
         /// </summary>

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Security;
-using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.DI;
@@ -14,8 +12,6 @@ using NeoSharp.Core.Wallet.Helpers;
 using NeoSharp.Core.Wallet.NEP6;
 using NeoSharp.Core.Wallet.Wrappers;
 using NeoSharp.TestHelpers;
-
-
 
 namespace NeoSharp.Core.Wallet.Test
 {
@@ -42,8 +38,8 @@ namespace NeoSharp.Core.Wallet.Test
             _defaultPassword.AppendChar('9');
             _defaultPassword.AppendChar('0');
 
-            var privateKey = ICrypto.Default.GenerateRandomBytes(32);
-            var publicKey = ICrypto.Default.ComputePublicKey(privateKey, true);
+            var privateKey = Crypto.Default.GenerateRandomBytes(32);
+            var publicKey = Crypto.Default.ComputePublicKey(privateKey, true);
             var publicKeyInEcPoint = new ECPoint(publicKey);
             _testContract = ContractFactory.CreateSinglePublicKeyRedeemContract(publicKeyInEcPoint);
         }
@@ -82,7 +78,7 @@ namespace NeoSharp.Core.Wallet.Test
             // Act
             IWalletAccount walletAccount = mockWalletManager.ImportWif("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a", _defaultPassword);
             byte[] privateKey = GetPrivateKeyFromWIF("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a");
-            ECPoint publicKey = new ECPoint(ICrypto.Default.ComputePublicKey(privateKey, true));
+            ECPoint publicKey = new ECPoint(Crypto.Default.ComputePublicKey(privateKey, true));
 
             IWalletAccount walletAccount2 = mockWalletManager.GetAccount(publicKey);
 
@@ -315,7 +311,7 @@ namespace NeoSharp.Core.Wallet.Test
             // Act
             IWalletAccount walletAccount = mockWalletManager.ImportWif("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a", _defaultPassword);
             byte[] privateKey = GetPrivateKeyFromWIF("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a");
-            ECPoint publicKey = new ECPoint(ICrypto.Default.ComputePublicKey(privateKey, true));
+            ECPoint publicKey = new ECPoint(Crypto.Default.ComputePublicKey(privateKey, true));
 
             mockWalletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
             IWalletAccount walletAccount2 = mockWalletManager.GetAccount(publicKey);
@@ -522,7 +518,7 @@ namespace NeoSharp.Core.Wallet.Test
                 throw new ArgumentNullException();
             }
 
-            byte[] data = ICrypto.Default.Base58CheckDecode(wif);
+            byte[] data = Crypto.Default.Base58CheckDecode(wif);
 
             if (data.Length != 34 || data[0] != 0x80 || data[33] != 0x01)
             {

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using NeoSharp.Core.Extensions;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Asn1.Sec;
 using Org.BouncyCastle.Asn1.X9;
@@ -13,7 +12,7 @@ using Org.BouncyCastle.Security;
 
 namespace NeoSharp.Core.Cryptography
 {
-    public class BouncyCastleCrypto : ICrypto
+    public class BouncyCastleCrypto : Crypto
     {
         static readonly X9ECParameters _curve = SecNamedCurves.GetByName("secp256r1");
         static readonly ECDomainParameters _domain = new ECDomainParameters(_curve.Curve, _curve.G, _curve.N, _curve.H, _curve.GetSeed());

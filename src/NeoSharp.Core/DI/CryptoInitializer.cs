@@ -6,9 +6,9 @@ namespace NeoSharp.Core.DI
 {
     public class CryptoInitializer : ICryptoInitializer
     {
-        public CryptoInitializer(ICrypto crypto)
+        public CryptoInitializer(Crypto crypto)
         {
-            ICrypto.Initialize(crypto);
+            Crypto.Initialize(crypto);
         }
     }
 }

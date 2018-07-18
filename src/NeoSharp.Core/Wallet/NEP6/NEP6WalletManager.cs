@@ -94,7 +94,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             byte[] passwordHash;
             ValidateAccountsPasswordMismatch(password, out passwordHash);
 
-            var privateKey = ICrypto.Default.GenerateRandomBytes(32);
+            var privateKey = Crypto.Default.GenerateRandomBytes(32);
             var account = ImportPrivateKey(privateKey, password);
             Array.Clear(privateKey, 0, privateKey.Length);
             _accountPasswordHashCache = passwordHash;
@@ -278,7 +278,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         {
             var internalWif = wif ?? throw new ArgumentNullException(nameof(wif));
 
-            var privateKeyByteArray = ICrypto.Default.Base58CheckDecode(internalWif);
+            var privateKeyByteArray = Crypto.Default.Base58CheckDecode(internalWif);
 
             if(privateKeyByteArray.IsValidPrivateKey()){
                 var privateKey = new byte[32];
@@ -395,7 +395,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <param name="privateKey">Private key.</param>
         private NEP6Account CreateAccountWithPrivateKey(byte[] privateKey, SecureString passphrase, string label = null)
         {
-            var publicKeyInBytes = ICrypto.Default.ComputePublicKey(privateKey, true);
+            var publicKeyInBytes = Crypto.Default.ComputePublicKey(privateKey, true);
             var publicKeyInEcPoint = new ECPoint(publicKeyInBytes);
             var contract = ContractFactory.CreateSinglePublicKeyRedeemContract(publicKeyInEcPoint);
 
@@ -452,7 +452,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         {
             var privateKey = _walletHelper.DecryptWif(nep2Key, password);
             _accountPasswordHashCache = GetPasswordHash(password);
-            var publicKeyInBytes = ICrypto.Default.ComputePublicKey(privateKey, true);
+            var publicKeyInBytes = Crypto.Default.ComputePublicKey(privateKey, true);
             var publicKeyEcPoint = new ECPoint(publicKeyInBytes);
             UnlockAccount(nep2Key, publicKeyEcPoint, privateKey);
         }
@@ -493,7 +493,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         
         private byte[] GetPasswordHash(SecureString password)
         {
-            return ICrypto.Default.Sha256(ICrypto.Default.Sha256(password.ToByteArray()));
+            return Crypto.Default.Sha256(Crypto.Default.Sha256(password.ToByteArray()));
         }
 
         private void ValidateAccountsPasswordMismatch(SecureString password, out byte[] passwordHash)
