@@ -28,7 +28,25 @@ namespace NeoSharp.Core.Test.Blockchain.State
         }
 
         [TestMethod]
-        [Ignore("Failing due to BinarySerializer not instancing properly")]
+        [Ignore("Ignored due to GenesisAssets unable to be serialized")]
+        public async Task UpdateBalance_NullAccount_InitializesNewAccount()
+        {
+            var acctHash = UInt160.Parse(RandomInt().ToString("X40"));
+            var assetId = UInt256.Parse(RandomInt().ToString("X64"));
+            var change = RandomInt();
+
+            var repositoryMock = AutoMockContainer.GetMock<IRepository>();
+            repositoryMock.Setup(m => m.GetAccount(acctHash)).ReturnsAsync((Account) null);
+            var testee = AutoMockContainer.Create<AccountManager>();
+
+            await testee.UpdateBalance(acctHash, assetId, new Fixed8(change));
+
+            repositoryMock.Verify(m => m.AddAccount(It.Is<Account>(a =>
+                a.ScriptHash.Equals(acctHash) && a.Balances[assetId].Equals(new Fixed8(change)))));
+        }
+
+        [TestMethod]
+        [Ignore("Ignored due to GenesisAssets unable to be serialized")]
         public async Task UpdateBalance_ChangesBalanceByDelta()
         {
             var acctHash = UInt160.Parse(RandomInt().ToString("X40"));

@@ -22,9 +22,17 @@ namespace NeoSharp.Core.Models
         [JsonProperty("votes")]
         public ECPoint[] Votes;
 
-        // TODO: Add binary serialization for Dictionary
-//        [BinaryProperty(3)]
+        [BinaryProperty(3)]
         [JsonProperty("balances")]
         public Dictionary<UInt256, Fixed8> Balances;
+
+        public Account() {}
+
+        public Account(UInt160 scriptHash)
+        {
+            ScriptHash = scriptHash;
+            Balances = new Dictionary<UInt256, Fixed8>();
+            Votes = new ECPoint[0];
+        }
     }
 }

@@ -21,7 +21,7 @@ namespace NeoSharp.Core.Blockchain.State
 
         public async Task UpdateBalance(UInt160 hash, UInt256 assetId, Fixed8 delta)
         {
-            var account = await Get(hash);
+            var account = await Get(hash) ?? new Account(hash);
             if (account.Balances.ContainsKey(assetId))
                 account.Balances[assetId] += delta;
             else
