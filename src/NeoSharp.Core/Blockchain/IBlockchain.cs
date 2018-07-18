@@ -135,26 +135,26 @@ namespace NeoSharp.Core.Blockchain
         /// </summary>
         /// <param name="hash">Hash</param>
         /// <returns></returns>
-        Asset GetAsset(UInt256 hash);
+        Task<Asset> GetAsset(UInt256 hash);
 
         /// <summary>
         /// Return the corresponding contract information according to the specified hash
         /// </summary>
         /// <param name="hash">Hash</param>
         /// <returns></returns>
-        Contract GetContract(UInt160 hash);
+        Task<Contract> GetContract(UInt160 hash);
 
         /// <summary>
         /// Return all contracts
         /// </summary>
         /// <returns></returns>
-        IEnumerable<Contract> GetContracts();
+        Task<IEnumerable<Contract>> GetContracts();
 
         /// <summary>
         /// Return all assets
         /// </summary>
         /// <returns></returns>
-        IEnumerable<Asset> GetAssets();
+        Task<IEnumerable<Asset>> GetAssets();
 
         ECPoint[] GetValidators();
         IEnumerable<ECPoint> GetValidators(IEnumerable<Transaction> others);

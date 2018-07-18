@@ -8,7 +8,6 @@ namespace NeoSharp.Application.Client
         /// Nodes
         /// </summary>
         [PromptCommand("nodes", Category = "Network", Help = "Get nodes information")]
-        // ReSharper disable once UnusedMember.Local
         private void NodesCommand()
         {
             var peers = _server.ConnectedPeers;

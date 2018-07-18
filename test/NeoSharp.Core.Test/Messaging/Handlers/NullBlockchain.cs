@@ -69,24 +69,24 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             throw new NotImplementedException();
         }
 
-        public Contract GetContract(UInt160 hash)
+        public Task<Contract> GetContract(UInt160 hash)
         {
             throw new NotImplementedException();
         }
 
-        public Asset GetAsset(UInt256 hash)
+        public Task<Asset> GetAsset(UInt256 hash)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Asset> GetAssets()
+        public Task<IEnumerable<Asset>> GetAssets()
         {
-            yield break;
+            throw new NotFiniteNumberException();
         }
 
-        public IEnumerable<Contract> GetContracts()
+        public Task<IEnumerable<Contract>> GetContracts()
         {
-            yield break;
+            throw new NotFiniteNumberException();
         }
 
         public Task<IEnumerable<Block>> GetBlocks(IReadOnlyCollection<UInt256> blockHashes)

@@ -117,7 +117,7 @@ namespace NeoSharp.Application.Attributes
 
                     string join = string.Join(" ", args.Skip(x));
 
-                    if (body.AsJson)
+                    if (body.FromJson)
                     {
                         ret[x] = JsonConvert.DeserializeObject(join, Parameters[x].ParameterType);
                     }
@@ -159,20 +159,20 @@ namespace NeoSharp.Application.Attributes
                 {
                     // Number?
 
-                    if (BigInteger.TryParse(token.Value, out BigInteger bi))
+                    if (BigInteger.TryParse(token.Value, out var bi))
                         return bi;
 
                     // Decimal?
 
-                    if (BigDecimal.TryParse(token.Value, 20, out BigDecimal bd))
+                    if (BigDecimal.TryParse(token.Value, 20, out var bd))
                         return bd;
 
                     // Hashes
 
-                    if (UInt160.TryParse(token.Value, out UInt160 hash160))
+                    if (UInt160.TryParse(token.Value, out var hash160))
                         return hash160;
 
-                    if (UInt256.TryParse(token.Value, out UInt256 hash256))
+                    if (UInt256.TryParse(token.Value, out var hash256))
                         return hash256;
                 }
             }
@@ -197,16 +197,16 @@ namespace NeoSharp.Application.Attributes
         {
             // Separate Array tokens
 
-            CommandToken[] tks = CleanCommand(value.SplitCommandLine());
+            var tks = CleanCommand(value.SplitCommandLine());
 
             // Fetch parameters
 
-            List<object> ret = new List<object>();
-            Stack<List<object>> arrays = new Stack<List<object>>();
+            var ret = new List<object>();
+            var arrays = new Stack<List<object>>();
 
-            foreach (CommandToken token in tks)
+            foreach (var token in tks)
             {
-                string val = token.Value;
+                var val = token.Value;
 
                 if (token.Quoted)
                 {
@@ -218,13 +218,13 @@ namespace NeoSharp.Application.Attributes
                     {
                         case "[":
                             {
-                                List<object> ls = new List<object>();
+                                var ls = new List<object>();
                                 arrays.Push(ls);
                                 break;
                             }
                         case "]":
                             {
-                                List<object> ls = arrays.Pop();
+                                var ls = arrays.Pop();
                                 AddTo(ls.ToArray(), ret, arrays);
                                 break;
                             }
@@ -244,10 +244,10 @@ namespace NeoSharp.Application.Attributes
 
         private CommandToken[] CleanCommand(IEnumerable<CommandToken> tokens)
         {
-            bool change = false;
-            List<CommandToken> tks = new List<CommandToken>();
+            var change = false;
+            var tks = new List<CommandToken>();
 
-            foreach (CommandToken token in tokens)
+            foreach (var token in tokens)
             {
                 if (token.Quoted || token.Value == "[" || token.Value == "]")
                 {
@@ -255,7 +255,7 @@ namespace NeoSharp.Application.Attributes
                 }
                 else
                 {
-                    string val = token.Value;
+                    var val = token.Value;
                     if (val.StartsWith("["))
                     {
                         tks.Add(new CommandToken("["));

@@ -60,7 +60,7 @@ namespace NeoSharp.Application.Client
         {
             // Print help
 
-            PromptCommandAttribute cmd = cmds.FirstOrDefault();
+            var cmd = cmds.FirstOrDefault();
 
             if (cmd != null && !string.IsNullOrEmpty(cmd.Help))
             {
@@ -71,20 +71,20 @@ namespace NeoSharp.Application.Client
 
                 // How to use?
 
-                List<string> modes = new List<string>();
+                var modes = new List<string>();
                 foreach (var v in cmds)
                 {
-                    string args = "";
+                    var args = "";
 
                     if (v.Parameters != null && v.Parameters.Length > 0)
                     {
                         foreach (var par in v.Parameters)
                         {
-                            string allowed = "";
+                            var allowed = "";
 
                             if (par.ParameterType.IsEnum)
                             {
-                                foreach (object o in Enum.GetValues(par.ParameterType))
+                                foreach (var o in Enum.GetValues(par.ParameterType))
                                     allowed += (allowed != "" ? "," : "") + o.ToString();
 
                                 allowed = $" {par.Name}={allowed}";
@@ -316,7 +316,7 @@ namespace NeoSharp.Application.Client
         private void HelpCommand()
         {
             string lastCat = null, lastCom = null;
-            foreach (string[] key in _commandCache.Keys.OrderBy(u => _commandCache[u].Category + "\n" + string.Join("", u)))
+            foreach (var key in _commandCache.Keys.OrderBy(u => _commandCache[u].Category + "\n" + string.Join("", u)))
             {
                 var c = _commandCache[key];
 
@@ -328,7 +328,7 @@ namespace NeoSharp.Application.Client
                     _consoleWriter.WriteLine(lastCat, ConsoleOutputStyle.Information);
                 }
 
-                string command = string.Join(" ", key);
+                var command = string.Join(" ", key);
                 if (lastCom == command) continue;
 
                 lastCom = command;

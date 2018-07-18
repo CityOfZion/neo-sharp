@@ -434,27 +434,27 @@ namespace NeoSharp.Core.Blockchain
         }
 
         /// <inheritdoc />
-        public Contract GetContract(UInt160 hash)
+        public Task<Contract> GetContract(UInt160 hash)
         {
-            return null;
+            return _repository.GetContract(hash);
         }
 
         /// <inheritdoc />
-        public Asset GetAsset(UInt256 hash)
+        public Task<Asset> GetAsset(UInt256 hash)
         {
-            return null;
+            return _repository.GetAsset(hash);
         }
 
         /// <inheritdoc />
-        public IEnumerable<Asset> GetAssets()
+        public Task<IEnumerable<Asset>> GetAssets()
         {
-            yield break;
+            throw new NotImplementedException();
         }
 
         /// <inheritdoc />
-        public IEnumerable<Contract> GetContracts()
+        public Task<IEnumerable<Contract>> GetContracts()
         {
-            yield break;
+            throw new NotImplementedException();
         }
 
         /// <summary>

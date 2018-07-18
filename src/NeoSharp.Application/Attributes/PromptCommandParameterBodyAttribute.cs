@@ -9,8 +9,8 @@ namespace NeoSharp.Application.Attributes
     public class PromptCommandParameterBodyAttribute : Attribute
     {
         /// <summary>
-        /// Convert as json
+        /// Convert from json
         /// </summary>
-        public bool AsJson { get; set; } = false;
+        public bool FromJson { get; set; } = false;
     }
 }
