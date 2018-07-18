@@ -131,9 +131,9 @@ namespace NeoSharp.Core.Network
         #region IBroadcaster implementation
 
         /// <inheritdoc />
-        public async Task Broadcast(Message message, IPeer source)
+        public void Broadcast(Message message, IPeer source = null)
         {
-            await Task.Factory.StartNew(() => Parallel.ForEach(_connectedPeers.Where(p => p != source), p=> p.Send(message)));
+            Parallel.ForEach(_connectedPeers.Where(p => p != source), p => p.Send(message));
         }
 
         #endregion

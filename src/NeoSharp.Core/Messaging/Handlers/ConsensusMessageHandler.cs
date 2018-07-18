@@ -26,9 +26,11 @@ namespace NeoSharp.Core.Messaging.Handlers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public async Task Handle(ConsensusMessage message, IPeer sender)
+        public Task Handle(ConsensusMessage message, IPeer sender)
         {
-            await _broadcaster.Broadcast(message, sender);
+            _broadcaster.Broadcast(message, sender);
+
+            return Task.CompletedTask;
         }
     }
 }

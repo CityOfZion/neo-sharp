@@ -10,6 +10,6 @@ namespace NeoSharp.Core.Network
         /// </summary>
         /// <param name="message">Message</param>
         /// <param name="source">Source</param>
-        Task Broadcast(Message message, IPeer source = null);
+        void Broadcast(Message message, IPeer source = null);
     }
 }
