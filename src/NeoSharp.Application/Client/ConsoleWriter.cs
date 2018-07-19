@@ -3,6 +3,7 @@ using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Extensions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 
@@ -125,7 +126,7 @@ namespace NeoSharp.Application.Client
             {
                 case PromptOutputStyle.json:
                     {
-                        using (TextReader tx = new StringReader(JsonConvert.SerializeObject(obj)))
+                        using (TextReader tx = new StringReader(obj is JObject ? obj.ToString() : JsonConvert.SerializeObject(obj)))
                         using (JsonTextReader reader = new JsonTextReader(tx))
                         {
                             var indent = "";
@@ -248,7 +249,6 @@ namespace NeoSharp.Application.Client
                         else
                         {
                             WriteLine(BinarySerializer.Default.Serialize(obj).ToHexString(true));
-                            WriteLine(obj.ToString(), style);
                         }
                         break;
                     }

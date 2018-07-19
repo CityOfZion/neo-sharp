@@ -1,14 +1,15 @@
-using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Types;
-using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Numerics;
 using System.Reflection;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Types;
+using Newtonsoft.Json;
 
 namespace NeoSharp.Application.Attributes
 {
@@ -19,11 +20,31 @@ namespace NeoSharp.Application.Attributes
 
         private static readonly Type _stringType = typeof(string);
         private static readonly Type _iListType = typeof(IList);
-        private static readonly Type _fileInfoType = typeof(FileInfo);
-        private static readonly Type _directoryInfoType = typeof(DirectoryInfo);
-        private static readonly Type _objArrayType = typeof(object[]);
+        private static readonly Dictionary<Type, Func<CommandToken, object>> _customConvertes = new Dictionary<Type, Func<CommandToken, object>>();
 
         private static readonly char[] _splitChars = { ';', ',', '|' };
+
+        /// <summary>
+        /// Static constructor
+        /// </summary>
+        static PromptCommandAttribute()
+        {
+            _customConvertes[typeof(object[])] = (token) => ParseObjectFromString(token.Value);
+            _customConvertes[typeof(FileInfo)] = (token) => new FileInfo(token.Value);
+            _customConvertes[typeof(DirectoryInfo)] = (token) => new DirectoryInfo(token.Value);
+
+            // TODO: dns
+
+            _customConvertes[typeof(IPAddress)] = (token) => IPAddress.Parse(token.Value);
+            _customConvertes[typeof(IPEndPoint)] = (token) =>
+            {
+                var split = token.Value.Split(',', StringSplitOptions.RemoveEmptyEntries);
+                var ip = IPAddress.Parse(split[0]);
+                var port = ushort.Parse(split[1]);
+
+                return new IPEndPoint(ip, port);
+            };
+        }
 
         #endregion
 
@@ -109,13 +130,13 @@ namespace NeoSharp.Application.Attributes
 
             for (int x = 0, amax = Math.Min(args.Length, maxPars); x < amax; x++)
             {
-                PromptCommandParameterBodyAttribute body = Parameters[x].GetCustomAttribute<PromptCommandParameterBodyAttribute>();
+                var body = Parameters[x].GetCustomAttribute<PromptCommandParameterBodyAttribute>();
 
                 if (body != null)
                 {
                     // From here to the end
 
-                    string join = string.Join(" ", args.Skip(x));
+                    var join = string.Join(" ", args.Skip(x));
 
                     if (body.FromJson)
                     {
@@ -147,7 +168,12 @@ namespace NeoSharp.Application.Attributes
             return ret;
         }
 
-        object ParseAutoObject(CommandToken token)
+        /// <summary>
+        /// Here we don't know the type that we should return, and we need to create the best one
+        /// </summary>
+        /// <param name="token">Token</param>
+        /// <returns>Return object</returns>
+        static object ParseObjectFromToken(CommandToken token)
         {
             if (!token.Quoted)
             {
@@ -155,36 +181,30 @@ namespace NeoSharp.Application.Attributes
                 {
                     return token.Value.HexToBytes();
                 }
-                else
-                {
-                    // Number?
 
-                    if (BigInteger.TryParse(token.Value, out var bi))
-                        return bi;
+                // Number?
 
-                    // Decimal?
+                if (BigInteger.TryParse(token.Value, out var bi)) return bi;
 
-                    if (BigDecimal.TryParse(token.Value, 20, out var bd))
-                        return bd;
+                // Decimal?
 
-                    // Hashes
+                if (BigDecimal.TryParse(token.Value, 20, out var bd)) return bd;
 
-                    if (UInt160.TryParse(token.Value, out var hash160))
-                        return hash160;
+                // Hashes
 
-                    if (UInt256.TryParse(token.Value, out var hash256))
-                        return hash256;
-                }
+                if (UInt160.TryParse(token.Value, out var hash160)) return hash160;
+
+                if (UInt256.TryParse(token.Value, out var hash256)) return hash256;
             }
 
             return token.Value;
         }
 
-        void AddTo(object obj, List<object> ret, Stack<List<object>> arrays)
+        static void AddTo(object obj, List<object> ret, Stack<List<object>> arrays)
         {
             if (arrays.Count > 0)
             {
-                List<object> ls = arrays.Peek();
+                var ls = arrays.Peek();
                 ls.Add(obj);
             }
             else
@@ -193,7 +213,12 @@ namespace NeoSharp.Application.Attributes
             }
         }
 
-        object ParseAutoObject(string value)
+        /// <summary>
+        /// Here we don't know the type that we should return, and we need to create the best one
+        /// </summary>
+        /// <param name="value">Value</param>
+        /// <returns>Return object</returns>
+        static object ParseObjectFromString(string value)
         {
             // Separate Array tokens
 
@@ -210,7 +235,7 @@ namespace NeoSharp.Application.Attributes
 
                 if (token.Quoted)
                 {
-                    AddTo(ParseAutoObject(token), ret, arrays);
+                    AddTo(ParseObjectFromToken(token), ret, arrays);
                 }
                 else
                 {
@@ -230,7 +255,7 @@ namespace NeoSharp.Application.Attributes
                             }
                         default:
                             {
-                                AddTo(ParseAutoObject(token), ret, arrays);
+                                AddTo(ParseObjectFromToken(token), ret, arrays);
                                 break;
                             }
                     }
@@ -242,7 +267,7 @@ namespace NeoSharp.Application.Attributes
             return ret.Count == 1 ? ret[0] : ret.ToArray();
         }
 
-        private CommandToken[] CleanCommand(IEnumerable<CommandToken> tokens)
+        static private CommandToken[] CleanCommand(IEnumerable<CommandToken> tokens)
         {
             var change = false;
             var tks = new List<CommandToken>();
@@ -294,22 +319,11 @@ namespace NeoSharp.Application.Attributes
         /// <returns>Return parsed argument</returns>
         private object ParseToArgument(CommandToken token, Type type)
         {
-            // Auto-detect
-            if (_objArrayType == type)
-            {
-                return ParseAutoObject(token.Value);
-            }
+            // Custom converters
 
-            // FileInfo
-            if (_fileInfoType == type)
+            if (_customConvertes.TryGetValue(type, out var converter))
             {
-                return new FileInfo(token.Value);
-            }
-
-            // DirectoryInfo
-            if (_directoryInfoType == type)
-            {
-                return new DirectoryInfo(token.Value);
+                return converter(token);
             }
 
             // Array
@@ -317,6 +331,7 @@ namespace NeoSharp.Application.Attributes
             {
                 var l = new List<object>();
                 var gt = type.GetElementType();
+
                 foreach (var ii in token.Value.Split(_splitChars))
                 {
                     var ov = ParseToArgument(new CommandToken(ii, false), gt);
@@ -382,7 +397,9 @@ namespace NeoSharp.Application.Attributes
             }
 
             // Is Convertible
+
             var conv = TypeDescriptor.GetConverter(type);
+
             if (conv.CanConvertFrom(_stringType))
             {
                 return conv.ConvertFrom(token.Value);
