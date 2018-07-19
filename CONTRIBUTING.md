@@ -7,6 +7,14 @@ Thank you for the interest in contributing to neo-sharp.  To contribute, please 
 
 * Check the [Trello Board](https://trello.com/b/WwSwxpB7/city-of-zion-neo-sharp) to see the current progress of an issue or feature, and verify someone is already working on this issue before beginning work.
 
+## Testing
+It's part of the goal project to reach a point where all the code running has a Unit Test that cover it. Let's face it, it's not because a project has a good test coverage mean that there is no bug. In the other end, a code without test it's a huge code-smell. When there is a change (due a bug or improvement), how do we know that everything still working as expected?
+Testing is important to retro-testing previous features, mean that future changes aren't breaking the current features.
+
+The threadhold to archive is around 80% test coverage and this value is not 100% because there is code that will not be testable, like: DTO objects and Third-Party calls.
+
+### How to write Unit Tests?
+The methodoly used for Unit Tests should be the AAA that can be found int this link (https://msdn.microsoft.com/en-us/library/hh694602.aspx).
 
 ## Best Patterns and Practices to follow:
 Another goal of the neo-sharp team is to grow together and help everyone become better developers than when they started working on the project.  We will continue to curate a list of resources on best patterns and practices, anti-patterns, bad habits, or any other quick reads that could be beneficial to increase the quality of code contributors of the project:

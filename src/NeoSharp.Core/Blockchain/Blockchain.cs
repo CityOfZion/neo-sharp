@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain.Processors;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Cryptography;
@@ -47,6 +46,7 @@ namespace NeoSharp.Core.Blockchain
         /// Constructor
         /// </summary>
         /// <param name="repository">Repository</param>
+        /// <param name="blockProcessor">The block processor</param>
         public Blockchain(IRepository repository, IProcessor<Block> blockProcessor)
         {
             _repository = repository;
@@ -407,7 +407,7 @@ namespace NeoSharp.Core.Blockchain
             return Fixed8.Zero;
         }
 
-        public static Fixed8 CalculateBonus(IEnumerable<CoinReference> inputs, uint height_end)
+        public static Fixed8 CalculateBonus(IEnumerable<CoinReference> inputs, uint heightEnd)
         {
             return Fixed8.Zero;
         }

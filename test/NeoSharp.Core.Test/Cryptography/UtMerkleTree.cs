@@ -11,21 +11,13 @@ namespace NeoSharp.Core.Test.Cryptography
     [TestClass]
     public class UtMerkleTree : TestBase
     {
-        private readonly UInt256[] _hashes = new UInt256[]
-            {
-                new UInt256("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7".HexToBytes()),
-                new UInt256("0d40e64e3455677c1521870d6b732366e2434e18ffc4d2e10140a40131f96d4b".HexToBytes()),
-                new UInt256("a3e5514bcfd79e7649e30fbf98826208f3da47833b4223b68cff2db23beb3801".HexToBytes()),
-                new UInt256("e69601364bdac76eeebf277bea25b850aa4c7d9f7d28f670084f7ee801560ea5".HexToBytes())
-            };
-
-        private Crypto _crypto;
-
-        [TestInitialize]
-        public void Init()
+        private readonly UInt256[] _hashes = 
         {
-            _crypto = AutoMockContainer.Create<BouncyCastleCrypto>();
-        }
+            new UInt256("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7".HexToBytes()),
+            new UInt256("0d40e64e3455677c1521870d6b732366e2434e18ffc4d2e10140a40131f96d4b".HexToBytes()),
+            new UInt256("a3e5514bcfd79e7649e30fbf98826208f3da47833b4223b68cff2db23beb3801".HexToBytes()),
+            new UInt256("e69601364bdac76eeebf277bea25b850aa4c7d9f7d28f670084f7ee801560ea5".HexToBytes())
+        };
 
         [TestMethod]
         public void Test_Tree()
@@ -50,7 +42,7 @@ namespace NeoSharp.Core.Test.Cryptography
             var hashes = new UInt256[] { };
 
             // Act
-            var tree = MerkleTree.ComputeTree(hashes);
+            MerkleTree.ComputeTree(hashes);
         }
 
         [TestMethod]
