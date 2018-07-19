@@ -16,13 +16,21 @@ namespace NeoSharp.Application.DI
 
             switch (cfg.Provider)
             {
-                case RedisDbConfig.Provider:
-                    {
-                        containerBuilder.RegisterSingleton<RedisDbConfig>();
-                        containerBuilder.RegisterSingleton<IRepository, RedisDbRepository>();
-                        containerBuilder.RegisterSingleton<IRedisDbContext, RedisDbContext>();
-                        break;
-                    }
+                case RedisDbJsonConfig.Provider:
+                {
+                    containerBuilder.RegisterSingleton<RedisDbJsonConfig>();
+                    containerBuilder.RegisterSingleton<IRepository, RedisDbJsonRepository>();
+                    containerBuilder.RegisterSingleton<IRedisDbContext, RedisDbContext>();
+                    break;
+                }
+                
+                case RedisDbBinaryConfig.Provider:
+                {
+                    containerBuilder.RegisterSingleton<RedisDbBinaryConfig>();
+                    containerBuilder.RegisterSingleton<IRepository, RedisDbBinaryRepository>();
+                    containerBuilder.RegisterSingleton<IRedisDbContext, RedisDbContext>();
+                    break;
+                }
 
                 case RocksDbConfig.Provider:
                     {

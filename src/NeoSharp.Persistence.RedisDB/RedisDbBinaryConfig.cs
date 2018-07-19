@@ -2,17 +2,15 @@
 
 namespace NeoSharp.Persistence.RedisDB
 {
-    public class RedisDbConfig
+    public class RedisDbBinaryConfig
     {
-        public const string Provider = "RedisDb";
+        public const string Provider = "RedisDbBinary";
 
         public string ConnectionString { get; set; }
 
         public int? DatabaseId { get; set; }
 
-        public bool IsBinaryMode { get; set; }
-
-        public RedisDbConfig(IConfiguration configuration)
+        public RedisDbBinaryConfig(IConfiguration configuration)
         {
             configuration
                 .GetSection("persistence")

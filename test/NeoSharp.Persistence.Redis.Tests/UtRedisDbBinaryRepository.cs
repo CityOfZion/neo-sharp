@@ -15,14 +15,14 @@ using StackExchange.Redis;
 namespace NeoSharp.Persistence.Redis.Tests
 {
     [TestClass]
-    public class UtRedisDbRepository : TestBase
+    public class UtRedisDbBinaryRepository : TestBase
     {
         [TestMethod]
         public async Task GetIndexHeight_NoValueFound_ReturnsZero()
         {
             var contextMock = AutoMockContainer.GetMock<IRedisDbContext>();
             contextMock.Setup(m => m.Get(DataEntryPrefix.IxIndexHeight.ToString())).ReturnsAsync(RedisValue.Null);
-            var testee = AutoMockContainer.Create<RedisDbRepository>();
+            var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetIndexHeight();
 
@@ -35,7 +35,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             var expectedHeight = (uint) RandomInt();
             var contextMock = AutoMockContainer.GetMock<IRedisDbContext>();
             contextMock.Setup(m => m.Get(DataEntryPrefix.IxIndexHeight.ToString())).ReturnsAsync(expectedHeight);
-            var testee = AutoMockContainer.Create<RedisDbRepository>();
+            var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetIndexHeight();
 
@@ -48,7 +48,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             var input = UInt160.Parse(RandomInt().ToString("X40"));
             var contextMock = AutoMockContainer.GetMock<IRedisDbContext>();
             contextMock.Setup(m => m.Get(input.BuildIxConfirmedKey())).ReturnsAsync(RedisValue.Null);
-            var testee = AutoMockContainer.Create<RedisDbRepository>();
+            var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetIndexConfirmed(input);
 
@@ -75,12 +75,11 @@ namespace NeoSharp.Persistence.Redis.Tests
                 }
             };
             var contextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            contextMock.SetupGet(m => m.IsBinaryMode).Returns(true);
             contextMock.Setup(m => m.Get(input.BuildIxConfirmedKey())).ReturnsAsync(expectedBytes);
             var deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             deserializerMock.Setup(m => m.Deserialize<HashSet<CoinReference>>(expectedBytes, null))
                 .Returns(expectedSet);
-            var testee = AutoMockContainer.Create<RedisDbRepository>();
+            var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var binaryInitializer = new BinaryInitializer(null, deserializerMock.Object);
             var result = await testee.GetIndexConfirmed(input);
@@ -94,7 +93,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             var input = UInt160.Parse(RandomInt().ToString("X40"));
             var contextMock = AutoMockContainer.GetMock<IRedisDbContext>();
             contextMock.Setup(m => m.Get(input.BuildIxClaimableKey())).ReturnsAsync(RedisValue.Null);
-            var testee = AutoMockContainer.Create<RedisDbRepository>();
+            var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetIndexClaimable(input);
 
@@ -121,13 +120,12 @@ namespace NeoSharp.Persistence.Redis.Tests
                 }
             };
             var contextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            contextMock.SetupGet(m => m.IsBinaryMode).Returns(true);
             contextMock.Setup(m => m.Get(input.BuildIxClaimableKey())).ReturnsAsync(expectedBytes);
             var deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             deserializerMock.Setup(m => m.Deserialize<HashSet<CoinReference>>(expectedBytes, null))
                 .Returns(expectedSet);
             var binaryInitializer = new BinaryInitializer(null, deserializerMock.Object);
-            var testee = AutoMockContainer.Create<RedisDbRepository>();
+            var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetIndexClaimable(input);
 

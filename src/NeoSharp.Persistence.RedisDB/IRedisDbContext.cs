@@ -7,8 +7,6 @@ namespace NeoSharp.Persistence.RedisDB
 {
     public interface IRedisDbContext
     {
-        bool IsBinaryMode { get; }
-
         Task Set(RedisKey key, RedisValue value);
 
         Task<RedisValue> Get(RedisKey key);

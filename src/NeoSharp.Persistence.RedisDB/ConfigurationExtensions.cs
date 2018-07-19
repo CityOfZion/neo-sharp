@@ -4,13 +4,20 @@ namespace NeoSharp.Persistence.RedisDB
 {
     public static class ConfigurationExtensions
     {
-        public static void Bind(this IConfiguration config, RedisDbConfig redisDbConfig)
+        public static void Bind(this IConfiguration config, RedisDbBinaryConfig redisDbBinaryConfig)
         {
-            var redisDbProviderConfig = config.GetSection("redisDbProvider");
+            var redisDbProviderConfig = config.GetSection("redisDbBinaryProvider");
 
-            redisDbConfig.ConnectionString = ParseString(redisDbProviderConfig, "connectionString");
-            redisDbConfig.DatabaseId = ParseUInt16(redisDbProviderConfig, "databaseId");
-            redisDbConfig.IsBinaryMode = ParseBool(redisDbProviderConfig, "isBinaryMode");
+            redisDbBinaryConfig.ConnectionString = ParseString(redisDbProviderConfig, "connectionString");
+            redisDbBinaryConfig.DatabaseId = ParseUInt16(redisDbProviderConfig, "databaseId");
+        }
+        
+        public static void Bind(this IConfiguration config, RedisDbJsonConfig redisDbBinaryConfig)
+        {
+            var redisDbProviderConfig = config.GetSection("redisDbJsonProvider");
+
+            redisDbBinaryConfig.ConnectionString = ParseString(redisDbProviderConfig, "connectionString");
+            redisDbBinaryConfig.DatabaseId = ParseUInt16(redisDbProviderConfig, "databaseId");
         }
 
         private static ushort ParseUInt16(IConfiguration config, string section, ushort defaultValue = 0)

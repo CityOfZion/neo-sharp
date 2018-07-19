@@ -15,22 +15,19 @@ namespace NeoSharp.Persistence.RedisDB
         #endregion
 
         #region Constructor
-        public RedisDbContext(RedisDbConfig config)
+        public RedisDbContext(RedisDbBinaryConfig binaryConfig)
         {
-            if (config == null)  throw new ArgumentNullException(nameof(config));
+            if (binaryConfig == null)  throw new ArgumentNullException(nameof(binaryConfig));
 
-            var host = string.IsNullOrEmpty(config.ConnectionString) ? "localhost" : config.ConnectionString;
-            var dbId = config.DatabaseId ?? 0;
+            var host = string.IsNullOrEmpty(binaryConfig.ConnectionString) ? "localhost" : binaryConfig.ConnectionString;
+            var dbId = binaryConfig.DatabaseId ?? 0;
 
             var connection = ConnectionMultiplexer.Connect(host);
             this._redisDb = connection.GetDatabase(dbId);
-
-            this.IsBinaryMode = config.IsBinaryMode;
         }
         #endregion
 
-        #region IRedisDbContext implementation 
-        public bool IsBinaryMode { get; }
+        #region IRedisDbContext implementation
 
         public Task Set(RedisKey key, RedisValue value)
         {
