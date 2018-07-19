@@ -1,4 +1,5 @@
 ﻿using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 
@@ -17,23 +18,28 @@ namespace NeoSharp.Core.Models
 #if !DEBUG //TODO: Chinese characters are having an issue in the VS Debugger?  We can't serialize Chinese Chars?
         [BinaryProperty(3)]
         [JsonProperty("name")]
-        public string Name;
 #endif
+        public string Name;
 
         [BinaryProperty(4)]
         [JsonProperty("amount")]
-        public double Amount;
+        public Fixed8 Amount;
 
         [BinaryProperty(5)]
+        [JsonProperty("available")]
+        public Fixed8 Available;
+
+        [BinaryProperty(6)]
         [JsonProperty("precision")]
         public byte Precision;
 
-        [BinaryProperty(6)]
-        [JsonProperty("owner")]
-        public string Owner;
-
         [BinaryProperty(7)]
+        [JsonProperty("owner")]
+        public ECPoint Owner;
+
+        [BinaryProperty(8)]
         [JsonProperty("admin")]
-        public string Admin;
+        public UInt160 Admin;
+
     }
 }

@@ -71,5 +71,6 @@ namespace NeoSharp.Core.Test.Blockchain.State
             repositoryMock.Verify(m => m.AddAccount(It.Is<Account>(a =>
                 a.ScriptHash.Equals(acct.ScriptHash) && a.Balances[assetId].Equals(new Fixed8(expectedBalance)))));
         }
+
     }
 }

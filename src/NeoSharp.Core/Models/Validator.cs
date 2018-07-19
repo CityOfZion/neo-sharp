@@ -20,5 +20,16 @@ namespace NeoSharp.Core.Models
         [BinaryProperty(3)]
         [JsonProperty("votes")]
         public Fixed8 Votes;
+
+        public Validator()
+        {
+        }
+
+        public Validator(ECPoint publicKey)
+        {
+            PublicKey = publicKey;
+            Registered = false;
+            Votes = Fixed8.Zero;
+        }
     }
 }

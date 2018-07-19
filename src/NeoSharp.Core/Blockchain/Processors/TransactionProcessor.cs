@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain.State;
@@ -16,21 +17,36 @@ namespace NeoSharp.Core.Blockchain.Processors
     public class TransactionProcessor : IProcessor<Transaction>
     {
         private readonly IRepository _repository;
+        private readonly IAccountManager _accountManager;
         private readonly IProcessor<ClaimTransaction> _claimTxProcessor;
         private readonly IProcessor<InvocationTransaction> _invocationTxProcessor;
-        private readonly IAccountManager _accountManager;
+        private readonly IProcessor<IssueTransaction> _issueTxProcessor;
+        private readonly IProcessor<EnrollmentTransaction> _enrollmentTxProcessor;
+        private readonly IProcessor<RegisterTransaction> _registerTxProcessor;
+        private readonly IProcessor<StateTransaction> _stateTxProcessor;
+        private readonly IProcessor<PublishTransaction> _publishTxProcessor;
 
         public TransactionProcessor(
             IRepository repository,
             IAccountManager accountManager,
             IProcessor<ClaimTransaction> claimTxProcessor,
-            IProcessor<InvocationTransaction> invocationTxProcessor
+            IProcessor<InvocationTransaction> invocationTxProcessor,
+            IProcessor<IssueTransaction> issueTxProcessor,
+            IProcessor<EnrollmentTransaction> enrollmentTxProcessor,
+            IProcessor<RegisterTransaction> registerTxProcessor,
+            IProcessor<StateTransaction> stateTxProcessor,
+            IProcessor<PublishTransaction> publishTxProcessor
         )
         {
             _repository = repository;
             _accountManager = accountManager;
             _claimTxProcessor = claimTxProcessor;
             _invocationTxProcessor = invocationTxProcessor;
+            _issueTxProcessor = issueTxProcessor;
+            _enrollmentTxProcessor = enrollmentTxProcessor;
+            _registerTxProcessor = registerTxProcessor;
+            _stateTxProcessor = stateTxProcessor;
+            _publishTxProcessor = publishTxProcessor;
         }
 
         public async Task Process(Transaction tx)
@@ -49,9 +65,23 @@ namespace NeoSharp.Core.Blockchain.Processors
                 case InvocationTransaction invocationTx:
                     await _invocationTxProcessor.Process(invocationTx);
                     break;
-                //TODO: Resume throwing once every type is implemented
-//                default:
-//                    throw new ArgumentException("Unknown Transaction Type");
+                case StateTransaction stateTx:
+                    await _stateTxProcessor.Process(stateTx);
+                    break;
+                case IssueTransaction issueTx:
+                    await _issueTxProcessor.Process(issueTx);
+                    break;
+                case PublishTransaction publishTx:
+                    await _publishTxProcessor.Process(publishTx);
+                    break;
+                case RegisterTransaction registerTx:
+                    await _registerTxProcessor.Process(registerTx);
+                    break;
+                case EnrollmentTransaction enrollmentTx:
+                    await _enrollmentTxProcessor.Process(enrollmentTx);
+                    break;
+                default:
+                    throw new ArgumentException("Unknown Transaction Type");
             }
 
             await _repository.AddTransaction(tx);

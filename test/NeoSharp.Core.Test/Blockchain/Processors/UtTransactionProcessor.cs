@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,6 +35,89 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
 
             await testee.Process(input);
             invocationTxProcessorMock.Verify(m => m.Process(input));
+        }
+
+        [TestMethod]
+        public async Task Process_IssueTx_CallsIssueTxProcessor()
+        {
+            var input = new IssueTransaction();
+            var issueTxProcessorMock = AutoMockContainer.GetMock<IProcessor<IssueTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionProcessor>();
+
+            await testee.Process(input);
+            issueTxProcessorMock.Verify(m => m.Process(input));
+        }
+
+        [TestMethod]
+        public async Task Process_EnrollmentTx_CallsEnrollmentTxProcessor()
+        {
+            var input = new EnrollmentTransaction();
+            var enrollmentTxProcessorMock = AutoMockContainer.GetMock<IProcessor<EnrollmentTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionProcessor>();
+
+            await testee.Process(input);
+            enrollmentTxProcessorMock.Verify(m => m.Process(input));
+        }
+
+        [TestMethod]
+        public async Task Process_RegisterTx_CallsRegisterTxProcessor()
+        {
+            var input = new RegisterTransaction();
+            var registerTxProcessorMock = AutoMockContainer.GetMock<IProcessor<RegisterTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionProcessor>();
+
+            await testee.Process(input);
+            registerTxProcessorMock.Verify(m => m.Process(input));
+        }
+
+        [TestMethod]
+        public async Task Process_PublishTx_CallsPublishTxProcessor()
+        {
+            var input = new PublishTransaction();
+            var publishTxProcessorMock = AutoMockContainer.GetMock<IProcessor<PublishTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionProcessor>();
+
+            await testee.Process(input);
+            publishTxProcessorMock.Verify(m => m.Process(input));
+        }
+
+        [TestMethod]
+        public async Task Process_StateTx_CallsStateTxProcessor()
+        {
+            var input = new StateTransaction();
+            var stateTxProcessorMock = AutoMockContainer.GetMock<IProcessor<StateTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionProcessor>();
+
+            await testee.Process(input);
+            stateTxProcessorMock.Verify(m => m.Process(input));
+        }
+
+        [TestMethod]
+        public async Task Process_ContractTx_NoSpecialCalls()
+        {
+            var input = new ContractTransaction();
+            var testee = AutoMockContainer.Create<TransactionProcessor>();
+
+            await testee.Process(input);
+        }
+
+        [TestMethod]
+        public async Task Process_MinerTx_NoSpecialCalls()
+        {
+            var input = new MinerTransaction();
+            var testee = AutoMockContainer.Create<TransactionProcessor>();
+
+            await testee.Process(input);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task Process_Transaction_Errors()
+        {
+            var input = new Transaction();
+            var testee = AutoMockContainer.Create<TransactionProcessor>();
+
+            await testee.Process(input);
         }
 
         [TestMethod]
@@ -120,7 +204,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         [TestMethod]
         public async Task Process_Transaction_SaveTx()
         {
-            var input = new Transaction();
+            var input = new ContractTransaction();
             var repositoryMock = AutoMockContainer.GetMock<IRepository>();
             var testee = AutoMockContainer.Create<TransactionProcessor>();
 

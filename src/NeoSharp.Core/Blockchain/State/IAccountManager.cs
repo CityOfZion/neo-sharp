@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
 
@@ -8,5 +9,6 @@ namespace NeoSharp.Core.Blockchain.State
     {
         Task<Account> Get(UInt160 hash);
         Task UpdateBalance(UInt160 hash, UInt256 assetId, Fixed8 delta);
+        Task UpdateVotes(UInt160 hash, ECPoint[] newCandidates);
     }
 }

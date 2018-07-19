@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -31,14 +32,29 @@ namespace NeoSharp.Core.Blockchain.State
 
             if (assetId.Equals(GenesisAssets.GoverningTokenRegisterTransaction.Hash) && account.Votes.Length > 0)
                 foreach (var pubKey in account.Votes)
-                {
-                    var validator = await _repository.GetValidator(pubKey);
-                    validator.Votes += delta;
-                    await _repository.AddValidator(validator);
-                }
+                    await UpdateValidatorVote(pubKey, delta);
 
             // TODO: Check if we need to store validatorCount because existing implementation has it
 //                validators_count.GetAndChange().Votes[account.Votes.Length - 1] += output.Value;
+        }
+
+        public async Task UpdateVotes(UInt160 hash, ECPoint[] newCandidates)
+        {
+            var account = await Get(hash) ?? new Account(hash);
+            var governingTokenBalance = account.Balances[GenesisAssets.GoverningTokenRegisterTransaction.Hash];
+
+            foreach (var keyOfOldValidator in account.Votes)
+                await UpdateValidatorVote(keyOfOldValidator, -governingTokenBalance);
+
+            foreach (var keyOfNewValidator in newCandidates)
+                await UpdateValidatorVote(keyOfNewValidator, governingTokenBalance);
+        }
+
+        private async Task UpdateValidatorVote(ECPoint pubKey, Fixed8 delta)
+        {
+            var validator = await _repository.GetValidator(pubKey);
+            validator.Votes += delta;
+            await _repository.AddValidator(validator);
         }
     }
 }

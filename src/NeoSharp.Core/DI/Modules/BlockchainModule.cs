@@ -16,8 +16,14 @@ namespace NeoSharp.Core.DI.Modules
 
             containerBuilder.RegisterSingleton<IProcessor<Block>, BlockProcessor>();
             containerBuilder.RegisterSingleton<IProcessor<Transaction>, TransactionProcessor>();
+
             containerBuilder.RegisterSingleton<IProcessor<ClaimTransaction>, ClaimTransactionProcessor>();
             containerBuilder.RegisterSingleton<IProcessor<InvocationTransaction>, InvocationTransactionProcessor>();
+            containerBuilder.RegisterSingleton<IProcessor<IssueTransaction>, IssueTransactionProcessor>();
+            containerBuilder.RegisterSingleton<IProcessor<PublishTransaction>, PublishTransactionProcessor>();
+            containerBuilder.RegisterSingleton<IProcessor<RegisterTransaction>, RegisterTransactionProcessor>();
+            containerBuilder.RegisterSingleton<IProcessor<StateTransaction>, StateTransactionProcessor>();
+            containerBuilder.RegisterSingleton<IProcessor<EnrollmentTransaction>, EnrollmentTransactionProcessor>();
 
             #endregion
 

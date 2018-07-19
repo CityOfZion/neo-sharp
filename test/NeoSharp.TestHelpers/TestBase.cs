@@ -44,20 +44,29 @@ namespace NeoSharp.TestHelpers
         {
             return _rand.Next();
         }
+
         /// <summary>
         /// Generate a random integer with a max value
         /// </summary>
         /// <param name="max"></param>
         /// <returns>A positive integer that is smaller than max</returns>
-        public int RandomInt(int max = int.MaxValue)
+        public int RandomInt(int max)
         {
             return _rand.Next(max);
         }
 
-        public int RandomInt(int minValue = 0, int maxValue = int.MaxValue)
+        public int RandomInt(int minValue, int maxValue)
         {
             return _rand.Next(minValue, maxValue);
         }
+
+        public byte[] RandomByteArray(int len)
+        {
+            var output = new byte[len];
+            _rand.NextBytes(output);
+            return output;
+        }
+
         /// <summary>
         /// Verify All
         /// </summary>
