@@ -36,7 +36,7 @@ namespace NeoSharp.Persistence.RocksDB
 
         public static byte[] BuildStateAssetKey(this UInt256 hash)
         {
-            return DataEntryPrefix.StAccount.BuildKey(hash.ToArray());
+            return DataEntryPrefix.StAsset.BuildKey(hash.ToArray());
         }
 
         public static byte[] BuildStateContractKey(this UInt160 hash)
