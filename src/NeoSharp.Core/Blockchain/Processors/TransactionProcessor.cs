@@ -51,8 +51,8 @@ namespace NeoSharp.Core.Blockchain.Processors
 
         public async Task Process(Transaction tx)
         {
-            await GainOutputs(tx.Hash, tx.Outputs);
             await SpendOutputs(tx.Inputs);
+            await GainOutputs(tx.Hash, tx.Outputs);
 
             switch (tx)
             {

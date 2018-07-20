@@ -30,7 +30,7 @@ namespace NeoSharp.Core.Blockchain.State
 
             await _repository.AddAccount(account);
 
-            if (assetId.Equals(GenesisAssets.GoverningTokenRegisterTransaction.Hash) && account.Votes.Length > 0)
+            if (assetId.Equals(GenesisAssets.GoverningTokenRegisterTransaction.Hash) && account.Votes?.Length > 0)
                 foreach (var pubKey in account.Votes)
                     await UpdateValidatorVote(pubKey, delta);
 
@@ -48,6 +48,8 @@ namespace NeoSharp.Core.Blockchain.State
 
             foreach (var keyOfNewValidator in newCandidates)
                 await UpdateValidatorVote(keyOfNewValidator, governingTokenBalance);
+
+            await _repository.AddAccount(account);
         }
 
         private async Task UpdateValidatorVote(ECPoint pubKey, Fixed8 delta)
