@@ -1,8 +1,4 @@
-﻿using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
-using NeoSharp.Application.Attributes;
+﻿using NeoSharp.Application.Attributes;
 
 namespace NeoSharp.Application.Client
 {
@@ -22,57 +18,6 @@ namespace NeoSharp.Application.Client
             {
                 _consoleWriter.WriteLine(peer.ToString());
             }
-        }
-
-        /// <summary>
-        /// Make rpc call
-        /// </summary>
-        [PromptCommand("rpc call", Category = "Network", Help = "Make rpc calls to any server")]
-        private async Task RpcCallCommand(IPEndPoint endPoint, string method, [PromptCommandParameterBody] string parameters)
-        {
-            if (string.IsNullOrEmpty(parameters))
-            {
-                parameters = "[]";
-            }
-
-            using (HttpClient wb = new HttpClient())
-            {
-                var content = new StringContent
-                    (
-                    "{\"jsonrpc\": \"2.0\", \"method\": \"" + method + "\", \"params\": " + parameters + ", \"id\":1}", Encoding.UTF8,
-                    "application/json"
-                    );
-
-                var rest = await wb.PostAsync("http://" + endPoint.Address.ToString() + ":" + endPoint.Port.ToString(), content);
-
-                if (!rest.IsSuccessStatusCode)
-                {
-                    _consoleWriter.WriteLine(rest.StatusCode + " - " + rest.ReasonPhrase, ConsoleOutputStyle.Error);
-                    return;
-                }
-
-                var json = await rest.Content.ReadAsStringAsync();
-
-                _consoleWriter.WriteObject(Newtonsoft.Json.Linq.JObject.Parse(json), PromptOutputStyle.json);
-            }
-        }
-
-        /// <summary>
-        /// Start rpc
-        /// </summary>
-        [PromptCommand("rpc start", Category = "Network")]
-        private void RpcStartCommand()
-        {
-            _rpc?.Start();
-        }
-
-        /// <summary>
-        /// Stop rpc
-        /// </summary>
-        [PromptCommand("rpc stop", Category = "Network")]
-        private void RpcStopCommand()
-        {
-            _rpc?.Stop();
         }
 
         /// <summary>
