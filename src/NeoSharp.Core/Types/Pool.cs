@@ -4,75 +4,20 @@ using System.Linq;
 
 namespace NeoSharp.Core.Types
 {
-    public class Pool<TKey, TValue> where TKey : IEquatable<TKey>
+    public class Pool<TKey, TValue> where TKey : IEquatable<TKey>, IComparable<TKey>
     {
-        class EntryComparer : IEqualityComparer<Entry>
-        {
-            public bool Equals(Entry x, Entry y)
-            {
-                return x.Key.Equals(y.Key);
-            }
-
-            public int GetHashCode(Entry obj)
-            {
-                return 0;
-            }
-        }
-
-        class Entry : IEquatable<TKey>
-        {
-            /// <summary>
-            /// Key
-            /// </summary>
-            public TKey Key;
-
-            /// <summary>
-            /// Value
-            /// </summary>
-            public TValue Value;
-
-            /// <summary>
-            /// Check if is equal by the key
-            /// </summary>
-            /// <param name="other">Other</param>
-            /// <returns>Return true if is equal</returns>
-            public bool Equals(TKey other)
-            {
-                return Key.Equals(other);
-            }
-
-            /// <summary>
-            /// Return equal value
-            /// </summary>
-            public override int GetHashCode()
-            {
-                return 0;
-            }
-
-            /// <summary>
-            /// String representation
-            /// </summary>
-            public override string ToString()
-            {
-                return Key.ToString();
-            }
-        }
-
         #region Private fields
 
-        private bool _isSorted;
-        private readonly Func<TValue, TKey> _key;
-        private readonly Comparison<TValue> _order;
-        private readonly List<Entry> _list;
-        private readonly EntryComparer _comparer;
+        private readonly Func<TValue, TKey> _keySelector;
+        private readonly IDictionary<TKey, TValue> _dictionary;
 
         #endregion
 
         #region Public fields
 
-        public int Count => _list.Count;
+        public int Count => _dictionary.Count;
         public readonly PoolMaxBehaviour Behaviour;
-        public readonly int Max;
+        public readonly int Capacity;
 
         #endregion
 
@@ -80,31 +25,16 @@ namespace NeoSharp.Core.Types
         /// Constructor
         /// </summary>
         /// <param name="behaviour">Behaviour</param>
-        /// <param name="max">Max</param>
-        /// <param name="key">Key</param>
-        /// <param name="order">Order</param>
-        public Pool(PoolMaxBehaviour behaviour, int max, Func<TValue, TKey> key, Comparison<TValue> order)
+        /// <param name="capacity">Capacity</param>
+        /// <param name="keySelector">Key Selector</param>
+        public Pool(PoolMaxBehaviour behaviour, int capacity, Func<TValue, TKey> keySelector)
         {
-            if (max <= 0) throw new ArgumentException(nameof(max));
+            if (capacity <= 0) throw new ArgumentException(nameof(capacity));
 
             Behaviour = behaviour;
-            Max = max;
-            _key = key;
-            _order = order;
-            _isSorted = false;
-            _list = new List<Entry>();
-            _comparer = new EntryComparer();
-        }
-
-        /// <summary>
-        /// Sort
-        /// </summary>
-        private void Sort()
-        {
-            if (_order == null || _isSorted) return;
-
-            _list.Sort((a, b) => _order(a.Value, b.Value));
-            _isSorted = true;
+            Capacity = capacity;
+            _keySelector = keySelector;
+            _dictionary = new Dictionary<TKey, TValue>(capacity);
         }
 
         /// <summary>
@@ -112,11 +42,7 @@ namespace NeoSharp.Core.Types
         /// </summary>
         public void Clear()
         {
-            lock (_list)
-            {
-                _list.Clear();
-                _isSorted = true;
-            }
+            _dictionary.Clear();
         }
 
         /// <summary>
@@ -125,49 +51,38 @@ namespace NeoSharp.Core.Types
         /// <param name="value">Value</param>
         public bool Push(TValue value)
         {
-            Entry entry = new Entry()
+            var entry = new KeyValuePair<TKey, TValue>(_keySelector(value), value);
+
+            if (_dictionary.Contains(entry)) return false;
+
+            // Add
+
+            if (_dictionary.Count < Capacity)
             {
-                Key = _key(value),
-                Value = value
-            };
+                _dictionary.Add(entry);
+                return true;
+            }
 
-            lock (_list)
+            // Overflow
+
+            switch (Behaviour)
             {
-                if (_list.Contains(entry, _comparer)) return false;
+                case PoolMaxBehaviour.RemoveFromEnd:
+                    {
+                        _dictionary.Add(entry);
 
-                // Add
+                        var ic = _dictionary.Keys.OrderBy(_ => _).Last();
 
-                _isSorted = false;
-
-                if (_list.Count < Max)
-                {
-                    _list.Add(entry);
-                    return true;
-                }
-
-                // Overflow
-
-                switch (Behaviour)
-                {
-                    case PoolMaxBehaviour.RemoveFromEnd:
+                        if (ic.Equals(entry.Key))
                         {
-                            _list.Add(entry);
-
-                            Sort();
-
-                            int ic = _list.Count - 1;
-
-                            if (_list[ic] == entry)
-                            {
-                                _list.RemoveAt(ic);
-                                return false;
-                            }
-
-                            _list.RemoveAt(ic);
-                            return true;
+                            _dictionary.Remove(ic);
+                            return false;
                         }
-                    default: return false;
-                }
+
+                        _dictionary.Remove(ic);
+                        return true;
+                    }
+                default: return false;
             }
         }
 
@@ -178,18 +93,11 @@ namespace NeoSharp.Core.Types
         /// <returns>Return array of elements</returns>
         public TValue[] Peek(int count = 1)
         {
-            lock (_list)
-            {
-                Sort();
+            var max = Math.Min(count, Count);
+            var keys = _dictionary.Keys.OrderBy(_ => _).Take(max).ToArray();
+            var ret = _dictionary.Where(x => keys.Contains(x.Key)).OrderBy(x => x.Key).Select(x => x.Value).ToArray();
 
-                int max = Math.Min(count, Count);
-                TValue[] ret = new TValue[max];
-
-                for (int x = 0; x < max; x++)
-                    ret[x] = _list[x].Value;
-
-                return ret;
-            }
+            return ret;
         }
 
         /// <summary>
@@ -208,10 +116,7 @@ namespace NeoSharp.Core.Types
         /// <returns>Return true if is removed</returns>
         public bool Remove(TKey key)
         {
-            lock (_list)
-            {
-                return _list.RemoveAll(a => a.Key.Equals(key)) > 0;
-            }
+            return _dictionary.Remove(key);
         }
 
         /// <summary>
@@ -221,12 +126,14 @@ namespace NeoSharp.Core.Types
         /// <returns>Return array of elements</returns>
         public TValue[] Pop(int count = 1)
         {
-            lock (_list)
+            var ret = Peek(count);
+
+            foreach (var value in ret)
             {
-                TValue[] ret = Peek(count);
-                _list.RemoveRange(0, ret.Length);
-                return ret;
+                _dictionary.Remove(_keySelector(value));
             }
+
+            return ret;
         }
 
         /// <summary>

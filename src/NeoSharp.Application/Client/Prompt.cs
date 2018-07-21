@@ -9,6 +9,7 @@ using NeoSharp.Application.Attributes;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.DI;
 using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Blockchain.Processors;
 using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
@@ -55,6 +56,10 @@ namespace NeoSharp.Application.Client
         /// Blockchain
         /// </summary>
         private readonly IBlockchain _blockchain;
+        /// <summary>
+        /// Blockchain
+        /// </summary>
+        private readonly IBlockProcessor _blockProcessor;
         /// <summary>
         /// Rpc server
         /// </summary>
@@ -140,6 +145,7 @@ namespace NeoSharp.Application.Client
         /// <param name="rpcInit">Rpc server</param>
         /// <param name="serializer">Binary serializer</param>
         /// <param name="blockchain">Blockchain</param>
+        /// <param name="blockProcessor">Block Processor</param>
         /// <param name="walletManager"></param>
         public Prompt(
             IConsoleReader consoleReaderInit,
@@ -151,6 +157,7 @@ namespace NeoSharp.Application.Client
             IRpcServer rpcInit,
             IBinarySerializer serializer,
             IBlockchain blockchain,
+            IBlockProcessor blockProcessor,
             IWalletManager walletManager,
             ICryptoInitializer cryptoInitializer,
             IBinaryInitializer binaryInitializer)
@@ -163,6 +170,7 @@ namespace NeoSharp.Application.Client
             _serializer = serializer;
             _rpc = rpcInit;
             _blockchain = blockchain;
+            _blockProcessor = blockProcessor;
             _loggerFactory = loggerFactory;
             _logs = new ConcurrentBag<LogEntry>();
             _walletManager = walletManager;

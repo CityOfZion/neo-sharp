@@ -131,7 +131,7 @@ namespace NeoSharp.Core.Blockchain
             return witness;
         }
 
-        public static UInt160 GetGenesisNextConsensusAdress()
+        public static UInt160 GetGenesisNextConsensusAddress()
         {
             var genesisValidators = GenesisStandByValidators();
             return ContractFactory.CreateMultiplePublicKeyRedeemContract(genesisValidators.Length - (genesisValidators.Length - 1) / 3, genesisValidators).Code.ScriptHash;
