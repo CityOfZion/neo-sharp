@@ -30,15 +30,39 @@ namespace NeoSharp.Application.Attributes
         static PromptCommandAttribute()
         {
             _customConvertes[typeof(object[])] = (token) => ParseObjectFromString(token.Value);
+            _customConvertes[typeof(byte[])] = (token) => token.Value.HexToBytes();
             _customConvertes[typeof(FileInfo)] = (token) => new FileInfo(token.Value);
             _customConvertes[typeof(DirectoryInfo)] = (token) => new DirectoryInfo(token.Value);
+            _customConvertes[typeof(IPAddress)] = (token) =>
+            {
+                var ip = token.Value;
+                var uriType = Uri.CheckHostName(ip);
 
-            // TODO: dns
+                if (uriType == UriHostNameType.Dns)
+                {
+                    // Check dns
+                    var hostEntry = Dns.GetHostEntry(ip);
+                    if (hostEntry.AddressList.Length == 0) throw (new ArgumentException(nameof(IPAddress)));
+                    ip = hostEntry.AddressList.FirstOrDefault().ToString();
+                }
 
-            _customConvertes[typeof(IPAddress)] = (token) => IPAddress.Parse(token.Value);
+                return IPAddress.Parse(ip);
+            };
             _customConvertes[typeof(IPEndPoint)] = (token) =>
             {
                 var split = token.Value.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+                if (split.Length != 2) throw (new ArgumentException(nameof(IPEndPoint)));
+
+                var uriType = Uri.CheckHostName(split[0]);
+                if (uriType == UriHostNameType.Dns)
+                {
+                    // Check dns
+                    var hostEntry = Dns.GetHostEntry(split[0]);
+                    if (hostEntry.AddressList.Length == 0) throw (new ArgumentException(nameof(IPAddress)));
+                    split[0] = hostEntry.AddressList.FirstOrDefault().ToString();
+                }
+
                 var ip = IPAddress.Parse(split[0]);
                 var port = ushort.Parse(split[1]);
 

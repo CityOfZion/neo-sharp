@@ -13,6 +13,8 @@ namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
+        // TODO: invoke,invokefunction,sendfrom,sendtoaddress,sendmany
+
         /// <summary>
         /// Make rpc call
         /// </summary>
@@ -81,12 +83,66 @@ namespace NeoSharp.Application.Client
         }
 
         /// <summary> 
+        /// Make rpc call for `getapplicationlog` 
+        /// </summary> 
+        [PromptCommand("rpc getapplicationlog", Category = "Rpc", Help = "Make rpc calls for getapplicationlog")]
+        private Task RpcGetapplicationlogCommand(IPEndPoint endPoint, UInt256 hash)
+        {
+            return RpcCallCommand(endPoint, "getapplicationlog", "[\"" + hash.ToString(false) + "\"]");
+        }
+
+        /// <summary> 
         /// Make rpc call for `getrawmempool` 
         /// </summary> 
         [PromptCommand("rpc getrawmempool", Category = "Rpc", Help = "Make rpc calls for memorypool")]
         private Task RpcGetrawmempoolCommand(IPEndPoint endPoint)
         {
             return RpcCallCommand(endPoint, "getrawmempool", null);
+        }
+
+        /// <summary> 
+        /// Make rpc call for `getbalance` 
+        /// </summary> 
+        [PromptCommand("rpc getbalance", Category = "Rpc", Help = "Make rpc calls for getbalance")]
+        private Task RpcGetbalanceCommand(IPEndPoint endPoint, UInt160 hash)
+        {
+            return RpcCallCommand(endPoint, "getbalance", "[\"" + hash.ToString(false) + "\"]");
+        }
+
+        /// <summary> 
+        /// Make rpc call for `getbalance` 
+        /// </summary> 
+        [PromptCommand("rpc getbalance", Category = "Rpc", Help = "Make rpc calls for getbalance")]
+        private Task RpcGetbalanceCommand(IPEndPoint endPoint, UInt256 hash)
+        {
+            return RpcCallCommand(endPoint, "getbalance", "[\"" + hash.ToString(false) + "\"]");
+        }
+
+        /// <summary> 
+        /// Make rpc call for `dumpprivkey` 
+        /// </summary> 
+        [PromptCommand("rpc dumpprivkey", Category = "Rpc", Help = "Make rpc calls for dumpprivkey")]
+        private Task RpcDumpprivkeyCommand(IPEndPoint endPoint, UInt160 hash)
+        {
+            return RpcCallCommand(endPoint, "dumpprivkey", "[\"" + hash.ToString(false) + "\"]");
+        }
+
+        /// <summary> 
+        /// Make rpc call for `listaddress` 
+        /// </summary> 
+        [PromptCommand("rpc listaddress", Category = "Rpc", Help = "Make rpc calls for listaddress")]
+        private Task RpcListaddressCommand(IPEndPoint endPoint)
+        {
+            return RpcCallCommand(endPoint, "listaddress", null);
+        }
+
+        /// <summary> 
+        /// Make rpc call for `getnewaddress` 
+        /// </summary> 
+        [PromptCommand("rpc getnewaddress", Category = "Rpc", Help = "Make rpc calls for getnewaddress")]
+        private Task RpcGetnewaddressCommand(IPEndPoint endPoint)
+        {
+            return RpcCallCommand(endPoint, "getnewaddress", null);
         }
 
         /// <summary> 
@@ -105,6 +161,24 @@ namespace NeoSharp.Application.Client
         private Task RpcInvokescriptCommand(IPEndPoint endPoint, byte[] script)
         {
             return RpcCallCommand(endPoint, "invokescript", "[\"" + script.ToHexString(false) + "\"]");
+        }
+
+        /// <summary> 
+        /// Make rpc call for `sendrawtransaction` 
+        /// </summary> 
+        [PromptCommand("rpc sendrawtransaction", Category = "Rpc", Help = "Make rpc call for sendrawtransaction")]
+        private Task RpcSendrawtransactionCommand(IPEndPoint endPoint, byte[] rawTX)
+        {
+            return RpcCallCommand(endPoint, "sendrawtransaction", "[\"" + rawTX.ToHexString(false) + "\"]");
+        }
+
+        /// <summary> 
+        /// Make rpc call for `submitblock` 
+        /// </summary> 
+        [PromptCommand("rpc submitblock", Category = "Rpc", Help = "Make rpc call for submitblock")]
+        private Task RpcSubmitblockCommand(IPEndPoint endPoint, byte[] rawBlock)
+        {
+            return RpcCallCommand(endPoint, "submitblock", "[\"" + rawBlock.ToHexString(false) + "\"]");
         }
 
         /// <summary> 
@@ -170,7 +244,43 @@ namespace NeoSharp.Application.Client
             return RpcCallCommand(endPoint, "getblockhash", "[" + height.ToString() + "]");
         }
 
-        /// <summary> 
+        /// <summary>
+        /// Make rpc call for `getblockcount` 
+        /// </summary> 
+        [PromptCommand("rpc getblockcount", Category = "Rpc", Help = "Make rpc calls for getblockcount")]
+        private Task RpcGetblockcountCommand(IPEndPoint endPoint)
+        {
+            return RpcCallCommand(endPoint, "getblockcount", null);
+        }
+
+        /// <summary>
+        /// Make rpc call for `getstorage` 
+        /// </summary> 
+        [PromptCommand("rpc getstorage", Category = "Rpc", Help = "Make rpc calls for getstorage")]
+        private Task RpcGetstorageCommand(IPEndPoint endPoint, UInt160 contract, byte[] key)
+        {
+            return RpcCallCommand(endPoint, "getstorage", "[\"" + contract.ToString(false) + "\",\"" + key.ToHexString(false) + "\"]");
+        }
+
+        /// <summary>
+        /// Make rpc call for `gettxout` 
+        /// </summary> 
+        [PromptCommand("rpc gettxout", Category = "Rpc", Help = "Make rpc calls for gettxout")]
+        private Task RpcGettxoutCommand(IPEndPoint endPoint, UInt256 hash, ushort index)
+        {
+            return RpcCallCommand(endPoint, "gettxout", "[\"" + hash.ToString(false) + "\"," + index.ToString() + "]");
+        }
+
+        /// <summary>
+        /// Make rpc call for `getrawtransaction` 
+        /// </summary> 
+        [PromptCommand("rpc getrawtransaction", Category = "Rpc", Help = "Make rpc calls for getrawtransaction")]
+        private Task RpcGetrawtransactionCommand(IPEndPoint endPoint, UInt256 hash, bool deserializeResult = false)
+        {
+            return RpcCallCommand<Transaction>(endPoint, "getrawtransaction", "[\"" + hash.ToString(false) + "\"]", deserializeResult);
+        }
+
+        /// <summary>
         /// Make rpc call for `getblock` 
         /// </summary> 
         [PromptCommand("rpc getblock", Category = "Rpc", Help = "Make rpc calls for getblock")]
