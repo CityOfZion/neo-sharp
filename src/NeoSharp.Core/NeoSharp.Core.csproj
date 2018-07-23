@@ -27,6 +27,8 @@
   <ItemGroup>
     <Folder Include="Wallet\Helpers\" />
     <Folder Include="Wallet\TransactionManager\" />
+    <Folder Include="SmartContract\ContractParameters\" />
+    <Folder Include="Wallet\Invocation\" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="SmartContract\ContractHelper.cs~HEAD" />

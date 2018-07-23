@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Types
@@ -98,7 +99,11 @@ namespace NeoSharp.Core.Types
 
         public static UInt160 Parse(string value)
         {
-            return new UInt160(value.HexToBytes(BufferLength * 2).Reverse().ToArray());
+            if (value.IsHexString()) 
+            {
+                return new UInt160(value.HexToBytes(BufferLength * 2).Reverse().ToArray());
+            }
+            return new UInt160(Crypto.Default.Base58CheckDecode(value));
         }
 
         public static bool TryParse(string s, out UInt160 result)

@@ -296,15 +296,13 @@ namespace NeoSharp.Core.Cryptography
         {
             if (length < 1) throw new ArgumentException(nameof(length));
 
-            // NativePRNG
-            SecureRandom random = new SecureRandom();
-            var seed = new ThreadedSeedGenerator();
-            random.SetSeed(seed.GenerateSeed(32, false));
-
-            var randombytes = new byte[length];
-            random.NextBytes(randombytes);
-
-            return randombytes;
+            var privateKey = new byte[length]; 
+            using (System.Security.Cryptography.RandomNumberGenerator rng = System.Security.Cryptography.RandomNumberGenerator.Create()) 
+            { 
+                rng.GetBytes(privateKey); 
+            } 
+ 
+            return privateKey; 
         }
     }
 }

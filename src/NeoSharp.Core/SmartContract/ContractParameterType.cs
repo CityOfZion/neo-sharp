@@ -42,12 +42,13 @@
         /// </summary>
         Array = 0x10,
         /// <summary>
-        /// Interop interface.
+        /// The interop interface.
         /// </summary>
         InteropInterface = 0xf0,
         /// <summary>
         /// Void
         /// </summary>
         Void = 0xff
+
     }
 }

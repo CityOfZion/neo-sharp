@@ -101,5 +101,26 @@ namespace NeoSharp.Core.Test.Extensions
             var str = Encoding.UTF8.GetString(value);
             Assert.IsTrue(str.Equals("小"));
         }
+
+        [TestMethod]
+        public void CheckHexStringUnsuccess()
+        {
+            var address = "ALhYzeoL7r7CLggtnyFpgF9kSxKuekWMGg";
+            Assert.IsFalse(address.IsHexString());
+        }
+
+        [TestMethod]
+        public void CheckHexStringSuccess()
+        {
+            var address = "736f6d6574657374";
+            Assert.IsTrue(address.IsHexString());
+        }
+
+        [TestMethod]
+        public void CheckHexStringSuccessWithZeroX()
+        {
+            var address = "0x736f6d6574657374";
+            Assert.IsTrue(address.IsHexString());
+        }
     }
 }

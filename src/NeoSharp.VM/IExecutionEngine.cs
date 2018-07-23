@@ -57,6 +57,11 @@ namespace NeoSharp.VM
         #endregion
 
         /// <summary>
+        /// For unit testing only
+        /// </summary>
+        protected IExecutionEngine(){}
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="e">Arguments</param>

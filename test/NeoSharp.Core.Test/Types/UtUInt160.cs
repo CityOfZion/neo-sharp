@@ -127,5 +127,28 @@ namespace NeoSharp.Core.Test.Types
             actual.Should().BeFalse();
             a.Should().Be(UInt160.Zero);
         }
+
+        [TestMethod]
+        public void ParseAddressToUInt160()
+        {
+            var actual = UInt160.TryParse("LhYzeoL7r7CLggtnyFpgF9kSxKuekWMGg", out var a);
+            a.Equals(null).Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void ParseAddressToUInt160InvalidAddress()
+        {
+            var actual = UInt160.TryParse("LhYzeoL7r7CLggtnyFpgF9kSxKuekWMGgx0", out var a);
+            actual.Should().BeFalse();
+            a.Should().Be(UInt160.Zero);
+        }
+
+        [TestMethod]
+        public void ParseAddressToUInt160NotZero()
+        {
+            var actual = UInt160.TryParse("LhYzeoL7r7CLggtnyFpgF9kSxKuekWMGgx0", out var a);
+            var b = UInt160.Zero;
+            (a == b).Should().BeTrue();
+        }
     }
 }

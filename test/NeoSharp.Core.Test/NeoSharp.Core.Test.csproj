@@ -33,6 +33,7 @@
 
   <ItemGroup>
     <Folder Include="Wallet\" />
+    <Folder Include="SmartContracts\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">

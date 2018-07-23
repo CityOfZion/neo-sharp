@@ -58,11 +58,10 @@ namespace NeoSharp.Core.Wallet.NEP6
                 Version = "1.0"
             };
 
-            var json = _jsonConverter.SerializeObject(wallet);
-            _fileWrapper.WriteToFile(json, filename);
-
             Wallet = wallet;
             _openWalletFilename = filename;
+
+            SaveWallet();
         }
 
         /// <summary>
@@ -293,19 +292,23 @@ namespace NeoSharp.Core.Wallet.NEP6
         /// <summary>
         /// save the open wallet into the same file
         /// </summary>
-        public void SaveWallet()
+        private void SaveWallet()
         {
-            SaveWallet(_openWalletFilename);
+            ExportWallet(_openWalletFilename);
         }
 
         /// <summary>
         /// save the open wallet into a specific filename
         /// </summary>
         /// <param name="filename">the filename</param>
-        public void SaveWallet(String filename)
+        public void ExportWallet(String filename)
         {
             CheckWalletIsOpen();
             var json = _jsonConverter.SerializeObject(Wallet);
+            if (String.IsNullOrWhiteSpace(json))
+            {
+                throw new ArgumentException("Serialization failed");
+            }
             _fileWrapper.WriteToFile(json, filename);
         }
 

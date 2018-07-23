@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+using System.Text.RegularExpressions;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Extensions
@@ -126,6 +127,16 @@ namespace NeoSharp.Core.Extensions
                     Marshal.ZeroFreeGlobalAllocUnicode(unmanagedString);
                 }
             }
+        }
+
+        /// <summary>
+        /// Check string is in hex format.
+        /// </summary>
+        /// <returns>if hex in string was onlyed true, otherwise false.</returns>
+        /// <param name="value">Value.</param>
+        public static bool IsHexString(this string value)
+        {
+            return Regex.IsMatch(value, @"\A\b(0[xX])?[0-9a-fA-F]+\b\Z");
         }
     }
 }

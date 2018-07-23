@@ -140,7 +140,7 @@ namespace NeoSharp.VM
             return Emit(EVMOpCode.RET);
         }
 
-        public ScriptBuilder EmitPush(BigInteger number)
+        public virtual ScriptBuilder EmitPush(BigInteger number)
         {
             if (number == -1) return Emit(EVMOpCode.PUSHM1);
             if (number == 0) return Emit(EVMOpCode.PUSH0);
@@ -149,12 +149,12 @@ namespace NeoSharp.VM
             return EmitPush(number.ToByteArray());
         }
 
-        public ScriptBuilder EmitPush(bool data)
+        public virtual ScriptBuilder EmitPush(bool data)
         {
             return Emit(data ? EVMOpCode.PUSH1 : EVMOpCode.PUSH0);
         }
 
-        public ScriptBuilder EmitPush(byte[] data)
+        public virtual ScriptBuilder EmitPush(byte[] data)
         {
             if (data == null)
                 throw new ArgumentNullException();
@@ -185,12 +185,12 @@ namespace NeoSharp.VM
             return this;
         }
 
-        public ScriptBuilder EmitPush(string data)
+        public virtual ScriptBuilder EmitPush(string data)
         {
             return EmitPush(Encoding.UTF8.GetBytes(data));
         }
 
-        public ScriptBuilder EmitPush(object[] data)
+        public virtual ScriptBuilder EmitPush(object[] data)
         {
             int size = data.Length;
 

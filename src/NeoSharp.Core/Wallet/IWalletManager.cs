@@ -104,15 +104,10 @@ namespace NeoSharp.Core.Wallet
         void CheckWalletIsOpen();
 
         /// <summary>
-        /// save the open wallet into the same file
-        /// </summary>
-        void SaveWallet();
-
-        /// <summary>
         /// save the open wallet into a specific filename
         /// </summary>
         /// <param name="filename">the filename</param>
-        void SaveWallet(string filename);
+        void ExportWallet(string filename);
 
         /// <summary>
         /// Load a wallet at specified fileName.
