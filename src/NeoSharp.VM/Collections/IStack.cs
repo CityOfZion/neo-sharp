@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace NeoSharp.VM
 {
@@ -9,6 +10,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Execution Engine parent
         /// </summary>
+        [JsonIgnore]
         public readonly IExecutionEngine Engine;
 
         /// <summary>

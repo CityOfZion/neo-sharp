@@ -11,6 +11,7 @@
     <ProjectReference Include="..\NeoSharp.Logging.NLog\NeoSharp.Logging.NLog.csproj" />
     <ProjectReference Include="..\NeoSharp.Persistence.RedisDB\NeoSharp.Persistence.RedisDB.csproj" />
     <ProjectReference Include="..\NeoSharp.Persistence.RocksDB\NeoSharp.Persistence.RocksDB.csproj" />
+    <ProjectReference Include="..\NeoSharp.VM.Interop\NeoSharp.VM.Interop.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -18,5 +18,4 @@ namespace NeoSharp.Application.DI
             containerBuilder.RegisterSingleton<IBinaryInitializer, BinaryInitializer>();
         }
     }
-
 }

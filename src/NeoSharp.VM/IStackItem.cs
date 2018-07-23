@@ -1,4 +1,5 @@
 using System;
+using Newtonsoft.Json;
 
 namespace NeoSharp.VM
 {
@@ -7,10 +8,12 @@ namespace NeoSharp.VM
         /// <summary>
         /// Can convert to byte array
         /// </summary>
+        [JsonIgnore]
         public abstract bool CanConvertToByteArray { get; }
         /// <summary>
         /// Engine
         /// </summary>
+        [JsonIgnore]
         protected readonly IExecutionEngine Engine;
         /// <summary>
         /// Type
@@ -19,6 +22,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Is Disposed
         /// </summary>
+        [JsonIgnore]
         public abstract bool IsDisposed { get; }
         
         /// <summary>

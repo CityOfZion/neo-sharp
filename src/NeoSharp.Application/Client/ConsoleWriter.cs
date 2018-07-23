@@ -3,6 +3,7 @@ using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Extensions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
@@ -126,7 +127,11 @@ namespace NeoSharp.Application.Client
             {
                 case PromptOutputStyle.json:
                     {
-                        using (TextReader tx = new StringReader(obj is JObject ? obj.ToString() : JsonConvert.SerializeObject(obj)))
+                        var settings = new JsonSerializerSettings() { };
+
+                        settings.Converters.Add(new StringEnumConverter());
+
+                        using (TextReader tx = new StringReader(obj is JObject ? obj.ToString() : JsonConvert.SerializeObject(obj, settings)))
                         using (JsonTextReader reader = new JsonTextReader(tx))
                         {
                             var indent = "";
@@ -157,13 +162,14 @@ namespace NeoSharp.Application.Client
                                         }
                                     case JsonToken.EndArray:
                                         {
+                                            indent = indent.Remove(indent.Length - 1, 1);
+
                                             if (last == JsonToken.StartArray)
                                             {
                                                 Write(" ]", ConsoleOutputStyle.DarkGray);
                                             }
                                             else
                                             {
-                                                indent = indent.Remove(indent.Length - 1, 1);
                                                 var app = first ? indent : Environment.NewLine + indent;
 
                                                 Write(app + "]", ConsoleOutputStyle.DarkGray);
@@ -173,13 +179,14 @@ namespace NeoSharp.Application.Client
                                     case JsonToken.EndConstructor:
                                     case JsonToken.EndObject:
                                         {
-                                            if (last == JsonToken.EndConstructor || last == JsonToken.EndObject)
+                                            indent = indent.Remove(indent.Length - 1, 1);
+
+                                            if (last == JsonToken.StartConstructor || last == JsonToken.StartObject)
                                             {
                                                 Write(" }", ConsoleOutputStyle.DarkGray);
                                             }
                                             else
                                             {
-                                                indent = indent.Remove(indent.Length - 1, 1);
                                                 var app = first ? indent : Environment.NewLine + indent;
 
                                                 Write(app + "}", ConsoleOutputStyle.DarkGray);

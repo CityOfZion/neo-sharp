@@ -1,4 +1,5 @@
 ﻿using NeoSharp.VM.Helpers;
+using Newtonsoft.Json;
 using System;
 
 namespace NeoSharp.VM
@@ -13,6 +14,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Engine
         /// </summary>
+        [JsonIgnore]
         public readonly IExecutionEngine Engine;
 
         /// <summary>
