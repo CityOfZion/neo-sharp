@@ -53,7 +53,7 @@ namespace NeoSharp.Core.Types
         {
             var entry = new KeyValuePair<TKey, TValue>(_keySelector(value), value);
 
-            if (_dictionary.Contains(entry)) return false;
+            if (_dictionary.ContainsKey(entry.Key) || _dictionary.Contains(entry)) return false;
 
             // Add
 

@@ -259,3 +259,6 @@ paket-files/
 
 PublishProfiles
 src/NeoSharp.Application/Properties/launchSettings.json
+
+# RocksDB files
+src/NeoSharp.Application/localhost
