@@ -52,7 +52,7 @@ namespace NeoSharp.Core.Blockchain.Processors
                 throw new InvalidOperationException("The block pool contains max number of blocks.");
             }
 
-            if (_blockPool.TryAdd(block.Index, block))
+            if (!_blockPool.TryAdd(block.Index, block))
             {
                 throw new InvalidOperationException($"The block with index \"{block.Index}\" was already queued to be added.");
             }
