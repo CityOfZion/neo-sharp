@@ -128,10 +128,11 @@ namespace NeoSharp.Application.Client
         /// Invoke contract
         /// </summary>
         /// <param name="contractHash">Contract</param>
-        /// <param name="type">Type</param>
+        /// <param name="trigger">Trigger</param>
+        /// <param name="operation">Operation</param>
         /// <param name="parameters">Parameters</param>
         [PromptCommand("testinvoke", Help = "Test invoke contract", Category = "Debug")]
-        private void TestInvoke(UInt160 contractHash, ETriggerType trigger = ETriggerType.Application, [PromptCommandParameterBody] object[] parameters = null)
+        private void TestInvoke(UInt160 contractHash, ETriggerType trigger, string operation, [PromptCommandParameterBody] object[] parameters = null)
         {
             if (_scriptTable.GetScript(contractHash.ToArray(), false) == null) throw (new ArgumentNullException("Contract not found"));
 
@@ -152,8 +153,7 @@ namespace NeoSharp.Application.Client
             using (var script = new ScriptBuilder())
             using (var vm = _vmFactory.Create(args))
             {
-                // TODO: emit arguments
-
+                script.EmitMainPush(operation, parameters);
                 script.EmitAppCall(contractHash.ToArray(), false);
 
                 vm.LoadScript(script);
