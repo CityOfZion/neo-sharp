@@ -19,6 +19,10 @@ namespace NeoSharp.VM
         /// Log event
         /// </summary>
         public event EventHandler<LogEventArgs> OnLog;
+        /// <summary>
+        /// Syscall event
+        /// </summary>
+        public event EventHandler<SysCallArgs> OnSysCall;
 
         /// <summary>
         /// Cache dictionary
@@ -91,9 +95,17 @@ namespace NeoSharp.VM
         public bool Invoke(string method, IExecutionEngine engine)
         {
             if (!Entries.TryGetValue(method, out delHandler func))
-                return false;
+            {
+                OnSysCall?.Invoke(this, new SysCallArgs(engine, method, SysCallArgs.EResult.NotFound));
 
-            return func(engine);
+                return false;
+            }
+
+            var ret = func(engine);
+
+            OnSysCall?.Invoke(this, new SysCallArgs(engine, method, ret ? SysCallArgs.EResult.True : SysCallArgs.EResult.False));
+
+            return ret;
         }
 
         #region Delegates
