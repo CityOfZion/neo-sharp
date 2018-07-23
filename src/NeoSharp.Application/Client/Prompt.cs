@@ -62,7 +62,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         private readonly IBlockchain _blockchain;
         /// <summary>
-        /// Blockchain
+        /// Block Processor
         /// </summary>
         private readonly IBlockProcessor _blockProcessor;
         /// <summary>

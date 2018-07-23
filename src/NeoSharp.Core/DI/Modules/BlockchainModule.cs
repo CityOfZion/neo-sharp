@@ -15,6 +15,7 @@ namespace NeoSharp.Core.DI.Modules
             #region Processors
 
             containerBuilder.RegisterSingleton<IBlockProcessor, BlockProcessor>();
+            containerBuilder.RegisterSingleton<IBlockPool, BlockPool>();
             containerBuilder.RegisterSingleton<IProcessor<Transaction>, TransactionProcessor>();
 
             containerBuilder.RegisterSingleton<IProcessor<ClaimTransaction>, ClaimTransactionProcessor>();

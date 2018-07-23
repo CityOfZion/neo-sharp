@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Helpers;
@@ -15,41 +12,45 @@ namespace NeoSharp.Core.Blockchain.Processors
     {
         private static readonly TimeSpan DefaultBlockPollingInterval = TimeSpan.FromMilliseconds(100);
 
+        private readonly IBlockPool _blockPool;
         private readonly IRepository _repository;
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly IProcessor<Transaction> _transactionProcessor;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly ConcurrentDictionary<uint, Block> _blockPool = new ConcurrentDictionary<uint, Block>();
 
-        public Block CurrentBlock { get; private set; }
+        public int BlockPoolSize => _blockPool.Size;
 
-        public int BlocksInPoolCount => _blockPool.Count;
-
-        public int MaxBlocksInPoolCount => 10_000;
+        public int BlockPoolCapacity => _blockPool.Capacity;
 
         public event Func<Block, Task> OnBlockProcessed;
 
         public BlockProcessor(
+            IBlockPool blockPool,
             IRepository repository,
             IAsyncDelayer asyncDelayer,
             IProcessor<Transaction> transactionProcessor)
         {
+            _blockPool = blockPool ?? throw new ArgumentNullException(nameof(blockPool));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
             _transactionProcessor = transactionProcessor ?? throw new ArgumentNullException(nameof(transactionProcessor));
         }
 
-        public void Run()
+        // TODO: We will read the current block from Blockchain
+        // because the logic to get that too complicated 
+        public void Run(Block currentBlock)
         {
+            _blockPool.CurrentBlock = currentBlock;
+
             var cancellationToken = _cancellationTokenSource.Token;
 
             Task.Factory.StartNew(async () =>
             {
                 while (cancellationToken.IsCancellationRequested)
                 {
-                    var blockIndex = CurrentBlock?.Index + 1 ?? 0;
+                    var blockIndex = _blockPool.CurrentBlock?.Index + 1 ?? 0;
 
-                    if (_blockPool.TryGetValue(blockIndex, out var block) == false)
+                    if (_blockPool.TryGet(blockIndex, out var block) == false)
                     {
                         await _asyncDelayer.Delay(DefaultBlockPollingInterval, cancellationToken);
                         continue;
@@ -57,46 +58,25 @@ namespace NeoSharp.Core.Blockchain.Processors
 
                     await Process(block);
 
-                    _blockPool.Remove(blockIndex, out block);
+                    _blockPool.Remove(blockIndex);
+                    _blockPool.CurrentBlock = block;
 
-                    CurrentBlock = block;
-                    OnBlockProcessed?.Invoke(CurrentBlock);
+                    OnBlockProcessed?.Invoke(block);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
-        public void AddBlock(Block block)
+        public async Task AddBlock(Block block)
         {
             if (block == null) throw new ArgumentNullException(nameof(block));
 
-            block.UpdateHash();
-
-            if (CurrentBlock == null && block.Index != 0)
+            var blockExists = await ContainsBlock(block.Hash);
+            if (blockExists)
             {
-                // TODO: For now let's assume it is the genesis block
-                // but we need to go db to read the real current block
-                throw new InvalidOperationException("The current block is unknown. The genesis block can only be added.");
+                throw new InvalidOperationException($"The block \"{block.Hash.ToString(true)}\" exists already on the blockchain.");
             }
 
-            if (CurrentBlock != null && block.Index <= CurrentBlock.Index)
-            {
-                throw new InvalidOperationException($"The block with index \"{block.Index}\" is already added.");
-            }
-
-            if (CurrentBlock != null && CurrentBlock.Timestamp >= block.Timestamp)
-            {
-                throw new InvalidOperationException($"The block with index \"{block.Index}\" is outdated.");
-            }
-
-            if (BlocksInPoolCount + 1 >= MaxBlocksInPoolCount)
-            {
-                throw new InvalidOperationException("The block pool contains max number of blocks.");
-            }
-
-            if (_blockPool.TryAdd(block.Index, block))
-            {
-                throw new InvalidOperationException($"The block with index \"{block.Index}\" was already queued to be added.");
-            }
+            _blockPool.Add(block);
         }
 
         public async Task<bool> ContainsBlock(UInt256 blockHash)
@@ -104,14 +84,15 @@ namespace NeoSharp.Core.Blockchain.Processors
             if (blockHash == null) throw new ArgumentNullException(nameof(blockHash));
             if (blockHash == UInt256.Zero) throw new ArgumentException(nameof(blockHash));
 
-            if (_blockPool.Values.Any(b => b.Hash == blockHash))
+            var blockExists = _blockPool.Contains(blockHash);
+            if (blockExists)
             {
                 return true;
             }
 
-            var header = await _repository.GetBlockHeader(blockHash);
+            var blockHeader = await _repository.GetBlockHeader(blockHash);
 
-            return header != null && header.Type == BlockHeader.HeaderType.Extended;
+            return blockHeader != null && blockHeader.Type == BlockHeader.HeaderType.Extended;
         }
 
         public void Dispose()
@@ -120,7 +101,7 @@ namespace NeoSharp.Core.Blockchain.Processors
             _cancellationTokenSource.Dispose();
         }
 
-        protected async Task Process(Block block)
+        protected virtual async Task Process(Block block)
         {
             foreach (var tx in block.Transactions)
                 await _transactionProcessor.Process(tx);

@@ -43,8 +43,8 @@ namespace NeoSharp.Core.Blockchain
         /// <param name="blockProcessor">Block Processor</param>
         public Blockchain(IRepository repository, IBlockProcessor blockProcessor)
         {
-            _repository = repository;
-            _blockProcessor = blockProcessor;
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _blockProcessor = blockProcessor ?? throw new ArgumentNullException(nameof(blockProcessor));
             _initialized = 0;
         }
 
@@ -55,19 +55,18 @@ namespace NeoSharp.Core.Blockchain
                 return;
             }
 
+            var blockHeight = await _repository.GetTotalBlockHeight();
+            var blockHeaderHeight = await _repository.GetTotalBlockHeaderHeight();
+
+            CurrentBlock = await GetBlock(blockHeight);
+            LastBlockHeader = await GetBlockHeader(blockHeaderHeight);
+
             _blockProcessor.OnBlockProcessed += BlockProcessed;
-            _blockProcessor.Run();
-
-            var bHeight = await _repository.GetTotalBlockHeight();
-            var bHeader = await _repository.GetTotalBlockHeaderHeight();
-
-            CurrentBlock = await GetBlock(bHeight);
-            LastBlockHeader = await GetBlockHeader(bHeader);
+            _blockProcessor.Run(CurrentBlock);
 
             if (CurrentBlock == null || LastBlockHeader == null)
             {
-                // TODO: This update last block header too?
-                _blockProcessor.AddBlock(Genesis.GenesisBlock);
+                await _blockProcessor.AddBlock(Genesis.GenesisBlock);
             }
         }
 
