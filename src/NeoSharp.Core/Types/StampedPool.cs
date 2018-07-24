@@ -33,17 +33,17 @@ namespace NeoSharp.Core.Types
         }
     }
 
-    public class StampedPool<TKey, TValue> : Pool<TKey, Stamp<TValue>> where TKey : IEquatable<TKey>, IComparable<TKey>
+    public class StampedPool<TKey, TValue> : Pool<TKey, Stamp<TValue>> where TKey : IEquatable<TKey>
     {
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="behaviour">Behaviour</param>
-        /// <param name="capacity">Max</param>
-        /// <param name="keySelector">Key</param>
+        /// <param name="max">Max</param>
+        /// <param name="key">Key</param>
         /// <param name="order">Order</param>
-        public StampedPool(PoolMaxBehaviour behaviour, int capacity, Func<Stamp<TValue>, TKey> keySelector, Comparison<Stamp<TValue>> order)
-            : base(behaviour, capacity, keySelector) { }
+        public StampedPool(PoolMaxBehaviour behaviour, int max, Func<Stamp<TValue>, TKey> key, Comparison<Stamp<TValue>> order)
+            : base(behaviour, max, key, order) { }
 
         /// <summary>
         /// Push

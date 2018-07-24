@@ -12,7 +12,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_Pool_SamePush()
         {
-            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x);
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
 
             var add = new UInt256[]
             {
@@ -29,7 +29,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_Pool_PeekFirstOrDefault()
         {
-            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x);
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
 
             var add = new UInt256[]
             {
@@ -47,7 +47,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_Pool_PopFirstOrDefault()
         {
-            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x);
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
 
             var add = new UInt256[]
             {
@@ -65,7 +65,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_Pool_Remove()
         {
-            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x);
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
 
             var add = new UInt256[]
             {
@@ -87,10 +87,10 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_Pool_RemoveFromEnd()
         {
-            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x);
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x, (a, b) => a.CompareTo(b));
 
             Assert.AreEqual(PoolMaxBehaviour.RemoveFromEnd, pool.Behaviour);
-            Assert.AreEqual(3, pool.Capacity);
+            Assert.AreEqual(3, pool.Max);
             Assert.AreEqual(0, pool.Count);
 
             var add = new UInt256[]
@@ -129,10 +129,10 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_Pool_DontAllowMore()
         {
-            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.DontAllowMore, 3, x => x);
+            var pool = new Pool<UInt256, UInt256>(PoolMaxBehaviour.DontAllowMore, 3, x => x, (a, b) => a.CompareTo(b));
 
             Assert.AreEqual(PoolMaxBehaviour.DontAllowMore, pool.Behaviour);
-            Assert.AreEqual(3, pool.Capacity);
+            Assert.AreEqual(3, pool.Max);
             Assert.AreEqual(0, pool.Count);
 
             var add = new UInt256[]

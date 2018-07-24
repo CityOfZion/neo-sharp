@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
 
@@ -47,17 +48,14 @@ namespace NeoSharp.Core.Blockchain.Processors
                 throw new InvalidOperationException($"The block with index \"{block.Index}\" is outdated.");
             }
 
-            if (Size + 1 >= Capacity)
-            {
-                throw new InvalidOperationException("The block pool contains max number of blocks.");
-            }
-
             if (!_blockPool.TryAdd(block.Index, block))
             {
                 throw new InvalidOperationException($"The block with index \"{block.Index}\" was already queued to be added.");
             }
 
             OnAdded?.Invoke(this, block);
+
+            PrioritizeBlocks();
         }
 
         public bool Contains(UInt256 blockHash)
@@ -71,6 +69,18 @@ namespace NeoSharp.Core.Blockchain.Processors
         public void Remove(uint index)
         {
             ((IDictionary<uint, Block>)_blockPool).Remove(index);
+        }
+
+        private void PrioritizeBlocks()
+        {
+            if (Size < Capacity) return;
+
+            _blockPool.Keys
+                .AsParallel()
+                .OrderByDescending(_ => _)
+                .Take(Math.Max(Capacity - Size, 0))
+                .ToArray()
+                .ForEach(Remove);
         }
     }
 }

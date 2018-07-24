@@ -43,7 +43,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_StampedPool_PeekFirstOrDefault()
         {
-            var pool = new StampedPool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x.Value, (x, y) => x.Date.CompareTo(y.Date));
+            var pool = new StampedPool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x.Value, (x, y) => x.Value.CompareTo(y.Value));
 
             var add = new UInt256[]
             {
@@ -61,7 +61,7 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_StampedPool_PopFirstOrDefault()
         {
-            var pool = new StampedPool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x.Value, (x, y) => x.Date.CompareTo(y.Date));
+            var pool = new StampedPool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x.Value, (x, y) => x.Value.CompareTo(y.Value));
 
             var add = new UInt256[]
             {
@@ -101,10 +101,10 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_StampedPool_RemoveFromEnd()
         {
-            var pool = new StampedPool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x.Value, (x, y) => x.Date.CompareTo(y.Date));
+            var pool = new StampedPool<UInt256, UInt256>(PoolMaxBehaviour.RemoveFromEnd, 3, x => x.Value, (x, y) => x.Value.CompareTo(y.Value));
 
             Assert.AreEqual(PoolMaxBehaviour.RemoveFromEnd, pool.Behaviour);
-            Assert.AreEqual(3, pool.Capacity);
+            Assert.AreEqual(3, pool.Max);
             Assert.AreEqual(0, pool.Count);
 
             var add = new UInt256[]
@@ -147,10 +147,10 @@ namespace NeoSharp.Core.Test.Types
         [TestMethod]
         public void Test_StampedPool_DontAllowMore()
         {
-            var pool = new StampedPool<UInt256, UInt256>(PoolMaxBehaviour.DontAllowMore, 3, x => x.Value, (x, y) => x.Date.CompareTo(y.Date));
+            var pool = new StampedPool<UInt256, UInt256>(PoolMaxBehaviour.DontAllowMore, 3, x => x.Value, (x, y) => x.Value.CompareTo(y.Value));
 
             Assert.AreEqual(PoolMaxBehaviour.DontAllowMore, pool.Behaviour);
-            Assert.AreEqual(3, pool.Capacity);
+            Assert.AreEqual(3, pool.Max);
             Assert.AreEqual(0, pool.Count);
 
             var add = new UInt256[]

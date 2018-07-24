@@ -46,7 +46,7 @@ namespace NeoSharp.Application.Client
             _consoleWriter.WriteLine("Pools", ConsoleOutputStyle.Information);
             _consoleWriter.WriteLine("");
 
-            WriteStatePercent(" Memory", memStr.PadLeft(numSpaces, ' '), _blockchain.MemoryPool.Count, _blockchain.MemoryPool.Capacity);
+            WriteStatePercent(" Memory", memStr.PadLeft(numSpaces, ' '), _blockchain.MemoryPool.Count, _blockchain.MemoryPool.Max);
             WriteStatePercent(" Blocks", blockStr.PadLeft(numSpaces, ' '), _blockProcessor.BlockPoolSize, _blockProcessor.BlockPoolCapacity);
 
             _consoleWriter.WriteLine("");
