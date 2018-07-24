@@ -259,7 +259,7 @@ namespace NeoSharp.Application.Client
             }
 
             var lines = File.ReadAllLines(commandsFile.FullName, Encoding.UTF8);
-            _consoleReader.AppendInputs(lines);
+            _consoleReader.AppendInputs(lines.Where(u => !u.StartsWith("#")).ToArray());
 
             // Print result
 

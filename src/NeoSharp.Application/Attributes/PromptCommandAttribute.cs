@@ -164,6 +164,15 @@ namespace NeoSharp.Application.Attributes
 
                     if (body.FromJson)
                     {
+                        join = join.Trim();
+
+                        if (Parameters[x].ParameterType.IsArray && !(join.StartsWith("[") && join.EndsWith("]")))
+                        {
+                            // Is an array but only one object is given
+
+                            join = $"[{join}]";
+                        }
+
                         ret[x] = JsonConvert.DeserializeObject(join, Parameters[x].ParameterType);
                     }
                     else

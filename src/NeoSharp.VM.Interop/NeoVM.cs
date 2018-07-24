@@ -28,6 +28,14 @@ namespace NeoSharp.VM.Interop
         /// Version
         /// </summary>
         public readonly static Version LibraryVersion;
+        /// <summary>
+        /// Is loaded
+        /// </summary>
+        public static readonly bool IsLoaded = false;
+        /// <summary>
+        /// Last error
+        /// </summary>
+        public static readonly string LastError;
 
         #region Core cache
 
@@ -194,7 +202,10 @@ namespace NeoSharp.VM.Interop
 
             // Check core
             if (Core == null)
-                throw (new NotSupportedException("Native library not found"));
+            {
+                LastError = "Native library not found";
+                return;
+            }
 
             // Load library
             LibraryPath = Path.Combine(AppContext.BaseDirectory, Core.Platform.ToString(),
@@ -206,16 +217,23 @@ namespace NeoSharp.VM.Interop
                 string nfile = Environment.GetEnvironmentVariable("NEO_VM_PATH");
 
                 if (string.IsNullOrEmpty(nfile))
-                    throw (new FileNotFoundException(LibraryPath));
+                {
+                    LastError = "File not found: " + LibraryPath;
+                    return;
+                }
 
                 LibraryPath = nfile;
                 if (!File.Exists(LibraryPath))
-                    throw (new FileNotFoundException(LibraryPath));
+                {
+                    LastError = "File not found: " + LibraryPath;
+                    return;
+                }
             }
 
             if (!Core.LoadLibrary(LibraryPath))
             {
-                throw (new ArgumentException("Wrong library file: " + LibraryPath));
+                LastError = "Wrong library file: " + LibraryPath;
+                return;
             }
 
             // Static destructor
@@ -234,7 +252,10 @@ namespace NeoSharp.VM.Interop
                 Delegate del = Core.GetDelegate(fi.Name, fi.FieldType);
 
                 if (del == null)
-                    throw (new NotImplementedException(fi.Name));
+                {
+                    LastError = "Method not found: " + fi.Name;
+                    return;
+                }
 
                 fi.SetValue(null, del);
             }
@@ -243,6 +264,7 @@ namespace NeoSharp.VM.Interop
 
             GetVersion(out int major, out int minor, out int build, out int revision);
             LibraryVersion = new Version(major, minor, build, revision);
+            IsLoaded = true;
         }
 
         /// <summary>

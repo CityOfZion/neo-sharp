@@ -9,16 +9,12 @@ namespace NeoSharp.Core.Wallet.NEP6
     {        
         public string Name { get; set; }
 
-
         public string Version { get; set; }
-
 
         public ScryptParameters Scrypt { get; set; }
 
-
         [JsonConverter(typeof(NEP6AccountConverter))]
         public HashSet<IWalletAccount> Accounts { get; set; }
-
 
         //TODO: Replace JObject
         public Object Extra { get; set; }

@@ -193,7 +193,7 @@ namespace NeoSharp.Application.Client
             {
                 // Append arguments as inputs
 
-                _consoleReader.AppendInputs(args);
+                _consoleReader.AppendInputs(args.Where(u => !u.StartsWith("#")).ToArray());
             }
 
             _blockchain.InitializeBlockchain().Wait();

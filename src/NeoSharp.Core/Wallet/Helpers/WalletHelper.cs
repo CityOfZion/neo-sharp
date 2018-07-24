@@ -4,7 +4,6 @@ using System.Security;
 using System.Text;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Models;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
 
@@ -153,9 +152,6 @@ namespace NeoSharp.Core.Wallet.Helpers
             return Crypto.Default.Base58CheckEncode(buffer);
         }
 
-
-
-
         /// <summary>
         /// Script hash from public key.
         /// </summary>
@@ -165,7 +161,6 @@ namespace NeoSharp.Core.Wallet.Helpers
         {
             return ContractFactory.CreateSinglePublicKeyRedeemContract(publicKey).ScriptHash;
         }
-
 
         #region Private Methods
 
@@ -182,10 +177,6 @@ namespace NeoSharp.Core.Wallet.Helpers
             return accountContract.ScriptHash.ToAddress();
         }
 
-
         #endregion
-
     }
-
-
 }

@@ -362,7 +362,11 @@ namespace NeoSharp.Application.Client
                             else
                             {
                                 _consoleWriter.Write(txt.ToString().Substring(cursor - 1), ConsoleOutputStyle.Input);
-                                _consoleWriter.SetCursorPosition(startX + cursor, startY);
+
+                                if (cursor != txt.Length)
+                                {
+                                    _consoleWriter.SetCursorPosition(startX + cursor, startY);
+                                }
                             }
 
                             break;

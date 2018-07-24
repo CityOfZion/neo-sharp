@@ -362,14 +362,19 @@ namespace NeoSharp.Core.Wallet.Test
         {
             var mockWalletManager = GetAWalletManagerWithAnWallet();
 
-            byte[] privateKey = GetPrivateKeyFromWIF("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a");
+            var privateKey = GetPrivateKeyFromWIF("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a");
             // Act
-            IWalletAccount walletAccount = mockWalletManager.ImportPrivateKey(privateKey, _defaultPassword);
+            var walletAccount = mockWalletManager.ImportPrivateKey(privateKey, _defaultPassword);
 
             // Asset
             Assert.IsNotNull(walletAccount);
 
-            String address = walletAccount.Contract.ScriptHash.ToAddress();
+            var address = walletAccount.Contract.ScriptHash.ToAddress();
+
+            Assert.IsTrue(address.Equals("AdYJeaHepN3jmdUduBLWPESqwQ9QYQCFi7"));
+
+            address = address.ToScriptHash().ToAddress();
+
             Assert.IsTrue(address.Equals("AdYJeaHepN3jmdUduBLWPESqwQ9QYQCFi7"));
 
             Assert.IsTrue(mockWalletManager.Wallet.Accounts.ToList().Count == 1);
@@ -380,7 +385,7 @@ namespace NeoSharp.Core.Wallet.Test
         public void TestImportPrivateKeyWalletIsNotOpened()
         {
             var mockWalletManager = GetAWalletManagerWithoutAnWallet();
-            byte[] privateKey = GetPrivateKeyFromWIF("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a");
+            var privateKey = GetPrivateKeyFromWIF("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a");
             // Act
             IWalletAccount walletAccount = mockWalletManager.ImportPrivateKey(privateKey, _defaultPassword);
         }

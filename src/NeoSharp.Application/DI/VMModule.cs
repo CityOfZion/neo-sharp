@@ -8,9 +8,7 @@ namespace NeoSharp.Application.DI
     {
         public void Register(IContainerBuilder containerBuilder)
         {
-            // TODO: Require set VM native dll on environment variable
-
-            //containerBuilder.RegisterSingleton<IVMFactory, NeoVM>();
+            containerBuilder.RegisterSingleton<IVMFactory, NeoVM>();
         }
     }
 }
