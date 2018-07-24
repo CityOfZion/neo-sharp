@@ -345,7 +345,7 @@ namespace NeoSharp.Core.Test.Cryptography
             // Arrange
             var results = new List<byte[]>();
 
-            for (var tries = 0; tries < 100; ++tries)
+            for (var tries = 0; tries < 50; ++tries)
             {
                 // Act
                 var value = _bccrypto.GenerateRandomBytes(10);

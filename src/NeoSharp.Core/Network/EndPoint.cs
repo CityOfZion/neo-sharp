@@ -1,9 +1,14 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Net;
 using System.Text.RegularExpressions;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Converters;
 
 namespace NeoSharp.Core.Network
 {
+    [TypeConverter(typeof(EndPointConverter))]
+    [BinaryTypeSerializer(typeof(EndPointConverter))]
     public class EndPoint : IEquatable<EndPoint>
     {
         private static readonly Regex EndPointPattern =

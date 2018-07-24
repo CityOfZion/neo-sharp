@@ -134,7 +134,7 @@ namespace NeoSharp.Core.Types
                 result = default(Fixed8);
                 return false;
             }
-            result = new Fixed8((long)D);
+            result = new Fixed8((long)d);
             return true;
         }
 

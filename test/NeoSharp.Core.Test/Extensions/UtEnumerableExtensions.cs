@@ -46,5 +46,19 @@ namespace NeoSharp.Core.Test.Extensions
             // Assert
             Assert.AreEqual(15, result);
         }
+
+        [TestMethod]
+        public void Query_Distinct()
+        {
+            // Arrange
+            var test = new int[] { 1, 1, 2, 4, 4 };
+            var result = new int[] { 1, 2, 4 };
+
+            // Act
+            var distinctValues = test.Distinct(a => a);
+
+            // Assert
+            CollectionAssert.AreEqual(result, distinctValues.ToArray());
+        }
     }
 }

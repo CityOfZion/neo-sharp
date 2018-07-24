@@ -70,6 +70,14 @@ namespace NeoSharp.Core.Extensions
             }
         }
 
+        /// <summary>
+        /// Performs Distinct query
+        /// </summary>
+        /// <typeparam name="TSource">TSource</typeparam>
+        /// <typeparam name="TKey">TKey</typeparam>
+        /// <param name="source">Source</param>
+        /// <param name="keySelector">Key Selector</param>
+        /// <returns>Distinct results</returns>
         public static IEnumerable<TSource> Distinct<TSource, TKey>
             (this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
         {

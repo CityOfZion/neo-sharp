@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
@@ -11,7 +10,7 @@ namespace NeoSharp.Core.Types
 {
     [TypeConverter(typeof(UInt256Converter))]
     [BinaryTypeSerializer(typeof(UInt256Converter))]
-    public class UInt256 : IEquatable<UInt256>, IComparable<UInt256>, ISerializable
+    public class UInt256 : IEquatable<UInt256>, IComparable<UInt256>
     {
         public static readonly int BufferLength = 32;
 
@@ -69,16 +68,6 @@ namespace NeoSharp.Core.Types
         public int CompareTo(UInt256 other)
         {
             return ((IStructuralComparable)_buffer).CompareTo(other._buffer, StructuralComparisons.StructuralComparer);
-        }
-
-        public void Serialize(BinaryWriter writer)
-        {
-            writer.Write(_buffer);
-        }
-
-        public void Deserialize(BinaryReader reader)
-        {
-            reader.Read(_buffer, 0, _buffer.Length);
         }
 
         public byte[] ToArray()
