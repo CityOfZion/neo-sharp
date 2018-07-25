@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PackageProjectUrl>https://github.com/CityOfZion/neo-hypervm</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/CityOfZion/neo-hypervm/blob/master/LICENSE.md</PackageLicenseUrl>
