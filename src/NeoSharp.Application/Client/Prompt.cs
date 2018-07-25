@@ -7,10 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.BinarySerialization;
-using NeoSharp.BinarySerialization.DI;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Processors;
-using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
@@ -152,6 +150,7 @@ namespace NeoSharp.Application.Client
         /// <param name="blockchain">Blockchain</param>
         /// <param name="blockProcessor">Block Processor</param>
         /// <param name="walletManager"></param>
+        /// <param name="vmFactory">VM Factory</param>
         public Prompt(
             IConsoleReader consoleReaderInit,
             IConsoleWriter consoleWriterInit,
@@ -164,8 +163,6 @@ namespace NeoSharp.Application.Client
             IBlockchain blockchain,
             IBlockProcessor blockProcessor,
             IWalletManager walletManager,
-            ICryptoInitializer cryptoInitializer,
-            IBinaryInitializer binaryInitializer,
             IVMFactory vmFactory)
         {
             _consoleReader = consoleReaderInit;

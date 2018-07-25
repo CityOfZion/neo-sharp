@@ -6,7 +6,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.BinarySerialization;
-using NeoSharp.BinarySerialization.DI;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
@@ -26,7 +25,8 @@ namespace NeoSharp.Persistence.RocksDB.Tests
         {
             _deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             _serializerMock = AutoMockContainer.GetMock<IBinarySerializer>();
-            var _ = new BinaryInitializer(_serializerMock.Object, _deserializerMock.Object);
+            BinarySerializer.Initialize(_serializerMock.Object);
+            BinaryDeserializer.Initialize(_deserializerMock.Object);
         }
 
         [TestMethod]

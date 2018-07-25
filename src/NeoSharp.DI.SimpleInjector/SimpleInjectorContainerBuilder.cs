@@ -10,6 +10,8 @@ namespace NeoSharp.DI.SimpleInjector
         private readonly Container _container;
         private readonly SimpleInjectorContainer _containerAdapter;
 
+        public event Action<IContainer> OnBuild;
+
         public SimpleInjectorContainerBuilder()
         {
             _container = new Container();
@@ -97,6 +99,8 @@ namespace NeoSharp.DI.SimpleInjector
         public IContainer Build()
         {
             _container.Verify();
+
+            OnBuild?.Invoke(_containerAdapter);
 
             return _containerAdapter;
         }
