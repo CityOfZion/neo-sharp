@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
-using System.Security;
+﻿using System.Security;
 
 namespace NeoSharp.Application.Client
 {
@@ -27,7 +25,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="autocomplete">Autocomplete</param>
         /// <returns>Returns the readed string</returns>
-        string ReadFromConsole(IDictionary<string, List<ParameterInfo[]>> autocomplete = null);
+        string ReadFromConsole(IAutoCompleteHandler autocomplete = null);
         /// <summary>
         /// Append inputs
         /// </summary>

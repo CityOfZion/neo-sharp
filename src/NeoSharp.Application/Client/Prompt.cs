@@ -75,7 +75,7 @@ namespace NeoSharp.Application.Client
         /// Command cache
         /// </summary>
         private static readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
-        private static readonly IDictionary<string, List<ParameterInfo[]>> _commandAutocompleteCache;
+        private static readonly IAutoCompleteHandler _commandAutocompleteCache;
 
         private readonly ILoggerFactoryExtended _loggerFactory;
 
@@ -105,7 +105,7 @@ namespace NeoSharp.Application.Client
         static Prompt()
         {
             _commandCache = new Dictionary<string[], PromptCommandAttribute>();
-            _commandAutocompleteCache = new Dictionary<string, List<ParameterInfo[]>>();
+            var commandAutocompleteCache = new Dictionary<string, List<ParameterInfo[]>>();
 
             foreach (var mi in typeof(Prompt).GetMethods
                 (
@@ -119,9 +119,9 @@ namespace NeoSharp.Application.Client
 
                 _commandCache.Add(atr.Commands, atr);
 
-                if (_commandAutocompleteCache.ContainsKey(atr.Command))
+                if (commandAutocompleteCache.ContainsKey(atr.Command))
                 {
-                    _commandAutocompleteCache[atr.Command].Add(mi.GetParameters());
+                    commandAutocompleteCache[atr.Command].Add(mi.GetParameters());
                 }
                 else
                 {
@@ -129,9 +129,11 @@ namespace NeoSharp.Application.Client
                     {
                         mi.GetParameters()
                     };
-                    _commandAutocompleteCache.Add(atr.Command, ls);
+                    commandAutocompleteCache.Add(atr.Command, ls);
                 }
             }
+
+            _commandAutocompleteCache = new AutoCommandComplete(commandAutocompleteCache);
         }
 
         #endregion

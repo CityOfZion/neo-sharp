@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
 
@@ -15,6 +15,8 @@ namespace NeoSharp.Application.Client
         /// Max history size
         /// </summary>
         private const int MaxHistorySize = 32;
+
+        private static readonly bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         #endregion
 
@@ -112,7 +114,7 @@ namespace NeoSharp.Application.Client
         }
 
         /// <inheritdoc />
-        public string ReadFromConsole(IDictionary<string, List<ParameterInfo[]>> autocomplete = null)
+        public string ReadFromConsole(IAutoCompleteHandler autocomplete = null)
         {
             State = ConsoleReaderState.Reading;
 
@@ -147,13 +149,12 @@ namespace NeoSharp.Application.Client
             var insertMode = true;
             var txt = new StringBuilder();
 
-            try
+            if (IsWindows)
             {
                 // In Mac don't work
 
                 Console.CursorSize = !insertMode ? 100 : 25;
             }
-            catch { }
 
             _consoleWriter.GetCursorPosition(out var startX, out var startY);
 
