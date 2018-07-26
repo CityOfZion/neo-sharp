@@ -36,7 +36,7 @@ namespace NeoSharp.Application.Client
         private void StateCommand()
         {
             var memStr = FormatState(_blockchain.MemoryPool?.Count);
-            var blockStr = FormatState(_blockProcessor.BlockPoolSize);
+            var blockStr = FormatState(_blockPool.Size);
             var headStr = FormatState(_blockchain.LastBlockHeader?.Index);
             var blStr = FormatState(_blockchain.CurrentBlock?.Index);
             var blIndex = FormatState(0); // TODO: Change me
@@ -47,7 +47,7 @@ namespace NeoSharp.Application.Client
             _consoleWriter.WriteLine("");
 
             WriteStatePercent(" Memory", memStr.PadLeft(numSpaces, ' '), _blockchain.MemoryPool.Count, _blockchain.MemoryPool.Max);
-            WriteStatePercent(" Blocks", blockStr.PadLeft(numSpaces, ' '), _blockProcessor.BlockPoolSize, _blockProcessor.BlockPoolCapacity);
+            WriteStatePercent(" Blocks", blockStr.PadLeft(numSpaces, ' '), _blockPool.Size, _blockPool.Capacity);
 
             _consoleWriter.WriteLine("");
             _consoleWriter.WriteLine("Heights", ConsoleOutputStyle.Information);

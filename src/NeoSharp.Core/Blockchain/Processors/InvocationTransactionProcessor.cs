@@ -14,7 +14,7 @@ namespace NeoSharp.Core.Blockchain.Processors
             _repository = repository;
         }
 
-        public async Task Process(InvocationTransaction invocationTx)
+        public Task Process(InvocationTransaction invocationTx)
         {
             throw new NotImplementedException();
         }

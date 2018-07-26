@@ -1,10 +1,12 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Core.Blockchain.Processors;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -163,36 +165,97 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
                 .Verify(x => x.Add(block));
         }
 
-        //[TestMethod]
-        //public void Process_CallsTransactionProcessorPerTransaction()
-        //{
-        //    var input = Genesis.GenesisBlock;
-        //    var txProcessorMock = AutoMockContainer.GetMock<IProcessor<Transaction>>();
-        //    var testee = AutoMockContainer.Create<BlockProcessor>();
+        [TestMethod]
+        public void Run_WhenAddBlockThisIsProcessed_OnBlockProcessedEventRaised()
+        {
+            var waitForBlockProcessedEvent = new AutoResetEvent(false);
 
-        //    testee.AddBlock(input);
-        //    txProcessorMock.Verify(m => m.Process(It.Is<Transaction>(t => input.Transactions.Contains(t))),
-        //        Times.Exactly(input.Transactions.Length));
-        //}
+            var currentBlock = new Block
+            {
+                Index = 0
+            };
 
+            var transactionInNewBlock = new Transaction();
 
-        //[TestMethod]
-        //public void Process_PersistsBlockHeaderAndIndex()
-        //{
-        //    var expectedIndex = (uint) RandomInt();
-        //    var input = new Block
-        //    {
-        //        Hash = UInt256.Parse(RandomInt().ToString("X64")),
-        //        Index = expectedIndex,
-        //        Transactions = new Transaction[0]
-        //    };
-        //    var repositoryMock = AutoMockContainer.GetMock<IRepository>();
-        //    var testee = AutoMockContainer.Create<BlockProcessor>();
+            var newBlock = new Block
+            {
+                Hash = new UInt256("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7".HexToBytes()),
+                Index = 1,
+                Transactions = new[] { transactionInNewBlock }
+            };
 
-        //    testee.AddBlock(input);
-        //    repositoryMock.Verify(m => m.SetTotalBlockHeight(expectedIndex));
-        //    repositoryMock.Verify(m =>
-        //        m.AddBlockHeader(It.Is<BlockHeader>(bh => bh.Index == input.Index && bh.Hash.Equals(input.Hash))));
-        //}
+            var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
+            blockPoolMock
+                .SetupGet(x => x.CurrentBlock)
+                .Returns(currentBlock);
+            blockPoolMock
+                .Setup(x => x.TryGet(1, out newBlock))
+                .Returns(true);
+
+            var transactionProcessorMock = this.AutoMockContainer.GetMock<IProcessor<Transaction>>();
+            var repositoryMock = this.AutoMockContainer.GetMock<IRepository>();
+
+            var testee = this.AutoMockContainer.Create<BlockProcessor>();
+
+            testee.OnBlockProcessed += block =>
+            {
+                block
+                    .Should()
+                    .BeSameAs(newBlock);
+
+                waitForBlockProcessedEvent.Set();
+                testee.Dispose();
+                return Task.Run(() => { });
+            };
+
+            testee.Run(currentBlock);
+
+            waitForBlockProcessedEvent.WaitOne();
+
+            transactionProcessorMock.Verify(x => x.Process(transactionInNewBlock));
+
+            repositoryMock.Verify(x => x.AddBlockHeader(It.Is<BlockHeader>(blockHeader => 
+                blockHeader.ConsensusData == newBlock.ConsensusData &&
+                blockHeader.Hash == newBlock.Hash &&
+                blockHeader.Index == newBlock.Index &&
+                blockHeader.Timestamp == newBlock.Timestamp &&
+                blockHeader.Version == newBlock.Version)));
+            repositoryMock.Verify(x => x.SetTotalBlockHeight(newBlock.Index));
+        }
+
+        [TestMethod]
+        public void Run_BlockInPoolIsNotTheNext_AsyncDelayerCalledToWaitToReceiveCorrectNextBlock()
+        {
+            var waitForDelayForToGetNextBlock = new AutoResetEvent(false);
+
+            var currentBlock = new Block
+            {
+                Index = 0
+            };
+
+            Block nullBlock = null;
+
+            var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
+            blockPoolMock
+                .SetupGet(x => x.CurrentBlock)
+                .Returns(currentBlock);
+            blockPoolMock
+                .Setup(x => x.TryGet(1, out nullBlock))
+                .Returns(false);
+
+            var testee = this.AutoMockContainer.Create<BlockProcessor>();
+
+            var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
+            asyncDelayerMock
+                .Setup(x => x.Delay(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+                .Callback(() => { waitForDelayForToGetNextBlock.Set(); })
+                .Returns(Task.Run(() => { }));
+            
+            testee.Run(currentBlock);
+            waitForDelayForToGetNextBlock.WaitOne();
+            testee.Dispose();
+
+            asyncDelayerMock.Verify(x => x.Delay(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()));
+        }
     }
 }

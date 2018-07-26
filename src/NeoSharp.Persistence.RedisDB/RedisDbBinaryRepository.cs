@@ -59,12 +59,12 @@ namespace NeoSharp.Persistence.RedisDB
             throw new NotImplementedException();
         }
 
-        public async Task<string> GetVersion()
+        public Task<string> GetVersion()
         {
             throw new NotImplementedException();
         }
 
-        public async Task SetVersion(string version)
+        public Task SetVersion(string version)
         {
             throw new NotImplementedException();
         }
@@ -109,92 +109,92 @@ namespace NeoSharp.Persistence.RedisDB
 
         #region IRepository State Members
 
-        public async Task<Account> GetAccount(UInt160 hash)
+        public Task<Account> GetAccount(UInt160 hash)
         {
             throw new NotImplementedException();
         }
 
-        public async Task AddAccount(Account acct)
+        public Task AddAccount(Account acct)
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteAccount(UInt160 hash)
+        public Task DeleteAccount(UInt160 hash)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<CoinState[]> GetCoinStates(UInt256 txHash)
+        public Task<CoinState[]> GetCoinStates(UInt256 txHash)
         {
             throw new NotImplementedException();
         }
 
-        public async Task AddCoinStates(UInt256 txHash, CoinState[] coinStates)
+        public Task AddCoinStates(UInt256 txHash, CoinState[] coinStates)
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteCoinStates(UInt256 txHash)
+        public Task DeleteCoinStates(UInt256 txHash)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Validator> GetValidator(ECPoint publicKey)
+        public Task<Validator> GetValidator(ECPoint publicKey)
         {
             throw new NotImplementedException();
         }
 
-        public async Task AddValidator(Validator validator)
+        public Task AddValidator(Validator validator)
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteValidator(ECPoint point)
+        public Task DeleteValidator(ECPoint point)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Asset> GetAsset(UInt256 assetId)
+        public Task<Asset> GetAsset(UInt256 assetId)
         {
             throw new NotImplementedException();
         }
 
-        public async Task AddAsset(Asset asset)
+        public Task AddAsset(Asset asset)
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteAsset(UInt256 assetId)
+        public Task DeleteAsset(UInt256 assetId)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<Contract> GetContract(UInt160 contractHash)
+        public Task<Contract> GetContract(UInt160 contractHash)
         {
             throw new NotImplementedException();
         }
 
-        public async Task AddContract(Contract contract)
+        public Task AddContract(Contract contract)
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteContract(UInt160 contractHash)
+        public Task DeleteContract(UInt160 contractHash)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<StorageValue> GetStorage(StorageKey key)
+        public Task<StorageValue> GetStorage(StorageKey key)
         {
             throw new NotImplementedException();
         }
 
-        public async Task AddStorage(StorageKey key, StorageValue val)
+        public Task AddStorage(StorageKey key, StorageValue val)
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteStorage(StorageKey key)
+        public Task DeleteStorage(StorageKey key)
         {
             throw new NotImplementedException();
         }

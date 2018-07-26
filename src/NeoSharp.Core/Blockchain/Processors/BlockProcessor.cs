@@ -18,10 +18,6 @@ namespace NeoSharp.Core.Blockchain.Processors
         private readonly IProcessor<Transaction> _transactionProcessor;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public int BlockPoolSize => _blockPool.Size;
-
-        public int BlockPoolCapacity => _blockPool.Capacity;
-
         public event Func<Block, Task> OnBlockProcessed;
 
         public BlockProcessor(
@@ -46,7 +42,7 @@ namespace NeoSharp.Core.Blockchain.Processors
 
             Task.Factory.StartNew(async () =>
             {
-                while (cancellationToken.IsCancellationRequested)
+                while (!cancellationToken.IsCancellationRequested)
                 {
                     var blockIndex = _blockPool.CurrentBlock?.Index + 1 ?? 0;
 
@@ -79,22 +75,6 @@ namespace NeoSharp.Core.Blockchain.Processors
             _blockPool.Add(block);
         }
 
-        public async Task<bool> ContainsBlock(UInt256 blockHash)
-        {
-            if (blockHash == null) throw new ArgumentNullException(nameof(blockHash));
-            if (blockHash == UInt256.Zero) throw new ArgumentException(nameof(blockHash));
-
-            var blockExists = _blockPool.Contains(blockHash);
-            if (blockExists)
-            {
-                return true;
-            }
-
-            var blockHeader = await _repository.GetBlockHeader(blockHash);
-
-            return blockHeader != null && blockHeader.Type == BlockHeader.HeaderType.Extended;
-        }
-
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
@@ -108,6 +88,22 @@ namespace NeoSharp.Core.Blockchain.Processors
 
             await _repository.AddBlockHeader(block.GetBlockHeader());
             await _repository.SetTotalBlockHeight(block.Index);
+        }
+
+        private async Task<bool> ContainsBlock(UInt256 blockHash)
+        {
+            if (blockHash == null) throw new ArgumentNullException(nameof(blockHash));
+            if (blockHash == UInt256.Zero) throw new ArgumentException(nameof(blockHash));
+
+            var blockExists = _blockPool.Contains(blockHash);
+            if (blockExists)
+            {
+                return true;
+            }
+
+            var blockHeader = await _repository.GetBlockHeader(blockHash);
+
+            return blockHeader != null && blockHeader.Type == BlockHeader.HeaderType.Extended;
         }
     }
 }
