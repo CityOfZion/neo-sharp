@@ -25,8 +25,6 @@ namespace NeoSharp.Persistence.RocksDB.Tests
         {
             _deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             _serializerMock = AutoMockContainer.GetMock<IBinarySerializer>();
-            BinarySerializer.Initialize(_serializerMock.Object);
-            BinaryDeserializer.Initialize(_deserializerMock.Object);
         }
 
         [TestMethod]

@@ -12,21 +12,27 @@ namespace NeoSharp.Application.Client
 {
     public class ConsoleWriter : IConsoleWriter
     {
+
         #region Variables
 
         /// <summary>
         /// Prompt
         /// </summary>
         private const string ReadPrompt = "neo#> ";
-
         public const string DoubleFixedPoint = "0.###################################################################################################################################################################################################################################################################################################################################################";
 
-        private object _lockObject = new object();
+        private readonly object _lockObject = new object();
+        private readonly IBinarySerializer _binarySerializer;
 
-        static readonly ReflectionCache<ConsoleOutputStyle, ConsoleOutputStyleAttribute> _cache =
+        private static readonly ReflectionCache<ConsoleOutputStyle, ConsoleOutputStyleAttribute> Cache =
             ReflectionCache<ConsoleOutputStyle, ConsoleOutputStyleAttribute>.CreateFromEnum();
 
         #endregion
+
+        public ConsoleWriter(IBinarySerializer binarySerializer)
+        {
+            _binarySerializer = binarySerializer ?? throw new ArgumentNullException(nameof(binarySerializer));
+        }
 
         /// <summary>
         /// Get current cursor positon
@@ -54,7 +60,7 @@ namespace NeoSharp.Application.Client
         /// <param name="style">Style</param>
         public void ApplyStyle(ConsoleOutputStyle style)
         {
-            _cache[style]?.Apply();
+            Cache[style]?.Apply();
         }
         /// <summary>
         /// Beep
@@ -269,7 +275,7 @@ namespace NeoSharp.Application.Client
                         }
                         else
                         {
-                            WriteLine(BinarySerializer.Default.Serialize(obj).ToHexString(true));
+                            WriteLine(_binarySerializer.Serialize(obj).ToHexString(true));
                         }
                         break;
                     }

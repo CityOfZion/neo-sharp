@@ -14,6 +14,8 @@ namespace NeoSharp.Persistence.RocksDB
         #region Private Fields
 
         private readonly IRocksDbContext _rocksDbContext;
+        private readonly IBinarySerializer _binarySerializer;
+        private readonly IBinaryDeserializer _binaryDeserializer;
 
         private readonly byte[] _sysCurrentBlockKey = {(byte) DataEntryPrefix.SysCurrentBlock};
         private readonly byte[] _sysCurrentBlockHeaderKey = {(byte) DataEntryPrefix.SysCurrentHeader};
@@ -26,10 +28,14 @@ namespace NeoSharp.Persistence.RocksDB
 
         public RocksDbRepository
         (
-            IRocksDbContext rocksDbContext
+            IRocksDbContext rocksDbContext,
+            IBinarySerializer binarySerializer,
+            IBinaryDeserializer binaryDeserializer
         )
         {
             _rocksDbContext = rocksDbContext ?? throw new ArgumentNullException(nameof(rocksDbContext));
+            _binarySerializer = binarySerializer ?? throw new ArgumentNullException(nameof(binarySerializer));
+            _binaryDeserializer = binaryDeserializer;
         }
 
         #endregion
@@ -61,12 +67,12 @@ namespace NeoSharp.Persistence.RocksDB
         public async Task<string> GetVersion()
         {
             var raw = await _rocksDbContext.Get(_sysVersionKey);
-            return raw == null ? null : BinaryDeserializer.Default.Deserialize<string>(raw);
+            return raw == null ? null : _binaryDeserializer.Deserialize<string>(raw);
         }
 
         public async Task SetVersion(string version)
         {
-            await _rocksDbContext.Save(_sysVersionKey, BinarySerializer.Default.Serialize(version));
+            await _rocksDbContext.Save(_sysVersionKey, _binarySerializer.Serialize(version));
         }
 
         #endregion
@@ -81,25 +87,25 @@ namespace NeoSharp.Persistence.RocksDB
 
         public async Task AddBlockHeader(BlockHeader blockHeader)
         {
-            await _rocksDbContext.Save(blockHeader.Hash.BuildDataBlockKey(), BinarySerializer.Default.Serialize(blockHeader));
+            await _rocksDbContext.Save(blockHeader.Hash.BuildDataBlockKey(), _binarySerializer.Serialize(blockHeader));
             await _rocksDbContext.Save(blockHeader.Index.BuildIxHeightToHashKey(), blockHeader.Hash.ToArray());
         }
 
         public async Task AddTransaction(Transaction transaction)
         {
-            await _rocksDbContext.Save(transaction.Hash.BuildDataTransactionKey(), BinarySerializer.Default.Serialize(transaction));
+            await _rocksDbContext.Save(transaction.Hash.BuildDataTransactionKey(), _binarySerializer.Serialize(transaction));
         }
 
         public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
             var rawHeader = await _rocksDbContext.Get(hash.BuildDataBlockKey());
-            return rawHeader == null ? null : BinaryDeserializer.Default.Deserialize<BlockHeader>(rawHeader);
+            return rawHeader == null ? null : _binaryDeserializer.Deserialize<BlockHeader>(rawHeader);
         }
 
         public async Task<Transaction> GetTransaction(UInt256 hash)
         {
             var rawTransaction = await _rocksDbContext.Get(hash.BuildDataTransactionKey());
-            return rawTransaction == null ? null : BinaryDeserializer.Default.Deserialize<Transaction>(rawTransaction);
+            return rawTransaction == null ? null : _binaryDeserializer.Deserialize<Transaction>(rawTransaction);
         }
 
         #endregion
@@ -111,12 +117,12 @@ namespace NeoSharp.Persistence.RocksDB
             var raw = await _rocksDbContext.Get(hash.BuildStateAccountKey());
             return raw == null
                 ? null
-                : BinaryDeserializer.Default.Deserialize<Account>(raw);
+                : _binaryDeserializer.Deserialize<Account>(raw);
         }
 
         public async Task AddAccount(Account acct)
         {
-            await _rocksDbContext.Save(acct.ScriptHash.BuildStateAccountKey(), BinarySerializer.Default.Serialize(acct));
+            await _rocksDbContext.Save(acct.ScriptHash.BuildStateAccountKey(), _binarySerializer.Serialize(acct));
         }
 
         public async Task DeleteAccount(UInt160 hash)
@@ -129,12 +135,12 @@ namespace NeoSharp.Persistence.RocksDB
             var raw = await _rocksDbContext.Get(txHash.BuildStateCoinKey());
             return raw == null
                 ? null
-                : BinaryDeserializer.Default.Deserialize<CoinState[]>(raw);
+                : _binaryDeserializer.Deserialize<CoinState[]>(raw);
         }
 
         public async Task AddCoinStates(UInt256 txHash, CoinState[] coinstates)
         {
-            await _rocksDbContext.Save(txHash.BuildStateCoinKey(), BinarySerializer.Default.Serialize(coinstates));
+            await _rocksDbContext.Save(txHash.BuildStateCoinKey(), _binarySerializer.Serialize(coinstates));
         }
 
         public async Task DeleteCoinStates(UInt256 txHash)
@@ -147,12 +153,12 @@ namespace NeoSharp.Persistence.RocksDB
             var raw = await _rocksDbContext.Get(publicKey.BuildStateValidatorKey());
             return raw == null
                 ? null
-                : BinaryDeserializer.Default.Deserialize<Validator>(raw);
+                : _binaryDeserializer.Deserialize<Validator>(raw);
         }
 
         public async Task AddValidator(Validator validator)
         {
-            await _rocksDbContext.Save(validator.PublicKey.BuildStateValidatorKey(), BinarySerializer.Default.Serialize(validator));
+            await _rocksDbContext.Save(validator.PublicKey.BuildStateValidatorKey(), _binarySerializer.Serialize(validator));
         }
 
         public async Task DeleteValidator(ECPoint point)
@@ -163,12 +169,12 @@ namespace NeoSharp.Persistence.RocksDB
         public async Task<Asset> GetAsset(UInt256 assetId)
         {
             var raw = await _rocksDbContext.Get(assetId.BuildStateAssetKey());
-            return raw == null ? null : BinaryDeserializer.Default.Deserialize<Asset>(raw);
+            return raw == null ? null : _binaryDeserializer.Deserialize<Asset>(raw);
         }
 
         public async Task AddAsset(Asset asset)
         {
-            await _rocksDbContext.Save(asset.Id.BuildStateAssetKey(), BinarySerializer.Default.Serialize(asset));
+            await _rocksDbContext.Save(asset.Id.BuildStateAssetKey(), _binarySerializer.Serialize(asset));
         }
 
         public async Task DeleteAsset(UInt256 assetId)
@@ -181,12 +187,12 @@ namespace NeoSharp.Persistence.RocksDB
             var raw = await _rocksDbContext.Get(contractHash.BuildStateContractKey());
             return raw == null
                 ? null
-                : BinaryDeserializer.Default.Deserialize<Contract>(raw);
+                : _binaryDeserializer.Deserialize<Contract>(raw);
         }
 
         public async Task AddContract(Contract contract)
         {
-            await _rocksDbContext.Save(contract.ScriptHash.BuildStateContractKey(), BinarySerializer.Default.Serialize(contract));
+            await _rocksDbContext.Save(contract.ScriptHash.BuildStateContractKey(), _binarySerializer.Serialize(contract));
         }
 
         public async Task DeleteContract(UInt160 contractHash)
@@ -199,7 +205,7 @@ namespace NeoSharp.Persistence.RocksDB
             var raw = await _rocksDbContext.Get(key.BuildStateStorageKey());
             return raw == null
                 ? null
-                : BinaryDeserializer.Default.Deserialize<StorageValue>(raw);
+                : _binaryDeserializer.Deserialize<StorageValue>(raw);
         }
 
         public async Task AddStorage(StorageKey key, StorageValue val)
@@ -232,12 +238,12 @@ namespace NeoSharp.Persistence.RocksDB
             var raw = await _rocksDbContext.Get(hash.BuildIndexConfirmedKey());
             return raw == null
                 ? new HashSet<CoinReference>()
-                : BinaryDeserializer.Default.Deserialize<HashSet<CoinReference>>(raw);
+                : _binaryDeserializer.Deserialize<HashSet<CoinReference>>(raw);
         }
 
         public async Task SetIndexConfirmed(UInt160 hash, HashSet<CoinReference> coinReferences)
         {
-            var bytes = BinarySerializer.Default.Serialize(coinReferences);
+            var bytes = _binarySerializer.Serialize(coinReferences);
             await _rocksDbContext.Save(hash.BuildIndexConfirmedKey(), bytes);
         }
 
@@ -246,12 +252,12 @@ namespace NeoSharp.Persistence.RocksDB
             var raw = await _rocksDbContext.Get(hash.BuildIndexClaimableKey());
             return raw == null
                 ? new HashSet<CoinReference>()
-                : BinaryDeserializer.Default.Deserialize<HashSet<CoinReference>>(raw);
+                : _binaryDeserializer.Deserialize<HashSet<CoinReference>>(raw);
         }
 
         public async Task SetIndexClaimable(UInt160 hash, HashSet<CoinReference> coinReferences)
         {
-            var bytes = BinarySerializer.Default.Serialize(coinReferences);
+            var bytes = _binarySerializer.Serialize(coinReferences);
             await _rocksDbContext.Save(hash.BuildIndexClaimableKey(), bytes);
         }
 

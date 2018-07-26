@@ -12,6 +12,16 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<Crypto, BouncyCastleCrypto>();
             containerBuilder.RegisterSingleton<IFileWrapper, FileWrapper>();
             containerBuilder.RegisterSingleton<IJsonConverter, JsonConverterWrapper>();
+
+            containerBuilder.OnBuild += c =>
+            {
+                InitializeCrypto(c.Resolve<Crypto>());
+            };
+        }
+
+        private static void InitializeCrypto(Crypto crypto)
+        {
+            Crypto.Initialize(crypto);
         }
     }
 }

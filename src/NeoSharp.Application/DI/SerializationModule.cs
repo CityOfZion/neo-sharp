@@ -9,35 +9,27 @@ namespace NeoSharp.Application.DI
     {
         public void Register(IContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterSingleton<IBinarySerializer>(() =>
+            var assemblies = AppDomain.CurrentDomain
+                .GetAssemblies()
+                .Where(asm => asm.FullName.StartsWith("Neo"))
+                .ToArray();
+
+            containerBuilder.RegisterSingleton<IBinarySerializer>(() => new BinarySerializer(assemblies));
+            containerBuilder.RegisterSingleton<IBinaryDeserializer>(() => new BinaryDeserializer(assemblies));
+            containerBuilder.RegisterSingleton<IBinaryConverter>(() => new BinaryConverter(assemblies));
+
+            containerBuilder.OnBuild += c =>
             {
-                var assemblies = AppDomain.CurrentDomain
-                    .GetAssemblies()
-                    .Where(asm => asm.FullName.StartsWith("Neo"))
-                    .ToArray();
+                InitializeBinarySerializer(c.Resolve<IBinarySerializer>(), c.Resolve<IBinaryDeserializer>());
+            };
+        }
 
-                return new BinarySerializer(assemblies);
-            });
-
-            containerBuilder.RegisterSingleton<IBinaryDeserializer>(() =>
-            {
-                var assemblies = AppDomain.CurrentDomain
-                    .GetAssemblies()
-                    .Where(asm => asm.FullName.StartsWith("Neo"))
-                    .ToArray();
-
-                return new BinaryDeserializer(assemblies);
-            });
-
-            containerBuilder.RegisterSingleton<IBinaryConverter>(() =>
-            {
-                var assemblies = AppDomain.CurrentDomain
-                    .GetAssemblies()
-                    .Where(asm => asm.FullName.StartsWith("Neo"))
-                    .ToArray();
-
-                return new BinaryConverter(assemblies);
-            });
+        private static void InitializeBinarySerializer(
+            IBinarySerializer binarySerializer,
+            IBinaryDeserializer binaryDeserializer)
+        {
+            BinarySerializer.Initialize(binarySerializer);
+            BinaryDeserializer.Initialize(binaryDeserializer);
         }
     }
 }
