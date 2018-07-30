@@ -116,6 +116,11 @@ namespace NeoSharp.Core.Cryptography
             return new MerkleTree(hashes);
         }
 
+        /// <summary>
+        /// List tree node hashes
+        /// </summary>
+        /// <param name="node">Node</param>
+        /// <param name="hashes">List to return hashes</param>
         private static void DepthFirstSearch(MerkleTreeNode node, IList<UInt256> hashes)
         {
             if (node.LeftChild == null)
@@ -131,9 +136,9 @@ namespace NeoSharp.Core.Cryptography
         }
 
         /// <summary>
-        /// Depth-first order
+        /// List tree node hashes
         /// </summary>
-        /// <returns>Hash</returns>
+        /// <returns>Byte array with node hashes</returns>
         public UInt256[] ToHashArray()
         {
             List<UInt256> hashes = new List<UInt256>();
@@ -141,6 +146,10 @@ namespace NeoSharp.Core.Cryptography
             return hashes.ToArray();
         }
 
+        /// <summary>
+        /// Tree Pruning by bit mask
+        /// </summary>
+        /// <param name="flags">Flags</param>
         public void Trim(BitArray flags)
         {
             flags = new BitArray(flags)
@@ -150,6 +159,13 @@ namespace NeoSharp.Core.Cryptography
             Trim(Root, 0, Depth, flags);
         }
 
+        /// <summary>
+        /// Tree Pruning by bit mask
+        /// </summary>
+        /// <param name="node">Node</param>
+        /// <param name="index">Index</param>
+        /// <param name="depth">Depth</param>
+        /// <param name="flags">Flags</param>
         private static void Trim(MerkleTreeNode node, int index, int depth, BitArray flags)
         {
             if (depth == 1) return;

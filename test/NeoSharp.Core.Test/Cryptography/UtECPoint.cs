@@ -85,10 +85,12 @@ namespace NeoSharp.Core.Test.Cryptography
             var point_A = new ECPoint(pubkey_A);
 
             // Act
-            var result = point_A.ToString(true);
+            var result = point_A.ToString();
+            var result0x = point_A.ToString(true);
 
             // Assert
-            Assert.AreEqual(result, "0x0238356c74a1ab4d40df857b790e4232180e2f99f5c78468c150d0903a3e5d2b6f");
+            Assert.AreEqual("0238356c74a1ab4d40df857b790e4232180e2f99f5c78468c150d0903a3e5d2b6f", result);
+            Assert.AreEqual("0x0238356c74a1ab4d40df857b790e4232180e2f99f5c78468c150d0903a3e5d2b6f", result0x);
         }
     }
 }

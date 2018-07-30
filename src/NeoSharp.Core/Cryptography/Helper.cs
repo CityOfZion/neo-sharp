@@ -7,6 +7,11 @@ namespace NeoSharp.Core.Cryptography
 {
     public static class Helper
     {
+        /// <summary>
+        /// Hash256 Password
+        /// </summary>
+        /// <param name="password">Password</param>
+        /// <returns>byte array hash256</returns>
         public static byte[] ToAesKey(string password)
         {
             byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
@@ -15,7 +20,12 @@ namespace NeoSharp.Core.Cryptography
             return passwordHash;
         }
 
-        public static byte[] ToAesKey( SecureString password)
+        /// <summary>
+        /// Hash256 Password
+        /// </summary>
+        /// <param name="password">Password</param>
+        /// <returns>byte array hash256</returns>
+        public static byte[] ToAesKey(SecureString password)
         {
             byte[] passwordBytes = password.ToByteArray();
             byte[] passwordHash = Crypto.Default.Sha256(Crypto.Default.Sha256(passwordBytes));

@@ -25,6 +25,17 @@ namespace NeoSharp.Core.Test.Cryptography
         }
 
         [TestMethod]
+        public void Initialize()
+        {
+            // Act
+            Crypto.Initialize(_bccrypto);
+            Assert.AreEqual(_bccrypto.GetType(), Crypto.Default.GetType());
+
+            Crypto.Initialize(_nativecrypto);
+            Assert.AreEqual(_nativecrypto.GetType(), Crypto.Default.GetType());
+        }
+
+        [TestMethod]
         public void Sha256()
         {
             // Act
