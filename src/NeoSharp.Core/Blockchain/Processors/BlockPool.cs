@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
@@ -33,20 +32,7 @@ namespace NeoSharp.Core.Blockchain.Processors
 
             block.UpdateHash();
 
-            if (CurrentBlock == null && block.Index != 0)
-            {
-                throw new InvalidOperationException("The current block is unknown. The genesis block can only be added.");
-            }
-
-            if (CurrentBlock != null && block.Index <= CurrentBlock.Index)
-            {
-                throw new InvalidOperationException($"The block with index \"{block.Index}\" is already added.");
-            }
-
-            if (CurrentBlock != null && block.Timestamp <= CurrentBlock.Timestamp)
-            {
-                throw new InvalidOperationException($"The block with index \"{block.Index}\" is outdated.");
-            }
+            ValidateBlock(block);
 
             if (!_blockPool.TryAdd(block.Index, block))
             {
@@ -55,6 +41,7 @@ namespace NeoSharp.Core.Blockchain.Processors
 
             OnAdded?.Invoke(this, block);
 
+            DiscardInvalidBlocks(block);
             PrioritizeBlocks();
         }
 
@@ -68,7 +55,70 @@ namespace NeoSharp.Core.Blockchain.Processors
 
         public void Remove(uint index)
         {
-            ((IDictionary<uint, Block>)_blockPool).Remove(index);
+            _blockPool.TryRemove(index, out _);
+        }
+
+        private void ValidateBlock(Block block)
+        {
+            if (CurrentBlock == null)
+            {
+                if (block.Index != 0)
+                {
+                    throw new InvalidOperationException("The current block is unknown. The genesis block can only be added.");
+                }
+            }
+            else
+            {
+                if (!TryValidateBlock(block, GetPreviousBlock(block), out var errorMessage))
+                {
+                    throw new InvalidOperationException(errorMessage);
+                }
+            }
+        }
+
+        private Block GetPreviousBlock(Block block)
+        {
+            var prevBlockIndex = _blockPool.Keys
+                .AsParallel()
+                .OrderByDescending(_ => _)
+                .Cast<uint?>()
+                .FirstOrDefault(bi => block.Index > bi);
+
+            if (prevBlockIndex == null ||
+                !_blockPool.TryGetValue(prevBlockIndex.Value, out var prevBlock))
+            {
+                prevBlock = CurrentBlock;
+            }
+
+            return prevBlock;
+        }
+
+        private static bool TryValidateBlock(Block block, Block prevBlock, out string errorMessage)
+        {
+            if (block.Index <= prevBlock.Index)
+            {
+                errorMessage = $"The block with index \"{block.Index}\" is already added.";
+                return false;
+            }
+
+            if (block.Timestamp <= prevBlock.Timestamp)
+            {
+                errorMessage = $"The block with index \"{block.Index}\" is outdated.";
+                return false;
+            }
+
+            errorMessage = null;
+            return true;
+        }
+
+        private void DiscardInvalidBlocks(Block block)
+        {
+            _blockPool.Keys
+                .AsParallel()
+                .OrderBy(_ => _)
+                .SkipWhile(bi => block.Index >= bi || TryValidateBlock(block, GetPreviousBlock(block), out _))
+                .ToArray()
+                .ForEach(Remove);
         }
 
         private void PrioritizeBlocks()
