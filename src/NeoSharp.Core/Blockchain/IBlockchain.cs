@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using NeoSharp.Core.Caching;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
@@ -108,8 +107,6 @@ namespace NeoSharp.Core.Blockchain
         bool ContainsUnspent(CoinReference input);
 
         bool ContainsUnspent(UInt256 hash, ushort index);
-
-        MetaDataCache<T> GetMetaData<T>() where T : class, ISerializable, new();
 
         /// <summary>
         /// Return the corresponding asset information according to the specified hash

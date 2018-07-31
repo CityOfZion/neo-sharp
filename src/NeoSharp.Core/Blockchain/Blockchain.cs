@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain.Processors;
-using NeoSharp.Core.Caching;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
@@ -329,11 +328,6 @@ namespace NeoSharp.Core.Blockchain
         public bool ContainsUnspent(UInt256 hash, ushort index)
         {
             return false;
-        }
-
-        public MetaDataCache<T> GetMetaData<T>() where T : class, ISerializable, new()
-        {
-            return null;
         }
 
         /// <inheritdoc />

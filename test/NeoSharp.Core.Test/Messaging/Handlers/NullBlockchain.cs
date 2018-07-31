@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Caching;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
@@ -38,11 +37,6 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
         }
 
         public bool ContainsUnspent(UInt256 hash, ushort index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public MetaDataCache<T> GetMetaData<T>() where T : class, ISerializable, new()
         {
             throw new NotImplementedException();
         }
