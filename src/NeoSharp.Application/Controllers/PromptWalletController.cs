@@ -1,12 +1,38 @@
-using NeoSharp.Application.Attributes;
+﻿using NeoSharp.Application.Attributes;
+using NeoSharp.Application.Client;
 using NeoSharp.Core.Types;
+using NeoSharp.Core.Wallet;
 
-namespace NeoSharp.Application.Client
+namespace NeoSharp.Application.Controllers
 {
-    public partial class Prompt : IPrompt
+    public class PromptWalletController : IPromptController
     {
+        #region Private fields
+
+        /// <summary>
+        /// The wallet.
+        /// </summary>
+        private readonly IWalletManager _walletManager;
+        private readonly IConsoleWriter _consoleWriter;
+        private readonly IConsoleReader _consoleReader;
+
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="walletManager">Wallet manager</param>
+        /// <param name="consoleWriter">Console writter</param>
+        /// <param name="consoleReader">Console reader</param>
+        public PromptWalletController(IWalletManager walletManager, IConsoleWriter consoleWriter, IConsoleReader consoleReader)
+        {
+            _walletManager = walletManager;
+            _consoleReader = consoleReader;
+            _consoleWriter = consoleWriter;
+        }
+
         [PromptCommand("wallet create", Category = "Wallet", Help = "Create a new wallet")]
-        private void WalletCreateCommand(string fileName)
+        public void WalletCreateCommand(string fileName)
         {
             _walletManager.CreateWallet(fileName);
             var secureString = _consoleReader.ReadPassword();
@@ -14,55 +40,55 @@ namespace NeoSharp.Application.Client
         }
 
         [PromptCommand("wallet open", Category = "Wallet", Help = "Open wallet")]
-        private void WalletOpenCommand(string fileName)
+        public void WalletOpenCommand(string fileName)
         {
             _walletManager.Load(fileName);
         }
 
         [PromptCommand("wallet close", Category = "Wallet", Help = "Close wallet")]
-        private void WalletCloseCommand()
+        public void WalletCloseCommand()
         {
             _walletManager.Close();
         }
 
         [PromptCommand("import wif", Category = "Wallet", Help = "Close wallet")]
-        private void ImportWif(string wif)
+        public void ImportWif(string wif)
         {
             var secureString = _consoleReader.ReadPassword();
             _walletManager.ImportWif(wif, secureString);
         }
 
         [PromptCommand("import nep2", Category = "Wallet", Help = "Close wallet")]
-        private void ImportNep2(string nep2key)
+        public void ImportNep2(string nep2key)
         {
             var secureString = _consoleReader.ReadPassword();
             _walletManager.ImportEncryptedWif(nep2key, secureString);
         }
 
         [PromptCommand("wallet", Category = "Wallet", Help = "List all accounts from wallet")]
-        private void WalletListAccountCommand(PromptOutputStyle output = PromptOutputStyle.json)
+        public void WalletListAccountCommand(PromptOutputStyle output = PromptOutputStyle.json)
         {
             _walletManager.CheckWalletIsOpen();
             var currentWallet = _walletManager.Wallet;
             _consoleWriter.WriteObject(currentWallet, output);
         }
-        
+
         [PromptCommand("wallet save", Category = "Wallet", Help = "Saves the open wallet into a new file")]
-        private void WalletSaveCommand(string fileName)
+        public void WalletSaveCommand(string fileName)
         {
             _walletManager.ExportWallet(fileName);
         }
-        
+
         [PromptCommand("account create", Category = "Account", Help = "Create a new account")]
-        private void AccountCreateCommand()
-        {    
+        public void AccountCreateCommand()
+        {
             var secureString = _consoleReader.ReadPassword();
             _walletManager.CreateAccount(secureString);
         }
-        
+
         [PromptCommand("account delete", Category = "Account", Help = "Deletes an account")]
-        private void AccountDeleteCommand(UInt160 scriptHash)
-        {    
+        public void AccountDeleteCommand(UInt160 scriptHash)
+        {
             _walletManager.DeleteAccount(scriptHash);
         }
 

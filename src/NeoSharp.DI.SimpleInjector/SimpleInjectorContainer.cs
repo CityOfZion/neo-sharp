@@ -22,5 +22,19 @@ namespace NeoSharp.DI.SimpleInjector
         {
             return _container.GetInstance<TEntity>();
         }
+
+        public bool TryResolve(Type parameterType, out object obj)
+        {
+            var ret = _container.GetRegistration(parameterType);
+
+            if (ret != null)
+            {
+                obj = ret.GetInstance();
+                return true;
+            }
+
+            obj = null;
+            return false;
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using NeoSharp.Core;
+﻿using NeoSharp.Core;
 
 namespace NeoSharp.Application.Client
 {
@@ -30,7 +29,7 @@ namespace NeoSharp.Application.Client
         /// <param name="args">Arguments</param>
         public void Start(string[] args)
         {            
-            this._prompt.StartPrompt(args);
+            _prompt.StartPrompt(args);
         }
     }
 }

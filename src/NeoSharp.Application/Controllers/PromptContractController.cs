@@ -1,14 +1,33 @@
-﻿using NeoSharp.Application.Attributes;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
+using NeoSharp.Application.Attributes;
+using NeoSharp.Application.Client;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
-namespace NeoSharp.Application.Client
+namespace NeoSharp.Application.Controllers
 {
-    public partial class Prompt : IPrompt
+    public class PromptContractController : IPromptController
     {
+        #region Private fields
+
+        private readonly IConsoleWriter _consoleWriter;
+        private readonly IConsoleReader _consoleReader;
+
+        #endregion
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="consoleWriter">Console writter</param>
+        /// <param name="consoleReader">Console reader</param>
+        public PromptContractController(IConsoleWriter consoleWriter, IConsoleReader consoleReader)
+        {
+            _consoleReader = consoleReader;
+            _consoleWriter = consoleWriter;
+        }
+
         /*
         TODO:
         load_run {path/to/file.avm} (test {params} {returntype} {needs_storage} {needs_dynamic_invoke} {test_params})
@@ -22,7 +41,7 @@ namespace NeoSharp.Application.Client
         /// <param name="inputPath">File Input</param>
         /// <param name="fileDest">File Dest</param>
         [PromptCommand("build", Help = "Build a contract", Category = "Contracts")]
-        private void BuildCommand(FileInfo inputPath, FileInfo outputPath)
+        public void BuildCommand(FileInfo inputPath, FileInfo outputPath)
         {
             if (outputPath.Exists) throw (new Exception("Output file already exists"));
             if (!inputPath.Exists) throw (new FileNotFoundException(inputPath.FullName));

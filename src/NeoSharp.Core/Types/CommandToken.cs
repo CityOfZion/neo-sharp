@@ -1,8 +1,9 @@
-﻿using NeoSharp.Core.Extensions;
+﻿using System;
+using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Types
 {
-    public class CommandToken
+    public class CommandToken : IEquatable<CommandToken>
     {
         /// <summary>
         /// Value
@@ -34,6 +35,36 @@ namespace NeoSharp.Core.Types
             Value = value.Trim().TrimMatchingQuotes('\"');
             Quoted = Value != value;
             Value = Value.Replace("\\\"", "\"");
+        }
+
+        /// <summary>
+        /// Return true if is equal
+        /// </summary>
+        /// <param name="obj">Object</param>
+        /// <returns>Return true if is equal</returns>
+        public bool Equals(CommandToken obj)
+        {
+            return obj != null && obj.Value == Value && obj.Quoted == Quoted;
+        }
+
+        /// <summary>
+        /// Return true if is equal
+        /// </summary>
+        /// <param name="obj">Object</param>
+        /// <returns>Return true if is equal</returns>
+        public override bool Equals(object obj)
+        {
+            if (obj is CommandToken c)
+            {
+                return Equals(c);
+            }
+
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
 
         /// <summary>

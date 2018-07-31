@@ -2,20 +2,16 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
-using NeoSharp.BinarySerialization;
+using NeoSharp.Application.Extensions;
 using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Blockchain.Processors;
+using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
-using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Types;
-using NeoSharp.Core.Wallet;
-using NeoSharp.VM;
 
 namespace NeoSharp.Application.Client
 {
@@ -28,62 +24,40 @@ namespace NeoSharp.Application.Client
         /// </summary>
         private bool _exit;
         /// <summary>
-        /// Serializer
-        /// </summary>
-        private readonly IBinarySerializer _serializer;
-        /// <summary>
         /// Console Reader
         /// </summary>
         private readonly IConsoleReader _consoleReader;
-        /// <summary>
-        /// Console Writer
-        /// </summary>
-        private readonly IConsoleWriter _consoleWriter;
-        /// <summary>
-        /// VM Factory
-        /// </summary>
-        private readonly IVMFactory _vmFactory;
-        /// <summary>
-        /// Logger
-        /// </summary>
-        private readonly Core.Logging.ILogger<Prompt> _logger;
         /// <summary>
         /// Network manager
         /// </summary>
         private readonly INetworkManager _networkManager;
         /// <summary>
-        /// Server
+        /// Console Writer
         /// </summary>
-        private readonly IServer _server;
+        private readonly IConsoleWriter _consoleWriter;
+        /// <summary>
+        /// Logger
+        /// </summary>
+        private readonly Core.Logging.ILogger<Prompt> _logger;
         /// <summary>
         /// Blockchain
         /// </summary>
         private readonly IBlockchain _blockchain;
         /// <summary>
-        /// Block Pool
-        /// </summary>
-        private readonly IBlockPool _blockPool;
-
-        /// <summary>
-        /// Rpc server
-        /// </summary>
-        private readonly IRpcServer _rpc;
-        /// <summary>
-        /// The wallet.
-        /// </summary>
-        private readonly IWalletManager _walletManager;
-        /// <summary>
         /// Command cache
         /// </summary>
-        private static readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
-        private static readonly IAutoCompleteHandler _commandAutocompleteCache;
-
-        private readonly ILoggerFactoryExtended _loggerFactory;
+        private readonly IDictionary<string[], PromptCommandAttribute> _commandCache;
+        /// <summary>
+        /// Autocomplete handler
+        /// </summary>
+        private readonly IAutoCompleteHandler _commandAutocompleteCache;
+        /// <summary>
+        /// Log for output
+        /// </summary>
+        private readonly ILogBag _logs;
 
         public delegate void delOnCommandRequested(IPrompt prompt, PromptCommandAttribute cmd, string commandLine);
         public event delOnCommandRequested OnCommandRequested;
-
-        private readonly ConcurrentBag<LogEntry> _logs;
 
         private static readonly Dictionary<LogLevel, ConsoleOutputStyle> _logStyle = new Dictionary<LogLevel, ConsoleOutputStyle>()
         {
@@ -98,89 +72,44 @@ namespace NeoSharp.Application.Client
 
         #endregion
 
-        #region Cache
-
-        /// <summary>
-        /// Static constructor
-        /// </summary>
-        static Prompt()
-        {
-            _commandCache = new Dictionary<string[], PromptCommandAttribute>();
-            var commandAutocompleteCache = new Dictionary<string, List<ParameterInfo[]>>();
-
-            foreach (var mi in typeof(Prompt).GetMethods
-                (
-                BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance
-                ))
-            {
-                var atr = mi.GetCustomAttribute<PromptCommandAttribute>();
-                if (atr == null) continue;
-
-                atr.SetMethod(mi);
-
-                _commandCache.Add(atr.Commands, atr);
-
-                if (commandAutocompleteCache.ContainsKey(atr.Command))
-                {
-                    commandAutocompleteCache[atr.Command].Add(mi.GetParameters());
-                }
-                else
-                {
-                    var ls = new List<ParameterInfo[]>
-                    {
-                        mi.GetParameters()
-                    };
-                    commandAutocompleteCache.Add(atr.Command, ls);
-                }
-            }
-
-            _commandAutocompleteCache = new AutoCommandComplete(commandAutocompleteCache);
-        }
-
-        #endregion
-
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="container">Container</param>
         /// <param name="consoleReaderInit">Console reader init</param>
         /// <param name="consoleWriterInit">Console writer init</param>
-        /// <param name="loggerFactory">Logget factory</param>
         /// <param name="logger">Logger</param>
-        /// <param name="networkManagerInit">Network manger init</param>
-        /// <param name="serverInit">Server</param>
-        /// <param name="rpcInit">Rpc server</param>
-        /// <param name="serializer">Binary serializer</param>
         /// <param name="blockchain">Blockchain</param>
-        /// <param name="blockPool">Block pool</param>
-        /// <param name="walletManager"></param>
         /// <param name="vmFactory">VM Factory</param>
-        public Prompt(
+        public Prompt
+            (
+            IContainer container,
+            ILogBag logs,
+            INetworkManager networkManager,
+            PromptControllerFactory controllers,
             IConsoleReader consoleReaderInit,
             IConsoleWriter consoleWriterInit,
-            ILoggerFactoryExtended loggerFactory,
             Core.Logging.ILogger<Prompt> logger,
-            INetworkManager networkManagerInit,
-            IServer serverInit,
-            IRpcServer rpcInit,
-            IBinarySerializer serializer,
-            IBlockchain blockchain,
-            IBlockPool blockPool,
-            IWalletManager walletManager,
-            IVMFactory vmFactory)
+            IBlockchain blockchain
+            )
         {
+            _networkManager = networkManager;
             _consoleReader = consoleReaderInit;
             _consoleWriter = consoleWriterInit;
             _logger = logger;
-            _networkManager = networkManagerInit;
-            _server = serverInit;
-            _serializer = serializer;
-            _rpc = rpcInit;
             _blockchain = blockchain;
-            _blockPool = blockPool;
-            _loggerFactory = loggerFactory;
-            _logs = new ConcurrentBag<LogEntry>();
-            _walletManager = walletManager;
-            _vmFactory = vmFactory;
+            _logs = logs;
+
+            // Get controllers
+
+            _commandAutocompleteCache = new AutoCommandComplete();
+            _commandCache = new Dictionary<string[], PromptCommandAttribute>();
+            _commandCache.Cache(this, _commandAutocompleteCache);
+
+            foreach (var controller in controllers)
+            {
+                _commandCache.Cache(container.Resolve(controller), _commandAutocompleteCache);
+            }
         }
 
         /// <inheritdoc />
@@ -228,64 +157,6 @@ namespace NeoSharp.Application.Client
             _consoleWriter.WriteLine("Exiting", ConsoleOutputStyle.Information);
         }
 
-        private static IEnumerable<PromptCommandAttribute> SearchCommands(string command, List<CommandToken> cmdArgs)
-        {
-            // Parse arguments
-
-            cmdArgs.AddRange(command.SplitCommandLine());
-            if (cmdArgs.Count <= 0) yield break;
-
-            foreach (var key in _commandCache)
-            {
-                if (key.Key.Length > cmdArgs.Count) continue;
-
-                var equal = true;
-                for (int x = 0, m = key.Key.Length; x < m; x++)
-                {
-                    var c = cmdArgs[x];
-                    if (!string.Equals(c.Value, key.Key[x], StringComparison.InvariantCultureIgnoreCase))
-                    {
-                        equal = false;
-                        break;
-                    }
-                }
-
-                if (equal)
-                {
-                    yield return key.Value;
-                }
-            }
-        }
-
-        private static PromptCommandAttribute SearchRightCommand(IReadOnlyList<PromptCommandAttribute> cmds, IEnumerable<CommandToken> args)
-        {
-            switch (cmds.Count)
-            {
-                case 0: return null;
-                case 1: return cmds[0];
-                default:
-                    {
-                        // Multiple commands
-
-                        PromptCommandAttribute cmd = null;
-
-                        foreach (var a in cmds)
-                        {
-                            try
-                            {
-                                a.ConvertToArguments(args.Skip(a.CommandLength).ToArray());
-
-                                if (cmd == null || cmd.Order > a.Order)
-                                    cmd = a;
-                            }
-                            catch { }
-                        }
-
-                        return cmd;
-                    }
-            }
-        }
-
         /// <inheritdoc />
         public bool Execute(string command)
         {
@@ -296,9 +167,9 @@ namespace NeoSharp.Application.Client
             {
                 // Parse arguments
 
-                var cmdArgs = new List<CommandToken>();
-                cmds = SearchCommands(command, cmdArgs).ToArray();
-                var cmd = SearchRightCommand(cmds, cmdArgs);
+                var cmdArgs = new List<CommandToken>(command.SplitCommandLine());
+                cmds = _commandCache.SearchCommands(cmdArgs).ToArray();
+                var cmd = cmds.SearchRightCommand(cmdArgs, null, out var args);
 
                 if (cmd == null)
                 {
@@ -320,7 +191,7 @@ namespace NeoSharp.Application.Client
 
                         // Invoke
 
-                        var ret = cmd.Method.Invoke(this, cmd.ConvertToArguments(cmdArgs.Skip(cmd.CommandLength).ToArray()));
+                        var ret = cmd.Method.Invoke(cmd.Instance, args);
 
                         if (ret is Task task)
                         {

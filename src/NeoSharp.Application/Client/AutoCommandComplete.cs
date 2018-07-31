@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Reflection;
 
 namespace NeoSharp.Application.Client
@@ -8,7 +7,7 @@ namespace NeoSharp.Application.Client
     {
         #region Public Fields
 
-        public readonly IReadOnlyDictionary<string, List<ParameterInfo[]>> Cache;
+        public readonly IDictionary<string, List<ParameterInfo[]>> Cache;
 
         public IEnumerable<string> Keys => Cache.Keys;
 
@@ -19,10 +18,19 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="commandAutocompleteCache">Cache</param>
-        public AutoCommandComplete(Dictionary<string, List<ParameterInfo[]>> commandAutocompleteCache)
+        public AutoCommandComplete()
         {
-            Cache = new ReadOnlyDictionary<string, List<ParameterInfo[]>>(commandAutocompleteCache);
+            Cache = new Dictionary<string, List<ParameterInfo[]>>();
+        }
+
+        public bool TryGetValue(string command, out List<ParameterInfo[]> value)
+        {
+            return Cache.TryGetValue(command, out value);
+        }
+
+        public void Add(string command, List<ParameterInfo[]> ls)
+        {
+            Cache.Add(command, ls);
         }
     }
 }

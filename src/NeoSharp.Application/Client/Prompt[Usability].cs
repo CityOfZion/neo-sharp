@@ -2,54 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
-using NeoSharp.Core.Logging;
+using NeoSharp.Application.Extensions;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Application.Client
 {
     public partial class Prompt : IPrompt
     {
-        [Flags]
-        public enum LogVerbose : byte
-        {
-            Off = 0,
-
-            Trace = 1,
-            Debug = 2,
-            Information = 4,
-            Warning = 8,
-            Error = 16,
-            Critical = 32,
-
-            All = Trace | Debug | Information | Warning | Error | Critical
-        }
-
-        private readonly Dictionary<LogLevel, LogVerbose> _logFlagProxy = new Dictionary<LogLevel, LogVerbose>()
-        {
-            { LogLevel.Trace, LogVerbose.Trace},
-            { LogLevel.Debug, LogVerbose.Debug},
-            { LogLevel.Information, LogVerbose.Information},
-            { LogLevel.Warning, LogVerbose.Warning},
-            { LogLevel.Error, LogVerbose.Error},
-            { LogLevel.Critical, LogVerbose.Critical},
-        };
-        private LogVerbose _logVerbose = LogVerbose.Off;
-
-        private void Log_OnLog(LogEntry log)
-        {
-            if (!_logVerbose.HasFlag(_logFlagProxy[log.Level]))
-            {
-                return;
-            }
-
-            _logs.Add(log);
-        }
-
         private StreamWriter _record;
 
         /// <summary>
@@ -80,6 +45,8 @@ namespace NeoSharp.Application.Client
                     {
                         foreach (var par in v.Parameters)
                         {
+                            if (par.GetCustomAttribute<PromptHideHelpCommandAttribute>() != null) continue;
+
                             var allowed = "";
 
                             if (par.ParameterType.IsEnum)
@@ -107,34 +74,12 @@ namespace NeoSharp.Application.Client
                     // Options
 
                     _consoleWriter.WriteLine("Options:", ConsoleOutputStyle.Information);
+
                     foreach (var par in modes)
+                    {
                         _consoleWriter.WriteLine("  " + par, ConsoleOutputStyle.Information);
+                    }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Enable / Disable logs
-        /// </summary>
-        /// <param name="mode">Mode</param>
-        [PromptCommand("log", Help = "Enable/Disable log output", Category = "Usability")]
-        private void LogCommand(LogVerbose mode)
-        {
-            _logVerbose = mode;
-
-            if (mode != LogVerbose.Off)
-            {
-                _loggerFactory.OnLog -= Log_OnLog;
-                _loggerFactory.OnLog += Log_OnLog;
-
-                _logger.LogDebug("Log output is enabled");
-            }
-            else
-            {
-                _logs.Clear();
-                _logger.LogDebug("Log output is disabled");
-
-                _loggerFactory.OnLog -= Log_OnLog;
             }
         }
 
@@ -234,7 +179,7 @@ namespace NeoSharp.Application.Client
         /// Clear
         /// </summary>
         [PromptCommand("clear", Help = "clear output", Category = "Usability")]
-        private void ClearCommand()
+        public void ClearCommand()
         {
             _consoleWriter.Clear();
         }
@@ -244,7 +189,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="commandsFile">File</param>
         [PromptCommand("load", Help = "Play stored commands", Category = "Usability")]
-        private void LoadCommand(FileInfo commandsFile)
+        public void LoadCommand(FileInfo commandsFile)
         {
             if (!commandsFile.Exists)
             {
@@ -270,9 +215,9 @@ namespace NeoSharp.Application.Client
         /// Exit prompt
         /// </summary>
         [PromptCommand("quit", Category = "Usability")]
-        private void QuitCommand()
+        public void QuitCommand()
         {
-            NetworkStopCommand();
+            _networkManager?.StopNetwork();
             _exit = true;
         }
 
@@ -280,9 +225,9 @@ namespace NeoSharp.Application.Client
         /// Exit prompt
         /// </summary>
         [PromptCommand("exit", Category = "Usability")]
-        private void ExitCommand()
+        public void ExitCommand()
         {
-            NetworkStopCommand();
+            _networkManager?.StopNetwork();
             _exit = true;
         }
 
@@ -290,12 +235,12 @@ namespace NeoSharp.Application.Client
         /// Show help
         /// </summary>
         [PromptCommand("help", Category = "Usability", Help = "Show help for commands")]
-        private void HelpCommand([PromptCommandParameterBody]string command)
+        public void HelpCommand([PromptCommandParameterBody]string command)
         {
             if (!string.IsNullOrWhiteSpace(command))
             {
-                var cmdArgs = new List<CommandToken>();
-                var cmds = SearchCommands(command, cmdArgs).ToArray();
+                var cmdArgs = new List<CommandToken>(command.SplitCommandLine());
+                var cmds = _commandCache.SearchCommands(cmdArgs).ToArray();
 
                 if (cmds.Length == 0)
                 {
@@ -313,7 +258,7 @@ namespace NeoSharp.Application.Client
         /// Show help
         /// </summary>
         [PromptCommand("help", Category = "Usability", Help = "Show help for commands")]
-        private void HelpCommand()
+        public void HelpCommand()
         {
             string lastCat = null, lastCom = null;
             foreach (var key in _commandCache.Keys.OrderBy(u => _commandCache[u].Category + "\n" + string.Join("", u)))
