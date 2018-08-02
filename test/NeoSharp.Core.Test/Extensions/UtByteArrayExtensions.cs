@@ -1,6 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 
 namespace NeoSharp.Core.Test.Extensions
