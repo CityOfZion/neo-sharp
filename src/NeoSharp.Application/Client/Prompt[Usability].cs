@@ -176,54 +176,9 @@ namespace NeoSharp.Application.Client
         }
 
         /// <summary>
-        /// Clear
-        /// </summary>
-        [PromptCommand("clear", Help = "clear output", Category = "Usability")]
-        public void ClearCommand()
-        {
-            _consoleWriter.Clear();
-        }
-
-        /// <summary>
-        /// Load commands from file
-        /// </summary>
-        /// <param name="commandsFile">File</param>
-        [PromptCommand("load", Help = "Play stored commands", Category = "Usability")]
-        public void LoadCommand(FileInfo commandsFile)
-        {
-            if (!commandsFile.Exists)
-            {
-                _consoleWriter.WriteLine("File not found", ConsoleOutputStyle.Error);
-                return;
-            }
-
-            if (commandsFile.Length > 1024 * 1024)
-            {
-                _consoleWriter.WriteLine("The specified file is too large", ConsoleOutputStyle.Error);
-                return;
-            }
-
-            var lines = File.ReadAllLines(commandsFile.FullName, Encoding.UTF8);
-            _consoleReader.AppendInputs(lines.Where(u => !u.StartsWith("#")).ToArray());
-
-            // Print result
-
-            _consoleWriter.WriteLine($"Loaded inputs: {lines.Length}");
-        }
-
-        /// <summary>
         /// Exit prompt
         /// </summary>
         [PromptCommand("quit", Category = "Usability")]
-        public void QuitCommand()
-        {
-            _networkManager?.StopNetwork();
-            _exit = true;
-        }
-
-        /// <summary>
-        /// Exit prompt
-        /// </summary>
         [PromptCommand("exit", Category = "Usability")]
         public void ExitCommand()
         {
@@ -280,15 +235,5 @@ namespace NeoSharp.Application.Client
                 _consoleWriter.WriteLine("  " + command);
             }
         }
-
-        /*
-        TODO
-        notifications {block_number or address}
-        mem
-        config debug {on/off}
-        config sc-events {on/off}
-        config maxpeers {num_peers}
-        debugstorage {on/off/reset} 
-        */
     }
 }

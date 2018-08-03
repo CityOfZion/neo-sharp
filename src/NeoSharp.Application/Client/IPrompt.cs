@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace NeoSharp.Application.Client
+﻿namespace NeoSharp.Application.Client
 {
     public interface IPrompt
     {

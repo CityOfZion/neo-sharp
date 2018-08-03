@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Extensions;
 using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
@@ -55,6 +53,10 @@ namespace NeoSharp.Application.Client
         /// Log for output
         /// </summary>
         private readonly ILogBag _logs;
+        /// <summary>
+        /// Prompt user variables
+        /// </summary>
+        private readonly IPromptUserVariables _variables;
 
         public delegate void delOnCommandRequested(IPrompt prompt, PromptCommandAttribute cmd, string commandLine);
         public event delOnCommandRequested OnCommandRequested;
@@ -75,7 +77,10 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="container">Container</param>
+        /// <param name="controllers">Controllers</param>
+        /// <param name="variables">Variables</param>
+        /// <param name="logs">Logs</param>
+        /// <param name="networkManager">Network manger</param>
         /// <param name="consoleReaderInit">Console reader init</param>
         /// <param name="consoleWriterInit">Console writer init</param>
         /// <param name="logger">Logger</param>
@@ -83,10 +88,10 @@ namespace NeoSharp.Application.Client
         /// <param name="vmFactory">VM Factory</param>
         public Prompt
             (
-            IContainer container,
+            IEnumerable<IPromptController> controllers,
+            IPromptUserVariables variables,
             ILogBag logs,
             INetworkManager networkManager,
-            PromptControllerFactory controllers,
             IConsoleReader consoleReaderInit,
             IConsoleWriter consoleWriterInit,
             Core.Logging.ILogger<Prompt> logger,
@@ -99,6 +104,7 @@ namespace NeoSharp.Application.Client
             _logger = logger;
             _blockchain = blockchain;
             _logs = logs;
+            _variables = variables;
 
             // Get controllers
 
@@ -108,7 +114,7 @@ namespace NeoSharp.Application.Client
 
             foreach (var controller in controllers)
             {
-                _commandCache.Cache(container.Resolve(controller), _commandAutocompleteCache);
+                _commandCache.Cache(controller, _commandAutocompleteCache);
             }
         }
 
@@ -148,6 +154,8 @@ namespace NeoSharp.Application.Client
                 {
                     continue;
                 }
+
+                fullCmd = _variables.Replace(fullCmd);
 
                 _logger.LogInformation("Execute: " + fullCmd);
 

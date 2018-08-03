@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using NeoSharp.Application.Client;
-using NeoSharp.Application.Controllers;
 using NeoSharp.Core;
 using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
@@ -15,6 +12,7 @@ namespace NeoSharp.Application.DI
         {
             containerBuilder.Register<IBootstrapper, Bootstrapper>();
             containerBuilder.RegisterSingleton<IPrompt, Prompt>();
+            containerBuilder.RegisterSingleton<IPromptUserVariables, PromptUserVariables>();
             containerBuilder.RegisterSingleton<IConsoleReader, ConsoleReader>();
             containerBuilder.RegisterSingleton<IConsoleWriter, ConsoleWriter>();
 
@@ -22,10 +20,10 @@ namespace NeoSharp.Application.DI
 
             var promptHandlerTypes = typeof(IPromptController).Assembly
                .GetExportedTypes()
-               .Where(t => t.IsClass && !t.IsAbstract && typeof(IPromptController).IsAssignableFrom(t))
+               .Where(t => t.IsClass && !t.IsInterface && !t.IsAbstract && typeof(IPromptController).IsAssignableFrom(t))
                .ToArray();
 
-            containerBuilder.RegisterSingleton(() => new PromptControllerFactory(promptHandlerTypes));
+            containerBuilder.RegisterCollection(typeof(IPromptController), promptHandlerTypes);
         }
     }
 }

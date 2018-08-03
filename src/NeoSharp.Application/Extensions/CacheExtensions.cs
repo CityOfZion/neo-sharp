@@ -19,27 +19,28 @@ namespace NeoSharp.Application.Extensions
                 BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance
                 ))
             {
-                var atr = mi.GetCustomAttribute<PromptCommandAttribute>();
-
-                if (atr == null) continue;
-
-                atr.SetMethod(instance, mi);
-                cache.Add(atr.Commands, atr);
-
-                if (autoComplete == null) continue;
-
-                if (autoComplete.TryGetValue(atr.Command, out var value))
+                foreach (var atr in mi.GetCustomAttributes<PromptCommandAttribute>())
                 {
-                    value.Add(mi.GetParameters());
-                }
-                else
-                {
-                    var ls = new List<ParameterInfo[]>
+                    if (atr == null) continue;
+
+                    atr.SetMethod(instance, mi);
+                    cache.Add(atr.Commands, atr);
+
+                    if (autoComplete == null) continue;
+
+                    if (autoComplete.TryGetValue(atr.Command, out var value))
+                    {
+                        value.Add(mi.GetParameters());
+                    }
+                    else
+                    {
+                        var ls = new List<ParameterInfo[]>
                     {
                         mi.GetParameters()
                     };
 
-                    autoComplete.Add(atr.Command, ls);
+                        autoComplete.Add(atr.Command, ls);
+                    }
                 }
             }
         }

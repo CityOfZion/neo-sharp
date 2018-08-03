@@ -36,7 +36,7 @@ namespace NeoSharp.Core.DI.Modules
                             t != typeof(MessageHandlerProxy))
                 .ToArray();
 
-            containerBuilder.Register(typeof(IMessageHandler<>), messageHandlerTypes);
+            containerBuilder.RegisterCollection(typeof(IMessageHandler<>), messageHandlerTypes);
             containerBuilder.RegisterInstanceCreator<IMessageHandler<Message>>(c =>
                 new MessageHandlerProxy(c, messageHandlerTypes, c.Resolve<ILogger<MessageHandlerProxy>>()));
         }

@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace NeoSharp.Application.Attributes
 {
-    [AttributeUsage(AttributeTargets.Method)]
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
     public class PromptCommandAttribute : Attribute
     {
         #region Constants

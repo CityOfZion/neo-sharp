@@ -28,7 +28,7 @@ namespace NeoSharp.Core.DI
 
         void Register(Type service, Type implementation);
 
-        void Register(Type service, IEnumerable<Type> implementations);
+        void RegisterCollection(Type service, IEnumerable<Type> implementations);
 
         void RegisterInstance<TService>(TService instance)
             where TService : class;
