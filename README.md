@@ -66,7 +66,7 @@ This project is not about adding new features to NEO, it is about establishing a
 Feel free to contribute to this project after reading the
 [contributing guidelines](https://github.com/CityOfZion/neo-sharp/blob/master/CONTRIBUTING.md).
 
-Before starting to work on a certain topic, create an new issue first, describing the feauture/topic you are going to implement. Please submit new pull requests to the `development` branch
+Before starting to work on a certain topic, create an new issue first, describing the feature/topic you are going to implement. Please submit new pull requests to the `development` branch.
 
 Also, there is a [Trello board](https://trello.com/b/WwSwxpB7/city-of-zion-neo-sharp) to show the status of the project.
 
