@@ -129,7 +129,7 @@ namespace NeoSharp.Core.Test.Types
 
             var tryParseResult = Fixed8.TryParse(longValue.ToString(), out var fixed8Result);
 
-            Assert.IsTrue(tryParseResult);
+            tryParseResult.Should().BeTrue();
             Asserting
                 .That(fixed8Result)
                 .AsLongValue(expectedFixed8LongValue);
@@ -142,7 +142,7 @@ namespace NeoSharp.Core.Test.Types
 
             var tryParseResult = Fixed8.TryParse(invalidString, out var fixed8Result);
 
-            Assert.IsFalse(tryParseResult);
+            tryParseResult.Should().BeFalse();
             Asserting
                 .That(fixed8Result)
                 .IsZero();                  // TODO [AboimPinto]: Don't know if ZERO is the correct value when the TryParse fail.
@@ -155,7 +155,7 @@ namespace NeoSharp.Core.Test.Types
 
             var tryParseResult = Fixed8.TryParse(maxLongString, out var fixed8Result);
 
-            Assert.IsFalse(tryParseResult);
+            tryParseResult.Should().BeFalse();
             Asserting
                 .That(fixed8Result)
                 .IsZero();                  // TODO [AboimPinto]: Don't know if ZERO is the correct value when the TryParse fail.
@@ -168,7 +168,7 @@ namespace NeoSharp.Core.Test.Types
 
             var tryParseResult = Fixed8.TryParse(minLongString, out var fixed8Result);
 
-            Assert.IsFalse(tryParseResult);
+            tryParseResult.Should().BeFalse();
             Asserting
                 .That(fixed8Result)
                 .IsZero();                  // TODO [AboimPinto]: Don't know if ZERO is the correct value when the TryParse fail.
@@ -296,7 +296,7 @@ namespace NeoSharp.Core.Test.Types
 
             var actual = new Fixed8();
 
-            Assert.AreEqual(expectedHashCode, actual.GetHashCode());
+            actual.GetHashCode().Should().Be(expectedHashCode);
         }
 
         [TestMethod]
@@ -306,8 +306,8 @@ namespace NeoSharp.Core.Test.Types
 
             var actual = Fixed8.FromDecimal(validDecimalValue);
 
-            Assert.IsInstanceOfType(actual, typeof(Fixed8));
-            Assert.AreEqual(validDecimalValue.ToString(CultureInfo.InvariantCulture), actual.ToString());
+            actual.Should().BeOfType(typeof(Fixed8));
+            actual.ToString().Should().Be(validDecimalValue.ToString(CultureInfo.InvariantCulture));
         }
 
         [TestMethod]
@@ -343,7 +343,7 @@ namespace NeoSharp.Core.Test.Types
 
             var actual = new Fixed8();
 
-            Assert.AreEqual(expectedLongValueString, actual.ToString());
+            actual.ToString().Should().Be(expectedLongValueString);
         }
 
         [TestMethod]
@@ -353,7 +353,7 @@ namespace NeoSharp.Core.Test.Types
 
             var actual = new Fixed8(1000);
 
-            Assert.AreEqual(expectedLongValueString, actual.ToString());
+            actual.ToString().Should().Be(expectedLongValueString);
         }
 
         [TestMethod]
@@ -363,7 +363,7 @@ namespace NeoSharp.Core.Test.Types
 
             var actual = new Fixed8(100000000000);
 
-            Assert.AreEqual(expectedLongValueString, actual.ToString("#.##"));
+            actual.ToString("#.##").Should().Be(expectedLongValueString);
         }
 
         [TestMethod]
@@ -373,7 +373,7 @@ namespace NeoSharp.Core.Test.Types
 
             var actual = new Fixed8(100000000000);
 
-            Assert.AreEqual(expectedLongValueString, actual.ToString("#.##", CultureInfo.InvariantCulture));
+            actual.ToString("#.##", CultureInfo.InvariantCulture).Should().Be(expectedLongValueString);
         }
 
         [TestMethod]
@@ -382,7 +382,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8();
             var operatorTwo = new Fixed8();
 
-            Assert.IsTrue(operatorOne == operatorTwo);
+            (operatorOne == operatorTwo).Should().BeTrue();
         }
 
         [TestMethod]
@@ -391,7 +391,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8();
             var operatorTwo = new Fixed8(1);
 
-            Assert.IsFalse(operatorOne == operatorTwo);
+            (operatorOne == operatorTwo).Should().BeFalse();
         }
 
         [TestMethod]
@@ -400,7 +400,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8(10);
             var operatorTwo = new Fixed8(5);
 
-            Assert.IsTrue(operatorOne >= operatorTwo);
+            (operatorOne >= operatorTwo).Should().BeTrue();
         }
 
         [TestMethod]
@@ -409,7 +409,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8(10);
             var operatorTwo = new Fixed8(10);
 
-            Assert.IsTrue(operatorOne >= operatorTwo);
+            (operatorOne >= operatorTwo).Should().BeTrue();
         }
 
         [TestMethod]
@@ -418,7 +418,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8(5);
             var operatorTwo = new Fixed8(10);
 
-            Assert.IsFalse(operatorOne > operatorTwo);
+            (operatorOne >= operatorTwo).Should().BeFalse();
         }
 
         [TestMethod]
@@ -427,7 +427,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8(5);
             var operatorTwo = new Fixed8(10);
 
-            Assert.IsTrue(operatorOne <= operatorTwo);
+            (operatorOne <= operatorTwo).Should().BeTrue();
         }
 
         [TestMethod]
@@ -436,7 +436,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8(10);
             var operatorTwo = new Fixed8(10);
 
-            Assert.IsTrue(operatorOne <= operatorTwo);
+            (operatorOne <= operatorTwo).Should().BeTrue();
         }
 
         [TestMethod]
@@ -445,7 +445,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8(10);
             var operatorTwo = new Fixed8(5);
 
-            Assert.IsFalse(operatorOne <= operatorTwo);
+            (operatorOne <= operatorTwo).Should().BeFalse();
         }
 
         [TestMethod]
@@ -454,7 +454,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8(10);
             var operatorTwo = new Fixed8(5);
 
-            Assert.IsTrue(operatorOne != operatorTwo);
+            (operatorOne != operatorTwo).Should().BeTrue();
         }
 
         [TestMethod]
@@ -463,7 +463,7 @@ namespace NeoSharp.Core.Test.Types
             var operatorOne = new Fixed8(10);
             var operatorTwo = new Fixed8(10);
 
-            Assert.IsFalse(operatorOne != operatorTwo);
+            (operatorOne != operatorTwo).Should().BeFalse();
         }
 
         [TestMethod]
@@ -550,7 +550,7 @@ namespace NeoSharp.Core.Test.Types
 
             var actual = (long)operatorOne;
 
-            Assert.AreEqual(1, actual);
+            actual.Should().Be(1);
         }
     }
 }
