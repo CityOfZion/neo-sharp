@@ -177,9 +177,9 @@ namespace NeoSharp.VM
         {
             using (var ctx = engine.CurrentContext)
             {
-                if (ctx == null) return false;
+                var hash = ctx?.ScriptHash;
 
-                using (var item = engine.CreateByteArray(ctx.ScriptHash))
+                using (var item = engine.CreateByteArray(hash))
                     ctx.EvaluationStack.Push(item);
             }
 
@@ -190,10 +190,10 @@ namespace NeoSharp.VM
         {
             using (var ctx = engine.CallingContext)
             {
-                if (ctx == null) return false;
+                var hash = ctx?.ScriptHash;
 
                 using (var current = engine.CurrentContext)
-                using (var item = engine.CreateByteArray(ctx.ScriptHash))
+                using (var item = engine.CreateByteArray(null))
                     current.EvaluationStack.Push(item);
             }
 
@@ -204,10 +204,10 @@ namespace NeoSharp.VM
         {
             using (var ctx = engine.EntryContext)
             {
-                if (ctx == null) return false;
+                var hash = ctx?.ScriptHash;
 
                 using (var current = engine.CurrentContext)
-                using (var item = engine.CreateByteArray(ctx.ScriptHash))
+                using (var item = engine.CreateByteArray(hash))
                     current.EvaluationStack.Push(item);
             }
 
