@@ -36,7 +36,11 @@ namespace NeoSharp.Application.Controllers
         {
             _walletManager.CreateWallet(fileName);
             var secureString = _consoleReader.ReadPassword();
-            _walletManager.CreateAccount(secureString);
+            var walletAccount = _walletManager.CreateAccount(secureString);
+            
+            _consoleWriter.WriteLine("");
+            _consoleWriter.WriteLine("Address: " + walletAccount.Address, ConsoleOutputStyle.Information);
+            _consoleWriter.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
         }
 
         [PromptCommand("wallet open", Category = "Wallet", Help = "Open wallet")]
@@ -83,7 +87,11 @@ namespace NeoSharp.Application.Controllers
         public void AccountCreateCommand()
         {
             var secureString = _consoleReader.ReadPassword();
-            _walletManager.CreateAccount(secureString);
+            var walletAccount = _walletManager.CreateAccount(secureString);
+            
+            _consoleWriter.WriteLine("");
+            _consoleWriter.WriteLine("Address: " + walletAccount.Address, ConsoleOutputStyle.Information);
+            _consoleWriter.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
         }
 
         [PromptCommand("account delete", Category = "Account", Help = "Deletes an account")]

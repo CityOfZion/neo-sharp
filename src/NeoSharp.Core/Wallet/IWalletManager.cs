@@ -82,6 +82,14 @@ namespace NeoSharp.Core.Wallet
         void UnlockAccount(string nep2Key, SecureString password);
 
         /// <summary>
+        /// Get a PublicKey from <paramref name="nep2Key"/>.
+        /// </summary>
+        /// <returns>The public key from nep2.</returns>
+        /// <param name="nep2Key">Nep2 key.</param>
+        /// <param name="password">Password.</param>
+        ECPoint GetPublicKeyFromNep2(string nep2Key, SecureString password);
+
+        /// <summary>
         /// Import the Account using nep2 and passphrase.
         /// </summary>
         /// <returns>The account.</returns>
