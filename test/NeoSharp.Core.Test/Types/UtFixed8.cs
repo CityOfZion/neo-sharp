@@ -242,7 +242,7 @@ namespace NeoSharp.Core.Test.Types
         public void Abs_ProvideNegativeFixed8_ReturnPositiveVersionOfTheFixed8()
         {
             var negativeFixed8 = new Fixed8(-1);
-            var expectedPositiveLongValue = negativeFixed8.GetData() * -1;
+            var expectedPositiveLongValue = negativeFixed8.Value * -1;
 
             var resultAbsoluteFixed8 = negativeFixed8.Abs();
 

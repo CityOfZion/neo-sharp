@@ -59,7 +59,7 @@ namespace NeoSharp.Core.Models
             writer.Write((byte)AssetType);
             l += writer.WriteVarString(Name);
             writer.Write(Amount.Value); 
-            l += Amount.Size;
+            l += Fixed8.Size;
             writer.Write(Precision); l++;
             l += serializer.Serialize(Owner, writer, settings);
             l += serializer.Serialize(Admin, writer, settings);

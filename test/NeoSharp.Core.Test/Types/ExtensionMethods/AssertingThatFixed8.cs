@@ -1,7 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using FluentAssertions;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
-using FluentAssertions;
 
 namespace NeoSharp.Core.Test.Types.ExtensionMethods
 {
@@ -15,7 +14,7 @@ namespace NeoSharp.Core.Test.Types.ExtensionMethods
 
         public static AssertingThat<Fixed8> AsLongValue(this AssertingThat<Fixed8> that, long longValue)
         {
-            that.Assertable.GetData().Should().Be(longValue);
+            that.Assertable.Value.Should().Be(longValue);
             return that;
         }
 
