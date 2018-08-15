@@ -10,14 +10,17 @@ namespace NeoSharp.VM.Interop.Interfaces
         /// Architecture
         /// </summary>
         public readonly EArchitecture Architecture = IntPtr.Size == 8 ? EArchitecture.x64 : EArchitecture.x86;
+
         /// <summary>
         /// Platform
         /// </summary>
         public readonly EPlatform Platform;
+
         /// <summary>
         /// LibraryExtension
         /// </summary>
         public readonly string LibraryExtension;
+
         /// <summary>
         /// Library Handle
         /// </summary>
@@ -37,7 +40,8 @@ namespace NeoSharp.VM.Interop.Interfaces
 
         #region CrossPlatform Support
 
-        #region Internals
+        #region Abstracts
+        
         /// <summary>
         /// Internal load library
         /// </summary>
@@ -45,17 +49,20 @@ namespace NeoSharp.VM.Interop.Interfaces
         /// <param name="handle">Handle</param>
         /// <returns>Return true if correct</returns>
         protected abstract bool InternalLoadLibrary(string fileName, out IntPtr handle);
+        
         /// <summary>
         /// Internal Free library
         /// </summary>
         /// <returns>Return true if correct</returns>
         protected abstract bool InternalFreeLibrary();
+        
         /// <summary>
         /// Get address of method
         /// </summary>
         /// <param name="name">Method name</param>
         /// <returns>Return handle of method</returns>
         protected abstract IntPtr GetProcAddress(string name);
+
         #endregion
 
         /// <summary>
@@ -77,6 +84,7 @@ namespace NeoSharp.VM.Interop.Interfaces
             _nativeHandle = h;
             return true;
         }
+
         /// <summary>
         /// Free Current library
         /// </summary>
@@ -94,6 +102,7 @@ namespace NeoSharp.VM.Interop.Interfaces
 
             return false;
         }
+
         #endregion
 
         #region IDisposable Support
@@ -123,6 +132,7 @@ namespace NeoSharp.VM.Interop.Interfaces
             // The finalizer is overridden above.
             GC.SuppressFinalize(this);
         }
+
         #endregion
 
         /// <summary>
@@ -133,11 +143,12 @@ namespace NeoSharp.VM.Interop.Interfaces
         /// <returns>A delegate to the method.</returns>
         public Delegate GetDelegate(string methodName, Type delegateType)
         {
-            IntPtr procaddress = GetProcAddress(methodName);
+            var procaddress = GetProcAddress(methodName);
             if (procaddress == IntPtr.Zero) return null;
 
             return Marshal.GetDelegateForFunctionPointer(procaddress, delegateType);
         }
+
         /// <summary>
         /// Gets a delegate to a method in an unmanaged module.
         /// </summary>

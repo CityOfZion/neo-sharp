@@ -7,15 +7,19 @@ namespace NeoSharp.VM.Interop.Types
 {
     unsafe public class ExecutionContext : IExecutionContext
     {
-        #region Delegates
+        #region Private fields
 
-        readonly NeoVM.OnStackChangeCallback _InternalOnAltStackChange;
-        readonly NeoVM.OnStackChangeCallback _InternalOnEvaluationStackChange;
+        private byte[] _ScriptHash;
+        private readonly IStackItemsStack _AltStack, _EvaluationStack;
+
+        /// <summary>
+        /// Native handle
+        /// </summary>
+        private IntPtr Handle;
 
         #endregion
 
-        byte[] _ScriptHash;
-        readonly IStackItemsStack _AltStack, _EvaluationStack;
+        #region Public fields
 
         /// <summary>
         /// Engine
@@ -24,21 +28,20 @@ namespace NeoSharp.VM.Interop.Types
         public new readonly ExecutionEngine Engine;
 
         /// <summary>
-        /// Native handle
-        /// </summary>
-        IntPtr Handle;
-        /// <summary>
         /// Is Disposed
         /// </summary>
         public override bool IsDisposed => Handle == IntPtr.Zero;
+
         /// <summary>
         /// Next instruction
         /// </summary>
         public override EVMOpCode NextInstruction => (EVMOpCode)NeoVM.ExecutionContext_GetNextInstruction(Handle);
+
         /// <summary>
         /// Get Instruction pointer
         /// </summary>
         public override int InstructionPointer => NeoVM.ExecutionContext_GetInstructionPointer(Handle);
+
         /// <summary>
         /// Script Hash
         /// </summary>
@@ -60,14 +63,18 @@ namespace NeoSharp.VM.Interop.Types
                 return _ScriptHash;
             }
         }
+
         /// <summary>
         /// AltStack
         /// </summary>
         public override IStackItemsStack AltStack => _AltStack;
+
         /// <summary>
         /// EvaluationStack
         /// </summary>
         public override IStackItemsStack EvaluationStack => _EvaluationStack;
+
+        #endregion
 
         /// <summary>
         /// Constructor
@@ -87,14 +94,12 @@ namespace NeoSharp.VM.Interop.Types
 
             if (engine.Logger.Verbosity.HasFlag(ELogVerbosity.AltStackChanges))
             {
-                _InternalOnAltStackChange = new NeoVM.OnStackChangeCallback(InternalOnAltStackChange);
-                NeoVM.StackItems_AddLog(altHandle, _InternalOnAltStackChange);
+                NeoVM.StackItems_AddLog(altHandle, InternalOnAltStackChange);
             }
 
             if (engine.Logger.Verbosity.HasFlag(ELogVerbosity.EvaluationStackChanges))
             {
-                _InternalOnEvaluationStackChange = new NeoVM.OnStackChangeCallback(InternalOnEvaluationStackChange);
-                NeoVM.StackItems_AddLog(evHandle, _InternalOnEvaluationStackChange);
+                NeoVM.StackItems_AddLog(evHandle, InternalOnEvaluationStackChange);
             }
         }
 
@@ -107,8 +112,11 @@ namespace NeoSharp.VM.Interop.Types
         void InternalOnAltStackChange(IntPtr item, int index, byte operation)
         {
             using (var it = Engine.ConvertFromNative(item))
+            {
                 Engine.Logger.RaiseOnAltStackChange(AltStack, it, index, (ELogStackOperation)operation);
+            }
         }
+
         /// <summary>
         /// Internal callback for OnEvaluationStackChange
         /// </summary>
@@ -118,7 +126,9 @@ namespace NeoSharp.VM.Interop.Types
         void InternalOnEvaluationStackChange(IntPtr item, int index, byte operation)
         {
             using (var it = Engine.ConvertFromNative(item))
+            {
                 Engine.Logger.RaiseOnEvaluationStackChange(EvaluationStack, it, index, (ELogStackOperation)operation);
+            }
         }
 
         #region IDisposable Support
@@ -128,8 +138,10 @@ namespace NeoSharp.VM.Interop.Types
             if (Handle == IntPtr.Zero) return;
 
             // free unmanaged resources (unmanaged objects) and override a finalizer below. set large fields to null.
+
             _AltStack.Dispose();
             _EvaluationStack.Dispose();
+
             NeoVM.ExecutionContext_Free(ref Handle);
         }
 

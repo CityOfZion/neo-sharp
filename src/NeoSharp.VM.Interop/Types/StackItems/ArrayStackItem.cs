@@ -8,33 +8,44 @@ namespace NeoSharp.VM.Interop.Types.StackItems
 {
     public class ArrayStackItem : IArrayStackItem, INativeStackItem
     {
+        #region Private fields
+
         /// <summary>
         /// Native Handle
         /// </summary>
-        IntPtr _handle;
-        /// <summary>
-        /// Native Handle
-        /// </summary>
-        [JsonIgnore]
-        public IntPtr Handle => _handle;
-        /// <summary>
-        /// Is Disposed
-        /// </summary>
-        [JsonIgnore]
-        public override bool IsDisposed => _handle == IntPtr.Zero;
-        /// <summary>
-        /// Count
-        /// </summary>
-        public override int Count => NeoVM.ArrayStackItem_Count(_handle);
-        /// <summary>
-        /// Type
-        /// </summary>
-        public new EStackItemType Type => base.Type;
+        private IntPtr _handle;
+
         /// <summary>
         /// Engine
         /// </summary>
         [JsonIgnore]
         private readonly new ExecutionEngine Engine;
+
+        #endregion
+
+        #region Public fields
+
+        /// <summary>
+        /// Native Handle
+        /// </summary>
+        [JsonIgnore]
+        public IntPtr Handle => _handle;
+
+        /// <summary>
+        /// Is Disposed
+        /// </summary>
+        [JsonIgnore]
+        public override bool IsDisposed => _handle == IntPtr.Zero;
+
+        /// <summary>
+        /// Count
+        /// </summary>
+        public override int Count => NeoVM.ArrayStackItem_Count(_handle);
+
+        /// <summary>
+        /// Type
+        /// </summary>
+        public new EStackItemType Type => base.Type;
 
         /// <summary>
         /// Index
@@ -47,6 +58,8 @@ namespace NeoSharp.VM.Interop.Types.StackItems
             set { Set(index, value); }
         }
 
+        #endregion
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -58,6 +71,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
             Engine = engine;
             _handle = this.CreateNativeItem();
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -73,9 +87,12 @@ namespace NeoSharp.VM.Interop.Types.StackItems
             if (data != null)
             {
                 foreach (var s in data)
+                {
                     Add(s);
+                }
             }
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -91,10 +108,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
 
         #region Read
 
-        public override int IndexOf(IStackItem item)
-        {
-            return NeoVM.ArrayStackItem_IndexOf(Handle, ((INativeStackItem)item).Handle);
-        }
+        public override int IndexOf(IStackItem item) => NeoVM.ArrayStackItem_IndexOf(Handle, ((INativeStackItem)item).Handle);
 
         #endregion
 
@@ -108,13 +122,17 @@ namespace NeoSharp.VM.Interop.Types.StackItems
         public override void Add(params IStackItem[] items)
         {
             foreach (var item in items)
+            {
                 NeoVM.ArrayStackItem_Add(Handle, ((INativeStackItem)item).Handle);
+            }
         }
 
         public override void Add(IEnumerable<IStackItem> items)
         {
             foreach (var item in items)
+            {
                 NeoVM.ArrayStackItem_Add(Handle, ((INativeStackItem)item).Handle);
+            }
         }
 
         public override void Clear()
@@ -139,10 +157,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
 
         #endregion
 
-        public byte[] GetNativeByteArray()
-        {
-            return null;
-        }
+        public byte[] GetNativeByteArray() => null;
 
         #region IDisposable Support
 

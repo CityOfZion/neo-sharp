@@ -11,31 +11,43 @@ namespace NeoSharp.VM.Interop
 {
     public class NeoVM : IVMFactory
     {
+        #region Private fields
+
         internal const byte TRUE = 0x01;
         internal const byte FALSE = 0x00;
 
-        const string LibraryName = "NeoVM";
+        private const string LibraryName = "NeoVM";
 
         /// <summary>
         /// Library core
         /// </summary>
-        readonly static CrossPlatformLibrary Core;
+        private readonly static CrossPlatformLibrary Core;
+
+        #endregion
+
+        #region Public fields
+
         /// <summary>
         /// Library path
         /// </summary>
         public readonly static string LibraryPath;
+
         /// <summary>
         /// Version
         /// </summary>
         public readonly static Version LibraryVersion;
+
         /// <summary>
         /// Is loaded
         /// </summary>
         public static readonly bool IsLoaded = false;
+
         /// <summary>
         /// Last error
         /// </summary>
         public static readonly string LastError;
+
+        #endregion
 
         #region Core cache
 
@@ -59,6 +71,7 @@ namespace NeoSharp.VM.Interop
 
         [UnmanagedFunctionPointer(CallingConvention.StdCall)]
         internal delegate int GetMessageCallback(uint iteration, out IntPtr script);
+
         #endregion
 
         // Shared
@@ -110,6 +123,7 @@ namespace NeoSharp.VM.Interop
         #region Cache
 
 #pragma warning disable CS0649
+
         internal static delVoid_OutIntOutIntOutIntOutInt GetVersion;
 
         internal static delCreateExecutionEngine ExecutionEngine_Create;
@@ -165,6 +179,7 @@ namespace NeoSharp.VM.Interop
         internal static delInt_Handle ExecutionContext_GetInstructionPointer;
         internal static delVoid_RefHandle ExecutionContext_Free;
         internal static delExecutionContextClaim ExecutionContext_Claim;
+
 #pragma warning restore CS0649
 
         #endregion
@@ -244,12 +259,12 @@ namespace NeoSharp.VM.Interop
 
             // Cache delegates using reflection
 
-            Type delegateType = typeof(MulticastDelegate);
+            var delegateType = typeof(MulticastDelegate);
 
-            foreach (FieldInfo fi in typeof(NeoVM).GetFields(BindingFlags.NonPublic | BindingFlags.Static)
+            foreach (var fi in typeof(NeoVM).GetFields(BindingFlags.NonPublic | BindingFlags.Static)
                 .Where(fi => fi.FieldType.BaseType == delegateType))
             {
-                Delegate del = Core.GetDelegate(fi.Name, fi.FieldType);
+                var del = Core.GetDelegate(fi.Name, fi.FieldType);
 
                 if (del == null)
                 {

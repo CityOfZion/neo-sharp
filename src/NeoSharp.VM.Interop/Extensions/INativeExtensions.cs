@@ -19,7 +19,7 @@ namespace NeoSharp.VM.Interop.Extensions
         {
             if (item == IntPtr.Zero) return null;
 
-            EStackItemType state = (EStackItemType)NeoVM.StackItem_SerializeInfo(item, out int size);
+            var state = (EStackItemType)NeoVM.StackItem_SerializeInfo(item, out int size);
             if (state == EStackItemType.None) return null;
 
             int readed;
@@ -72,7 +72,7 @@ namespace NeoSharp.VM.Interop.Extensions
         /// <param name="item">Item</param>
         public static IntPtr CreateNativeItem(this INativeStackItem item)
         {
-            byte[] data = item.GetNativeByteArray();
+            var data = item.GetNativeByteArray();
 
             if (data == null || data.Length == 0)
             {

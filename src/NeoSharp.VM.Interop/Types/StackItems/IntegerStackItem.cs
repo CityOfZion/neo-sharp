@@ -8,24 +8,35 @@ namespace NeoSharp.VM.Interop.Types.StackItems
 {
     public class IntegerStackItem : IIntegerStackItem, INativeStackItem
     {
+        #region Private fields
+
         /// <summary>
         /// Native Handle
         /// </summary>
-        IntPtr _handle;
+        private IntPtr _handle;
+
+        #endregion
+
+        #region Public fields
+
         /// <summary>
         /// Native Handle
         /// </summary>
         [JsonIgnore]
         public IntPtr Handle => _handle;
+
         /// <summary>
         /// Is Disposed
         /// </summary>
         [JsonIgnore]
         public override bool IsDisposed => _handle == IntPtr.Zero;
+
         /// <summary>
         /// Type
         /// </summary>
         public new EStackItemType Type => base.Type;
+
+        #endregion
 
         /// <summary>
         /// Constructor
@@ -36,6 +47,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
         {
             _handle = this.CreateNativeItem();
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -45,6 +57,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
         {
             _handle = this.CreateNativeItem();
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -54,6 +67,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
         {
             _handle = this.CreateNativeItem();
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -63,6 +77,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
         {
             _handle = this.CreateNativeItem();
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -75,10 +90,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
             _handle = handle;
         }
 
-        public byte[] GetNativeByteArray()
-        {
-            return Value.ToByteArray();
-        }
+        public byte[] GetNativeByteArray() => Value.ToByteArray();
 
         #region IDisposable Support
 

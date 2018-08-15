@@ -10,10 +10,12 @@ namespace NeoSharp.VM.Interop.Native
         /// </summary>
         [JsonIgnore]
         IntPtr Handle { get; }
+
         /// <summary>
         /// Type
         /// </summary>
         EStackItemType Type { get; }
+
         /// <summary>
         /// Get native byte array
         /// </summary>

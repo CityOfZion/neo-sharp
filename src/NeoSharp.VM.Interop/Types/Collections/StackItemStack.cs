@@ -23,15 +23,14 @@ namespace NeoSharp.VM.Interop.Types.Collections
         /// Return the number of items in the stack
         /// </summary>
         public override int Count => NeoVM.StackItems_Count(_handle);
+
         /// <summary>
         /// Drop object from the stack
         /// </summary>
         /// <param name="count">Number of items to drop</param>
         /// <returns>Return the first element of the stack</returns>
-        public override int Drop(int count = 0)
-        {
-            return NeoVM.StackItems_Drop(_handle, count);
-        }
+        public override int Drop(int count = 0) => NeoVM.StackItems_Drop(_handle, count);
+
         /// <summary>
         /// Pop object from the stack
         /// </summary>
@@ -39,13 +38,13 @@ namespace NeoSharp.VM.Interop.Types.Collections
         /// <returns>Return the first element of the stack</returns>
         public override IStackItem Pop()
         {
-            IntPtr ptr = NeoVM.StackItems_Pop(_handle);
+            var ptr = NeoVM.StackItems_Pop(_handle);
 
-            if (ptr == IntPtr.Zero)
-                throw (new IndexOutOfRangeException());
+            if (ptr == IntPtr.Zero) throw new IndexOutOfRangeException();
 
             return Engine.ConvertFromNative(ptr);
         }
+
         /// <summary>
         /// Push objet to the stack
         /// </summary>
@@ -54,6 +53,7 @@ namespace NeoSharp.VM.Interop.Types.Collections
         {
             NeoVM.StackItems_Push(_handle, ((INativeStackItem)item).Handle);
         }
+
         /// <summary>
         /// Try to obtain the element at `index` position, without consume them
         /// </summary>
@@ -68,7 +68,7 @@ namespace NeoSharp.VM.Interop.Types.Collections
                 return false;
             }
 
-            IntPtr ptr = NeoVM.StackItems_Peek(_handle, index);
+            var ptr = NeoVM.StackItems_Peek(_handle, index);
 
             if (ptr == IntPtr.Zero)
             {
@@ -79,6 +79,7 @@ namespace NeoSharp.VM.Interop.Types.Collections
             obj = Engine.ConvertFromNative(ptr);
             return true;
         }
+
         /// <summary>
         /// Try Pop object casting to this type
         /// </summary>
@@ -87,7 +88,7 @@ namespace NeoSharp.VM.Interop.Types.Collections
         /// <returns>Return false if it is something wrong</returns>
         public override bool TryPop<TStackItem>(out TStackItem item)
         {
-            IntPtr ptr = NeoVM.StackItems_Pop(_handle);
+            var ptr = NeoVM.StackItems_Pop(_handle);
 
             if (ptr == IntPtr.Zero)
             {
@@ -95,7 +96,7 @@ namespace NeoSharp.VM.Interop.Types.Collections
                 return false;
             }
 
-            IStackItem ret = Engine.ConvertFromNative(ptr);
+            var ret = Engine.ConvertFromNative(ptr);
 
             if (ret is TStackItem ts)
             {
@@ -106,6 +107,7 @@ namespace NeoSharp.VM.Interop.Types.Collections
             item = default(TStackItem);
             return false;
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -116,17 +118,13 @@ namespace NeoSharp.VM.Interop.Types.Collections
             _handle = handle;
             Engine = (ExecutionEngine)engine;
 
-            if (handle == IntPtr.Zero)
-                throw new ExternalException();
+            if (handle == IntPtr.Zero) throw new ExternalException();
         }
 
         /// <summary>
         /// String representation
         /// </summary>
-        public override string ToString()
-        {
-            return Count.ToString();
-        }
+        public override string ToString() => Count.ToString();
 
         /// <summary>
         /// Free resources

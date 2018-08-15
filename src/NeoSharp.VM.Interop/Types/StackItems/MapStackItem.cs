@@ -8,34 +8,48 @@ namespace NeoSharp.VM.Interop.Types.StackItems
 {
     public class MapStackItem : IMapStackItem, INativeStackItem
     {
-        public override bool CanConvertToByteArray => false;
-        public override byte[] ToByteArray() { throw new NotImplementedException(); }
+        #region Private fields
 
         /// <summary>
         /// Native Handle
         /// </summary>
-        IntPtr _handle;
-        /// <summary>
-        /// Native Handle
-        /// </summary>
-        [JsonIgnore]
-        public IntPtr Handle => _handle;
-        /// <summary>
-        /// Is Disposed
-        /// </summary>
-        [JsonIgnore]
-        public override bool IsDisposed => _handle == IntPtr.Zero;
-        /// <summary>
-        /// Type
-        /// </summary>
-        public new EStackItemType Type => base.Type;
+        private IntPtr _handle;
+
         /// <summary>
         /// Engine
         /// </summary>
         [JsonIgnore]
         private readonly new ExecutionEngine Engine;
 
+        #endregion
+
+        #region Public fields
+
+        public override bool CanConvertToByteArray => false;
+
+        /// <summary>
+        /// Native Handle
+        /// </summary>
+        [JsonIgnore]
+        public IntPtr Handle => _handle;
+
+        /// <summary>
+        /// Is Disposed
+        /// </summary>
+        [JsonIgnore]
+        public override bool IsDisposed => _handle == IntPtr.Zero;
+
+        /// <summary>
+        /// Type
+        /// </summary>
+        public new EStackItemType Type => base.Type;
+
+        /// <summary>
+        /// Count
+        /// </summary>
         public override int Count => NeoVM.MapStackItem_Count(_handle);
+
+        #endregion
 
         #region Constructors
 
@@ -44,6 +58,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
         /// </summary>
         /// <param name="engine">Engine</param>
         internal MapStackItem(ExecutionEngine engine) : this(engine, null) { }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -59,6 +74,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
             foreach (KeyValuePair<IStackItem, IStackItem> pair in value)
                 Set(pair.Key, pair.Value);
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -110,7 +126,7 @@ namespace NeoSharp.VM.Interop.Types.StackItems
 
         public override bool TryGetValue(IStackItem key, out IStackItem value)
         {
-            IntPtr ret = NeoVM.MapStackItem_Get(_handle, key == null ? IntPtr.Zero : ((INativeStackItem)key).Handle);
+            var ret = NeoVM.MapStackItem_Get(_handle, key == null ? IntPtr.Zero : ((INativeStackItem)key).Handle);
 
             if (ret == IntPtr.Zero)
             {
@@ -129,21 +145,25 @@ namespace NeoSharp.VM.Interop.Types.StackItems
         public override IEnumerable<IStackItem> GetKeys()
         {
             for (int x = 0, c = Count; x < c; x++)
+            {
                 yield return Engine.ConvertFromNative(NeoVM.MapStackItem_GetKey(_handle, x));
+            }
         }
 
         public override IEnumerable<IStackItem> GetValues()
         {
             for (int x = 0, c = Count; x < c; x++)
+            {
                 yield return Engine.ConvertFromNative(NeoVM.MapStackItem_GetValue(_handle, x));
+            }
         }
 
         public override IEnumerator<KeyValuePair<IStackItem, IStackItem>> GetEnumerator()
         {
             for (int x = 0, c = Count; x < c; x++)
             {
-                IStackItem key = Engine.ConvertFromNative(NeoVM.MapStackItem_GetKey(_handle, x));
-                IStackItem value = Engine.ConvertFromNative(NeoVM.MapStackItem_GetValue(_handle, x));
+                var key = Engine.ConvertFromNative(NeoVM.MapStackItem_GetKey(_handle, x));
+                var value = Engine.ConvertFromNative(NeoVM.MapStackItem_GetValue(_handle, x));
 
                 yield return new KeyValuePair<IStackItem, IStackItem>(key, value);
             }
@@ -151,10 +171,9 @@ namespace NeoSharp.VM.Interop.Types.StackItems
 
         #endregion
 
-        public byte[] GetNativeByteArray()
-        {
-            return null;
-        }
+        public override byte[] ToByteArray() => throw new NotImplementedException();
+
+        public byte[] GetNativeByteArray() => null;
 
         #region IDisposable Support
 

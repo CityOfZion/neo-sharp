@@ -52,12 +52,12 @@ namespace NeoSharp.VM.Interop.Native
 
             dlerror();
 
-            IntPtr res = dlsym(_nativeHandle, name);
+            var res = dlsym(_nativeHandle, name);
 
             if (res != IntPtr.Zero)
                 return res;
 
-            IntPtr errPtr = dlerror();
+            var errPtr = dlerror();
 
             if (errPtr != IntPtr.Zero)
                 throw new Exception("dlsym: " + Marshal.PtrToStringAnsi(errPtr));
@@ -76,7 +76,7 @@ namespace NeoSharp.VM.Interop.Native
             if (handle != IntPtr.Zero)
                 return true;
 
-            IntPtr errPtr = dlerror();
+            var errPtr = dlerror();
 
             if (errPtr != IntPtr.Zero)
                 throw new Exception("dlsym: " + Marshal.PtrToStringAnsi(errPtr));

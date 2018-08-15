@@ -23,8 +23,10 @@ namespace NeoSharp.VM.Interop.Native
         static extern IntPtr _GetProcAddress(IntPtr handle, string procedureName);
 
 #if DEBUG
+
         [DllImport("kernel32.dll")]
         static extern uint GetLastError();
+
 #endif
 
         #endregion
@@ -48,7 +50,7 @@ namespace NeoSharp.VM.Interop.Native
             if (handle == IntPtr.Zero)
             {
 #if DEBUG
-                uint err = GetLastError();
+                var err = GetLastError();
                 System.Diagnostics.Debugger.Log(0, "NATIVE_ERROR", err.ToString());
 #endif
                 return false;
