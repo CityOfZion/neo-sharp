@@ -12,8 +12,8 @@ namespace NeoSharp.VM.Interop.Types
         // This delegates are required for native calls, 
         // otherwise is disposed and produce a memory error
         
-        readonly NeoVM.OnStackChangeCallback _InternalOnAltStackChange;
-        readonly NeoVM.OnStackChangeCallback _InternalOnEvaluationStackChange;
+        private readonly NeoVM.OnStackChangeCallback _InternalOnAltStackChange;
+        private readonly NeoVM.OnStackChangeCallback _InternalOnEvaluationStackChange;
 
         private byte[] _ScriptHash;
         private readonly IStackItemsStack _AltStack, _EvaluationStack;
