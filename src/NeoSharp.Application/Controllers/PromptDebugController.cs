@@ -258,7 +258,12 @@ namespace NeoSharp.Application.Controllers
                 vm.LoadScript(script);
 
                 var ret = vm.Execute();
-                var result = new { vm.State, Result = vm.ResultStack, vm.ConsumedGas };
+                var result = new
+                {
+                    vm.State,
+                    Result = vm.ResultStack,
+                    vm.ConsumedGas
+                };
 
                 _consoleWriter.WriteObject(result, PromptOutputStyle.json);
             }

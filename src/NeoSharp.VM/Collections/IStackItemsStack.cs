@@ -37,7 +37,7 @@ namespace NeoSharp.VM
         /// <param name="item">Item</param>
         /// <returns>Return false if it is something wrong</returns>
         public abstract bool TryPop<TStackItem>(out TStackItem item) where TStackItem : IStackItem;
-        
+
         /// <summary>
         /// Constructor
         /// </summary>

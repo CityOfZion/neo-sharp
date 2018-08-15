@@ -156,8 +156,7 @@ namespace NeoSharp.VM
 
         public virtual ScriptBuilder EmitPush(byte[] data)
         {
-            if (data == null)
-                throw new ArgumentNullException();
+            if (data == null) throw new ArgumentNullException();
 
             if (data.Length <= (int)EVMOpCode.PUSHBYTES75)
             {
@@ -187,11 +186,15 @@ namespace NeoSharp.VM
 
         public virtual ScriptBuilder EmitPush(string data)
         {
+            if (data == null) throw new ArgumentNullException();
+
             return EmitPush(Encoding.UTF8.GetBytes(data));
         }
 
         public virtual ScriptBuilder EmitPush(object[] data)
         {
+            if (data == null) throw new ArgumentNullException();
+
             int size = data.Length;
 
             for (int x = size - 1; x >= 0; x--)
@@ -218,7 +221,8 @@ namespace NeoSharp.VM
 
         public ScriptBuilder EmitMainPush(string operation, object[] pars)
         {
-            EmitPush(pars);
+            if (pars != null) EmitPush(pars);
+
             EmitPush(operation);
 
             return this;
@@ -226,8 +230,7 @@ namespace NeoSharp.VM
 
         public ScriptBuilder EmitSysCall(string api)
         {
-            if (api == null)
-                throw new ArgumentNullException();
+            if (api == null) throw new ArgumentNullException();
 
             byte[] api_bytes = Encoding.ASCII.GetBytes(api);
             if (api_bytes.Length == 0 || api_bytes.Length > 252)

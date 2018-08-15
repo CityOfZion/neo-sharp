@@ -8,7 +8,7 @@ namespace NeoSharp.VM
     {
         public override bool CanConvertToByteArray => false;
 
-        public override byte[] ToByteArray() { throw new NotImplementedException(); }
+        public override byte[] ToByteArray() => throw new NotImplementedException();
 
         /// <summary>
         /// Count
@@ -20,7 +20,9 @@ namespace NeoSharp.VM
             get
             {
                 if (TryGetValue(key, out IStackItem value))
+                {
                     return value;
+                }
 
                 return null;
             }

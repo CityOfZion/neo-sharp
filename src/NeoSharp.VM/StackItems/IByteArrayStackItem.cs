@@ -1,7 +1,11 @@
-﻿using NeoSharp.VM.Helpers;
-using System;
+﻿using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Text;
+using NeoSharp.VM.Extensions;
+using NeoSharp.VM.Helpers;
+using Newtonsoft.Json;
 
 namespace NeoSharp.VM
 {
@@ -9,10 +13,18 @@ namespace NeoSharp.VM
     {
         public override bool CanConvertToByteArray => true;
 
-        public override byte[] ToByteArray()
-        {
-            return Value;
-        }
+        public override byte[] ToByteArray() => Value;
+
+        /// <summary>
+        /// Ascii representation
+        /// </summary>
+        [DefaultValue(null), JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public string ValueString => Value != null && Value.IsASCIIPrintable() ? Encoding.ASCII.GetString(Value) : null;
+
+        /// <summary>
+        /// Ascii representation
+        /// </summary>
+        public BigInteger ValueInteger => Value != null ? new BigInteger(Value) : BigInteger.Zero;
 
         /// <summary>
         /// Constructor
@@ -26,10 +38,7 @@ namespace NeoSharp.VM
         /// </summary>
         /// <param name="other">Other</param>
         /// <returns>Return true if is equal</returns>
-        public bool Equals(IByteArrayStackItem other)
-        {
-            return other != null && other.Value.SequenceEqual(Value);
-        }
+        public bool Equals(IByteArrayStackItem other) => other != null && other.Value.SequenceEqual(Value);
 
         /// <summary>
         /// Is Equal
@@ -39,7 +48,9 @@ namespace NeoSharp.VM
         public override bool Equals(IStackItem other)
         {
             if (other is IByteArrayStackItem b)
+            {
                 return b.Value.SequenceEqual(Value);
+            }
 
             return false;
         }
@@ -51,17 +62,7 @@ namespace NeoSharp.VM
         {
             if (Value == null) return "NULL";
 
-            // Check printable characters
-
-            bool allOk = true;
-            foreach (byte c in Value)
-                if (c < 32 || c > 126)
-                {
-                    allOk = false;
-                    break;
-                }
-
-            return allOk ? "'" + Encoding.ASCII.GetString(Value) + "'" : BitHelper.ToHexString(Value);
+            return Value.IsASCIIPrintable() ? "'" + Encoding.ASCII.GetString(Value) + "'" : BitHelper.ToHexString(Value);
         }
     }
 }

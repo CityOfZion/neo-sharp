@@ -10,22 +10,20 @@ namespace NeoSharp.VM
     {
         public override bool CanConvertToByteArray => false;
 
-        public override byte[] ToByteArray() { throw new NotImplementedException(); }
+        public override byte[] ToByteArray() => throw new NotImplementedException();
 
         /// <summary>
         /// Count
         /// </summary>
         public abstract int Count { get; }
+
         /// <summary>
         /// Index
         /// </summary>
         /// <param name="index">Position</param>
         /// <returns>Returns the StackItem element</returns>
-        public abstract IStackItem this[int index]
-        {
-            get;
-            set;
-        }
+        public abstract IStackItem this[int index] { get; set; }
+
         /// <summary>
         /// IsStruct
         /// </summary>
@@ -35,10 +33,12 @@ namespace NeoSharp.VM
         /// IsReadOnly
         /// </summary>
         public bool IsReadOnly => false;
+
         /// <summary>
         /// IsSynchronized
         /// </summary>
         bool ICollection.IsSynchronized => false;
+
         /// <summary>
         /// SyncRoot
         /// </summary>
@@ -116,7 +116,7 @@ namespace NeoSharp.VM
 
         public bool Remove(IStackItem item)
         {
-            int ix = IndexOf(item);
+            var ix = IndexOf(item);
             if (ix < 0) return false;
 
             RemoveAt(ix);
@@ -133,7 +133,7 @@ namespace NeoSharp.VM
             {
                 // Struct logic
 
-                List<IStackItem> newArray = new List<IStackItem>(Count);
+                var newArray = new List<IStackItem>(Count);
 
                 foreach (var it in this)
                 {
@@ -142,6 +142,7 @@ namespace NeoSharp.VM
                     else
                         newArray.Add(it);
                 }
+
                 return Engine.CreateStruct(newArray);
             }
             else
@@ -156,10 +157,7 @@ namespace NeoSharp.VM
 
         public abstract int IndexOf(IStackItem item);
 
-        public bool Contains(IStackItem item)
-        {
-            return IndexOf(item) >= 0;
-        }
+        public bool Contains(IStackItem item) => IndexOf(item) >= 0;
 
         #endregion
 
@@ -175,15 +173,14 @@ namespace NeoSharp.VM
             foreach (var item in this) array.SetValue(item, index++);
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public IEnumerator<IStackItem> GetEnumerator()
         {
             for (int x = 0, m = Count; x < m; x++)
+            {
                 yield return this[x];
+            }
         }
 
         #endregion
@@ -193,10 +190,11 @@ namespace NeoSharp.VM
         /// </summary>
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append("[");
 
-            bool first = true;
+            var first = true;
+
             foreach (var it in this)
             {
                 if (first) first = false;

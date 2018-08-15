@@ -6,7 +6,7 @@ namespace NeoSharp.VM
     {
         public override bool CanConvertToByteArray => false;
 
-        public override byte[] ToByteArray() { throw new NotImplementedException(); }
+        public override byte[] ToByteArray() => throw new NotImplementedException();
 
         /// <summary>
         /// Constructor
@@ -20,10 +20,7 @@ namespace NeoSharp.VM
         /// </summary>
         /// <param name="other">Other</param>
         /// <returns>Return true if is equal</returns>
-        public bool Equals(IInteropStackItem other)
-        {
-            return other != null && other.Value.Equals(Value);
-        }
+        public bool Equals(IInteropStackItem other) => other != null && other.Value.Equals(Value);
 
         /// <summary>
         /// Is Equal
@@ -33,7 +30,9 @@ namespace NeoSharp.VM
         public override bool Equals(IStackItem other)
         {
             if (other is IInteropStackItem b)
+            {
                 return b.Value.Equals(Value);
+            }
 
             return false;
         }
