@@ -83,12 +83,9 @@ namespace NeoSharp.VM.Interop.Types.StackItems
 
         protected override void Dispose(bool disposing)
         {
-            lock (this)
-            {
-                if (_handle == IntPtr.Zero) return;
+            if (_handle == IntPtr.Zero) return;
 
-                NeoVM.StackItem_Free(ref _handle);
-            }
+            NeoVM.StackItem_Free(ref _handle);
         }
 
         #endregion
