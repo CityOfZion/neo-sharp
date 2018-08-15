@@ -10,35 +10,41 @@ namespace NeoSharp.VM.Interop.Types
 {
     public unsafe class ExecutionEngine : IExecutionEngine
     {
-        #region Delegates
-
-        readonly NeoVM.OnStepIntoCallback _InternalOnStepInto;
-        readonly NeoVM.OnStackChangeCallback _InternalOnExecutionContextChange;
-        readonly NeoVM.OnStackChangeCallback _InternalOnResultStackChange;
-
-        readonly NeoVM.InvokeInteropCallback _InternalInvokeInterop;
-        readonly NeoVM.LoadScriptCallback _InternalLoadScript;
-        readonly NeoVM.GetMessageCallback _InternalGetMessage;
-
-        #endregion
+        #region Private fields
 
         /// <summary>
         /// Native handle
         /// </summary>
-        IntPtr Handle;
+        private IntPtr Handle;
+
         /// <summary>
         /// Last message
         /// </summary>
-        byte[] LastMessage;
+        private byte[] LastMessage;
 
-        readonly IStackItemsStack _ResultStack;
-        readonly IStack<IExecutionContext> _InvocationStack;
+        /// <summary>
+        /// Result stack
+        /// </summary>
+        private readonly IStackItemsStack _ResultStack;
+
+        /// <summary>
+        /// Invocation stack
+        /// </summary>
+        private readonly IStack<IExecutionContext> _InvocationStack;
+
+        /// <summary>
+        /// Interop Cache
+        /// </summary>
+        internal readonly List<object> InteropCache;
+
+        #endregion
+
+        #region Public fields
 
         /// <summary>
         /// Is Disposed
         /// </summary>
         public override bool IsDisposed => Handle == IntPtr.Zero;
-
         /// <summary>
         /// Invocation Stack
         /// </summary>
@@ -56,10 +62,7 @@ namespace NeoSharp.VM.Interop.Types
         /// </summary>
         public override ulong ConsumedGas => NeoVM.ExecutionEngine_GetConsumedGas(Handle);
 
-        /// <summary>
-        /// Interop Cache
-        /// </summary>
-        internal readonly List<object> InteropCache;
+        #endregion
 
         /// <summary>
         /// Constructor
@@ -67,19 +70,15 @@ namespace NeoSharp.VM.Interop.Types
         /// <param name="e">Arguments</param>
         public ExecutionEngine(ExecutionEngineArgs e) : base(e)
         {
-            _InternalInvokeInterop = new NeoVM.InvokeInteropCallback(InternalInvokeInterop);
-            _InternalLoadScript = new NeoVM.LoadScriptCallback(InternalLoadScript);
-            _InternalGetMessage = new NeoVM.GetMessageCallback(InternalGetMessage);
             InteropCache = new List<object>();
 
             Handle = NeoVM.ExecutionEngine_Create
                 (
-                _InternalInvokeInterop, _InternalLoadScript, _InternalGetMessage,
+                InternalInvokeInterop, InternalLoadScript, InternalGetMessage,
                 out IntPtr invHandle, out IntPtr resHandle
                 );
 
-            if (Handle == IntPtr.Zero)
-                throw (new ExternalException());
+            if (Handle == IntPtr.Zero) throw new ExternalException();
 
             _InvocationStack = new ExecutionContextStack(this, invHandle);
             _ResultStack = new StackItemStack(this, resHandle);
@@ -88,20 +87,17 @@ namespace NeoSharp.VM.Interop.Types
             {
                 if (Logger.Verbosity.HasFlag(ELogVerbosity.StepInto))
                 {
-                    _InternalOnStepInto = new NeoVM.OnStepIntoCallback(InternalOnStepInto);
-                    NeoVM.ExecutionEngine_AddLog(Handle, _InternalOnStepInto);
+                    NeoVM.ExecutionEngine_AddLog(Handle, InternalOnStepInto);
                 }
 
                 if (Logger.Verbosity.HasFlag(ELogVerbosity.ExecutionContextStackChanges))
                 {
-                    _InternalOnExecutionContextChange = new NeoVM.OnStackChangeCallback(InternalOnExecutionContextChange);
-                    NeoVM.ExecutionContextStack_AddLog(invHandle, _InternalOnExecutionContextChange);
+                    NeoVM.ExecutionContextStack_AddLog(invHandle, InternalOnExecutionContextChange);
                 }
 
                 if (Logger.Verbosity.HasFlag(ELogVerbosity.ResultStackChanges))
                 {
-                    _InternalOnResultStackChange = new NeoVM.OnStackChangeCallback(InternalOnResultStackChange);
-                    NeoVM.StackItems_AddLog(resHandle, _InternalOnResultStackChange);
+                    NeoVM.StackItems_AddLog(resHandle, InternalOnResultStackChange);
                 }
             }
         }
@@ -413,7 +409,9 @@ namespace NeoSharp.VM.Interop.Types
 
             // free unmanaged resources (unmanaged objects) and override a finalizer below. set large fields to null.
 
-            ResultStack.Dispose();
+            _ResultStack.Dispose();
+            _InvocationStack.Dispose();
+
             NeoVM.ExecutionEngine_Free(ref Handle);
         }
 
