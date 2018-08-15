@@ -146,7 +146,7 @@ namespace NeoSharp.VM.Interop.Types
         {
             using (var context = new ExecutionContext(this, it))
             {
-                Logger.RaiseOnExecutionContextChange(InvocationStack, context, index, (ELogStackOperation)operation);
+                Logger.RaiseOnExecutionContextChange(_InvocationStack, context, index, (ELogStackOperation)operation);
             }
         }
 
@@ -160,7 +160,7 @@ namespace NeoSharp.VM.Interop.Types
         {
             using (var it = this.ConvertFromNative(item))
             {
-                Logger.RaiseOnResultStackChange(ResultStack, it, index, (ELogStackOperation)operation);
+                Logger.RaiseOnResultStackChange(_ResultStack, it, index, (ELogStackOperation)operation);
             }
         }
 

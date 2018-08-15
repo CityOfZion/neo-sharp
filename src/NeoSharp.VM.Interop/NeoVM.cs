@@ -156,6 +156,7 @@ namespace NeoSharp.VM.Interop
         internal static delByte_HandleRefInt StackItem_SerializeInfo;
         internal static delInt_HandleHandleInt StackItem_Serialize;
         internal static delVoid_RefHandle StackItem_Free;
+        internal static delVoid_Handle StackItem_Claim;
 
         internal static delInt_Handle MapStackItem_Count;
         internal static delVoid_Handle MapStackItem_Clear;
