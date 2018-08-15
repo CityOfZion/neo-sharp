@@ -9,6 +9,9 @@ namespace NeoSharp.VM.Interop.Types
     {
         #region Private fields
 
+        readonly NeoVM.OnStackChangeCallback _InternalOnAltStackChange;
+        readonly NeoVM.OnStackChangeCallback _InternalOnEvaluationStackChange;
+
         private byte[] _ScriptHash;
         private readonly IStackItemsStack _AltStack, _EvaluationStack;
 
@@ -94,12 +97,14 @@ namespace NeoSharp.VM.Interop.Types
 
             if (engine.Logger.Verbosity.HasFlag(ELogVerbosity.AltStackChanges))
             {
-                NeoVM.StackItems_AddLog(altHandle, InternalOnAltStackChange);
+                _InternalOnAltStackChange = new NeoVM.OnStackChangeCallback(InternalOnAltStackChange);
+                NeoVM.StackItems_AddLog(altHandle, _InternalOnAltStackChange);
             }
 
             if (engine.Logger.Verbosity.HasFlag(ELogVerbosity.EvaluationStackChanges))
             {
-                NeoVM.StackItems_AddLog(evHandle, InternalOnEvaluationStackChange);
+                _InternalOnEvaluationStackChange = new NeoVM.OnStackChangeCallback(InternalOnEvaluationStackChange);
+                NeoVM.StackItems_AddLog(evHandle, _InternalOnEvaluationStackChange);
             }
         }
 

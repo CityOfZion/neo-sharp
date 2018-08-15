@@ -12,6 +12,14 @@ namespace NeoSharp.VM.Interop.Types
     {
         #region Private fields
 
+        readonly NeoVM.OnStepIntoCallback _InternalOnStepInto;
+        readonly NeoVM.OnStackChangeCallback _InternalOnExecutionContextChange;
+        readonly NeoVM.OnStackChangeCallback _InternalOnResultStackChange;
+
+        readonly NeoVM.InvokeInteropCallback _InternalInvokeInterop;
+        readonly NeoVM.LoadScriptCallback _InternalLoadScript;
+        readonly NeoVM.GetMessageCallback _InternalGetMessage;
+
         /// <summary>
         /// Native handle
         /// </summary>
@@ -76,9 +84,13 @@ namespace NeoSharp.VM.Interop.Types
         {
             InteropCache = new List<object>();
 
+            _InternalInvokeInterop = new NeoVM.InvokeInteropCallback(InternalInvokeInterop);
+            _InternalLoadScript = new NeoVM.LoadScriptCallback(InternalLoadScript);
+            _InternalGetMessage = new NeoVM.GetMessageCallback(InternalGetMessage);
+
             Handle = NeoVM.ExecutionEngine_Create
                 (
-                InternalInvokeInterop, InternalLoadScript, InternalGetMessage,
+                _InternalInvokeInterop, _InternalLoadScript, _InternalGetMessage,
                 out IntPtr invHandle, out IntPtr resHandle
                 );
 
@@ -91,17 +103,20 @@ namespace NeoSharp.VM.Interop.Types
             {
                 if (Logger.Verbosity.HasFlag(ELogVerbosity.StepInto))
                 {
-                    NeoVM.ExecutionEngine_AddLog(Handle, InternalOnStepInto);
+                    _InternalOnStepInto = new NeoVM.OnStepIntoCallback(InternalOnStepInto);
+                    NeoVM.ExecutionEngine_AddLog(Handle, _InternalOnStepInto);
                 }
 
                 if (Logger.Verbosity.HasFlag(ELogVerbosity.ExecutionContextStackChanges))
                 {
-                    NeoVM.ExecutionContextStack_AddLog(invHandle, InternalOnExecutionContextChange);
+                    _InternalOnExecutionContextChange = new NeoVM.OnStackChangeCallback(InternalOnExecutionContextChange);
+                    NeoVM.ExecutionContextStack_AddLog(invHandle, _InternalOnExecutionContextChange);
                 }
 
                 if (Logger.Verbosity.HasFlag(ELogVerbosity.ResultStackChanges))
                 {
-                    NeoVM.StackItems_AddLog(resHandle, InternalOnResultStackChange);
+                    _InternalOnResultStackChange = new NeoVM.OnStackChangeCallback(InternalOnResultStackChange);
+                    NeoVM.StackItems_AddLog(resHandle, _InternalOnResultStackChange);
                 }
             }
         }
