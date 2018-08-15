@@ -15,13 +15,13 @@ namespace NeoSharp.VM.Interop.Types
         // This delegates are required for native calls, 
         // otherwise is disposed and produce a memory error
 
-        readonly NeoVM.OnStepIntoCallback _InternalOnStepInto;
-        readonly NeoVM.OnStackChangeCallback _InternalOnExecutionContextChange;
-        readonly NeoVM.OnStackChangeCallback _InternalOnResultStackChange;
+        private readonly NeoVM.OnStepIntoCallback _InternalOnStepInto;
+        private readonly NeoVM.OnStackChangeCallback _InternalOnExecutionContextChange;
+        private readonly NeoVM.OnStackChangeCallback _InternalOnResultStackChange;
 
-        readonly NeoVM.InvokeInteropCallback _InternalInvokeInterop;
-        readonly NeoVM.LoadScriptCallback _InternalLoadScript;
-        readonly NeoVM.GetMessageCallback _InternalGetMessage;
+        private readonly NeoVM.InvokeInteropCallback _InternalInvokeInterop;
+        private readonly NeoVM.LoadScriptCallback _InternalLoadScript;
+        private readonly NeoVM.GetMessageCallback _InternalGetMessage;
 
         /// <summary>
         /// Native handle
