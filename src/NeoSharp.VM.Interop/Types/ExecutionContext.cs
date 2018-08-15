@@ -8,7 +8,10 @@ namespace NeoSharp.VM.Interop.Types
     unsafe public class ExecutionContext : IExecutionContext
     {
         #region Private fields
-
+        
+        // This delegates are required for native calls, 
+        // otherwise is disposed and produce a memory error
+        
         readonly NeoVM.OnStackChangeCallback _InternalOnAltStackChange;
         readonly NeoVM.OnStackChangeCallback _InternalOnEvaluationStackChange;
 
