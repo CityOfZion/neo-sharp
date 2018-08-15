@@ -11,6 +11,9 @@ namespace NeoSharp.VM.Interop.Types
     public unsafe class ExecutionEngine : IExecutionEngine
     {
         #region Private fields
+        
+        // This delegates are required for native calls, 
+        // otherwise is disposed and produce a memory error
 
         readonly NeoVM.OnStepIntoCallback _InternalOnStepInto;
         readonly NeoVM.OnStackChangeCallback _InternalOnExecutionContextChange;
