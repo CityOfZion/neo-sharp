@@ -14,19 +14,13 @@ namespace NeoSharp.VM.Interop.Extensions
         /// </summary>
         /// <param name="engine">Engine</param>
         /// <param name="item">Item</param>
-        /// <param name="claim">Claim stack item</param>
         /// <returns>Return StackItem</returns>
-        public static IStackItem ConvertFromNative(this ExecutionEngine engine, IntPtr item, bool claim = true)
+        public static IStackItem ConvertFromNative(this ExecutionEngine engine, IntPtr item)
         {
             if (item == IntPtr.Zero) return null;
 
             var state = (EStackItemType)NeoVM.StackItem_SerializeInfo(item, out int size);
             if (state == EStackItemType.None) return null;
-
-            if (claim)
-            {
-                NeoVM.StackItem_Claim(item);
-            }
 
             int readed;
             byte[] payload;

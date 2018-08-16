@@ -41,18 +41,13 @@ namespace NeoSharp.VM.Interop.Types.Collections
 
         /// <summary>
         /// Try to obtain the element at `index` position, without consume them
+        /// -1=Last , -2=Last-1 , -3=Last-2
         /// </summary>
         /// <param name="index">Index</param>
         /// <param name="obj">Object</param>
         /// <returns>Return tru eif object exists</returns>
         public override bool TryPeek(int index, out IExecutionContext obj)
         {
-            if (index < 0)
-            {
-                obj = null;
-                return false;
-            }
-
             var ptr = NeoVM.ExecutionContextStack_Peek(_handle, index);
 
             if (ptr == IntPtr.Zero)

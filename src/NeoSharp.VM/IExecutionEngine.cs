@@ -6,43 +6,55 @@ namespace NeoSharp.VM
 {
     public abstract class IExecutionEngine : IDisposable
     {
+        #region Public fields from arguments
+
         /// <summary>
         /// Trigger
         /// </summary>
         public readonly ETriggerType Trigger;
+
         /// <summary>
         /// Interop service
         /// </summary>
         public readonly InteropService InteropService;
+
         /// <summary>
         /// Script table
         /// </summary>
         public readonly IScriptTable ScriptTable;
+
         /// <summary>
         /// Logger
         /// </summary>
         public readonly ExecutionEngineLogger Logger;
+
         /// <summary>
         /// Message Provider
         /// </summary>
         public readonly IMessageProvider MessageProvider;
 
+        #endregion
+
         /// <summary>
         /// Virtual Machine State
         /// </summary>
         public abstract EVMState State { get; }
+
         /// <summary>
         /// InvocationStack
         /// </summary>
         public abstract IStack<IExecutionContext> InvocationStack { get; }
+
         /// <summary>
         /// ResultStack
         /// </summary>
         public abstract IStackItemsStack ResultStack { get; }
+
         /// <summary>
         /// Is disposed
         /// </summary>
         public abstract bool IsDisposed { get; }
+
         /// <summary>
         /// Consumed Gas
         /// </summary>
@@ -52,14 +64,14 @@ namespace NeoSharp.VM
 
         public IExecutionContext CurrentContext => InvocationStack.TryPeek(0, out IExecutionContext i) ? i : null;
         public IExecutionContext CallingContext => InvocationStack.TryPeek(1, out IExecutionContext i) ? i : null;
-        public IExecutionContext EntryContext => InvocationStack.TryPeek(InvocationStack.Count - 1, out IExecutionContext i) ? i : null;
+        public IExecutionContext EntryContext => InvocationStack.TryPeek(-1, out IExecutionContext i) ? i : null;
 
         #endregion
 
         /// <summary>
         /// For unit testing only
         /// </summary>
-        protected IExecutionEngine(){}
+        protected IExecutionEngine() { }
 
         /// <summary>
         /// Constructor

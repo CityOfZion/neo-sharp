@@ -8,15 +8,17 @@ namespace NeoSharp.VM.Interop.Types
     unsafe public class ExecutionContext : IExecutionContext
     {
         #region Private fields
-        
+
         // This delegates are required for native calls, 
         // otherwise is disposed and produce a memory error
-        
+
         private readonly NeoVM.OnStackChangeCallback _InternalOnAltStackChange;
         private readonly NeoVM.OnStackChangeCallback _InternalOnEvaluationStackChange;
 
         private byte[] _ScriptHash;
-        private readonly IStackItemsStack _AltStack, _EvaluationStack;
+
+        private readonly IStackItemsStack _AltStack;
+        private readonly IStackItemsStack _EvaluationStack;
 
         /// <summary>
         /// Native handle
@@ -56,14 +58,18 @@ namespace NeoSharp.VM.Interop.Types
             get
             {
                 if (_ScriptHash != null)
+                {
                     return _ScriptHash;
+                }
 
                 _ScriptHash = new byte[ScriptHashLength];
 
                 fixed (byte* p = _ScriptHash)
                 {
                     if (NeoVM.ExecutionContext_GetScriptHash(Handle, (IntPtr)p, 0) != ScriptHashLength)
+                    {
                         throw (new AccessViolationException());
+                    }
                 }
 
                 return _ScriptHash;
@@ -121,7 +127,7 @@ namespace NeoSharp.VM.Interop.Types
         {
             using (var it = Engine.ConvertFromNative(item))
             {
-                Engine.Logger.RaiseOnAltStackChange(AltStack, it, index, (ELogStackOperation)operation);
+                Engine.Logger.RaiseOnAltStackChange(_AltStack, it, index, (ELogStackOperation)operation);
             }
         }
 
@@ -135,7 +141,7 @@ namespace NeoSharp.VM.Interop.Types
         {
             using (var it = Engine.ConvertFromNative(item))
             {
-                Engine.Logger.RaiseOnEvaluationStackChange(EvaluationStack, it, index, (ELogStackOperation)operation);
+                Engine.Logger.RaiseOnEvaluationStackChange(_EvaluationStack, it, index, (ELogStackOperation)operation);
             }
         }
 

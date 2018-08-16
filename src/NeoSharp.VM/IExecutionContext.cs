@@ -21,22 +21,27 @@ namespace NeoSharp.VM
         /// Is Disposed?
         /// </summary>
         public abstract bool IsDisposed { get; }
+        
         /// <summary>
         /// Evaluation Stack
         /// </summary>
         public abstract IStackItemsStack EvaluationStack { get; }
+        
         /// <summary>
         /// Alt Stack
         /// </summary>
         public abstract IStackItemsStack AltStack { get; }
+        
         /// <summary>
         /// Script Hash
         /// </summary>
         public abstract byte[] ScriptHash { get; }
+        
         /// <summary>
         /// Next instruction
         /// </summary>
         public abstract EVMOpCode NextInstruction { get; }
+
         /// <summary>
         /// Get Instruction pointer
         /// </summary>
