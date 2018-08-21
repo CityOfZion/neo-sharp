@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 
 namespace NeoSharp.VM
 {
@@ -62,9 +63,23 @@ namespace NeoSharp.VM
 
         #region Shortcuts
 
-        public IExecutionContext CurrentContext => InvocationStack.TryPeek(0, out IExecutionContext i) ? i : null;
-        public IExecutionContext CallingContext => InvocationStack.TryPeek(1, out IExecutionContext i) ? i : null;
-        public IExecutionContext EntryContext => InvocationStack.TryPeek(-1, out IExecutionContext i) ? i : null;
+        public IExecutionContext CurrentContext
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return InvocationStack.TryPeek(0, out IExecutionContext i) ? i : null; }
+        }
+
+        public IExecutionContext CallingContext
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return InvocationStack.TryPeek(1, out IExecutionContext i) ? i : null; }
+        }
+
+        public IExecutionContext EntryContext
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return InvocationStack.TryPeek(-1, out IExecutionContext i) ? i : null; }
+        }
 
         #endregion
 
@@ -109,24 +124,34 @@ namespace NeoSharp.VM
         #region Execution
 
         /// <summary>
+        /// Increase gas
+        /// </summary>
+        /// <param name="gas">Gas</param>
+        public abstract bool IncreaseGas(uint gas);
+
+        /// <summary>
         /// Clean Execution engine state
         /// </summary>
         /// <param name="iteration">Iteration</param>
         public abstract void Clean(uint iteration = 0);
+
         /// <summary>
         /// Execute (until x of Gas)
         /// </summary>
         /// <param name="gas">Gas</param>
         public abstract bool Execute(ulong gas = ulong.MaxValue);
+
         /// <summary>
         /// Step Into
         /// </summary>
         /// <param name="steps">Steps</param>
         public abstract void StepInto(int steps = 1);
+
         /// <summary>
         /// Step Out
         /// </summary>
         public abstract void StepOut();
+
         /// <summary>
         /// Step Over
         /// </summary>
@@ -140,46 +165,55 @@ namespace NeoSharp.VM
         /// Create Map StackItem
         /// </summary>
         public abstract IMapStackItem CreateMap();
+
         /// <summary>
         /// Create Array StackItem
         /// </summary>
         /// <param name="items">Items</param>
         public abstract IArrayStackItem CreateArray(IEnumerable<IStackItem> items = null);
+
         /// <summary>
         /// Create Struct StackItem
         /// </summary>
         /// <param name="items">Items</param>
         public abstract IArrayStackItem CreateStruct(IEnumerable<IStackItem> items = null);
+
         /// <summary>
         /// Create ByteArrayStackItem
         /// </summary>
         /// <param name="data">Buffer</param>
         public abstract IByteArrayStackItem CreateByteArray(byte[] data);
+
         /// <summary>
         /// Create InteropStackItem
         /// </summary>
         /// <param name="obj">Object</param>
         public abstract IInteropStackItem CreateInterop(object obj);
+
         /// <summary>
         /// Create BooleanStackItem
         /// </summary>
         /// <param name="value">Value</param>
         public abstract IBooleanStackItem CreateBool(bool value);
+
         /// <summary>
         /// Create IntegerStackItem
         /// </summary>
         /// <param name="value">Value</param>
         public abstract IIntegerStackItem CreateInteger(int value);
+
         /// <summary>
         /// Create IntegerStackItem
         /// </summary>
         /// <param name="value">Value</param>
         public abstract IIntegerStackItem CreateInteger(long value);
+
         /// <summary>
         /// Create IntegerStackItem
         /// </summary>
         /// <param name="value">Value</param>
         public abstract IIntegerStackItem CreateInteger(BigInteger value);
+
         /// <summary>
         /// Create IntegerStackItem
         /// </summary>

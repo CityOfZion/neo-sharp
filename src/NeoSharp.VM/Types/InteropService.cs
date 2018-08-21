@@ -1,16 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using NeoSharp.VM.Types;
 
 namespace NeoSharp.VM
 {
     public class InteropService
     {
-        /// <summary>
-        /// Delegate
-        /// </summary>
-        /// <param name="engine">Execution engine</param>
-        /// <returns>Return false if something wrong</returns>
-        public delegate bool delHandler(IExecutionEngine engine);
         /// <summary>
         /// Notify event
         /// </summary>
@@ -27,17 +22,17 @@ namespace NeoSharp.VM
         /// <summary>
         /// Cache dictionary
         /// </summary>
-        SortedDictionary<string, delHandler> Entries = new SortedDictionary<string, delHandler>();
+        SortedDictionary<string, InteropServiceEntry> Entries = new SortedDictionary<string, InteropServiceEntry>();
 
         /// <summary>
         /// Get method
         /// </summary>
         /// <param name="method">Method</param>
-        public delHandler this[string method]
+        public InteropServiceEntry this[string method]
         {
             get
             {
-                if (!Entries.TryGetValue(method, out delHandler func)) return null;
+                if (!Entries.TryGetValue(method, out var func)) return null;
                 return func;
             }
         }
@@ -47,6 +42,8 @@ namespace NeoSharp.VM
         /// </summary>
         public InteropService()
         {
+            // TODO: GAS COST https://github.com/neo-project/neo/blob/b5926fe88d25c8aab2028c0ff7acad2c1d982bad/neo/SmartContract/ApplicationEngine.cs#L383
+
             Register("Neo.Runtime.GetTrigger", NeoRuntimeGetTrigger);
             Register("Neo.Runtime.Log", NeoRuntimeLog);
             Register("Neo.Runtime.Notify", NeoRuntimeNotify);
@@ -65,20 +62,26 @@ namespace NeoSharp.VM
         /// <param name="method">Method name</param>
         /// <param name="synonymous">Synonymous</param>
         /// <param name="handler">Method delegate</param>
-        protected void Register(string method, string synonymous, delHandler handler)
+        /// <param name="gas">Gas</param>
+        protected void Register(string method, string synonymous, InteropServiceEntry.delHandler handler, uint gas = 1)
         {
-            Entries[method] = handler;
-            Entries[synonymous] = handler;
+            var entry = new InteropServiceEntry(handler, gas);
+
+            Entries[method] = entry;
+            Entries[synonymous] = entry;
         }
+
         /// <summary>
         /// Register method
         /// </summary>
         /// <param name="method">Method name</param>
         /// <param name="handler">Method delegate</param>
-        protected void Register(string method, delHandler handler)
+        /// <param name="gas">Gas</param>
+        protected void Register(string method, InteropServiceEntry.delHandler handler, uint gas = 1)
         {
-            Entries[method] = handler;
+            Entries[method] = new InteropServiceEntry(handler, gas);
         }
+
         /// <summary>
         /// Clear entries
         /// </summary>
@@ -94,14 +97,21 @@ namespace NeoSharp.VM
         /// <returns>Return false if something wrong</returns>
         public bool Invoke(string method, IExecutionEngine engine)
         {
-            if (!Entries.TryGetValue(method, out delHandler func))
+            if (!Entries.TryGetValue(method, out var entry))
             {
                 OnSysCall?.Invoke(this, new SysCallArgs(engine, method, SysCallArgs.EResult.NotFound));
 
                 return false;
             }
 
-            var ret = func(engine);
+            if (!engine.IncreaseGas(entry.GasCost))
+            {
+                OnSysCall?.Invoke(this, new SysCallArgs(engine, method, SysCallArgs.EResult.OutOfGas));
+
+                return false;
+            }
+
+            var ret = entry.Handler(engine);
 
             OnSysCall?.Invoke(this, new SysCallArgs(engine, method, ret ? SysCallArgs.EResult.True : SysCallArgs.EResult.False));
 

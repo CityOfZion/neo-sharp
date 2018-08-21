@@ -4,11 +4,13 @@ namespace NeoSharp.VM
 {
     public class SysCallArgs : EventArgs
     {
-        public enum EResult
+        public enum EResult : byte
         {
-            NotFound,
-            True,
-            False
+            False = 0,
+            True = 1,
+
+            NotFound = 10,
+            OutOfGas = 11,
         }
 
         /// <summary>
