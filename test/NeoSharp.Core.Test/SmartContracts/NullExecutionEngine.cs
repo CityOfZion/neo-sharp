@@ -77,12 +77,7 @@ namespace NeoSharp.Core.Test.SmartContracts
             return null;
         }
 
-        public override bool Execute()
-        {
-            return true;
-        }
-
-        public override bool ExecuteUntil(ulong gas)
+        public override bool Execute(ulong gas = ulong.MaxValue)
         {
             return true;
         }

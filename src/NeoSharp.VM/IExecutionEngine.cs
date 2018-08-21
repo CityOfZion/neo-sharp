@@ -114,14 +114,10 @@ namespace NeoSharp.VM
         /// <param name="iteration">Iteration</param>
         public abstract void Clean(uint iteration = 0);
         /// <summary>
-        /// Execute
-        /// </summary>
-        public abstract bool Execute();
-        /// <summary>
-        /// Execute until x of Gas
+        /// Execute (until x of Gas)
         /// </summary>
         /// <param name="gas">Gas</param>
-        public abstract bool ExecuteUntil(ulong gas);
+        public abstract bool Execute(ulong gas = ulong.MaxValue);
         /// <summary>
         /// Step Into
         /// </summary>
