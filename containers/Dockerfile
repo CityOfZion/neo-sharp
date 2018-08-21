@@ -10,7 +10,7 @@ RUN mkdir /repo && \
     cd /repo && \
     git clone --recursive -b $BRANCH https://github.com/CityOfZion/neo-sharp.git && \
     cd /repo/neo-sharp/src/NeoSharp.Application && \
-    dotnet publish --configuration Release --output /neo-sharp-builds
+    dotnet publish --configuration Release --output /home/neo-sharp
 
 
 ## Runtime stage
@@ -24,12 +24,12 @@ RUN apt-get update && \
     mkdir /home/neo-sharp
 
 # copy app from builder stage
-COPY --from=builder /neo-sharp-builds/* /home/neo-sharp/
+COPY --from=builder /home/neo-sharp/* /home/neo-sharp/
 
 # workdir
 WORKDIR /home/neo-sharp
 
 EXPOSE 8000/tcp
 
-# first command to run when container is started will start app
-ENTRYPOINT ["/usr/bin/dotnet", "NeoSharp.Application.dll"]
+# default first command to run when container is started will start app
+CMD ["/usr/bin/dotnet", "NeoSharp.Application.dll"]

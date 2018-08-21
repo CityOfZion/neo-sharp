@@ -1,22 +1,33 @@
-language: csharp
-os:
-- linux
-dist: trusty
-dotnet: 2.1.300
-mono: none
+sudo: required
+
+services:
+  - docker
+
+env:
+  # official docker hub registry
+  # Commented here but needs to be placed in the Travis Repository Settings as an environment variable
+  # REPO=cityofzion/neo-sharp
+
+install:
+  # build SDK image
+  - docker build --target builder -t cityofzion/neo-sharp:SDK ./containers/
 
 script:
-
-# let's do the restore. 
-- dotnet restore
-
-# setup the projects to have the coverlet package in test. If it doesn't have coverlet to run the code coverage during the msbuild, then you'll get no code coverage reports.  dotnet test will just run the tests without code coverage.
-- find test -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
-
-# do the tests.  Note: I had to do some workarounds to make sure dotnet test only runs on the Test Projects.  
-# see https://dasmulli.blog/2018/01/20/make-dotnet-test-work-on-solution-files/ 
-- dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+  # run tests
+  - docker run -p 8000:8000 -it --rm --name neo-sharp-SDK cityofzion/neo-sharp:SDK bash -c "cd /repo/neo-sharp && find test -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild && dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover && /bin/bash <(curl -s https://codecov.io/bash) -v"
 
 after_success:
-#CODECOV
-- bash <(curl -s https://codecov.io/bash) -v
+  # if tests ok build runtime image
+  - docker build -t cityofzion/neo-sharp:latest ./containers/
+
+deploy:
+  # login to docker hub
+  - provider: script
+    script: bash -c "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+    on:
+      repo: CityOfZion/neo-sharp
+  # deploy all container images created -> SDK and runtime (latest)
+  - provider: script
+    script: bash -c "docker push cityofzion/neo-sharp"
+    on:
+      repo: CityOfZion/neo-sharp
