@@ -8,10 +8,12 @@ namespace NeoSharp.VM
         /// Message Provider
         /// </summary>
         public readonly IMessageProvider MessageProvider;
+
         /// <summary>
         /// Script Hash
         /// </summary>
         public readonly byte[] ScriptHash;
+
         /// <summary>
         /// Message
         /// </summary>

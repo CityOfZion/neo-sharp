@@ -1,8 +1,8 @@
-﻿using NeoSharp.VM.Helpers;
-using System;
+﻿using System;
 using System.IO;
 using System.Numerics;
 using System.Text;
+using NeoSharp.VM.Extensions;
 
 namespace NeoSharp.VM
 {
@@ -17,6 +17,7 @@ namespace NeoSharp.VM
         /// Stream offset
         /// </summary>
         public long Offset => writer.Position;
+
         /// <summary>
         /// Length
         /// </summary>
@@ -31,6 +32,7 @@ namespace NeoSharp.VM
         {
             writer = new MemoryStream();
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -39,6 +41,7 @@ namespace NeoSharp.VM
         {
             Emit(opcodes);
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -49,6 +52,7 @@ namespace NeoSharp.VM
             Emit(opcode);
             Emit(rawOpCodes);
         }
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -172,13 +176,13 @@ namespace NeoSharp.VM
             else if (data.Length < 0x10000)
             {
                 Emit(EVMOpCode.PUSHDATA2);
-                writer.Write(BitHelper.GetBytes((ushort)data.Length), 0, 2);
+                writer.Write(((ushort)data.Length).GetBytes(), 0, 2);
                 writer.Write(data, 0, data.Length);
             }
             else// if (data.Length < 0x100000000L)
             {
                 Emit(EVMOpCode.PUSHDATA4);
-                writer.Write(BitHelper.GetBytes(data.Length), 0, 4);
+                writer.Write(data.Length.GetBytes(), 0, 4);
                 writer.Write(data, 0, data.Length);
             }
             return this;
@@ -195,7 +199,7 @@ namespace NeoSharp.VM
         {
             if (data == null) throw new ArgumentNullException();
 
-            int size = data.Length;
+            var size = data.Length;
 
             for (int x = size - 1; x >= 0; x--)
             {
@@ -206,8 +210,8 @@ namespace NeoSharp.VM
                     case long v: EmitPush(v); break;
                     case BigInteger v: EmitPush(v); break;
                     case bool v: EmitPush(v); break;
-                    case Byte[] v: EmitPush(v); break;
-                    case Object[] v: EmitPush(v); break;
+                    case byte[] v: EmitPush(v); break;
+                    case object[] v: EmitPush(v); break;
 
                     default: throw (new ArgumentException());
                 }
@@ -232,11 +236,11 @@ namespace NeoSharp.VM
         {
             if (api == null) throw new ArgumentNullException();
 
-            byte[] api_bytes = Encoding.ASCII.GetBytes(api);
+            var api_bytes = Encoding.ASCII.GetBytes(api);
             if (api_bytes.Length == 0 || api_bytes.Length > 252)
                 throw new ArgumentException();
 
-            byte[] arg = new byte[api_bytes.Length + 1];
+            var arg = new byte[api_bytes.Length + 1];
             arg[0] = (byte)api_bytes.Length;
             Buffer.BlockCopy(api_bytes, 0, arg, 1, api_bytes.Length);
 

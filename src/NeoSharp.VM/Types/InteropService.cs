@@ -136,16 +136,20 @@ namespace NeoSharp.VM
                 if (ctx == null) return false;
 
                 if (!ctx.EvaluationStack.TryPop(out IStackItem it))
+                {
                     return false;
+                }
 
                 using (it)
                 {
                     if (OnLog == null)
+                    {
                         return true;
+                    }
 
                     // Get string
 
-                    string message = it.ToString();
+                    var message = it.ToString();
                     OnLog.Invoke(this, new LogEventArgs(engine.MessageProvider, ctx?.ScriptHash, message ?? ""));
                 }
             }
@@ -160,7 +164,9 @@ namespace NeoSharp.VM
                 if (ctx == null) return false;
 
                 if (!ctx.EvaluationStack.TryPop(out IStackItem it))
+                {
                     return false;
+                }
 
                 using (it)
                 {
@@ -174,7 +180,9 @@ namespace NeoSharp.VM
         static bool GetScriptContainer(IExecutionEngine engine)
         {
             if (engine.MessageProvider == null)
+            {
                 return false;
+            }
 
             using (var current = engine.CurrentContext)
             using (var item = engine.CreateInterop(engine.MessageProvider))

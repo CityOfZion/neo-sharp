@@ -10,6 +10,11 @@ namespace NeoSharp.VM
         #region Public fields from arguments
 
         /// <summary>
+        /// Gas ratio for computation
+        /// </summary>
+        public const ulong GasRatio = 100000;
+
+        /// <summary>
         /// Trigger
         /// </summary>
         public readonly ETriggerType Trigger;
@@ -59,7 +64,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Consumed Gas
         /// </summary>
-        public abstract ulong ConsumedGas { get; }
+        public abstract uint ConsumedGas { get; }
 
         #region Shortcuts
 
@@ -139,7 +144,7 @@ namespace NeoSharp.VM
         /// Execute (until x of Gas)
         /// </summary>
         /// <param name="gas">Gas</param>
-        public abstract bool Execute(ulong gas = ulong.MaxValue);
+        public abstract bool Execute(uint gas = uint.MaxValue);
 
         /// <summary>
         /// Step Into

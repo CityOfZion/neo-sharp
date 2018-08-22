@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Numerics;
 using NeoSharp.VM;
 
@@ -11,7 +10,7 @@ namespace NeoSharp.Core.Test.SmartContracts
         public IStack<IExecutionContext> PublicStack { get; set; }
         public IStackItemsStack PublicStackItemsStack { get; set; }
         public bool PublicDisposed { get; set; }
-        public ulong PublicConsumedGas { get; set; }
+        public uint PublicConsumedGas { get; set; }
 
         public override EVMState State { get { return PublicState; } }
 
@@ -21,10 +20,15 @@ namespace NeoSharp.Core.Test.SmartContracts
 
         public override bool IsDisposed { get { return PublicDisposed; } }
 
-        public override ulong ConsumedGas { get { return PublicConsumedGas; } }
+        public override uint ConsumedGas { get { return PublicConsumedGas; } }
 
         public override void Clean(uint iteration = 0)
         {
+        }
+
+        public override bool IncreaseGas(uint gas)
+        {
+            return true;
         }
 
         public override IArrayStackItem CreateArray(IEnumerable<IStackItem> items = null)
@@ -77,7 +81,7 @@ namespace NeoSharp.Core.Test.SmartContracts
             return null;
         }
 
-        public override bool Execute(ulong gas = ulong.MaxValue)
+        public override bool Execute(uint gas = uint.MaxValue)
         {
             return true;
         }
@@ -86,7 +90,7 @@ namespace NeoSharp.Core.Test.SmartContracts
         {
             return base.GetHashCode();
         }
-
+        
         public override int LoadScript(byte[] script)
         {
             return 0;

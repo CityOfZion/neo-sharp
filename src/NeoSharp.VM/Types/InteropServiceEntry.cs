@@ -24,7 +24,7 @@
         /// </summary>
         /// <param name="handler">Handler</param>
         /// <param name="gasCost">Gas cost</param>
-        public InteropServiceEntry(delHandler handler, uint gasCost = 0)
+        public InteropServiceEntry(delHandler handler, uint gasCost)
         {
             Handler = handler;
             GasCost = gasCost;

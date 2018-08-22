@@ -4,7 +4,6 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using NeoSharp.VM.Extensions;
-using NeoSharp.VM.Helpers;
 using Newtonsoft.Json;
 
 namespace NeoSharp.VM
@@ -62,7 +61,7 @@ namespace NeoSharp.VM
         {
             if (Value == null) return "NULL";
 
-            return Value.IsASCIIPrintable() ? "'" + Encoding.ASCII.GetString(Value) + "'" : BitHelper.ToHexString(Value);
+            return Value.IsASCIIPrintable() ? "'" + Encoding.ASCII.GetString(Value) + "'" : Value.ToHexString();
         }
     }
 }

@@ -17,23 +17,27 @@ namespace NeoSharp.VM
         /// Return the number of items in the stack
         /// </summary>
         public abstract int Count { get; }
+
         /// <summary>
         /// Drop object from the stack
         /// </summary>
         /// <param name="count">Number of items to drop</param>
         /// <returns>Return the first element of the stack</returns>
         public abstract int Drop(int count = 0);
+
         /// <summary>
         /// Pop object from the stack
         /// </summary>
         /// <param name="free">True for free object</param>
         /// <returns>Return the first element of the stack</returns>
         public abstract T Pop();
+
         /// <summary>
         /// Push objet to the stack
         /// </summary>
         /// <param name="item">Object</param>
         public abstract void Push(T item);
+
         /// <summary>
         /// Try to obtain the element at `index` position, without consume them
         /// </summary>
@@ -41,6 +45,7 @@ namespace NeoSharp.VM
         /// <param name="obj">Object</param>
         /// <returns>Return tru eif object exists</returns>
         public abstract bool TryPeek(int index, out T obj);
+
         /// <summary>
         /// Obtain the element at `index` position, without consume them
         /// </summary>
@@ -53,6 +58,7 @@ namespace NeoSharp.VM
 
             return obj;
         }
+
         /// <summary>
         /// Constructor
         /// </summary>

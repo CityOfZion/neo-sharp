@@ -1,6 +1,6 @@
-﻿using NeoSharp.VM.Helpers;
+﻿using System;
+using NeoSharp.VM.Extensions;
 using Newtonsoft.Json;
-using System;
 
 namespace NeoSharp.VM
 {
@@ -89,7 +89,7 @@ namespace NeoSharp.VM
         /// </summary>
         public override string ToString()
         {
-            return "[" + BitHelper.ToHexString(ScriptHash) + "-" + InstructionPointer.ToString("x6") + "] " + NextInstruction.ToString();
+            return "[" + ScriptHash.ToHexString() + "-" + InstructionPointer.ToString("x6") + "] " + NextInstruction.ToString();
         }
     }
 }

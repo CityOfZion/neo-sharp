@@ -10,21 +10,24 @@ namespace NeoSharp.VM
         /// </summary>
         [JsonIgnore]
         public abstract bool CanConvertToByteArray { get; }
+
         /// <summary>
         /// Engine
         /// </summary>
         [JsonIgnore]
         protected readonly IExecutionEngine Engine;
+
         /// <summary>
         /// Type
         /// </summary>
         public readonly EStackItemType Type;
+
         /// <summary>
         /// Is Disposed
         /// </summary>
         [JsonIgnore]
         public abstract bool IsDisposed { get; }
-        
+
         /// <summary>
         /// Constructor
         /// </summary>

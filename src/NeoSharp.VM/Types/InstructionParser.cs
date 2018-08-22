@@ -66,10 +66,10 @@ namespace NeoSharp.VM.Types
                     var opRead = reader.ReadByte();
                     if (!Enum.IsDefined(opType, opRead)) yield break;
 
-                    EVMOpCode opcode = (EVMOpCode)Enum.ToObject(opType, opRead);
+                    var opcode = (EVMOpCode)Enum.ToObject(opType, opRead);
                     if (!_cache.TryGetValue(opcode, out var attr)) yield break;
 
-                    Instruction i = attr.New(location, opcode);
+                    var i = attr.New(location, opcode);
 
                     if (!attr.Fill(reader, i)) yield break;
 

@@ -2,6 +2,12 @@
 {
     public class ExecutionEngineLogger
     {
+        /// <summary>
+        /// Delegate for receive operations
+        /// </summary>
+        /// <param name="context">Execution context</param>
+        public delegate void delOnStepInto(IExecutionContext context);
+
         #region Properties
 
         /// <summary>

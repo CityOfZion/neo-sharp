@@ -56,7 +56,6 @@ namespace NeoSharp.VM.Attributes
                     {
                         ip.PayloadSize = reader.ReadByte();
                         if (ip.PayloadSize >= 252) return false;
-
                         break;
                     }
             }
