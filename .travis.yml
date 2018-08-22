@@ -10,11 +10,12 @@ env:
 
 install:
   # build SDK image
-  - docker build --target builder -t cityofzion/neo-sharp:SDK ./containers/
+  - docker build --target builder -t neo-sharp_sdk ./containers/
 
 script:
   # run tests
-  - docker run -p 8000:8000 -it --rm --name neo-sharp-SDK cityofzion/neo-sharp:SDK bash -c "cd /repo/neo-sharp && find test -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild && dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover && /bin/bash <(curl -s https://codecov.io/bash) -v"
+  - docker run -p 8000:8000 -it --rm --name neo-sharp-SDK neo-sharp_sdk bash -c "cd /repo/neo-sharp && find test -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild && dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover && /bin/bash <(curl -s https://codecov.io/bash) -v"
+
 
 after_success:
   # if tests ok build runtime image
@@ -28,6 +29,6 @@ deploy:
       repo: CityOfZion/neo-sharp
   # deploy all container images created -> SDK and runtime (latest)
   - provider: script
-    script: bash -c "docker push cityofzion/neo-sharp"
+    script: bash -c "docker tag neo-sharp_sdk cityofzion/neo-sharp:sdk;docker push cityofzion/neo-sharp"
     on:
       repo: CityOfZion/neo-sharp
