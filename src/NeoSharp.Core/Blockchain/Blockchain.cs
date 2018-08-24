@@ -398,17 +398,53 @@ namespace NeoSharp.Core.Blockchain
         /// <inheritdoc />
         public TransactionOutput GetUnspent(UInt256 hash, ushort index)
         {
-            return null;
+            var states = _repository.GetCoinStates(hash).Result;
+
+            if (states == null || index >= states.Length || states[index].HasFlag(CoinState.Spent))
+            {
+                return null;
+            }
+
+            return GetTransaction(hash).Result.Outputs[index];
         }
 
         public IEnumerable<TransactionOutput> GetUnspent(UInt256 hash)
         {
-            return Enumerable.Empty<TransactionOutput>();
+            var outputs = new List<TransactionOutput>();
+            
+            var states = _repository.GetCoinStates(hash).Result;
+            if (states != null)
+            {
+                var tx = GetTransaction(hash).Result;
+                for (var i = 0; i < states.Length; i++)
+                {
+                    if (!states[i].HasFlag(CoinState.Spent))
+                    {
+                        outputs.Add(tx.Outputs[i]);
+                    }
+                }
+            }
+            return outputs;
         }
 
         /// <inheritdoc />
         public bool IsDoubleSpend(Transaction tx)
         {
+            if (tx.Inputs.Length == 0)
+            {
+                return false;
+            }
+
+            foreach (var group in tx.Inputs.GroupBy(p => p.PrevHash))
+            {
+                var states = _repository.GetCoinStates(group.Key).Result;
+
+                if (states == null || group.Any(p => p.PrevIndex >= states.Length || states[p.PrevIndex].HasFlag(CoinState.Spent)))
+                {
+                    return true;
+                }
+            }
+            
             return false;
         }
 

@@ -24,6 +24,71 @@ namespace NeoSharp.Core.Test.Blockchain
                 .BeOfType<Core.Blockchain.Blockchain>();
         }
 
+        [TestMethod]
+        public void IsDoubleSpend_NoInputs()
+        {
+            var testee = AutoMockContainer.Create<Core.Blockchain.Blockchain>();
+
+            var tx = new Transaction();
+            
+            var result = testee.IsDoubleSpend(tx);
+            
+            result.Should().BeFalse();
+        }
+
+        [TestMethod]
+        public void IsDoubleSpend_InputWithoutFoundHash()
+        {
+            var testee = AutoMockContainer.Create<Core.Blockchain.Blockchain>();
+
+            var tx = new Transaction { Inputs = new[] { new CoinReference() } };
+            tx.Inputs[0].PrevHash = new UInt256();
+            
+            var result = testee.IsDoubleSpend(tx);
+
+            result.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void IsDoubleSpend_SpentInput()
+        {
+            var testee = AutoMockContainer.Create<Core.Blockchain.Blockchain>();
+
+            var tx = new Transaction { Inputs = new[] { new CoinReference() } };
+            tx.Inputs[0].PrevHash = new UInt256(new byte[]{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 });
+            
+            // mocking: IRepository instance, when called GetCoinStates with our test hash,
+            // returns a single spent coinstate
+            var repositoryMock = AutoMockContainer.GetMock<IRepository>();
+            repositoryMock
+                .Setup(x => x.GetCoinStates(tx.Inputs[0].PrevHash))
+                .ReturnsAsync(new[] { CoinState.Spent });
+            
+            var result = testee.IsDoubleSpend(tx);
+
+            result.Should().BeTrue();
+        }
+
+        [TestMethod]
+        public void IsDoubleSpend_ConfirmedInput()
+        {
+            var testee = AutoMockContainer.Create<Core.Blockchain.Blockchain>();
+
+            var tx = new Transaction { Inputs = new[] { new CoinReference() } };
+            tx.Inputs[0].PrevHash = new UInt256(new byte[]{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 });
+            
+            // mocking: IRepository instance, when called GetCoinStates with our test hash,
+            // returns a single confirmed coinstate
+            var repositoryMock = AutoMockContainer.GetMock<IRepository>();
+            repositoryMock
+                .Setup(x => x.GetCoinStates(tx.Inputs[0].PrevHash))
+                .ReturnsAsync(new[] { CoinState.Confirmed });
+            
+            var result = testee.IsDoubleSpend(tx);
+
+            result.Should().BeFalse();
+        }
+
         //[TestMethod]
         //public async Task InitializeBlockchain_IsGenesisBlock_InitializeComplete()
         //{
