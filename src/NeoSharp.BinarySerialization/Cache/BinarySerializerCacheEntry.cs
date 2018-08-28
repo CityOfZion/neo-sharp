@@ -35,6 +35,7 @@ namespace NeoSharp.BinarySerialization.Cache
         // Cache
 
         private static Type _iListType = typeof(IList);
+        private static Type[] _iReadonlyListType = new Type[] { typeof(IReadOnlyList<>), typeof(IReadOnlyCollection<>) };
         private static Type[] _iHashSetType = new Type[] { typeof(HashSet<>)/*, typeof(ISet<>)*/ };
         private static Type[] _iDictionaryTypes = new Type[] { typeof(Dictionary<,>)/*, typeof(IDictionary<,>)*/ };
 
@@ -73,6 +74,7 @@ namespace NeoSharp.BinarySerialization.Cache
 
             var isArray = type.IsArray;
             var isList = _iListType.IsAssignableFrom(type);
+            var isReadOnlyList = type.IsGenericType && _iReadonlyListType.Contains(type.GetGenericTypeDefinition());
             var isHashSet = type.IsGenericType && _iHashSetType.Contains(type.GetGenericTypeDefinition());
             var isDic = type.IsGenericType && _iDictionaryTypes.Contains(type.GetGenericTypeDefinition());
 
@@ -104,9 +106,9 @@ namespace NeoSharp.BinarySerialization.Cache
                 }
                 else
                 {
-                    if (isHashSet)
+                    if (isHashSet || isReadOnlyList)
                     {
-                        // Extract type of hashset
+                        // Extract type of generic type
 
                         type = type.GetGenericArguments().FirstOrDefault();
                     }
@@ -151,6 +153,10 @@ namespace NeoSharp.BinarySerialization.Cache
                 else if (isList)
                 {
                     Serializer = new BinaryListSerializer(Type, Serializer, MaxLength);
+                }
+                else if (isReadOnlyList)
+                {
+                    Serializer = new BinaryReadOnlyListSerializer(Type, Serializer, MaxLength);
                 }
                 else if (isHashSet)
                 {

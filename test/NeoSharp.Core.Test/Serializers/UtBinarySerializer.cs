@@ -38,6 +38,74 @@ namespace NeoSharp.Core.Test.Serializers
             public Dictionary<int, string> Dictionary = new Dictionary<int, string>();
         }
 
+        public class ReadOnlyDummyClass
+        {
+            [BinaryProperty(0)]
+            public SetTest Test { get; private set; }
+
+            public ReadOnlyDummyClass(SetTest test)
+            {
+                Test = test;
+            }
+        }
+
+        public class ReadOnlyListDummyClass
+        {
+            [BinaryProperty(0)]
+            public IReadOnlyList<int> List { get; private set; }
+
+            public ReadOnlyListDummyClass(IReadOnlyList<int> list)
+            {
+                List = list;
+            }
+        }
+
+        [TestMethod]
+        public void ReadOnlyList()
+        {
+            var list = new ReadOnlyListDummyClass(new List<int>(new int[] {
+                RandomInt(),
+                RandomInt(),
+                RandomInt() }));
+
+            var ret = _serializer.Serialize(list);
+            var clone = _deserializer.Deserialize<ReadOnlyListDummyClass>(ret);
+
+            CollectionAssert.AreEqual(list.List.ToArray(), clone.List.ToArray());
+        }
+
+        [TestMethod]
+        public void ReadOnly()
+        {
+            var set = new SetTest();
+
+            for (int x = 0, m = RandomInt(byte.MaxValue) * 2; x < m; x++)
+            {
+                set.Set.Add(RandomInt());
+                set.Dictionary.Add(RandomInt(), RandomString(RandomInt(byte.MaxValue)));
+            }
+
+            var original = new ReadOnlyDummyClass(set);
+
+            // Check that is the same
+
+            var retInside = _serializer.Serialize(original.Test);
+            var ret = _serializer.Serialize(original);
+
+            CollectionAssert.AreEqual(ret, retInside);
+
+            // Test deserialization
+
+            var clone = _deserializer.Deserialize<ReadOnlyDummyClass>(ret);
+
+            Assert.AreEqual(set.Set.Count, clone.Test.Set.Count);
+            Assert.AreEqual(set.Dictionary.Count, clone.Test.Dictionary.Count);
+
+            CollectionAssert.AreEqual(set.Set.ToArray(), clone.Test.Set.ToArray());
+            CollectionAssert.AreEqual(set.Dictionary.Keys.ToArray(), clone.Test.Dictionary.Keys.ToArray());
+            CollectionAssert.AreEqual(set.Dictionary.Values.ToArray(), clone.Test.Dictionary.Values.ToArray());
+        }
+
         [TestMethod]
         public void Serialize_Sets()
         {

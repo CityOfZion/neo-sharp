@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,10 +14,16 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// Type
         /// </summary>
         public readonly Type Type;
+
         /// <summary>
         /// IsEmpty
         /// </summary>
         public bool IsEmpty => _entries.Length == 0;
+
+        /// <summary>
+        /// Constructor indexes
+        /// </summary>
+        private readonly BinarySerializerCacheEntry[] _constructorIndexes;
 
         /// <summary>
         /// Cache entries
@@ -51,6 +58,38 @@ namespace NeoSharp.BinarySerialization.Serializers
             .OrderBy(u => u.Order)
             .GroupBy(u => u.Order, (a, b) => b.OrderByDescending(u => u.Override).FirstOrDefault())
             .ToArray();
+
+            if (IsEmpty) return;
+
+            foreach
+                (
+                var constructor in type
+                .GetConstructors()
+                .OrderBy(u => u.GetParameters().Length)
+                )
+            {
+                var pars = constructor.GetParameters();
+
+                if (pars == null || pars.Length == 0)
+                {
+                    // Don't search more, use public and without params
+                    break;
+                }
+
+                var ix = 0;
+                _constructorIndexes = new BinarySerializerCacheEntry[pars.Length];
+
+                foreach (var par in pars)
+                {
+                    // The parameter should be named equal to the property
+
+                    _constructorIndexes[ix] = _entries
+                        .Where(u => u.Name.Equals(par.Name, StringComparison.InvariantCultureIgnoreCase))
+                        .Single();
+
+                    ix++;
+                }
+            }
         }
 
         /// <summary>
@@ -83,6 +122,7 @@ namespace NeoSharp.BinarySerialization.Serializers
         {
             return (T)Deserialize(deserializer, reader, Type, settings);
         }
+
         /// <summary>
         /// Deserialize object
         /// </summary>
@@ -105,31 +145,90 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <returns>Deserialized object</returns>
         public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
-            var ret = Activator.CreateInstance(type);
+            object ret;
 
-            foreach (var e in _entries)
+            if (_constructorIndexes != null)
             {
-                if (settings?.Filter?.Invoke(e.Name) == false) continue;
+                // Cache properties
 
-                if (e.ReadOnly)
+                var dic = new Dictionary<BinarySerializerCacheEntry, object>();
+
+                foreach (var e in _entries)
                 {
-                    // Consume it
+                    if (settings?.Filter?.Invoke(e.Name) == false) continue;
 
-                    var val = e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
-
-                    // Should be equal
-
-                    if (!val.Equals(e.GetValue(ret)))
-                    {
-                        // If a readonly property or field is not the same, throw and exception !
-
-                        throw new FormatException();
-                    }
-
-                    continue;
+                    dic.Add(e, e.Serializer.Deserialize(deserializer, reader, e.Type, settings));
                 }
 
-                e.SetValue(ret, e.Serializer.Deserialize(deserializer, reader, e.Type, settings));
+                // Call constructor
+
+                var args = new object[_constructorIndexes.Length];
+
+                for (var x = args.Length - 1; x >= 0; x--)
+                {
+                    // Don't set again the property
+
+                    if (dic.Remove(_constructorIndexes[x], out var value))
+                    {
+                        args[x] = value;
+                    }
+                }
+
+                // Create instance
+
+                ret = Activator.CreateInstance(type, args);
+
+                // Set other properties
+
+                foreach (var e in dic)
+                {
+                    if (e.Key.ReadOnly)
+                    {
+                        // Should be equal
+
+                        if (!e.Value.Equals(e.Key.GetValue(ret)))
+                        {
+                            // If a readonly property or field is not the same, throw and exception !
+
+                            throw new FormatException(e.Key.Name);
+                        }
+                    }
+                    else
+                    {
+                        e.Key.SetValue(ret, e.Value);
+                    }
+                }
+            }
+            else
+            {
+                // Faster way
+
+                ret = Activator.CreateInstance(type);
+
+                foreach (var e in _entries)
+                {
+                    if (settings?.Filter?.Invoke(e.Name) == false) continue;
+
+                    if (e.ReadOnly)
+                    {
+                        // Consume it
+
+                        var val = e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
+
+                        // Should be equal
+
+                        if (!val.Equals(e.GetValue(ret)))
+                        {
+                            // If a readonly property or field is not the same, throw and exception !
+
+                            throw new FormatException(e.Name);
+                        }
+                    }
+                    else
+                    {
+                        e.SetValue(ret, e.Serializer.Deserialize(deserializer, reader, e.Type, settings));
+                    }
+                }
             }
 
             if (ret is IBinaryVerifiable v && !v.Verify())
