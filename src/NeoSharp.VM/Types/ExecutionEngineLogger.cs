@@ -13,7 +13,7 @@
         /// <summary>
         /// Verbosity
         /// </summary>
-        public readonly ELogVerbosity Verbosity;
+        public ELogVerbosity Verbosity { get; private set; }
 
         #endregion
 

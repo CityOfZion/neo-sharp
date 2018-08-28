@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Numerics;
 using System.Text;
@@ -11,17 +11,17 @@ namespace NeoSharp.VM
         /// <summary>
         /// Internal object for write the content
         /// </summary>
-        readonly MemoryStream writer;
+        private readonly MemoryStream _writer;
 
         /// <summary>
         /// Stream offset
         /// </summary>
-        public long Offset => writer.Position;
+        public long Offset => _writer.Position;
 
         /// <summary>
         /// Length
         /// </summary>
-        public long Length => writer.Length;
+        public long Length => _writer.Length;
 
         #region Constructors
 
@@ -30,7 +30,7 @@ namespace NeoSharp.VM
         /// </summary>
         public ScriptBuilder()
         {
-            writer = new MemoryStream();
+            _writer = new MemoryStream();
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace NeoSharp.VM
         /// </summary>
         public void Dispose()
         {
-            writer.Dispose();
+            _writer.Dispose();
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace NeoSharp.VM
         /// </summary>
         public ScriptBuilder Clear()
         {
-            writer.SetLength(0);
+            _writer.SetLength(0);
 
             return this;
         }
@@ -85,7 +85,7 @@ namespace NeoSharp.VM
         public ScriptBuilder Emit(params byte[] raw)
         {
             if (raw != null)
-                writer.Write(raw, 0, raw.Length);
+                _writer.Write(raw, 0, raw.Length);
 
             return this;
         }
@@ -93,14 +93,14 @@ namespace NeoSharp.VM
         public ScriptBuilder Emit(byte[] raw, int index, int length)
         {
             if (length > 0)
-                writer.Write(raw, index, length);
+                _writer.Write(raw, index, length);
 
             return this;
         }
 
         public ScriptBuilder Emit(byte opCode)
         {
-            writer.WriteByte(opCode);
+            _writer.WriteByte(opCode);
 
             return this;
         }
@@ -108,17 +108,17 @@ namespace NeoSharp.VM
         public ScriptBuilder Emit(params EVMOpCode[] ops)
         {
             foreach (EVMOpCode op in ops)
-                writer.WriteByte((byte)op);
+                _writer.WriteByte((byte)op);
 
             return this;
         }
 
         public ScriptBuilder Emit(EVMOpCode op, params byte[] arg)
         {
-            writer.WriteByte((byte)op);
+            _writer.WriteByte((byte)op);
 
             if (arg != null)
-                writer.Write(arg, 0, arg.Length);
+                _writer.Write(arg, 0, arg.Length);
 
             return this;
         }
@@ -164,26 +164,26 @@ namespace NeoSharp.VM
 
             if (data.Length <= (int)EVMOpCode.PUSHBYTES75)
             {
-                writer.WriteByte((byte)data.Length);
-                writer.Write(data, 0, data.Length);
+                _writer.WriteByte((byte)data.Length);
+                _writer.Write(data, 0, data.Length);
             }
             else if (data.Length < 0x100)
             {
                 Emit(EVMOpCode.PUSHDATA1);
-                writer.WriteByte((byte)data.Length);
-                writer.Write(data, 0, data.Length);
+                _writer.WriteByte((byte)data.Length);
+                _writer.Write(data, 0, data.Length);
             }
             else if (data.Length < 0x10000)
             {
                 Emit(EVMOpCode.PUSHDATA2);
-                writer.Write(((ushort)data.Length).GetBytes(), 0, 2);
-                writer.Write(data, 0, data.Length);
+                _writer.Write(((ushort)data.Length).GetBytes(), 0, 2);
+                _writer.Write(data, 0, data.Length);
             }
             else// if (data.Length < 0x100000000L)
             {
                 Emit(EVMOpCode.PUSHDATA4);
-                writer.Write(data.Length.GetBytes(), 0, 4);
-                writer.Write(data, 0, data.Length);
+                _writer.Write(data.Length.GetBytes(), 0, 4);
+                _writer.Write(data, 0, data.Length);
             }
             return this;
         }
@@ -254,7 +254,7 @@ namespace NeoSharp.VM
         /// </summary>
         public byte[] ToArray()
         {
-            return writer.ToArray();
+            return _writer.ToArray();
         }
 
         public static implicit operator byte[] (ScriptBuilder script)

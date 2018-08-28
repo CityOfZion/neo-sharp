@@ -22,7 +22,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Cache dictionary
         /// </summary>
-        SortedDictionary<string, InteropServiceEntry> Entries = new SortedDictionary<string, InteropServiceEntry>();
+        private readonly SortedDictionary<string, InteropServiceEntry> _entries = new SortedDictionary<string, InteropServiceEntry>();
 
         /// <summary>
         /// Get method
@@ -32,7 +32,7 @@ namespace NeoSharp.VM
         {
             get
             {
-                if (!Entries.TryGetValue(method, out var func)) return null;
+                if (!_entries.TryGetValue(method, out var func)) return null;
                 return func;
             }
         }
@@ -67,8 +67,8 @@ namespace NeoSharp.VM
         {
             var entry = new InteropServiceEntry(handler, gas);
 
-            Entries[method] = entry;
-            Entries[synonymous] = entry;
+            _entries[method] = entry;
+            _entries[synonymous] = entry;
         }
 
         /// <summary>
@@ -79,7 +79,7 @@ namespace NeoSharp.VM
         /// <param name="gas">Gas</param>
         protected void Register(string method, InteropServiceEntry.delHandler handler, uint gas = 1)
         {
-            Entries[method] = new InteropServiceEntry(handler, gas);
+            _entries[method] = new InteropServiceEntry(handler, gas);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace NeoSharp.VM
         /// </summary>
         public void Clear()
         {
-            Entries.Clear();
+            _entries.Clear();
         }
         /// <summary>
         /// Invoke
@@ -97,7 +97,7 @@ namespace NeoSharp.VM
         /// <returns>Return false if something wrong</returns>
         public bool Invoke(string method, IExecutionEngine engine)
         {
-            if (!Entries.TryGetValue(method, out var entry))
+            if (!_entries.TryGetValue(method, out var entry))
             {
                 OnSysCall?.Invoke(this, new SysCallArgs(engine, method, SysCallArgs.EResult.NotFound));
 

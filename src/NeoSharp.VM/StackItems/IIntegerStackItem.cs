@@ -12,9 +12,8 @@ namespace NeoSharp.VM
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="engine">Engine</param>
         /// <param name="value">Value</param>
-        public IIntegerStackItem(IExecutionEngine engine, BigInteger value) : base(engine, value, EStackItemType.Integer) { }
+        protected IIntegerStackItem(BigInteger value) : base(value, EStackItemType.Integer) { }
 
         /// <summary>
         /// Is Equal

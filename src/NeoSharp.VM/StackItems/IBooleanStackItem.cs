@@ -14,9 +14,8 @@ namespace NeoSharp.VM
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="engine">Engine</param>
         /// <param name="value">Value</param>
-        public IBooleanStackItem(IExecutionEngine engine, bool value) : base(engine, value, EStackItemType.Bool) { }
+        protected IBooleanStackItem(bool value) : base(value, EStackItemType.Bool) { }
 
         /// <summary>
         /// Is Equal

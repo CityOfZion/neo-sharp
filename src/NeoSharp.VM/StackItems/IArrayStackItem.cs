@@ -6,7 +6,7 @@ using System.Text;
 
 namespace NeoSharp.VM
 {
-    public abstract class IArrayStackItem : IStackItem, IList<IStackItem>, ICollection, IEquatable<IArrayStackItem>
+    public abstract class IArrayStackItem : IStackItem, IList<IStackItem>, IEquatable<IArrayStackItem>
     {
         public override bool CanConvertToByteArray => false;
 
@@ -35,21 +35,10 @@ namespace NeoSharp.VM
         public bool IsReadOnly => false;
 
         /// <summary>
-        /// IsSynchronized
-        /// </summary>
-        bool ICollection.IsSynchronized => false;
-
-        /// <summary>
-        /// SyncRoot
-        /// </summary>
-        object ICollection.SyncRoot => this;
-
-        /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="engine">Engine</param>
         /// <param name="isStruct">Is struct</param>
-        public IArrayStackItem(IExecutionEngine engine, bool isStruct) : base(engine, isStruct ? EStackItemType.Struct : EStackItemType.Array) { }
+        protected IArrayStackItem(bool isStruct) : base(isStruct ? EStackItemType.Struct : EStackItemType.Array) { }
 
         /// <summary>
         /// Get raw object
@@ -121,34 +110,6 @@ namespace NeoSharp.VM
 
             RemoveAt(ix);
             return true;
-        }
-
-        /// <summary>
-        /// Clone
-        /// </summary>
-        /// <returns>Returns copy of this object</returns>
-        public IArrayStackItem Clone()
-        {
-            if (Type == EStackItemType.Struct)
-            {
-                // Struct logic
-
-                var newArray = new List<IStackItem>(Count);
-
-                foreach (var it in this)
-                {
-                    if (it is IArrayStackItem s && it.Type == EStackItemType.Struct)
-                        newArray.Add(s.Clone());
-                    else
-                        newArray.Add(it);
-                }
-
-                return Engine.CreateStruct(newArray);
-            }
-            else
-            {
-                return Engine.CreateArray(this);
-            }
         }
 
         #endregion

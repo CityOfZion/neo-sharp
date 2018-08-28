@@ -1,18 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 
 namespace NeoSharp.VM
 {
     public abstract class IStack<T> : IEnumerable<T>, IDisposable
     {
-        /// <summary>
-        /// Execution Engine parent
-        /// </summary>
-        [JsonIgnore]
-        public readonly IExecutionEngine Engine;
-
         /// <summary>
         /// Return the number of items in the stack
         /// </summary>
@@ -58,16 +51,7 @@ namespace NeoSharp.VM
 
             return obj;
         }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="engine">Engine</param>
-        protected IStack(IExecutionEngine engine)
-        {
-            Engine = engine;
-        }
-
+        
         /// <summary>
         /// String representation
         /// </summary>

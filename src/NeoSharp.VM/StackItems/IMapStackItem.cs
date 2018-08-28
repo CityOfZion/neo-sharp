@@ -38,8 +38,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="engine">Engine</param>
-        public IMapStackItem(IExecutionEngine engine) : base(engine, EStackItemType.Map) { }
+        protected IMapStackItem() : base(EStackItemType.Map) { }
 
         #region Write
 

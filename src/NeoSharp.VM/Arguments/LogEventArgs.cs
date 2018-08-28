@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace NeoSharp.VM
 {
@@ -7,17 +7,17 @@ namespace NeoSharp.VM
         /// <summary>
         /// Message Provider
         /// </summary>
-        public readonly IMessageProvider MessageProvider;
+        public IMessageProvider MessageProvider { get; private set; }
 
         /// <summary>
         /// Script Hash
         /// </summary>
-        public readonly byte[] ScriptHash;
+        public byte[] ScriptHash { get; private set; }
 
         /// <summary>
         /// Message
         /// </summary>
-        public readonly string Message;
+        public string Message { get; private set; }
 
         /// <summary>
         /// Constructor

@@ -12,12 +12,12 @@
         /// <summary>
         /// Gas cost
         /// </summary>
-        public readonly uint GasCost;
+        public uint GasCost { get; private set; }
 
         /// <summary>
         /// Handler
         /// </summary>
-        public readonly delHandler Handler;
+        public delHandler Handler { get; private set; }
 
         /// <summary>
         /// Constructor

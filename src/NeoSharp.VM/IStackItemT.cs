@@ -5,15 +5,14 @@
         /// <summary>
         /// Value
         /// </summary>
-        public readonly T Value;
+        public T Value { get; private set; }
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="engine">Engine</param>
         /// <param name="data">Data</param>
         /// <param name="type">Type</param>
-        protected IStackItem(IExecutionEngine engine, T data, EStackItemType type) : base(engine, type)
+        protected IStackItem(T data, EStackItemType type) : base(type)
         {
             Value = data;
         }

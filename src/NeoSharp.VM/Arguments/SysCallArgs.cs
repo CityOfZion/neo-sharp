@@ -30,17 +30,17 @@ namespace NeoSharp.VM
         /// <summary>
         /// Result
         /// </summary>
-        public readonly EResult Result;
+        public EResult Result { get; private set; }
 
         /// <summary>
         /// Method
         /// </summary>
-        public readonly string Method;
+        public string Method { get; private set; }
 
         /// <summary>
         /// Engine
         /// </summary>
-        public readonly IExecutionEngine Engine;
+        public IExecutionEngine Engine { get; private set; }
 
         /// <summary>
         /// Constructor

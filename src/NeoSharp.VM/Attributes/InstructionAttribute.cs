@@ -9,7 +9,7 @@ namespace NeoSharp.VM.Attributes
         /// <summary>
         /// Instruction type
         /// </summary>
-        public readonly Type InstructionType;
+        public Type InstructionType { get; private set; }
 
         /// <summary>
         /// Constructor

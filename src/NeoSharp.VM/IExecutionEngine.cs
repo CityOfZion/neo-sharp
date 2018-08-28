@@ -17,27 +17,27 @@ namespace NeoSharp.VM
         /// <summary>
         /// Trigger
         /// </summary>
-        public readonly ETriggerType Trigger;
+        public ETriggerType Trigger { get; private set; }
 
         /// <summary>
         /// Interop service
         /// </summary>
-        public readonly InteropService InteropService;
+        public InteropService InteropService { get; private set; }
 
         /// <summary>
         /// Script table
         /// </summary>
-        public readonly IScriptTable ScriptTable;
+        public IScriptTable ScriptTable { get; private set; }
 
         /// <summary>
         /// Logger
         /// </summary>
-        public readonly ExecutionEngineLogger Logger;
+        public ExecutionEngineLogger Logger { get; private set; }
 
         /// <summary>
         /// Message Provider
         /// </summary>
-        public readonly IMessageProvider MessageProvider;
+        public IMessageProvider MessageProvider { get; private set; }
 
         #endregion
 

@@ -12,15 +12,9 @@ namespace NeoSharp.VM
         public abstract bool CanConvertToByteArray { get; }
 
         /// <summary>
-        /// Engine
-        /// </summary>
-        [JsonIgnore]
-        protected readonly IExecutionEngine Engine;
-
-        /// <summary>
         /// Type
         /// </summary>
-        public readonly EStackItemType Type;
+        public EStackItemType Type { get; private set; }
 
         /// <summary>
         /// Is Disposed
@@ -31,12 +25,10 @@ namespace NeoSharp.VM
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="engine">Engine</param>
         /// <param name="type">Type</param>
-        protected IStackItem(IExecutionEngine engine, EStackItemType type)
+        protected IStackItem(EStackItemType type)
         {
             Type = type;
-            Engine = engine;
         }
 
         /// <summary>

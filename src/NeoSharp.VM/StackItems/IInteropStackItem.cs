@@ -11,9 +11,8 @@ namespace NeoSharp.VM
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="engine">Engine</param>
         /// <param name="value">Value</param>
-        public IInteropStackItem(IExecutionEngine engine, object value) : base(engine, value, EStackItemType.Interop) { }
+        protected IInteropStackItem(object value) : base(value, EStackItemType.Interop) { }
 
         /// <summary>
         /// Is Equal

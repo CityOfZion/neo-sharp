@@ -123,11 +123,5 @@ namespace NeoSharp.VM
             value = false;
             return false;
         }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="engine">Engine</param>
-        protected IStackItemsStack(IExecutionEngine engine) : base(engine) { }
     }
 }

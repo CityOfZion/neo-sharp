@@ -1,6 +1,5 @@
 ﻿using System;
 using NeoSharp.VM.Extensions;
-using Newtonsoft.Json;
 
 namespace NeoSharp.VM
 {
@@ -10,12 +9,6 @@ namespace NeoSharp.VM
         /// ScriptHashLength
         /// </summary>
         public const int ScriptHashLength = 20;
-
-        /// <summary>
-        /// Engine
-        /// </summary>
-        [JsonIgnore]
-        public readonly IExecutionEngine Engine;
 
         /// <summary>
         /// Is Disposed?
@@ -46,15 +39,6 @@ namespace NeoSharp.VM
         /// Get Instruction pointer
         /// </summary>
         public abstract int InstructionPointer { get; }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="engine">Engine</param>
-        protected IExecutionContext(IExecutionEngine engine)
-        {
-            Engine = engine;
-        }
 
         #region IDisposable Support
 

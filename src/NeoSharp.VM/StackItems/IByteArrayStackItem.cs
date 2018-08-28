@@ -28,9 +28,8 @@ namespace NeoSharp.VM
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="engine">Engine</param>
         /// <param name="value">Value</param>
-        public IByteArrayStackItem(IExecutionEngine engine, byte[] value) : base(engine, value, EStackItemType.ByteArray) { }
+        protected IByteArrayStackItem(byte[] value) : base(value, EStackItemType.ByteArray) { }
 
         /// <summary>
         /// Is Equal
