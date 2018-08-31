@@ -5,7 +5,7 @@ namespace NeoSharp.Core.Test.SmartContracts
 {
     public class NullStackItemsStack : IStackItemsStack
     {
-        public NullStackItemsStack(IExecutionEngine executionEngine) : base(executionEngine)
+        public NullStackItemsStack(IExecutionEngine executionEngine) : base()
         {
         }
 
