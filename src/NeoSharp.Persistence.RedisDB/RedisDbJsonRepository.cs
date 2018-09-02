@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 using NeoSharp.Persistence.RedisDB.Helpers;
-using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace NeoSharp.Persistence.RedisDB
@@ -18,55 +16,62 @@ namespace NeoSharp.Persistence.RedisDB
         #region Private Fields
 
         private readonly IRedisDbContext _redisDbContext;
+        private readonly IJsonConverter _jsonConverter;
+
+        private readonly string _sysCurrentBlockKey = DataEntryPrefix.SysCurrentBlock.ToString();
+        private readonly string _sysCurrentBlockHeaderKey = DataEntryPrefix.SysCurrentHeader.ToString();
+        private readonly string _sysVersionKey = DataEntryPrefix.SysVersion.ToString();
+        private readonly string _indexHeightKey = DataEntryPrefix.IxIndexHeight.ToString();
 
         #endregion
 
         #region Constructor
 
-        public RedisDbJsonRepository(
-            IRedisDbContext redisDbContext)
+        public RedisDbJsonRepository
+        (
+            IRedisDbContext redisDbContext,
+            IJsonConverter jsonConverter
+        )
         {
             _redisDbContext = redisDbContext ?? throw new ArgumentNullException(nameof(redisDbContext));
+            _jsonConverter = jsonConverter ?? throw new ArgumentNullException(nameof(jsonConverter));
         }
 
         #endregion
 
         #region IRepository System Members
 
-        public Task SetTotalBlockHeight(uint height)
+        public async Task<uint> GetTotalBlockHeight()
         {
-            throw new NotImplementedException();
-            // TODO: redis logic
-            //_redis.Database.AddToIndex(RedisIndex.BlockHeight, height);
+            var val = await _redisDbContext.Get(_sysCurrentBlockKey);
+            return val == RedisValue.Null ? uint.MinValue : (uint)val;
         }
 
-        public Task<uint> GetTotalBlockHeight()
+        public async Task SetTotalBlockHeight(uint height)
         {
-            //Use the block height secondary index to tell us what our block height is
-            //return _redis.Database.GetIndexLength(RedisIndex.BlockHeight);
-
-            // TODO: redis logic
-            throw new NotImplementedException();
+            await _redisDbContext.Set(_sysCurrentBlockKey, height);
         }
 
-        public Task<uint> GetTotalBlockHeaderHeight()
+        public async Task<uint> GetTotalBlockHeaderHeight()
         {
-            throw new NotImplementedException();
+            var val = await _redisDbContext.Get(_sysCurrentBlockHeaderKey);
+            return val == RedisValue.Null ? uint.MinValue : (uint)val;
         }
 
-        public Task SetTotalBlockHeaderHeight(uint height)
+        public async Task SetTotalBlockHeaderHeight(uint height)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Set(_sysCurrentBlockHeaderKey, height);
         }
 
-        public Task<string> GetVersion()
+        public async Task<string> GetVersion()
         {
-            throw new NotImplementedException();
+            var val = await _redisDbContext.Get(_sysVersionKey);
+            return val == RedisValue.Null ? null : (string)val;
         }
 
-        public Task SetVersion(string version)
+        public async Task SetVersion(string version)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Set(_sysVersionKey, version);
         }
 
         #endregion
@@ -75,8 +80,7 @@ namespace NeoSharp.Persistence.RedisDB
 
         public async Task AddBlockHeader(BlockHeader blockHeader)
         {
-            // TODO [AboimPinto]: This serialization cannot be mocked, therefore cannot be tested properly.
-            var blockHeaderJson = JsonConvert.SerializeObject(blockHeader);
+            var blockHeaderJson = _jsonConverter.SerializeObject(blockHeader);
             await _redisDbContext.Set(blockHeader.Hash.BuildDataBlockKey(), blockHeaderJson);
 
             await _redisDbContext.AddToIndex(RedisIndex.BlockTimestamp, blockHeader.Hash, blockHeader.Timestamp);
@@ -85,122 +89,137 @@ namespace NeoSharp.Persistence.RedisDB
 
         public async Task AddTransaction(Transaction transaction)
         {
-            var transactionJson = JsonConvert.SerializeObject(transaction);
+            var transactionJson = _jsonConverter.SerializeObject(transaction);
             await _redisDbContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionJson);
         }
 
         public async Task<UInt256> GetBlockHashFromHeight(uint height)
         {
-            return await _redisDbContext.GetFromHashIndex(RedisIndex.BlockHeight, height);
+            var hash = await _redisDbContext.GetFromHashIndex(RedisIndex.BlockHeight, height);
+            return hash ?? UInt256.Zero;
         }
 
         public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
             var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());
-
-            return JsonConvert.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
+            return _jsonConverter.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
 
         }
 
         public async Task<Transaction> GetTransaction(UInt256 hash)
         {
             var transactionRedisValue = await _redisDbContext.Get(hash.BuildDataTransactionKey());
-
-            return JsonConvert.DeserializeObject<Transaction>(transactionRedisValue);
+            return _jsonConverter.DeserializeObject<Transaction>(transactionRedisValue);
         }
 
         #endregion
 
         #region IRepository State Members
 
-        public Task<Account> GetAccount(UInt160 hash)
+        public async Task<Account> GetAccount(UInt160 hash)
         {
-            throw new NotImplementedException();
+            var raw = await _redisDbContext.Get(hash.BuildStateAccountKey());
+            return raw == RedisValue.Null
+                ? null
+                : _jsonConverter.DeserializeObject<Account>(raw);
         }
 
-        public Task AddAccount(Account acct)
+        public async Task AddAccount(Account acct)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Set(acct.ScriptHash.BuildStateAccountKey(), _jsonConverter.SerializeObject(acct));
         }
 
-        public Task DeleteAccount(UInt160 hash)
+        public async Task DeleteAccount(UInt160 hash)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Delete(hash.BuildStateAccountKey());
         }
 
-        public Task<CoinState[]> GetCoinStates(UInt256 txHash)
+        public async Task<CoinState[]> GetCoinStates(UInt256 txHash)
         {
-            throw new NotImplementedException();
+            var raw = await _redisDbContext.Get(txHash.BuildStateCoinKey());
+            return raw == RedisValue.Null
+                ? null
+                : _jsonConverter.DeserializeObject<CoinState[]>(raw);
         }
 
-        public Task AddCoinStates(UInt256 txHash, CoinState[] coinStates)
+        public async Task AddCoinStates(UInt256 txHash, CoinState[] coinStates)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Set(txHash.BuildStateCoinKey(), _jsonConverter.SerializeObject(coinStates));
         }
 
-        public Task DeleteCoinStates(UInt256 txHash)
+        public async Task DeleteCoinStates(UInt256 txHash)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Delete(txHash.BuildStateCoinKey());
         }
 
-        public Task<Validator> GetValidator(ECPoint publicKey)
+        public async Task<Validator> GetValidator(ECPoint publicKey)
         {
-            throw new NotImplementedException();
+            var raw = await _redisDbContext.Get(publicKey.BuildStateValidatorKey());
+            return raw == RedisValue.Null
+                ? null
+                : _jsonConverter.DeserializeObject<Validator>(raw);
         }
 
-        public Task AddValidator(Validator validator)
+        public async Task AddValidator(Validator validator)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Set(validator.PublicKey.BuildStateValidatorKey(), _jsonConverter.SerializeObject(validator));
         }
 
-        public Task DeleteValidator(ECPoint point)
+        public async Task DeleteValidator(ECPoint point)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Delete(point.BuildStateValidatorKey());
         }
 
-        public Task<Asset> GetAsset(UInt256 assetId)
+        public async Task<Asset> GetAsset(UInt256 assetId)
         {
-            throw new NotImplementedException();
+            var raw = await _redisDbContext.Get(assetId.BuildStateAssetKey());
+            return raw == RedisValue.Null ? null : _jsonConverter.DeserializeObject<Asset>(raw);
         }
 
-        public Task AddAsset(Asset asset)
+        public async Task AddAsset(Asset asset)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Set(asset.Id.BuildStateAssetKey(), _jsonConverter.SerializeObject(asset));
         }
 
-        public Task DeleteAsset(UInt256 assetId)
+        public async Task DeleteAsset(UInt256 assetId)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Delete(assetId.BuildStateAssetKey());
         }
 
-        public Task<Contract> GetContract(UInt160 contractHash)
+        public async Task<Contract> GetContract(UInt160 contractHash)
         {
-            throw new NotImplementedException();
+            var raw = await _redisDbContext.Get(contractHash.BuildStateContractKey());
+            return raw == RedisValue.Null
+                ? null
+                : _jsonConverter.DeserializeObject<Contract>(raw);
         }
 
-        public Task AddContract(Contract contract)
+        public async Task AddContract(Contract contract)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Set(contract.ScriptHash.BuildStateContractKey(), _jsonConverter.SerializeObject(contract));
         }
 
-        public Task DeleteContract(UInt160 contractHash)
+        public async Task DeleteContract(UInt160 contractHash)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Delete(contractHash.BuildStateContractKey());
         }
 
-        public Task<StorageValue> GetStorage(StorageKey key)
+        public async Task<StorageValue> GetStorage(StorageKey key)
         {
-            throw new NotImplementedException();
+            var raw = await _redisDbContext.Get(key.BuildStateStorageKey());
+            return raw == RedisValue.Null
+                ? null
+                : _jsonConverter.DeserializeObject<StorageValue>(raw);
         }
 
-        public Task AddStorage(StorageKey key, StorageValue val)
+        public async Task AddStorage(StorageKey key, StorageValue val)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Set(key.BuildStateStorageKey(), val.Value);
         }
 
-        public Task DeleteStorage(StorageKey key)
+        public async Task DeleteStorage(StorageKey key)
         {
-            throw new NotImplementedException();
+            await _redisDbContext.Delete(key.BuildStateStorageKey());
         }
 
         #endregion
@@ -209,8 +228,8 @@ namespace NeoSharp.Persistence.RedisDB
 
         public async Task<uint> GetIndexHeight()
         {
-            var raw = await _redisDbContext.Get(DataEntryPrefix.IxIndexHeight.ToString());
-            return raw == RedisValue.Null ? uint.MinValue : (uint) raw;
+            var val = await _redisDbContext.Get(DataEntryPrefix.IxIndexHeight.ToString());
+            return val == RedisValue.Null ? uint.MinValue : (uint) val;
         }
 
         public async Task SetIndexHeight(uint height)
@@ -222,24 +241,35 @@ namespace NeoSharp.Persistence.RedisDB
         {
             var redisVal = await _redisDbContext.Get(scriptHash.BuildIxConfirmedKey());
             if (redisVal == RedisValue.Null) return new HashSet<CoinReference>();
-            return JsonConvert.DeserializeObject<HashSet<CoinReference>>(redisVal);
+            return _jsonConverter.DeserializeObject<HashSet<CoinReference>>(redisVal);
         }
 
-        public Task SetIndexConfirmed(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
+        public async Task SetIndexConfirmed(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
         {
-            throw new NotImplementedException();
+            var json = _jsonConverter.SerializeObject(coinReferences);
+            await _redisDbContext.Set(scriptHash.BuildIxConfirmedKey(), json);
         }
 
         public async Task<HashSet<CoinReference>> GetIndexClaimable(UInt160 scriptHash)
         {
             var redisVal = await _redisDbContext.Get(scriptHash.BuildIxClaimableKey());
             if (redisVal == RedisValue.Null) return new HashSet<CoinReference>();
-            return JsonConvert.DeserializeObject<HashSet<CoinReference>>(redisVal);
+            return _jsonConverter.DeserializeObject<HashSet<CoinReference>>(redisVal);
         }
 
-        public Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
+        public async Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
         {
-            throw new NotImplementedException();
+            var json = _jsonConverter.SerializeObject(coinReferences.ToArray());
+            await _redisDbContext.Set(scriptHash.BuildIxClaimableKey(), json);
+        }
+
+        #endregion
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            _redisDbContext.Dispose();
         }
 
         #endregion
