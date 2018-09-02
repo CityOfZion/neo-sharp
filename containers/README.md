@@ -31,13 +31,23 @@ Now that we have the container image built with the compiled app published, we n
 Run the following command if you've built the container in the last step or else skip to the next command:<br>
 `docker run -p 8000:8000 -it --rm --name neo-sharp-node neo-sharp-node:0.1_runtime`
 
-If you want to run the container using our pre-build images, do the following command:<br>
+(Soon) If you want to run the container using our pre-build images, do the following command:<br>
 `docker run -p 8000:8000 -it --rm --name neo-sharp-node cityofzion/neo-sharp`
 
 Last command will give you the neo-sharp console. All done ;)
 
-If you want to play around with an image with full dotnet SDK, you can pull the SDK tag.<br>
-`docker run -p 8000:8000 -it --rm --name neo-sharp-SDK cityofzion/neo-sharp:SDK`
+(Soon) If you want to play around with an image with full dotnet SDK, you can pull the SDK tag.<br>
+`docker run -p 8000:8000 -it --rm --name neo-sharp-SDK cityofzion/neo-sharp:sdk`
+
+# Running with neo-private-net
+If you want to run neo-sharp node with neo-private-net you should run the following command:<br>
+NOTE: Only works if you have built the image manually in steps above<br>
+`docker-compose run neo-sharp-node1 bash`<br>
+
+After this command, if all wents well, you should see the terminal prompt of the neo-sharp Node container.<br>
+To start the Node just do:<br>
+`dotnet NeoSharp.Application.dll`<br>
+Reminder: Don't forget to start the node network with `network start`.
 
 # Contributing
 

@@ -16,7 +16,6 @@ script:
   # run tests
   - docker run -p 8000:8000 -it --rm --name neo-sharp-SDK neo-sharp_sdk bash -c "cd /repo/neo-sharp && find test -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild && dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover && /bin/bash <(curl -s https://codecov.io/bash) -v"
 
-
 after_success:
   # if tests ok build runtime image
   - docker build -t cityofzion/neo-sharp:latest ./containers/
