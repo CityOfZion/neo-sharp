@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain.Processors;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -16,8 +17,11 @@ namespace NeoSharp.Core.Blockchain
         #region Private fields
 
         private readonly IRepository _repository;
+        private readonly IBlockHeaderPersister _blockHeaderPersister;
         private readonly IBlockProcessor _blockProcessor;
         private int _initialized;
+        private readonly List<ECPoint> _validators = new List<ECPoint>();
+        private readonly EventHandler<Block> _onBlockProcessed;
 
         #endregion
 
@@ -29,22 +33,27 @@ namespace NeoSharp.Core.Blockchain
 
         public static event EventHandler<Block> PersistCompleted;
 
-        /// <inheritdoc />
-        public StampedPool<UInt256, Transaction> MemoryPool { get; } =
-            new StampedPool<UInt256, Transaction>(PoolMaxBehaviour.RemoveFromEnd, 50_000, tx => tx.Value.Hash, TransactionComparer);
-
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="repository">Repository</param>
+        /// <param name="blockHeaderPersister">Block Header Persister</param>
         /// <param name="blockProcessor">Block Processor</param>
-        public Blockchain(IRepository repository, IBlockProcessor blockProcessor)
+        public Blockchain(
+            IRepository repository,
+            IBlockHeaderPersister blockHeaderPersister,
+            IBlockProcessor blockProcessor)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _blockHeaderPersister = blockHeaderPersister ?? throw new ArgumentNullException(nameof(blockHeaderPersister));
             _blockProcessor = blockProcessor ?? throw new ArgumentNullException(nameof(blockProcessor));
-            _initialized = 0;
+
+            _blockHeaderPersister.OnBlockHeadersPersisted += (_, blockHeaders) => LastBlockHeader = blockHeaders.Last();
+
+            _onBlockProcessed = async (_, block) => await BlockProcessed(block);
+            _blockProcessor.OnBlockProcessed += _onBlockProcessed;
         }
 
         public async Task InitializeBlockchain()
@@ -60,7 +69,7 @@ namespace NeoSharp.Core.Blockchain
             CurrentBlock = await GetBlock(blockHeight);
             LastBlockHeader = await GetBlockHeader(blockHeaderHeight);
 
-            _blockProcessor.OnBlockProcessed += BlockProcessed;
+            _blockHeaderPersister.LastBlockHeader = LastBlockHeader;
             _blockProcessor.Run(CurrentBlock);
 
             if (CurrentBlock == null || LastBlockHeader == null)
@@ -71,12 +80,6 @@ namespace NeoSharp.Core.Blockchain
 
         private async Task BlockProcessed(Block block)
         {
-            foreach (var tx in block.Transactions)
-            {
-                // Try to remove the TX from the pool
-                MemoryPool.Remove(tx.Hash);
-            }
-
             CurrentBlock = block;
 
             if (LastBlockHeader == null || LastBlockHeader.Index < block.Index)
@@ -86,20 +89,6 @@ namespace NeoSharp.Core.Blockchain
             }
 
             PersistCompleted?.Invoke(this, block);
-        }
-
-        private static int TransactionComparer(Stamp<Transaction> a, Stamp<Transaction> b)
-        {
-            var c = 0;// TODO: by fee a.Value.NetworkFee.CompareTo(b.Value.NetworkFee);
-
-            if (c == 0)
-            {
-                // TODO: Check ASC or DESC
-
-                return a.Date.CompareTo(b.Date);
-            }
-
-            return c;
         }
 
         #region Blocks
@@ -184,55 +173,6 @@ namespace NeoSharp.Core.Blockchain
         #region BlockHeaders
 
         /// <inheritdoc />
-        public Task AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders)
-        {
-            foreach (var header in blockHeaders)
-            {
-                // Update hash
-
-                if (header.Hash == null)
-                {
-                    header.UpdateHash();
-                }
-
-                if (header.TransactionCount == 0)
-                {
-                    // We receive the header as extended on "BlockHeadersMessage" when is serialized from one complete Block
-                    // but we want to know when is a header and when not, without checking the hashes
-
-                    header.Type = BlockHeader.HeaderType.Header;
-                }
-
-                // Validate
-
-                if (LastBlockHeader != null)
-                {
-                    if (LastBlockHeader.Index + 1 != header.Index ||
-                        !LastBlockHeader.Hash.Equals(header.PreviousBlockHash))
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    if (LastBlockHeader.Index != 0 || !LastBlockHeader.Hash.Equals(Genesis.GenesisBlock.Hash))
-                    {
-                        break;
-                    }
-                }
-
-                // Write
-
-                _repository.AddBlockHeader(header);
-                _repository.SetTotalBlockHeaderHeight(header.Index);
-
-                LastBlockHeader = header;
-            }
-
-            return Task.CompletedTask;
-        }
-
-        /// <inheritdoc />
         public async Task<BlockHeader> GetBlockHeader(uint height)
         {
             var hash = await _repository.GetBlockHashFromHeight(height);
@@ -285,20 +225,6 @@ namespace NeoSharp.Core.Blockchain
             }
 
             return transactions;
-        }
-
-        public Task<bool> AddTransaction(Transaction transaction)
-        {
-            if (transaction.Hash == null)
-            {
-                transaction.UpdateHash();
-            }
-
-            // TODO: It is a bit more complicated
-
-            MemoryPool.Push(transaction);
-
-            return Task.FromResult(true);
         }
 
         /// <inheritdoc />
@@ -363,8 +289,6 @@ namespace NeoSharp.Core.Blockchain
         {
             return UInt160.Zero;
         }
-
-        private readonly List<ECPoint> _validators = new List<ECPoint>();
 
         public ECPoint[] GetValidators()
         {
@@ -467,7 +391,7 @@ namespace NeoSharp.Core.Blockchain
         {
             if (_initialized == 1)
             {
-                _blockProcessor.OnBlockProcessed -= BlockProcessed;
+                _blockProcessor.OnBlockProcessed -= _onBlockProcessed;
             }
         }
     }

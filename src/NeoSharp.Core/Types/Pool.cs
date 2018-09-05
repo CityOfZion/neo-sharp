@@ -72,7 +72,7 @@ namespace NeoSharp.Core.Types
 
         public int Count => _list.Count;
         public readonly PoolMaxBehaviour Behaviour;
-        public readonly int Max;
+        public int Max { get; }
 
         #endregion
 
@@ -204,13 +204,13 @@ namespace NeoSharp.Core.Types
         /// <summary>
         /// Remove
         /// </summary>
-        /// <param name="key">Key</param>
+        /// <param name="hash"></param>
         /// <returns>Return true if is removed</returns>
-        public bool Remove(TKey key)
+        public bool Remove(UInt256 hash)
         {
             lock (_list)
             {
-                return _list.RemoveAll(a => a.Key.Equals(key)) > 0;
+                return _list.RemoveAll(a => a.Key.Equals(hash)) > 0;
             }
         }
 

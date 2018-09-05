@@ -14,6 +14,7 @@ namespace NeoSharp.Application.Controllers
         #region Private fields
 
         private readonly IBlockPool _blockPool;
+        private readonly ITransactionPool _transactionPool;
         private readonly IBlockchain _blockchain;
         private readonly IConsoleWriter _consoleWriter;
         private readonly IConsoleReader _consoleReader;
@@ -25,12 +26,14 @@ namespace NeoSharp.Application.Controllers
         /// </summary>
         /// <param name="blockchain">Blockchain</param>
         /// <param name="blockPool">Block pool</param>
+        /// <param name="transactionPool">Transaction Pool</param>
         /// <param name="consoleWriter">Console writter</param>
         /// <param name="consoleReader">Console reader</param>
-        public PromptBlockchainController(IBlockchain blockchain, IBlockPool blockPool, IConsoleWriter consoleWriter, IConsoleReader consoleReader)
+        public PromptBlockchainController(IBlockchain blockchain, IBlockPool blockPool, ITransactionPool transactionPool, IConsoleWriter consoleWriter, IConsoleReader consoleReader)
         {
-            _blockPool = blockPool;
             _blockchain = blockchain;
+            _blockPool = blockPool;
+            _transactionPool = transactionPool;
             _consoleReader = consoleReader;
             _consoleWriter = consoleWriter;
         }
@@ -62,7 +65,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("state", Category = "Blockchain", Help = "Show current state")]
         public void StateCommand()
         {
-            var memStr = FormatState(_blockchain.MemoryPool?.Count);
+            var memStr = FormatState(_transactionPool.Size);
             var blockStr = FormatState(_blockPool.Size);
             var headStr = FormatState(_blockchain.LastBlockHeader?.Index);
             var blStr = FormatState(_blockchain.CurrentBlock?.Index);
@@ -73,7 +76,7 @@ namespace NeoSharp.Application.Controllers
             _consoleWriter.WriteLine("Pools", ConsoleOutputStyle.Information);
             _consoleWriter.WriteLine("");
 
-            WriteStatePercent(" Memory", memStr.PadLeft(numSpaces, ' '), _blockchain.MemoryPool.Count, _blockchain.MemoryPool.Max);
+            WriteStatePercent(" Memory", memStr.PadLeft(numSpaces, ' '), _transactionPool.Size, _transactionPool.Capacity);
             WriteStatePercent(" Blocks", blockStr.PadLeft(numSpaces, ' '), _blockPool.Size, _blockPool.Capacity);
 
             _consoleWriter.WriteLine("");

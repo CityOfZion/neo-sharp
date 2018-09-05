@@ -7,21 +7,24 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Blockchain.Processors
 {
-    public class IssueTransactionProcessor : IProcessor<IssueTransaction>
+    public class IssueTransactionPersister : ITransactionPersister<IssueTransaction>
     {
         private readonly IRepository _repository;
 
-        public IssueTransactionProcessor(IRepository repository)
+        public IssueTransactionPersister(IRepository repository)
         {
             _repository = repository;
         }
 
-        public async Task Process(IssueTransaction issueTx)
+        public async Task Persist(IssueTransaction transaction)
         {
-            var inputsTasks = issueTx.Inputs.Select(async coin =>
-                (await _repository.GetTransaction(coin.PrevHash)).Outputs[coin.PrevIndex]);
+            var inputsTasks = transaction.Inputs
+                .Select(async coin => (await _repository.GetTransaction(coin.PrevHash)).Outputs[coin.PrevIndex]);
+
             var inputs = await Task.WhenAll(inputsTasks);
-            var assetChanges = new Dictionary<UInt256, Fixed8>();
+
+            var assetChanges = new Dictionary<UInt256, Fixed8>()
+                ;
             foreach (var input in inputs)
             {
                 if (assetChanges.ContainsKey(input.AssetId))
@@ -30,7 +33,7 @@ namespace NeoSharp.Core.Blockchain.Processors
                     assetChanges[input.AssetId] = -input.Value;
             }
 
-            foreach (var output in issueTx.Outputs)
+            foreach (var output in transaction.Outputs)
             {
                 if (assetChanges.ContainsKey(output.AssetId))
                     assetChanges[output.AssetId] += output.Value;
@@ -38,11 +41,12 @@ namespace NeoSharp.Core.Blockchain.Processors
                     assetChanges[output.AssetId] = output.Value;
             }
 
-            foreach (var keypair in assetChanges)
+            foreach (var assetChange in assetChanges.Where(ach => ach.Value != Fixed8.Zero))
             {
-                if (keypair.Value == Fixed8.Zero) continue;
-                var asset = await _repository.GetAsset(keypair.Key);
-                asset.Available += keypair.Value;
+                var asset = await _repository.GetAsset(assetChange.Key);
+
+                asset.Available += assetChange.Value;
+
                 await _repository.AddAsset(asset);
             }
         }

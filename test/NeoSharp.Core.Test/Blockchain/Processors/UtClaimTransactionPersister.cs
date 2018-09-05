@@ -12,13 +12,13 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Core.Test.Blockchain.Processors
 {
     [TestClass]
-    public class UtClaimTransactionProcessor : TestBase
+    public class UtClaimTransactionPersister : TestBase
     {
         [TestMethod]
-        public async Task Process_MarksCorrectCoinStateAsClaimed()
+        public async Task Persist_MarksCorrectCoinStateAsClaimed()
         {
             var txHash = UInt256.Parse(RandomInt().ToString("X64"));
-            var expectedClaimIndex = (ushort) RandomInt(3);
+            var expectedClaimIndex = (ushort)RandomInt(3);
             var input = new ClaimTransaction
             {
                 Claims = new[]
@@ -34,9 +34,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
             };
             var repositoryMock = AutoMockContainer.GetMock<IRepository>();
             repositoryMock.Setup(m => m.GetCoinStates(txHash)).ReturnsAsync(coinStates);
-            var testee = AutoMockContainer.Create<ClaimTransactionProcessor>();
+            var testee = AutoMockContainer.Create<ClaimTransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
 
             repositoryMock.Verify(m => m.AddCoinStates(It.Is<UInt256>(u => u.Equals(txHash)), coinStates));
             for (var i = 0; i < coinStates.Length; i++)
@@ -48,7 +48,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         }
 
         [TestMethod]
-        public async Task Process_MarksClaimsFromMultipleTx()
+        public async Task Persist_MarksClaimsFromMultipleTx()
         {
             var txHash1 = UInt256.Parse(RandomInt().ToString("X64"));
             var txHash2 = UInt256.Parse(RandomInt().ToString("X64"));
@@ -75,9 +75,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
                 .ReturnsAsync(coinStates.Skip(1).Take(1).ToArray());
             repositoryMock.Setup(m => m.GetCoinStates(txHash3))
                 .ReturnsAsync(coinStates.Skip(2).Take(1).ToArray());
-            var testee = AutoMockContainer.Create<ClaimTransactionProcessor>();
+            var testee = AutoMockContainer.Create<ClaimTransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
 
             repositoryMock.Verify(m => m.AddCoinStates(
                 It.Is<UInt256>(u => u.Equals(txHash1)),

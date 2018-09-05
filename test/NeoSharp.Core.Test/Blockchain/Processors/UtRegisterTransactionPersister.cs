@@ -1,5 +1,4 @@
 using System.Threading.Tasks;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Core.Blockchain.Processors;
@@ -12,10 +11,10 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Core.Test.Blockchain.Processors
 {
     [TestClass]
-    public class UtRegisterTransactionProcessor : TestBase
+    public class UtRegisterTransactionPersister : TestBase
     {
         [TestMethod]
-        public async Task Process_AddsContract()
+        public async Task Persist_AddsContract()
         {
             var pubKey = new byte[33];
             pubKey[0] = 0x02;
@@ -30,9 +29,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
                 Admin = UInt160.Parse(RandomInt().ToString("X40"))
             };
             var repositoryMock = AutoMockContainer.GetMock<IRepository>();
-            var testee = AutoMockContainer.Create<RegisterTransactionProcessor>();
+            var testee = AutoMockContainer.Create<RegisterTransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
             repositoryMock.Verify(m => m.AddAsset(It.Is<Asset>(a =>
                 a.Id.Equals(input.Hash) &&
                 a.AssetType.Equals(input.AssetType) &&

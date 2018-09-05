@@ -13,10 +13,10 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Core.Test.Blockchain.Processors
 {
     [TestClass]
-    public class UtStateTransactionProcessor : TestBase
+    public class UtStateTransactionPersister : TestBase
     {
         [TestMethod]
-        public async Task Process_AccountStateDescriptor_UpdateVotes()
+        public async Task Persist_AccountStateDescriptor_UpdateVotes()
         {
             var scriptHash = new UInt160(RandomByteArray(20));
             var value = new byte[1];
@@ -37,15 +37,15 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
             var deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             deserializerMock.Setup(m => m.Deserialize<ECPoint[]>(value, null)).Returns(ecpoints);
             var accountManagerMock = AutoMockContainer.GetMock<IAccountManager>();
-            var testee = AutoMockContainer.Create<StateTransactionProcessor>();
+            var testee = AutoMockContainer.Create<StateTransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
 
             accountManagerMock.Verify(m => m.UpdateVotes(It.Is<UInt160>(u => u.Equals(scriptHash)), ecpoints));
         }
 
         [TestMethod]
-        public async Task Process_ValidatorStateDescriptor_NewValidator()
+        public async Task Persist_ValidatorStateDescriptor_NewValidator()
         {
             var pubKey = new byte[33];
             pubKey[0] = 0x02;
@@ -65,9 +65,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
             var repositoryMock = AutoMockContainer.GetMock<IRepository>();
             repositoryMock.Setup(m => m.GetValidator(It.Is<ECPoint>(p => p.CompareTo(new ECPoint(pubKey)) == 0)))
                 .ReturnsAsync((Validator) null);
-            var testee = AutoMockContainer.Create<StateTransactionProcessor>();
+            var testee = AutoMockContainer.Create<StateTransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
 
             repositoryMock.Verify(m => m.AddValidator(It.Is<Validator>(v =>
                 v.PublicKey.CompareTo(new ECPoint(pubKey)) == 0 &&
@@ -76,7 +76,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         }
 
         [TestMethod]
-        public async Task Process_ValidatorStateDescriptor_UpdateValidatorToTrue()
+        public async Task Persist_ValidatorStateDescriptor_UpdateValidatorToTrue()
         {
             var pubKey = new byte[33];
             pubKey[0] = 0x02;
@@ -103,9 +103,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
             var repositoryMock = AutoMockContainer.GetMock<IRepository>();
             repositoryMock.Setup(m => m.GetValidator(It.Is<ECPoint>(p => p.CompareTo(new ECPoint(pubKey)) == 0)))
                 .ReturnsAsync(expectedValidator);
-            var testee = AutoMockContainer.Create<StateTransactionProcessor>();
+            var testee = AutoMockContainer.Create<StateTransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
 
             repositoryMock.Verify(m => m.AddValidator(It.Is<Validator>(v =>
                 v == expectedValidator && v.Votes.Equals(new Fixed8(expectedVotes)) && v.Registered)));

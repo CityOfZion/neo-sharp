@@ -11,7 +11,7 @@ namespace NeoSharp.Core.Blockchain
         /// <summary>
         /// Memory pool
         /// </summary>
-        StampedPool<UInt256, Transaction> MemoryPool { get; }
+        //TransactionPool MemoryPool { get; }
 
         Task InitializeBlockchain();
 
@@ -26,12 +26,6 @@ namespace NeoSharp.Core.Blockchain
         /// Last block header
         /// </summary>
         BlockHeader LastBlockHeader { get; }
-
-        /// <summary>
-        /// Add the specified block headers to the blockchain
-        /// </summary>
-        /// <param name="blockHeaders"></param>
-        Task AddBlockHeaders(IEnumerable<BlockHeader> blockHeaders);
 
         /// <summary>
         /// Return the corresponding block information according to the specified height
@@ -92,8 +86,6 @@ namespace NeoSharp.Core.Blockchain
         #endregion
 
         #region Transactions
-
-        Task<bool> AddTransaction(Transaction transaction);
 
         /// <summary>
         /// Determine whether the specified transaction is included in the blockchain

@@ -192,12 +192,12 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
                 .Setup(x => x.TryGet(1, out newBlock))
                 .Returns(true);
 
-            var transactionProcessorMock = this.AutoMockContainer.GetMock<IProcessor<Transaction>>();
+            var transactionProcessorMock = this.AutoMockContainer.GetMock<ITransactionPersister<Transaction>>();
             var repositoryMock = this.AutoMockContainer.GetMock<IRepository>();
 
             var testee = this.AutoMockContainer.Create<BlockProcessor>();
 
-            testee.OnBlockProcessed += block =>
+            testee.OnBlockProcessed += (_, block) =>
             {
                 block
                     .Should()
@@ -205,14 +205,13 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
 
                 waitForBlockProcessedEvent.Set();
                 testee.Dispose();
-                return Task.Run(() => { });
             };
 
             testee.Run(currentBlock);
 
             waitForBlockProcessedEvent.WaitOne();
 
-            transactionProcessorMock.Verify(x => x.Process(transactionInNewBlock));
+            transactionProcessorMock.Verify(x => x.Persist(transactionInNewBlock));
 
             repositoryMock.Verify(x => x.AddBlockHeader(It.Is<BlockHeader>(blockHeader => 
                 blockHeader.ConsensusData == newBlock.ConsensusData &&

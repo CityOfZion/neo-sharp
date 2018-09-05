@@ -6,7 +6,7 @@ namespace NeoSharp.Core.Blockchain.Processors
 {
     public interface IBlockProcessor : IDisposable
     {
-        event Func<Block, Task> OnBlockProcessed;
+        event EventHandler<Block> OnBlockProcessed;
 
         void Run(Block currentBlock);
 

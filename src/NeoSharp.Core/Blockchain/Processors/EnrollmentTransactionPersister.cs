@@ -4,19 +4,21 @@ using NeoSharp.Core.Persistence;
 
 namespace NeoSharp.Core.Blockchain.Processors
 {
-    public class EnrollmentTransactionProcessor : IProcessor<EnrollmentTransaction>
+    public class EnrollmentTransactionPersister : ITransactionPersister<EnrollmentTransaction>
     {
         private readonly IRepository _repository;
 
-        public EnrollmentTransactionProcessor(IRepository repository)
+        public EnrollmentTransactionPersister(IRepository repository)
         {
             _repository = repository;
         }
 
-        public async Task Process(EnrollmentTransaction stateTx)
+        public async Task Persist(EnrollmentTransaction transaction)
         {
-            var validator = await _repository.GetValidator(stateTx.PublicKey) ?? new Validator(stateTx.PublicKey);
+            var validator = await _repository.GetValidator(transaction.PublicKey) ?? new Validator(transaction.PublicKey);
+
             validator.Registered = true;
+
             await _repository.AddValidator(validator);
         }
     }

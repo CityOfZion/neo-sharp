@@ -26,8 +26,8 @@ namespace NeoSharp.Application.Test
             containerBuilderMock.Verify(x => x.RegisterSingleton<IBlockchain, Blockchain>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton<IBlockProcessor, BlockProcessor>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton<IBlockPool, BlockPool>(), Times.Once);
-            containerBuilderMock.Verify(x => x.RegisterSingleton<IProcessor<Transaction>, TransactionProcessor>(), Times.Once);
-            containerBuilderMock.Verify(x => x.RegisterSingleton<IProcessor<InvocationTransaction>, InvocationTransactionProcessor>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<ITransactionPersister<Transaction>, TransactionPersister>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<ITransactionPersister<InvocationTransaction>, InvocationTransactionPersister>(), Times.Once);
         }
     }
 }

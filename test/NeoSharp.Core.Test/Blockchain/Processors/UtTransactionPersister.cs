@@ -13,115 +13,115 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Core.Test.Blockchain.Processors
 {
     [TestClass]
-    public class UtTransactionProcessor : TestBase
+    public class UtTransactionPersister : TestBase
     {
         [TestMethod]
-        public async Task Process_ClaimTx_CallsClaimTxProcessor()
+        public async Task Persist_ClaimTx_CallsClaimTxPersister()
         {
             var input = new ClaimTransaction();
-            var claimTxProcessorMock = AutoMockContainer.GetMock<IProcessor<ClaimTransaction>>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var claimTxPersisterMock = AutoMockContainer.GetMock<ITransactionPersister<ClaimTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
-            claimTxProcessorMock.Verify(m => m.Process(input));
+            await testee.Persist(input);
+            claimTxPersisterMock.Verify(m => m.Persist(input));
         }
 
         [TestMethod]
-        public async Task Process_InvocationTx_CallsInvocationTxProcessor()
+        public async Task Persist_InvocationTx_CallsInvocationTxPersister()
         {
             var input = new InvocationTransaction();
-            var invocationTxProcessorMock = AutoMockContainer.GetMock<IProcessor<InvocationTransaction>>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var invocationTxPersisterMock = AutoMockContainer.GetMock<ITransactionPersister<InvocationTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
-            invocationTxProcessorMock.Verify(m => m.Process(input));
+            await testee.Persist(input);
+            invocationTxPersisterMock.Verify(m => m.Persist(input));
         }
 
         [TestMethod]
-        public async Task Process_IssueTx_CallsIssueTxProcessor()
+        public async Task Persist_IssueTx_CallsIssueTxPersister()
         {
             var input = new IssueTransaction();
-            var issueTxProcessorMock = AutoMockContainer.GetMock<IProcessor<IssueTransaction>>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var issueTxPersisterMock = AutoMockContainer.GetMock<ITransactionPersister<IssueTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
-            issueTxProcessorMock.Verify(m => m.Process(input));
+            await testee.Persist(input);
+            issueTxPersisterMock.Verify(m => m.Persist(input));
         }
 
         [TestMethod]
-        public async Task Process_EnrollmentTx_CallsEnrollmentTxProcessor()
+        public async Task Persist_EnrollmentTx_CallsEnrollmentTxPersister()
         {
             var input = new EnrollmentTransaction();
-            var enrollmentTxProcessorMock = AutoMockContainer.GetMock<IProcessor<EnrollmentTransaction>>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var enrollmentTxPersisterMock = AutoMockContainer.GetMock<ITransactionPersister<EnrollmentTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
-            enrollmentTxProcessorMock.Verify(m => m.Process(input));
+            await testee.Persist(input);
+            enrollmentTxPersisterMock.Verify(m => m.Persist(input));
         }
 
         [TestMethod]
-        public async Task Process_RegisterTx_CallsRegisterTxProcessor()
+        public async Task Persist_RegisterTx_CallsRegisterTxPersister()
         {
             var input = new RegisterTransaction();
-            var registerTxProcessorMock = AutoMockContainer.GetMock<IProcessor<RegisterTransaction>>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var registerTxPersisterMock = AutoMockContainer.GetMock<ITransactionPersister<RegisterTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
-            registerTxProcessorMock.Verify(m => m.Process(input));
+            await testee.Persist(input);
+            registerTxPersisterMock.Verify(m => m.Persist(input));
         }
 
         [TestMethod]
-        public async Task Process_PublishTx_CallsPublishTxProcessor()
+        public async Task Persist_PublishTx_CallsPublishTxPersister()
         {
             var input = new PublishTransaction();
-            var publishTxProcessorMock = AutoMockContainer.GetMock<IProcessor<PublishTransaction>>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var publishTxPersisterMock = AutoMockContainer.GetMock<ITransactionPersister<PublishTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
-            publishTxProcessorMock.Verify(m => m.Process(input));
+            await testee.Persist(input);
+            publishTxPersisterMock.Verify(m => m.Persist(input));
         }
 
         [TestMethod]
-        public async Task Process_StateTx_CallsStateTxProcessor()
+        public async Task Persist_StateTx_CallsStateTxPersister()
         {
             var input = new StateTransaction();
-            var stateTxProcessorMock = AutoMockContainer.GetMock<IProcessor<StateTransaction>>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var stateTxPersisterMock = AutoMockContainer.GetMock<ITransactionPersister<StateTransaction>>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
-            stateTxProcessorMock.Verify(m => m.Process(input));
+            await testee.Persist(input);
+            stateTxPersisterMock.Verify(m => m.Persist(input));
         }
 
         [TestMethod]
-        public async Task Process_ContractTx_NoSpecialCalls()
+        public async Task Persist_ContractTx_NoSpecialCalls()
         {
             var input = new ContractTransaction();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
         }
 
         [TestMethod]
-        public async Task Process_MinerTx_NoSpecialCalls()
+        public async Task Persist_MinerTx_NoSpecialCalls()
         {
             var input = new MinerTransaction();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
         }
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public async Task Process_Transaction_Errors()
+        public async Task Persist_Transaction_Errors()
         {
             var input = new Transaction();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
         }
 
         [TestMethod]
-        public async Task Process_TransactionWithOutputs_GainOutputs()
+        public async Task Persist_TransactionWithOutputs_GainOutputs()
         {
             var input = new ContractTransaction
             {
@@ -137,9 +137,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
                 };
             var accountManagerMock = AutoMockContainer.GetMock<IAccountManager>();
             var repositoryMock = AutoMockContainer.GetMock<IRepository>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
 
             foreach (var expectedOutput in input.Outputs)
                 accountManagerMock.Verify(m =>
@@ -149,7 +149,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         }
 
         [TestMethod]
-        public async Task Process_TransactionWithInputs_SpendOutputs()
+        public async Task Persist_TransactionWithInputs_SpendOutputs()
         {
             var repositoryMock = AutoMockContainer.GetMock<IRepository>();
             var input = new ContractTransaction
@@ -188,9 +188,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
             }
 
             var accountManagerMock = AutoMockContainer.GetMock<IAccountManager>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
             for (var i = 0; i < input.Outputs.Length; i++)
             {
                 var output = txs[i].Outputs[0];
@@ -202,13 +202,13 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         }
 
         [TestMethod]
-        public async Task Process_Transaction_SaveTx()
+        public async Task Persist_Transaction_SaveTx()
         {
             var input = new ContractTransaction();
             var repositoryMock = AutoMockContainer.GetMock<IRepository>();
-            var testee = AutoMockContainer.Create<TransactionProcessor>();
+            var testee = AutoMockContainer.Create<TransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
             repositoryMock.Verify(m => m.AddTransaction(input));
 
         }

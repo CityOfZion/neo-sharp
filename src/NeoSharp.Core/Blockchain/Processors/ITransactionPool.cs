@@ -1,0 +1,19 @@
+﻿using System.Collections.Generic;
+using NeoSharp.Core.Models;
+using NeoSharp.Core.Types;
+
+namespace NeoSharp.Core.Blockchain.Processors
+{
+    public interface ITransactionPool : IEnumerable<Transaction>
+    {
+        int Size { get; }
+
+        int Capacity { get; }
+
+        void Add(Transaction transaction);
+
+        void Remove(UInt256 hash);
+
+        bool Contains(UInt256 hash);
+    }
+}

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Blockchain.Processors;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
 
@@ -11,17 +12,17 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Variables
 
-        private readonly IBlockchain _blockchain;
+        private readonly ITransactionPool _transactionPool;
 
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="blockchain">Blockchain</param>
-        public MemPoolMessageHandler(IBlockchain blockchain)
+        /// <param name="transactionPool">Transaction Pool</param>
+        public MemPoolMessageHandler(ITransactionPool transactionPool)
         {
-            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
+            _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
         }
 
         /// <summary>
@@ -32,9 +33,9 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// <returns>Task</returns>
         public async Task Handle(MemPoolMessage message, IPeer sender)
         {
-            var hashes = _blockchain.MemoryPool
-                .Peek(InventoryPayload.MaxHashes)
-                .Select(tx => tx.Value.Hash)
+            var hashes = _transactionPool
+                .Take(InventoryPayload.MaxHashes)
+                .Select(tx => tx.Hash)
                 .ToArray();
 
             await sender.Send(new InventoryMessage(InventoryType.Transaction, hashes));

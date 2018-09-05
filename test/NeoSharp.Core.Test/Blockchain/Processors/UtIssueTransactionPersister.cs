@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -11,10 +10,10 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Core.Test.Blockchain.Processors
 {
     [TestClass]
-    public class UtIssueTransactionProcessor : TestBase
+    public class UtIssueTransactionPersister : TestBase
     {
         [TestMethod]
-        public async Task Process_IssueAssets_IncreaseAvailable()
+        public async Task Persist_IssueAssets_IncreaseAvailable()
         {
             var assetId = new UInt256(RandomByteArray(32));
             var oldAvailability = RandomInt(10000);
@@ -44,9 +43,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
             };
             var repositoryMock = AutoMockContainer.GetMock<IRepository>();
             repositoryMock.Setup(m => m.GetAsset(It.Is<UInt256>(u => u.Equals(assetId)))).ReturnsAsync(asset);
-            var testee = AutoMockContainer.Create<IssueTransactionProcessor>();
+            var testee = AutoMockContainer.Create<IssueTransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
 
             repositoryMock.Verify(m => m.AddAsset(It.Is<Asset>(a =>
                 a == asset &&
@@ -54,7 +53,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         }
 
         [TestMethod]
-        public async Task Process_BurnAssets_DecreaseAvailable()
+        public async Task Persist_BurnAssets_DecreaseAvailable()
         {
             var assetId = new UInt256(RandomByteArray(32));
             var oldAvailability = RandomInt(20000, 100000);
@@ -124,9 +123,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
             repositoryMock.Setup(m => m.GetTransaction(It.Is<UInt256>(u => u.Equals(prevTx2.Hash))))
                 .ReturnsAsync(prevTx2);
             repositoryMock.Setup(m => m.GetAsset(It.Is<UInt256>(u => u.Equals(assetId)))).ReturnsAsync(asset);
-            var testee = AutoMockContainer.Create<IssueTransactionProcessor>();
+            var testee = AutoMockContainer.Create<IssueTransactionPersister>();
 
-            await testee.Process(input);
+            await testee.Persist(input);
 
             repositoryMock.Verify(m => m.AddAsset(It.Is<Asset>(a =>
                 a == asset &&

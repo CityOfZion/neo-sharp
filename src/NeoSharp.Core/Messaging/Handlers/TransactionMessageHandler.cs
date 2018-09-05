@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Blockchain.Processors;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
@@ -15,6 +14,7 @@ namespace NeoSharp.Core.Messaging.Handlers
         #region Variables
 
         private readonly IBlockchain _blockchain;
+        private readonly ITransactionPool _transactionPool;
         private readonly ILogger<TransactionMessageHandler> _logger;
 
         #endregion
@@ -23,10 +23,12 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// Constructor
         /// </summary>
         /// <param name="blockchain">Blockchain</param>
+        /// <param name="transactionPool">Transaction Pool</param>
         /// <param name="logger">Logger</param>
-        public TransactionMessageHandler(IBlockchain blockchain, ILogger<TransactionMessageHandler> logger)
+        public TransactionMessageHandler(IBlockchain blockchain, ITransactionPool transactionPool, ILogger<TransactionMessageHandler> logger)
         {
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
+            _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -50,7 +52,11 @@ namespace NeoSharp.Core.Messaging.Handlers
             // Transaction is not added right away but queued to be verified and added.
             // It is the reason why we do not broadcast immediately.
 
-            var transactionAdded = await _blockchain.AddTransaction(transaction);
+            // TODO: It is a bit more complicated
+
+            _transactionPool.Add(transaction);
+
+            var transactionAdded = true;
 
             if (!transactionAdded)
             {

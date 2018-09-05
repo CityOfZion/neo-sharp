@@ -13,23 +13,26 @@ namespace NeoSharp.Core.Blockchain.Processors
         private static readonly TimeSpan DefaultBlockPollingInterval = TimeSpan.FromMilliseconds(100);
 
         private readonly IBlockPool _blockPool;
+        private readonly ITransactionPool _transactionPool;
         private readonly IRepository _repository;
         private readonly IAsyncDelayer _asyncDelayer;
-        private readonly IProcessor<Transaction> _transactionProcessor;
+        private readonly ITransactionPersister<Transaction> _transactionPersister;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
-        public event Func<Block, Task> OnBlockProcessed;
+        public event EventHandler<Block> OnBlockProcessed;
 
         public BlockProcessor(
             IBlockPool blockPool,
+            ITransactionPool transactionPool,
             IRepository repository,
             IAsyncDelayer asyncDelayer,
-            IProcessor<Transaction> transactionProcessor)
+            ITransactionPersister<Transaction> transactionPersister)
         {
             _blockPool = blockPool ?? throw new ArgumentNullException(nameof(blockPool));
+            _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
-            _transactionProcessor = transactionProcessor ?? throw new ArgumentNullException(nameof(transactionProcessor));
+            _transactionPersister = transactionPersister ?? throw new ArgumentNullException(nameof(transactionPersister));
         }
 
         // TODO: We will read the current block from Blockchain
@@ -46,18 +49,18 @@ namespace NeoSharp.Core.Blockchain.Processors
                 {
                     var blockIndex = _blockPool.CurrentBlock?.Index + 1 ?? 0;
 
-                    if (_blockPool.TryGet(blockIndex, out var block) == false)
+                    if (!_blockPool.TryGet(blockIndex, out var block))
                     {
                         await _asyncDelayer.Delay(DefaultBlockPollingInterval, cancellationToken);
                         continue;
                     }
 
-                    await Process(block);
+                    await Persist(block);
 
                     _blockPool.Remove(blockIndex);
                     _blockPool.CurrentBlock = block;
 
-                    OnBlockProcessed?.Invoke(block);
+                    OnBlockProcessed?.Invoke(this, block);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
@@ -81,10 +84,13 @@ namespace NeoSharp.Core.Blockchain.Processors
             _cancellationTokenSource.Dispose();
         }
 
-        protected virtual async Task Process(Block block)
+        protected virtual async Task Persist(Block block)
         {
-            foreach (var tx in block.Transactions)
-                await _transactionProcessor.Process(tx);
+            foreach (var transaction in block.Transactions)
+            {
+                await _transactionPersister.Persist(transaction);
+                _transactionPool.Remove(transaction.Hash);
+            }
 
             await _repository.AddBlockHeader(block.GetBlockHeader());
             await _repository.SetTotalBlockHeight(block.Index);

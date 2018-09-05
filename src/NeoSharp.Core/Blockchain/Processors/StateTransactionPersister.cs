@@ -9,13 +9,13 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Blockchain.Processors
 {
-    public class StateTransactionProcessor : IProcessor<StateTransaction>
+    public class StateTransactionPersister : ITransactionPersister<StateTransaction>
     {
         private readonly IRepository _repository;
         private readonly IBinaryDeserializer _deserializer;
         private readonly IAccountManager _accountManager;
 
-        public StateTransactionProcessor(IRepository repository, IBinaryDeserializer deserializer,
+        public StateTransactionPersister(IRepository repository, IBinaryDeserializer deserializer,
             IAccountManager accountManager)
         {
             _repository = repository;
@@ -23,7 +23,7 @@ namespace NeoSharp.Core.Blockchain.Processors
             _accountManager = accountManager;
         }
 
-        public async Task Process(StateTransaction stateTx)
+        public async Task Persist(StateTransaction stateTx)
         {
             foreach (var descriptor in stateTx.Descriptors)
                 switch (descriptor.Type)
@@ -42,12 +42,12 @@ namespace NeoSharp.Core.Blockchain.Processors
         private async Task ProcessAccountStateDescriptor(StateDescriptor descriptor)
         {
             var accountHash = new UInt160(descriptor.Key);
+
             switch (descriptor.Field)
             {
                 case "Votes":
                     var chosenValidators = _deserializer.Deserialize<ECPoint[]>(descriptor.Value);
                     await _accountManager.UpdateVotes(accountHash, chosenValidators);
-
                     break;
             }
         }
@@ -55,7 +55,8 @@ namespace NeoSharp.Core.Blockchain.Processors
         private async Task ProcessValidatorStateDescriptor(StateDescriptor descriptor)
         {
             var pubKey = new ECPoint(descriptor.Key);
-            var validator = await _repository.GetValidator(pubKey) ?? new Validator {PublicKey = pubKey};
+            var validator = await _repository.GetValidator(pubKey) ?? new Validator { PublicKey = pubKey };
+
             switch (descriptor.Field)
             {
                 case "Registered":

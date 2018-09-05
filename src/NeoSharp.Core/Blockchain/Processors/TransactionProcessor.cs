@@ -1,118 +1,111 @@
-using System;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Blockchain.State;
+using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Blockchain.Processors
 {
-    /// <summary>
-    ///     Processes the common properties of a Transaction.
-    ///     Processes the outputs by creating the coin states for them and updating balances.
-    ///     Processes the inputs by marking their state with CoinState.Spent and updating balances.
-    ///     Calls the respective transaction type processors for further processing.
-    /// </summary>
-    public class TransactionProcessor : IProcessor<Transaction>
+    public class TransactionProcessor
     {
+        private static readonly TimeSpan DefaultTransactionPollingInterval = TimeSpan.FromMilliseconds(100);
+
+        private readonly ConcurrentDictionary<UInt256, Transaction> _unverifiedTransactionPool = new ConcurrentDictionary<UInt256, Transaction>();
+        private readonly ITransactionPool _verifiedTransactionPool;
+        private readonly ITransactionVerifier _transactionVerifier;
         private readonly IRepository _repository;
-        private readonly IAccountManager _accountManager;
-        private readonly IProcessor<ClaimTransaction> _claimTxProcessor;
-        private readonly IProcessor<InvocationTransaction> _invocationTxProcessor;
-        private readonly IProcessor<IssueTransaction> _issueTxProcessor;
-        private readonly IProcessor<EnrollmentTransaction> _enrollmentTxProcessor;
-        private readonly IProcessor<RegisterTransaction> _registerTxProcessor;
-        private readonly IProcessor<StateTransaction> _stateTxProcessor;
-        private readonly IProcessor<PublishTransaction> _publishTxProcessor;
+        private readonly IAsyncDelayer _asyncDelayer;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+        public event EventHandler<Transaction> OnTransactionProcessed;
 
         public TransactionProcessor(
+            ITransactionPool transactionPool,
+            ITransactionVerifier transactionVerifier,
             IRepository repository,
-            IAccountManager accountManager,
-            IProcessor<ClaimTransaction> claimTxProcessor,
-            IProcessor<InvocationTransaction> invocationTxProcessor,
-            IProcessor<IssueTransaction> issueTxProcessor,
-            IProcessor<EnrollmentTransaction> enrollmentTxProcessor,
-            IProcessor<RegisterTransaction> registerTxProcessor,
-            IProcessor<StateTransaction> stateTxProcessor,
-            IProcessor<PublishTransaction> publishTxProcessor
-        )
+            IAsyncDelayer asyncDelayer)
         {
-            _repository = repository;
-            _accountManager = accountManager;
-            _claimTxProcessor = claimTxProcessor;
-            _invocationTxProcessor = invocationTxProcessor;
-            _issueTxProcessor = issueTxProcessor;
-            _enrollmentTxProcessor = enrollmentTxProcessor;
-            _registerTxProcessor = registerTxProcessor;
-            _stateTxProcessor = stateTxProcessor;
-            _publishTxProcessor = publishTxProcessor;
+            _verifiedTransactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
+            _transactionVerifier = transactionVerifier ?? throw new ArgumentNullException(nameof(transactionVerifier));
+            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
         }
 
-        public async Task Process(Transaction tx)
+        public void Run()
         {
-            await SpendOutputs(tx.Inputs);
-            await GainOutputs(tx.Hash, tx.Outputs);
+            var cancellationToken = _cancellationTokenSource.Token;
 
-            switch (tx)
+            Task.Factory.StartNew(async () =>
             {
-                case ContractTransaction _:
-                case MinerTransaction _:
-                    break;
-                case ClaimTransaction claimTx:
-                    await _claimTxProcessor.Process(claimTx);
-                    break;
-                case InvocationTransaction invocationTx:
-                    await _invocationTxProcessor.Process(invocationTx);
-                    break;
-                case StateTransaction stateTx:
-                    await _stateTxProcessor.Process(stateTx);
-                    break;
-                case IssueTransaction issueTx:
-                    await _issueTxProcessor.Process(issueTx);
-                    break;
-                case PublishTransaction publishTx:
-                    await _publishTxProcessor.Process(publishTx);
-                    break;
-                case RegisterTransaction registerTx:
-                    await _registerTxProcessor.Process(registerTx);
-                    break;
-                case EnrollmentTransaction enrollmentTx:
-                    await _enrollmentTxProcessor.Process(enrollmentTx);
-                    break;
-                default:
-                    throw new ArgumentException("Unknown Transaction Type");
-            }
-
-            await _repository.AddTransaction(tx);
-        }
-
-        private async Task GainOutputs(UInt256 hash, TransactionOutput[] outputs)
-        {
-            foreach (var output in outputs)
-                await _accountManager.UpdateBalance(output.ScriptHash, output.AssetId, output.Value);
-
-            var newCoinStates = outputs.Select(o => CoinState.New).ToArray();
-            await _repository.AddCoinStates(hash, newCoinStates);
-        }
-
-        private async Task SpendOutputs(CoinReference[] inputs)
-        {
-            foreach (var inputGroup in inputs.GroupBy(i => i.PrevHash))
-            {
-                var prevTxHash = inputGroup.Key;
-                var tx = await _repository.GetTransaction(prevTxHash);
-                var coinStates = await _repository.GetCoinStates(prevTxHash);
-                foreach (var coinReference in inputGroup)
+                while (!cancellationToken.IsCancellationRequested)
                 {
-                    coinStates[coinReference.PrevIndex] |= CoinState.Spent;
+                    if (!_unverifiedTransactionPool.Any())
+                    {
+                        await _asyncDelayer.Delay(DefaultTransactionPollingInterval, cancellationToken);
+                        continue;
+                    }
 
-                    var output = tx.Outputs[coinReference.PrevIndex];
-                    await _accountManager.UpdateBalance(output.ScriptHash, output.AssetId, -output.Value);
+                    var unverifiedTransactionHashes = _unverifiedTransactionPool.Keys;
+                    var transactionPool = _verifiedTransactionPool.Concat(
+                        _unverifiedTransactionPool.Values.Where(t => unverifiedTransactionHashes.Contains(t.Hash)))
+                        .ToArray();
+
+                    foreach (var transactionHash in unverifiedTransactionHashes)
+                    {
+                        if (!_unverifiedTransactionPool.TryGetValue(transactionHash, out var transaction))
+                        {
+                            continue;
+                        }
+
+                        var valid = await _transactionVerifier.Verify(transaction,
+                            transactionPool.Where(t => t.Hash != transactionHash).ToArray());
+
+                        if (valid)
+                        {
+                            _verifiedTransactionPool.Add(transaction);
+                        }
+
+                        _unverifiedTransactionPool.TryRemove(transactionHash, out _);
+
+                        OnTransactionProcessed?.Invoke(this, transaction);
+                    }
                 }
+            }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+        }
 
-                await _repository.AddCoinStates(prevTxHash, coinStates);
+        public async Task AddTransaction(Transaction transaction)
+        {
+            if (transaction == null) throw new ArgumentNullException(nameof(transaction));
+
+            if (_unverifiedTransactionPool.ContainsKey(transaction.Hash))
+            {
+                throw new InvalidOperationException($"The transaction  \"{transaction.Hash.ToString(true)}\" was already queued and still not verified to be added.");
             }
+
+            if (_verifiedTransactionPool.Contains(transaction.Hash))
+            {
+                throw new InvalidOperationException($"The transaction  \"{transaction.Hash.ToString(true)}\" was already queued and verified to be added.");
+            }
+
+            if (await _repository.GetTransaction(transaction.Hash) != null)
+            {
+                throw new InvalidOperationException($"The transaction \"{transaction.Hash.ToString(true)}\" exists already on the blockchain.");
+            }
+
+            if (!_unverifiedTransactionPool.TryAdd(transaction.Hash, transaction))
+            {
+                throw new InvalidOperationException($"The transaction  \"{transaction.Hash.ToString(true)}\" was already queued to be added.");
+            }
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
         }
     }
 }
