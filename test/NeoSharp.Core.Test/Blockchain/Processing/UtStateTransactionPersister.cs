@@ -2,7 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Blockchain.Processors;
+using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Blockchain.State;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
@@ -10,7 +10,7 @@ using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
 
-namespace NeoSharp.Core.Test.Blockchain.Processors
+namespace NeoSharp.Core.Test.Blockchain.Processing
 {
     [TestClass]
     public class UtStateTransactionPersister : TestBase

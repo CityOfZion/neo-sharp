@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Blockchain.Processors;
+using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Blockchain.State;
-using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Models;
 
 namespace NeoSharp.Core.DI.Modules
@@ -14,7 +13,7 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<IBlockchain, Blockchain.Blockchain>();
             containerBuilder.RegisterSingleton<ICoinIndex, CoinIndex>();
 
-            #region Processors
+            #region Processing
 
             containerBuilder.RegisterSingleton<IBlockHeaderPersister, BlockHeaderPersister>();
             containerBuilder.RegisterSingleton<IBlockProcessor, BlockProcessor>();

@@ -1,14 +1,14 @@
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NeoSharp.Core.Blockchain.Processors;
+using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.TestHelpers;
 
-namespace NeoSharp.Core.Test.Blockchain.Processors
+namespace NeoSharp.Core.Test.Blockchain.Processing
 {
     [TestClass]
     public class UtPublishTransactionPersiter : TestBase

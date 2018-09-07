@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NeoSharp.Core.Blockchain.Processors;
+using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
 

@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace NeoSharp.Core.Blockchain.Processors
+namespace NeoSharp.Core.Blockchain.Processing
 {
     /// <summary>
     ///     A persister reads the input and modifies the blockchain state.

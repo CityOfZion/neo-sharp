@@ -4,7 +4,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NeoSharp.Core.Blockchain.Processors;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
@@ -12,11 +13,16 @@ using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
 
-namespace NeoSharp.Core.Test.Blockchain.Processors
+namespace NeoSharp.Core.Test.Blockchain.Processing
 {
     [TestClass]
     public class UtBlockProcessor : TestBase
     {
+        public UtBlockProcessor()
+        {
+            BinarySerializer.RegisterTypes(typeof(Block).Assembly);
+        }
+
         [TestMethod]
         public void Ctor_CreateValidBlockProcessorObject()
         {
@@ -37,8 +43,8 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public async Task AddBlock_BlockHashIsNull_ThrowArgumentNullException()
+        [ExpectedException(typeof(ArgumentException))]
+        public async Task AddBlock_BlockHashIsNull_ThrowArgumentException()
         {
             var block = new Block();
 
@@ -72,7 +78,16 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         {
             var block = new Block
             {
-                Hash = new UInt256("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7".HexToBytes())
+                PreviousBlockHash = UInt256.Zero,
+                Hash = UInt256.Parse("d4dab99ed65c3655a9619b215ab1988561b706b6e5196b6e0ada916aa6601622"),
+                NextConsensus = UInt160.Zero,
+                Transactions = new Transaction[]
+                {
+                    new ContractTransaction
+                    {
+                        Hash = UInt256.Parse("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7")
+                    }
+                }
             };
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
@@ -91,7 +106,16 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         {
             var block = new Block
             {
-                Hash = new UInt256("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7".HexToBytes())
+                PreviousBlockHash = UInt256.Zero,
+                Hash = UInt256.Parse("d4dab99ed65c3655a9619b215ab1988561b706b6e5196b6e0ada916aa6601622"),
+                NextConsensus = UInt160.Zero,
+                Transactions = new Transaction[]
+                {
+                    new ContractTransaction
+                    {
+                        Hash = UInt256.Parse("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7")
+                    }
+                }
             };
 
             var expectedBlockHeader = new BlockHeader(BlockHeader.HeaderType.Extended);
@@ -116,10 +140,19 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         {
             var block = new Block
             {
-                Hash = new UInt256("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7".HexToBytes())
+                PreviousBlockHash = UInt256.Zero,
+                Hash = UInt256.Parse("d4dab99ed65c3655a9619b215ab1988561b706b6e5196b6e0ada916aa6601622"),
+                NextConsensus = UInt160.Zero,
+                Transactions = new Transaction[]
+                {
+                    new ContractTransaction
+                    {
+                        Hash = UInt256.Parse("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7")
+                    }
+                }
             };
 
-            var expectedBlockHeader = new BlockHeader(BlockHeader.HeaderType.Header);
+            var expectedBlockHeader = new BlockHeader(BlockHeader.HeaderType.Header) { Hash = block.Hash };
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
             blockPoolMock
@@ -144,7 +177,16 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
         {
             var block = new Block
             {
-                Hash = new UInt256("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7".HexToBytes())
+                PreviousBlockHash = UInt256.Zero,
+                Hash = UInt256.Parse("d4dab99ed65c3655a9619b215ab1988561b706b6e5196b6e0ada916aa6601622"),
+                NextConsensus = UInt160.Zero,
+                Transactions = new Transaction[]
+                {
+                    new ContractTransaction
+                    {
+                        Hash = UInt256.Parse("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7")
+                    }
+                }
             };
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
@@ -186,12 +228,10 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
             blockPoolMock
-                .SetupGet(x => x.CurrentBlock)
-                .Returns(currentBlock);
-            blockPoolMock
                 .Setup(x => x.TryGet(1, out newBlock))
                 .Returns(true);
 
+            var blockHeaderPersisterMock = this.AutoMockContainer.GetMock<IBlockHeaderPersister>();
             var transactionProcessorMock = this.AutoMockContainer.GetMock<ITransactionPersister<Transaction>>();
             var repositoryMock = this.AutoMockContainer.GetMock<IRepository>();
 
@@ -213,13 +253,12 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
 
             transactionProcessorMock.Verify(x => x.Persist(transactionInNewBlock));
 
-            repositoryMock.Verify(x => x.AddBlockHeader(It.Is<BlockHeader>(blockHeader => 
+            blockHeaderPersisterMock.Verify(x => x.Persist(It.Is<BlockHeader>(blockHeader => 
                 blockHeader.ConsensusData == newBlock.ConsensusData &&
                 blockHeader.Hash == newBlock.Hash &&
                 blockHeader.Index == newBlock.Index &&
                 blockHeader.Timestamp == newBlock.Timestamp &&
                 blockHeader.Version == newBlock.Version)));
-            repositoryMock.Verify(x => x.SetTotalBlockHeight(newBlock.Index));
         }
 
         [TestMethod]
@@ -235,9 +274,6 @@ namespace NeoSharp.Core.Test.Blockchain.Processors
             Block nullBlock = null;
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
-            blockPoolMock
-                .SetupGet(x => x.CurrentBlock)
-                .Returns(currentBlock);
             blockPoolMock
                 .Setup(x => x.TryGet(1, out nullBlock))
                 .Returns(false);

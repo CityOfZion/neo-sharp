@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
 using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Blockchain.Processors;
+using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 

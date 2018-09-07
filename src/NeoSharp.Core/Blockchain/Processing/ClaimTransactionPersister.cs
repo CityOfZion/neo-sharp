@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 
-namespace NeoSharp.Core.Blockchain.Processors
+namespace NeoSharp.Core.Blockchain.Processing
 {
     /// <summary>
     /// Special processing for ClaimTransactions.

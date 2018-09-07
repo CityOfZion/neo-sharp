@@ -2,24 +2,22 @@
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
 
-namespace NeoSharp.Core.Blockchain.Processors
+namespace NeoSharp.Core.Blockchain.Processing
 {
     public interface IBlockPool
     {
-        Block CurrentBlock { get; set; }
-
         int Size { get; }
 
         int Capacity { get; }
 
         event EventHandler<Block> OnAdded;
 
-        bool TryGet(uint index, out Block block);
+        bool TryGet(uint height, out Block block);
 
         void Add(Block block);
 
-        bool Contains(UInt256 blockHash);
+        bool Contains(UInt256 hash);
 
-        void Remove(uint index);
+        void Remove(uint height);
     }
 }

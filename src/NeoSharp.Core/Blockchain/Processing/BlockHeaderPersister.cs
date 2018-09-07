@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 
-namespace NeoSharp.Core.Blockchain.Processors
+namespace NeoSharp.Core.Blockchain.Processing
 {
     /// <inheritdoc />
     public class BlockHeaderPersister : IBlockHeaderPersister
@@ -16,14 +14,14 @@ namespace NeoSharp.Core.Blockchain.Processors
 
         public BlockHeader LastBlockHeader { get; set; }
 
-        public event EventHandler<IReadOnlyCollection<BlockHeader>> OnBlockHeadersPersisted;
+        public event EventHandler<BlockHeader[]> OnBlockHeadersPersisted;
 
         public BlockHeaderPersister(IRepository repository)
         {
             _repository = repository;
         }
 
-        public async Task Persist(IReadOnlyCollection<BlockHeader> blockHeaders)
+        public async Task Persist(params BlockHeader[] blockHeaders)
         {
             if (blockHeaders == null) throw new ArgumentNullException(nameof(blockHeaders));
 
@@ -51,9 +49,9 @@ namespace NeoSharp.Core.Blockchain.Processors
 
             var persistedBlockHeaders = blockHeadersToPersist
                 .TakeWhile(bh => bh.Index <= LastBlockHeader?.Index)
-                .ToList();
+                .ToArray();
 
-            if (persistedBlockHeaders.Count != 0)
+            if (persistedBlockHeaders.Length != 0)
             {
                 OnBlockHeadersPersisted?.Invoke(this, persistedBlockHeaders);
             }
@@ -78,7 +76,7 @@ namespace NeoSharp.Core.Blockchain.Processors
                 }
             }
 
-            return true;
+            return blockHeader.Type == BlockHeader.HeaderType.Extended;
         }
     }
 }

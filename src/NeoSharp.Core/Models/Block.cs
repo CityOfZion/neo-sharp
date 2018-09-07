@@ -34,22 +34,22 @@ namespace NeoSharp.Core.Models
         {
             // Compute tx hashes
 
-            var txSize = Transactions.Length;
+            var txSize = Transactions?.Length ?? 0;
             TransactionHashes = new UInt256[txSize];
 
             for (var x = 0; x < txSize; x++)
             {
-                Transactions[x].UpdateHash();
-                TransactionHashes[x] = Transactions[x].Hash;
+                Transactions?[x].UpdateHash();
+                TransactionHashes[x] = Transactions?[x].Hash;
             }
 
             MerkleRoot = MerkleTree.ComputeRoot(TransactionHashes.ToArray());
 
             // Compute hash
 
-            var serializedBlock = BinarySerializer.Default.Serialize(this, new BinarySerializerSettings()
+            var serializedBlock = BinarySerializer.Default.Serialize(this, new BinarySerializerSettings
             {
-                Filter = (a) => a != nameof(Witness) && a != nameof(Transactions) && a != nameof(TransactionHashes) && a != nameof(Type)
+                Filter = a => a != nameof(Witness) && a != nameof(Transactions) && a != nameof(TransactionHashes) && a != nameof(Type)
             });
 
             Hash = new UInt256(Crypto.Default.Hash256(serializedBlock));

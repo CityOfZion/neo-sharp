@@ -3,7 +3,7 @@ using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 
-namespace NeoSharp.Core.Blockchain.Processors
+namespace NeoSharp.Core.Blockchain.Processing
 {
     public class RegisterTransactionPersister : ITransactionPersister<RegisterTransaction>
     {

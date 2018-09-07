@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NeoSharp.Core.Models;
 
-namespace NeoSharp.Core.Blockchain.Processors
+namespace NeoSharp.Core.Blockchain.Processing
 {
     public class TransactionComparer : IComparer<Transaction>
     {

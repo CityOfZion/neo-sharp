@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Blockchain.Processors;
+using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -21,7 +20,6 @@ namespace NeoSharp.Core.Blockchain
         private readonly IBlockProcessor _blockProcessor;
         private int _initialized;
         private readonly List<ECPoint> _validators = new List<ECPoint>();
-        private readonly EventHandler<Block> _onBlockProcessed;
 
         #endregion
 
@@ -30,8 +28,6 @@ namespace NeoSharp.Core.Blockchain
         public Block CurrentBlock { get; private set; }
 
         public BlockHeader LastBlockHeader { get; private set; }
-
-        public static event EventHandler<Block> PersistCompleted;
 
         #endregion
 
@@ -51,9 +47,7 @@ namespace NeoSharp.Core.Blockchain
             _blockProcessor = blockProcessor ?? throw new ArgumentNullException(nameof(blockProcessor));
 
             _blockHeaderPersister.OnBlockHeadersPersisted += (_, blockHeaders) => LastBlockHeader = blockHeaders.Last();
-
-            _onBlockProcessed = async (_, block) => await BlockProcessed(block);
-            _blockProcessor.OnBlockProcessed += _onBlockProcessed;
+            _blockProcessor.OnBlockProcessed += (_, block) => CurrentBlock = block;
         }
 
         public async Task InitializeBlockchain()
@@ -76,19 +70,6 @@ namespace NeoSharp.Core.Blockchain
             {
                 await _blockProcessor.AddBlock(Genesis.GenesisBlock);
             }
-        }
-
-        private async Task BlockProcessed(Block block)
-        {
-            CurrentBlock = block;
-
-            if (LastBlockHeader == null || LastBlockHeader.Index < block.Index)
-            {
-                LastBlockHeader = block;
-                await _repository.SetTotalBlockHeaderHeight(block.Index);
-            }
-
-            PersistCompleted?.Invoke(this, block);
         }
 
         #region Blocks
@@ -372,26 +353,11 @@ namespace NeoSharp.Core.Blockchain
             return false;
         }
 
-        /// <summary>
-        /// Called after the block was written to the repository
-        /// </summary>
-        /// <param name="block">区块</param>
-        protected void OnPersistCompleted(Block block)
-        {
-            lock (_validators)
-            {
-                _validators.Clear();
-            }
-
-            PersistCompleted?.Invoke(this, block);
-        }
-
         /// <inheritdoc />
         public void Dispose()
         {
             if (_initialized == 1)
             {
-                _blockProcessor.OnBlockProcessed -= _onBlockProcessed;
             }
         }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Blockchain.Processors;
+using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
@@ -29,18 +29,18 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         public async Task Handle(BlockHeadersMessage message, IPeer sender)
         {
-            EventHandler<IReadOnlyCollection<BlockHeader>> onBlockHeadersPersisted =
+            EventHandler<BlockHeader[]> blockHeadersPersisted =
                 async (_, blockHeaders) => await BlockHeadersPersisted(sender, blockHeaders);
 
             try
             {
-                _blockHeaderPersister.OnBlockHeadersPersisted += onBlockHeadersPersisted;
+                _blockHeaderPersister.OnBlockHeadersPersisted += blockHeadersPersisted;
 
                 await _blockHeaderPersister.Persist(message.Payload.Headers ?? new BlockHeader[0]);
             }
             finally
             {
-                _blockHeaderPersister.OnBlockHeadersPersisted -= onBlockHeadersPersisted;
+                _blockHeaderPersister.OnBlockHeadersPersisted -= blockHeadersPersisted;
             }
 
             if (_blockchain.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
