@@ -45,13 +45,19 @@ Last command will give you the neo-sharp console. All done ;)
 
 # Running with neo-private-net
 If you want to run neo-sharp node with neo-private-net you should run the following command:<br>
-NOTE: Only works if you have built the image manually in steps above<br>
 `docker-compose run neo-sharp-node1 bash`<br>
 
 After this command, if all wents well, you should see the terminal prompt of the neo-sharp Node container.<br>
 To start the Node just do:<br>
 `dotnet NeoSharp.Application.dll`<br>
-Reminder: Don't forget to start the node network with `network start`.
+
+Reminder: Don't forget to start the node network with `network start` .<br>
+
+Services/tools running with the above command:<br>
+- <a href="https://github.com/CityOfZion/neo-scan">neo-scan</a> block explorer (access with http://localhost:4000)<br>
+- <a href="https://github.com/CityOfZion/neo-local-faucet">neo-local-faucet</a> to request NEO/GAS for an existing address (running on http://localhost:4002)<br>
+- <a href="https://hub.docker.com/r/cityofzion/neo-privatenet">neo-privatenet</a> consensus nodes<br>
+- <a href="https://github.com/CityOfZion/neo-sharp">neo-sharp<a/> Node
 
 # Contributing
 

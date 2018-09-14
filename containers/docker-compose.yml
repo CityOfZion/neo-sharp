@@ -1,5 +1,31 @@
 version: "3"
 services:
+
+## neo privatenet nodes
+  neo-privnet:
+    image: cityofzion/neo-privatenet
+    container_name: "neo-privnet"
+    ports:
+      - 20333:20333
+      - 20334:20334
+      - 20335:20335
+      - 20336:20336
+      - 30333:30333
+      - 30334:30334
+      - 30335:30335
+      - 30336:30336
+
+## database needed for neo-scan
+  postgresql:
+    image: postgres:10.1
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+## neo-scan explorer
+
   neo-scan:
     image: slipoh/neo-scan
     container_name: "neo-scan"
@@ -18,29 +44,28 @@ services:
     depends_on:
       - postgresql
       - neo-privnet
-  postgresql:
-    image: postgres:10.1
-    ports:
-      - 5432:5432
+
+## faucet to request NEO/GAS for an existing address
+  neo-faucet:
+    container_name: neo-faucet
+    depends_on:
+      - neo-scan
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-  neo-privnet:
-    image: cityofzion/neo-privatenet
-    container_name: "neo-privnet"
+      NEOSCAN: "neo-scan:4000"
+    image: cityofzion/neo-local-faucet
+    links:
+      - "neo-scan:4000"
     ports:
-      - 20333:20333
-      - 20334:20334
-      - 20335:20335
-      - 20336:20336
-      - 30333:30333
-      - 30334:30334
-      - 30335:30335
-      - 30336:30336
+      - "4002:4002"
+
+## neo-sharp Node
   neo-sharp-node1:
+    build: .
+
     image: neo-sharp-node:0.1_runtime
     container_name: "neo-sharp"
     ports:
       - 8000:8000
     depends_on:
       - neo-scan
+      - neo-faucet
