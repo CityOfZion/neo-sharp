@@ -1,6 +1,5 @@
 ﻿using System;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 
@@ -12,17 +11,6 @@ namespace NeoSharp.Core.Models
     [Serializable]
     public class BlockHeader
     {
-        public enum HeaderType : byte
-        {
-            /// <summary>
-            /// Block unavailable, no hashes, no TX data
-            /// </summary>
-            Header = 0,
-            /// <summary>
-            /// Block available, with TX hashes
-            /// </summary>
-            Extended = 1,
-        }
 
         #region Serializable data
 
@@ -95,28 +83,6 @@ namespace NeoSharp.Core.Models
         public BlockHeader(HeaderType type)
         {
             Type = type;
-        }
-
-        /// <summary>
-        /// Update hash
-        /// </summary>
-        public virtual void UpdateHash()
-        {
-            if (MerkleRoot == null)
-            {
-                // Compute hash
-
-                MerkleRoot = MerkleTree.ComputeRoot(TransactionHashes);
-            }
-
-            var serializedBlockHeader = BinarySerializer.Default.Serialize(this, new BinarySerializerSettings()
-            {
-                Filter = (a) => a != nameof(Witness) && a != nameof(Type) && a != nameof(TransactionHashes)
-            });
-
-            Hash = new UInt256(Crypto.Default.Hash256(serializedBlockHeader));
-
-            Witness?.UpdateHash();
         }
 
         /// <summary>

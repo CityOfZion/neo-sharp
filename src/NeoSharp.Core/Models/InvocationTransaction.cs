@@ -18,9 +18,7 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public Fixed8 Gas;
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
+        /// <inheritdoc />
         public InvocationTransaction() : base(TransactionType.InvocationTransaction) { }
 
         /// <summary>
@@ -30,10 +28,11 @@ namespace NeoSharp.Core.Models
         /// <returns>Gas</returns>
         public static Fixed8 GetGas(Fixed8 consumed)
         {
-            Fixed8 gas = consumed - Fixed8.FromDecimal(10);
-            if (gas <= Fixed8.Zero) return Fixed8.Zero;
+            var gas = consumed - Fixed8.FromDecimal(10);
 
-            return gas.Ceiling();
+            return gas <= Fixed8.Zero ? 
+                Fixed8.Zero : 
+                gas.Ceiling();
         }
 
         #region Exclusive serialization
@@ -72,11 +71,11 @@ namespace NeoSharp.Core.Models
 
         #endregion
 
-        public override bool Verify()
-        {
-            if (Gas.Value % 100000000 != 0) return false;
+        //public override bool Verify()
+        //{
+        //    if (Gas.Value % 100000000 != 0) return false;
 
-            return base.Verify();
-        }
+        //    return base.Verify();
+        //}
     }
 }

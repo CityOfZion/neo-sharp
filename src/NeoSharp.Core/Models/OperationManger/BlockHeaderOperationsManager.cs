@@ -1,0 +1,55 @@
+﻿using System;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Types;
+
+namespace NeoSharp.Core.Models.OperationManger
+{
+    public class BlockHeaderOperationsManager : IBlockHeaderOperationsManager
+    {
+        #region Private Fields
+        private readonly Crypto _crypto;
+        private readonly IBinarySerializer _binarySerializer;
+        private readonly IWitnessOperationsManager _witnessOperationsManager;
+        #endregion
+
+        #region Constructor 
+        public BlockHeaderOperationsManager(
+            Crypto crypto,
+            IBinarySerializer binarySerializer,
+            IWitnessOperationsManager witnessOperationsManager)
+        {
+            this._crypto = crypto;
+            this._binarySerializer = binarySerializer;
+            this._witnessOperationsManager = witnessOperationsManager;
+        }
+        #endregion
+
+        #region IBlockHeaderOperationsManager implementation 
+        public void Sign(BlockHeader blockHeader)
+        {
+            if (blockHeader.MerkleRoot == null)
+            {
+                // Compute hash
+                blockHeader.MerkleRoot = MerkleTree.ComputeRoot(blockHeader.TransactionHashes);
+            }
+
+            var serializedBlockHeader = this._binarySerializer.Serialize(blockHeader, new BinarySerializerSettings()
+            {
+                Filter = a => a != nameof(Witness) && 
+                              a != nameof(Type) && 
+                              a != nameof(blockHeader.TransactionHashes)
+            });
+
+            blockHeader.Hash = new UInt256(this._crypto.Hash256(serializedBlockHeader));
+
+            this._witnessOperationsManager.Sign(blockHeader.Witness);
+        }
+
+        public bool Verify(BlockHeader blockHeader)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+    }
+}

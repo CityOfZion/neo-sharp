@@ -10,24 +10,17 @@ namespace NeoSharp.Core.Models
     [Serializable]
     public class Witness : IEquatable<Witness>
     {
-        private UInt160 _hash = null;
-
-        [JsonProperty("txid")]
-        public UInt160 Hash => _hash;
+        [JsonProperty("txid")] public UInt160 Hash { get; set; }
 
         [BinaryProperty(0, MaxLength = 65536)]
         [JsonProperty("invocation")]
-        public byte[] InvocationScript;
+        public byte[] InvocationScript { get; set; }
 
         [BinaryProperty(1, MaxLength = 65536)]
         [JsonProperty("verification")]
-        public byte[] VerificationScript;
+        public byte[] VerificationScript { get; set; }
 
-        /// <summary>
-        /// Check if is equal to other
-        /// </summary>
-        /// <param name="other">Other</param>
-        /// <returns>Return true if equal</returns>
+        /// <inheritdoc />
         public bool Equals(Witness other)
         {
             if (ReferenceEquals(this, other)) return true;
@@ -39,7 +32,7 @@ namespace NeoSharp.Core.Models
         /// <summary>
         /// Check if is equal to other
         /// </summary>
-        /// <param name="other">Other</param>
+        /// <param name="obj">Other</param>
         /// <returns>Return true if equal</returns>
         public override bool Equals(object obj)
         {
@@ -85,10 +78,10 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public void UpdateHash()
         {
-            _hash = new UInt160(Crypto.Default.Hash160(GetHashData()));
+            this.Hash = new UInt160(Crypto.Default.Hash160(GetHashData()));
         }
 
-        byte[] GetHashData()
+        private byte[] GetHashData()
         {
             return VerificationScript;
         }

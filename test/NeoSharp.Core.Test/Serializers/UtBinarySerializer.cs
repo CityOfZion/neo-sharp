@@ -9,6 +9,7 @@ using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Test.Types;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
@@ -416,7 +417,10 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void BlockSerialize()
         {
-            var blockHeader = new Block()
+            var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
+            var blockHeaderOperationsManager = new BlockHeaderOperationsManager(Crypto.Default, BinarySerializer.Default, witnessOperationsManager);
+
+            var blockHeader = new Block
             {
                 ConsensusData = 100_000_000,
                 Hash = UInt256.Zero,
@@ -443,11 +447,10 @@ namespace NeoSharp.Core.Test.Serializers
                 }
             };
 
-            blockHeader.UpdateHash();
+            blockHeaderOperationsManager.Sign(blockHeader);
 
             var blockHeaderCopy = _deserializer.Deserialize<Block>(_serializer.Serialize(blockHeader));
-
-            blockHeaderCopy.UpdateHash();
+            blockHeaderOperationsManager.Sign(blockHeaderCopy);
 
             Assert.AreEqual(blockHeader.ConsensusData, blockHeaderCopy.ConsensusData);
             Assert.AreEqual(blockHeader.Hash, blockHeaderCopy.Hash);

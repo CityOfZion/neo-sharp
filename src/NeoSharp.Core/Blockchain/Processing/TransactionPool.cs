@@ -4,12 +4,15 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Blockchain.Processing
 {
     public class TransactionPool : ITransactionPool
     {
+        private readonly ITransactionOperationsManager _transactionOperationsManager;
+
         private class TimeStampedTransaction
         {
             public Transaction Transaction { get; }
@@ -52,8 +55,9 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly ConcurrentDictionary<UInt256, TimeStampedTransaction> _transactionPool = new ConcurrentDictionary<UInt256, TimeStampedTransaction>();
         private readonly IComparer<TimeStampedTransaction> _comparer;
 
-        public TransactionPool(IComparer<Transaction> comparer = null)
+        public TransactionPool(ITransactionOperationsManager transactionOperationsManager, IComparer<Transaction> comparer = null)
         {
+            _transactionOperationsManager = transactionOperationsManager;
             _comparer = new TimeStampedTransactionComparer(comparer);
         }
 
@@ -65,9 +69,9 @@ namespace NeoSharp.Core.Blockchain.Processing
         {
             if (transaction == null) throw new ArgumentNullException(nameof(transaction));
 
-            transaction.UpdateHash();
+            this._transactionOperationsManager.Sign(transaction);
 
-            if (!transaction.Verify())
+            if (!this._transactionOperationsManager.Verify(transaction))
             {
                 throw new InvalidOperationException($"The transaction with hash \"{transaction.Hash}\" was not passed verification.");
             }

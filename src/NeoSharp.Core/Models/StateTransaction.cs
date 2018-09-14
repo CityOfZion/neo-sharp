@@ -13,9 +13,7 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public StateDescriptor[] Descriptors;
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
+        /// <inheritdoc />
         public StateTransaction() : base(TransactionType.StateTransaction) { }
 
         #region Exclusive data
@@ -32,18 +30,18 @@ namespace NeoSharp.Core.Models
 
         #endregion
 
-        public override bool Verify()
-        {
-            if (Descriptors == null || Descriptors.Length > 16)
-            {
-                throw new FormatException(nameof(Descriptors));
-            }
+        //public override bool Verify()
+        //{
+        //    if (Descriptors == null || Descriptors.Length > 16)
+        //    {
+        //        throw new FormatException(nameof(Descriptors));
+        //    }
 
-            foreach (StateDescriptor descriptor in Descriptors)
-                if (!descriptor.Verify())
-                    return false;
+        //    foreach (StateDescriptor descriptor in Descriptors)
+        //        if (!descriptor.Verify())
+        //            return false;
 
-            return base.Verify();
-        }
+        //    return base.Verify();
+        //}
     }
 }

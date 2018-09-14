@@ -14,9 +14,7 @@ namespace NeoSharp.Core.Models
         [BinaryProperty(100)]
         public CoinReference[] Claims;
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
+        /// <inheritdoc />
         public ClaimTransaction() : base(TransactionType.ClaimTransaction) { }
 
         #region Exclusive serialization
@@ -33,15 +31,12 @@ namespace NeoSharp.Core.Models
 
         #endregion
 
-        /// <summary>
-        /// Verify
-        /// </summary>
-        public override bool Verify()
-        {
-            if (Version != 0) throw new ArgumentException(nameof(Version));
-            if (Claims == null || Claims.Length == 0) throw new ArgumentException(nameof(Claims));
+        //public override bool Verify()
+        //{
+        //    if (Version != 0) throw new ArgumentException(nameof(Version));
+        //    if (Claims == null || Claims.Length == 0) throw new ArgumentException(nameof(Claims));
 
-            return base.Verify();
-        }
+        //    return base.Verify();
+        //}
     }
 }

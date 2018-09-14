@@ -3,6 +3,7 @@ using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Blockchain.State;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 
 namespace NeoSharp.Core.DI.Modules
 {
@@ -14,7 +15,6 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<ICoinIndex, CoinIndex>();
 
             #region Processing
-
             containerBuilder.RegisterSingleton<IBlockHeaderPersister, BlockHeaderPersister>();
             containerBuilder.RegisterSingleton<IBlockProcessor, BlockProcessor>();
             containerBuilder.RegisterSingleton<IBlockPool, BlockPool>();
@@ -30,6 +30,10 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<ITransactionPersister<StateTransaction>, StateTransactionPersister>();
             containerBuilder.RegisterSingleton<ITransactionPersister<EnrollmentTransaction>, EnrollmentTransactionPersister>();
 
+            containerBuilder.RegisterSingleton<IWitnessOperationsManager, WitnessOperationsManager>();
+            containerBuilder.RegisterSingleton<ITransactionOperationsManager, TransactionOperationsManager>();
+            containerBuilder.RegisterSingleton<IBlockHeaderOperationsManager, BlockHeaderOperationsManager>();
+            containerBuilder.RegisterSingleton<IBlockOperationsManager, BlockOperationsManager>();
             #endregion
 
             containerBuilder.RegisterSingleton<IAccountManager, AccountManager>();

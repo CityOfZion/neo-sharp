@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
-using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
-using NeoSharp.Core.Wallet.Helpers;
 using NeoSharp.VM;
 
 namespace NeoSharp.Core.Blockchain
@@ -18,15 +15,17 @@ namespace NeoSharp.Core.Blockchain
 #pragma warning disable CS0612 // Type or member is obsolete
     public class GenesisAssets
     {
-        const uint DecrementInterval = 2000000;
-        static readonly uint[] GasGenerationPerBlock = { 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
-        private static NetworkConfig _networkConfig;
+        private const uint DecrementInterval = 2000000;
+        private static readonly uint[] GasGenerationPerBlock = { 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
+        private static readonly NetworkConfig NetworkConfig;
 
         public static RegisterTransaction GoverningTokenRegisterTransaction { private set; get; }
         public static RegisterTransaction UtilityTokenRegisterTransaction { private set; get; }
 
         static GenesisAssets() 
         {
+            var witnessOperationManager = new WitnessOperationsManager(Crypto.Default);
+
             // NEO Token is represented as a RegisterTransaction of type GoverningToken
             GoverningTokenRegisterTransaction = new RegisterTransaction
             {
@@ -43,7 +42,8 @@ namespace NeoSharp.Core.Blockchain
                 Witness = new Witness[0]
             };
 
-            GoverningTokenRegisterTransaction.UpdateHash();
+            new TransactionOperationsManager(Crypto.Default, witnessOperationManager)
+                .Sign(GoverningTokenRegisterTransaction);
 
             // GAS Token is represented as a RegisterTransaction of type UtilityToken
             UtilityTokenRegisterTransaction = new RegisterTransaction
@@ -61,7 +61,8 @@ namespace NeoSharp.Core.Blockchain
                 Witness = new Witness[0]
             };
 
-            UtilityTokenRegisterTransaction.UpdateHash();
+            new TransactionOperationsManager(Crypto.Default, witnessOperationManager)
+                .Sign(UtilityTokenRegisterTransaction);
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -69,7 +70,7 @@ namespace NeoSharp.Core.Blockchain
 
             var configuration = builder.Build();
 
-            _networkConfig = new NetworkConfig(configuration);
+            NetworkConfig = new NetworkConfig(configuration);
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace NeoSharp.Core.Blockchain
         }
 
         private static ECPoint[] GenesisStandByValidators(){
-            return _networkConfig.StandByValidator.Select(u => new ECPoint(u.HexToBytes())).ToArray();
+            return NetworkConfig.StandByValidator.Select(u => new ECPoint(u.HexToBytes())).ToArray();
         }
 
         /// <summary>

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 
@@ -18,6 +19,7 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly IBlockHeaderPersister _blockHeaderPersister;
         private readonly ITransactionPersister<Transaction> _transactionPersister;
+        private readonly IBlockOperationsManager _blockOperationsManager;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private Block _currentBlock;
 
@@ -29,7 +31,8 @@ namespace NeoSharp.Core.Blockchain.Processing
             IRepository repository,
             IAsyncDelayer asyncDelayer,
             IBlockHeaderPersister blockHeaderPersister,
-            ITransactionPersister<Transaction> transactionPersister)
+            ITransactionPersister<Transaction> transactionPersister, 
+            IBlockOperationsManager blockOperationsManager)
         {
             _blockPool = blockPool ?? throw new ArgumentNullException(nameof(blockPool));
             _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
@@ -37,6 +40,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
             _blockHeaderPersister = blockHeaderPersister ?? throw new ArgumentNullException(nameof(blockHeaderPersister));
             _transactionPersister = transactionPersister ?? throw new ArgumentNullException(nameof(transactionPersister));
+            _blockOperationsManager = blockOperationsManager;
         }
 
         // TODO: We will read the current block from Blockchain
@@ -74,11 +78,11 @@ namespace NeoSharp.Core.Blockchain.Processing
         {
             if (block == null) throw new ArgumentNullException(nameof(block));
 
-            block.UpdateHash();
+            _blockOperationsManager.Sign(block);
 
             var blockHash = block.Hash;
 
-            if (blockHash == UInt256.Zero) throw new ArgumentException(nameof(blockHash));
+            if (blockHash == null || blockHash == UInt256.Zero) throw new ArgumentException(nameof(blockHash));
 
             var blockExists = _blockPool.Contains(blockHash);
             if (blockExists)
@@ -87,7 +91,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             }
 
             var blockHeader = await _repository.GetBlockHeader(blockHash);
-            if (blockHeader?.Type == BlockHeader.HeaderType.Extended)
+            if (blockHeader?.Type == HeaderType.Extended)
             {
                 throw new InvalidOperationException($"The block \"{blockHash.ToString(true)}\" exists already on the blockchain.");
             }

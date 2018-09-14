@@ -1,4 +1,5 @@
 ﻿using System;
+using NeoSharp.VM.Interop.Extensions;
 using NeoSharp.VM.Interop.Types.Collections;
 using Newtonsoft.Json;
 
@@ -100,6 +101,48 @@ namespace NeoSharp.VM.Interop.Types
 
             _AltStack = new StackItemStack(Engine, altHandle);
             _EvaluationStack = new StackItemStack(Engine, evHandle);
+
+            if (engine.Logger == null) return;
+
+            if (engine.Logger.Verbosity.HasFlag(ELogVerbosity.AltStackChanges))
+            {
+                _InternalOnAltStackChange = new NeoVM.OnStackChangeCallback(InternalOnAltStackChange);
+                NeoVM.StackItems_AddLog(altHandle, _InternalOnAltStackChange);
+            }
+
+            if (engine.Logger.Verbosity.HasFlag(ELogVerbosity.EvaluationStackChanges))
+            {
+                _InternalOnEvaluationStackChange = new NeoVM.OnStackChangeCallback(InternalOnEvaluationStackChange);
+                NeoVM.StackItems_AddLog(evHandle, _InternalOnEvaluationStackChange);
+            }
+        }
+
+        /// <summary>
+        /// Internal callback for OnAltStackChange
+        /// </summary>
+        /// <param name="item">Item</param>
+        /// <param name="index">Index</param>
+        /// <param name="operation">Operation</param>
+        void InternalOnAltStackChange(IntPtr item, int index, byte operation)
+        {
+            using (var it = Engine.ConvertFromNative(item))
+            {
+                Engine.Logger.RaiseOnAltStackChange(_AltStack, it, index, (ELogStackOperation)operation);
+            }
+        }
+
+        /// <summary>
+        /// Internal callback for OnEvaluationStackChange
+        /// </summary>
+        /// <param name="item">Item</param>
+        /// <param name="index">Index</param>
+        /// <param name="operation">Operation</param>
+        void InternalOnEvaluationStackChange(IntPtr item, int index, byte operation)
+        {
+            using (var it = Engine.ConvertFromNative(item))
+            {
+                Engine.Logger.RaiseOnEvaluationStackChange(_EvaluationStack, it, index, (ELogStackOperation)operation);
+            }
         }
 
         #region IDisposable Support

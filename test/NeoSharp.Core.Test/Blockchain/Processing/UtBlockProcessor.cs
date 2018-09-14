@@ -9,6 +9,7 @@ using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
@@ -48,10 +49,10 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
         {
             var block = new Block();
 
-            var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
-            blockPoolMock
-                .Setup(x => x.Contains(block.Hash))
-                .Returns(true);
+            this.AutoMockContainer
+                .GetMock<IBlockOperationsManager>()
+                .Setup(x => x.Sign(block))
+                .Callback<Block>(x => x.Hash = null);
 
             var testee = this.AutoMockContainer.Create<BlockProcessor>();
 
@@ -62,10 +63,12 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
         [ExpectedException(typeof(ArgumentException))]
         public async Task AddBlock_BlockHashIsZero_ThrowArgumentException()
         {
-            var block = new Block
-            {
-                Hash = UInt256.Zero
-            };
+            var block = new Block();
+
+            this.AutoMockContainer
+                .GetMock<IBlockOperationsManager>()
+                .Setup(x => x.Sign(block))
+                .Callback<Block>(x => x.Hash = UInt256.Zero);
 
             var testee = this.AutoMockContainer.Create<BlockProcessor>();
 
@@ -118,7 +121,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
                 }
             };
 
-            var expectedBlockHeader = new BlockHeader(BlockHeader.HeaderType.Extended);
+            var expectedBlockHeader = new BlockHeader(HeaderType.Extended);
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
             blockPoolMock
@@ -152,7 +155,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
                 }
             };
 
-            var expectedBlockHeader = new BlockHeader(BlockHeader.HeaderType.Header) { Hash = block.Hash };
+            var expectedBlockHeader = new BlockHeader(HeaderType.Header) { Hash = block.Hash };
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
             blockPoolMock

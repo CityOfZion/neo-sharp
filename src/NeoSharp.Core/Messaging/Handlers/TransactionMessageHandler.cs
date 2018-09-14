@@ -5,6 +5,7 @@ using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
@@ -15,6 +16,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         private readonly IBlockchain _blockchain;
         private readonly ITransactionPool _transactionPool;
+        private readonly ITransactionOperationsManager _transactionOperationsManager;
         private readonly ILogger<TransactionMessageHandler> _logger;
 
         #endregion
@@ -24,11 +26,17 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// </summary>
         /// <param name="blockchain">Blockchain</param>
         /// <param name="transactionPool">Transaction Pool</param>
+        /// <param name="transactionOperationsManager">The transaction operation manager</param>
         /// <param name="logger">Logger</param>
-        public TransactionMessageHandler(IBlockchain blockchain, ITransactionPool transactionPool, ILogger<TransactionMessageHandler> logger)
+        public TransactionMessageHandler(
+            IBlockchain blockchain, 
+            ITransactionPool transactionPool, 
+            ITransactionOperationsManager transactionOperationsManager,
+            ILogger<TransactionMessageHandler> logger)
         {
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
+            _transactionOperationsManager = transactionOperationsManager;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -40,7 +48,6 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             // TODO: check if the hash of the transaction is known already
 
-            transaction.UpdateHash();
 
             var transactionExists = await _blockchain.ContainsTransaction(transaction.Hash);
             if (transactionExists)

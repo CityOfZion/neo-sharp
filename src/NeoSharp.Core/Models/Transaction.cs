@@ -1,9 +1,7 @@
 using System;
 using System.IO;
 using NeoSharp.BinarySerialization;
-using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Converters;
-using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 
@@ -11,7 +9,7 @@ namespace NeoSharp.Core.Models
 {
     [Serializable]
     [BinaryTypeSerializer(typeof(TransactionSerializer))]
-    public class Transaction : IBinaryVerifiable
+    public class Transaction 
     {
         #region Header
 
@@ -179,32 +177,9 @@ namespace NeoSharp.Core.Models
 
         #endregion
 
-        /// <summary>
-        /// Update Hash
-        /// </summary>
-        public void UpdateHash()
-        {
-            Hash = new UInt256(Crypto.Default.Hash256(BinarySerializer.Default.Serialize(this, new BinarySerializerSettings()
-            {
-                Filter = (a) => a != nameof(Witness)
-            })));
-
-            if (Witness != null)
-            {
-                foreach (var w in Witness)
-                {
-                    w.UpdateHash();
-                }
-            }
-        }
-
-        /// <summary>
-        /// Verify
-        /// </summary>
-        /// <returns></returns>
-        public virtual bool Verify()
-        {
-            return true;
-        }
+        //public virtual bool Verify()
+        //{
+        //    return true;
+        //}
     }
 }

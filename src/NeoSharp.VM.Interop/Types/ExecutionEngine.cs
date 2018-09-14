@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using NeoSharp.VM.Interop.Extensions;
 using NeoSharp.VM.Interop.Types.Collections;
 using NeoSharp.VM.Interop.Types.StackItems;
 
@@ -108,6 +109,18 @@ namespace NeoSharp.VM.Interop.Types
                     _InternalOnStepInto = new NeoVM.OnStepIntoCallback(InternalOnStepInto);
                     NeoVM.ExecutionEngine_AddLog(Handle, _InternalOnStepInto);
                 }
+
+                if (Logger.Verbosity.HasFlag(ELogVerbosity.ExecutionContextStackChanges))
+                {
+                    _InternalOnExecutionContextChange = new NeoVM.OnStackChangeCallback(InternalOnExecutionContextChange);
+                    NeoVM.ExecutionContextStack_AddLog(invHandle, _InternalOnExecutionContextChange);
+                }
+
+                if (Logger.Verbosity.HasFlag(ELogVerbosity.ResultStackChanges))
+                {
+                    _InternalOnResultStackChange = new NeoVM.OnStackChangeCallback(InternalOnResultStackChange);
+                    NeoVM.StackItems_AddLog(resHandle, _InternalOnResultStackChange);
+                }
             }
         }
 
@@ -120,6 +133,34 @@ namespace NeoSharp.VM.Interop.Types
             using (var context = new ExecutionContext(this, it))
             {
                 Logger.RaiseOnStepInto(context);
+            }
+        }
+
+        /// <summary>
+        /// Internal callback for OnExecutionContextChange
+        /// </summary>
+        /// <param name="it">Item</param>
+        /// <param name="index">Index</param>
+        /// <param name="operation">Operation</param>
+        void InternalOnExecutionContextChange(IntPtr it, int index, byte operation)
+        {
+            using (var context = new ExecutionContext(this, it))
+            {
+                Logger.RaiseOnExecutionContextChange(_InvocationStack, context, index, (ELogStackOperation)operation);
+            }
+        }
+
+        /// <summary>
+        /// Internal callback for OnResultStackChange
+        /// </summary>
+        /// <param name="item">Item</param>
+        /// <param name="index">Index</param>
+        /// <param name="operation">Operation</param>
+        void InternalOnResultStackChange(IntPtr item, int index, byte operation)
+        {
+            using (var it = this.ConvertFromNative(item))
+            {
+                Logger.RaiseOnResultStackChange(_ResultStack, it, index, (ELogStackOperation)operation);
             }
         }
 

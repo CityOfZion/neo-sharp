@@ -37,9 +37,7 @@ namespace NeoSharp.Core.Models
             }
         }
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
+        /// <inheritdoc />
         public PublishTransaction() : base(TransactionType.PublishTransaction) { }
 
         #region Exclusive serialization
@@ -85,11 +83,11 @@ namespace NeoSharp.Core.Models
 
         #endregion
 
-        public override bool Verify()
-        {
-            if (Version > 1) throw new FormatException(nameof(Version));
+        //public override bool Verify()
+        //{
+        //    if (Version > 1) throw new FormatException(nameof(Version));
 
-            return base.Verify();
-        }
+        //    return base.Verify();
+        //}
     }
 }

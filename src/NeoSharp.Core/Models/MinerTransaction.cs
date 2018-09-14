@@ -14,14 +14,11 @@ namespace NeoSharp.Core.Models
         /// Random number
         /// </summary>
         public uint Nonce;
-        
-        /// <summary>
-        /// Constructor
-        /// </summary>
+
+        /// <inheritdoc />
         public MinerTransaction() : base(TransactionType.MinerTransaction) { }
 
         #region Exclusive serialization
-
         protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             Nonce = reader.ReadUInt32();
@@ -32,20 +29,19 @@ namespace NeoSharp.Core.Models
             writer.Write(Nonce);
             return 4;
         }
-
         #endregion
 
-        public override bool Verify()
-        {
-            if (Version != 0) throw new FormatException(nameof(Version));
+        //public override bool Verify()
+        //{
+        //    if (Version != 0) throw new FormatException(nameof(Version));
 
-            if (Inputs.Length != 0)
-                throw new FormatException(nameof(Inputs));
+        //    if (Inputs.Length != 0)
+        //        throw new FormatException(nameof(Inputs));
 
-            if (Outputs.Any(p => p.AssetId != TransactionContext.UtilityTokenHash))
-                throw new FormatException(nameof(Outputs));
+        //    if (Outputs.Any(p => p.AssetId != TransactionContext.UtilityTokenHash))
+        //        throw new FormatException(nameof(Outputs));
 
-            return base.Verify();
-        }
+        //    return base.Verify();
+        //}
     }
 }

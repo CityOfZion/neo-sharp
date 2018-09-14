@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
 
@@ -311,16 +312,22 @@ namespace NeoSharp.Core.Test.Serializers
 
         private void FillRandomTx(Transaction tx)
         {
+            var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
+            var transactionOperationsManager = new TransactionOperationsManager(Crypto.Default, witnessOperationsManager);
+
             tx.Attributes = RandomTransactionAtrributes().ToArray();
             tx.Inputs = RandomCoinReferences(_random.Next(1, 255)).ToArray();
             tx.Outputs = RandomTransactionOutputs().ToArray();
             tx.Witness = RandomWitness().ToArray();
 
-            tx.UpdateHash();
+            transactionOperationsManager.Sign(tx);
         }
 
         void EqualTx(Transaction original, params Transaction[] copies)
         {
+            var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
+            var transactionOperationsManager = new TransactionOperationsManager(Crypto.Default, witnessOperationsManager);
+
             foreach (var copy in copies)
             {
                 Assert.AreEqual(original.GetType(), copy.GetType());
@@ -335,7 +342,7 @@ namespace NeoSharp.Core.Test.Serializers
 
                 // Recompute hash
 
-                copy.UpdateHash();
+                transactionOperationsManager.Sign(copy);
 
                 Assert.AreEqual(original.Hash, copy.Hash);
             }

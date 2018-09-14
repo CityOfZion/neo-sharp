@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Persistence;
 
 namespace NeoSharp.Core.Blockchain.Processing
@@ -11,14 +12,16 @@ namespace NeoSharp.Core.Blockchain.Processing
     public class BlockHeaderPersister : IBlockHeaderPersister
     {
         private readonly IRepository _repository;
+        private readonly IBlockHeaderOperationsManager _blockHeaderOperationsManager;
 
         public BlockHeader LastBlockHeader { get; set; }
 
         public event EventHandler<BlockHeader[]> OnBlockHeadersPersisted;
 
-        public BlockHeaderPersister(IRepository repository)
+        public BlockHeaderPersister(IRepository repository, IBlockHeaderOperationsManager blockHeaderOperationsManager)
         {
             _repository = repository;
+            _blockHeaderOperationsManager = blockHeaderOperationsManager;
         }
 
         public async Task Persist(params BlockHeader[] blockHeaders)
@@ -35,7 +38,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             {
                 if (blockHeader.Hash == null)
                 {
-                    blockHeader.UpdateHash();
+                    _blockHeaderOperationsManager.Sign(blockHeader);
                 }
 
                 if (!Validate(blockHeader)) break;
@@ -76,7 +79,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                 }
             }
 
-            return blockHeader.Type == BlockHeader.HeaderType.Extended;
+            return blockHeader.Type == HeaderType.Extended;
         }
     }
 }

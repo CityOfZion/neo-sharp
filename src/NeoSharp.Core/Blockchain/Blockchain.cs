@@ -87,7 +87,7 @@ namespace NeoSharp.Core.Blockchain
         {
             var header = await _repository.GetBlockHeader(hash);
 
-            if (header == null || header.Type != BlockHeader.HeaderType.Extended) return null;
+            if (header == null || header.Type != HeaderType.Extended) return null;
 
             var transactions = new Transaction[header.TransactionCount];
 

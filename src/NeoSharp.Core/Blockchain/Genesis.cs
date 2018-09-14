@@ -1,7 +1,9 @@
 ﻿using System;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Blockchain
@@ -50,8 +52,16 @@ namespace NeoSharp.Core.Blockchain
                 }
             };
 
-            // Compute hash
-            GenesisBlock.UpdateHash();
+            var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
+            var transactionOperationsManager = new TransactionOperationsManager(Crypto.Default, witnessOperationsManager);
+
+            var blockOperationsManager = new BlockOperationsManager(
+                Crypto.Default, 
+                BinarySerializer.Default, 
+                transactionOperationsManager,
+                witnessOperationsManager);
+            blockOperationsManager.Sign(GenesisBlock);
+
         }
 
         /// <summary>
