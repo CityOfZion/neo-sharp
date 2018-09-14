@@ -47,7 +47,7 @@ namespace NeoSharp.Core.Blockchain.Processing
         // because the logic to get that too complicated 
         public void Run(Block currentBlock)
         {
-            _currentBlock = currentBlock ?? throw new ArgumentNullException(nameof(currentBlock));
+            _currentBlock = currentBlock;
 
             var cancellationToken = _cancellationTokenSource.Token;
 
@@ -55,7 +55,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var nextBlockHeight = _currentBlock.Index + 1;
+                    var nextBlockHeight = _currentBlock?.Index + 1 ?? 0;
 
                     if (!_blockPool.TryGet(nextBlockHeight, out var block))
                     {
