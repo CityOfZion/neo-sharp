@@ -3,11 +3,6 @@ sudo: required
 services:
   - docker
 
-env:
-  # official docker hub registry
-  # Commented here but needs to be placed in the Travis Repository Settings as an environment variable
-  # REPO=cityofzion/neo-sharp
-
 install:
   # build SDK image
   - docker build --target builder -t neo-sharp_sdk ./containers/
@@ -19,15 +14,3 @@ script:
 after_success:
   # if tests ok build runtime image
   - docker build -t cityofzion/neo-sharp:latest ./containers/
-
-deploy:
-  # login to docker hub
-  - provider: script
-    script: bash -c "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
-    on:
-      repo: CityOfZion/neo-sharp
-  # deploy all container images created -> SDK and runtime (latest)
-  - provider: script
-    script: bash -c "docker tag neo-sharp_sdk cityofzion/neo-sharp:sdk;docker push cityofzion/neo-sharp"
-    on:
-      repo: CityOfZion/neo-sharp

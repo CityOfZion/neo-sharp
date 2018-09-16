@@ -50,7 +50,6 @@ If you want to run neo-sharp node with neo-private-net you should run the follow
 After this command, if all wents well, you should see the terminal prompt of the neo-sharp Node container.<br>
 To start the Node just do:<br>
 `dotnet NeoSharp.Application.dll`<br>
-
 Reminder: Don't forget to start the node network with `network start` .<br>
 
 Services/tools running with the above command:<br>
