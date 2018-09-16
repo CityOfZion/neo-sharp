@@ -295,5 +295,34 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
             asyncDelayerMock.Verify(x => x.Delay(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()));
         }
+
+        [TestMethod]
+        public void Run_NullBlock_TryToGetBlockWithIndexZERO()
+        {
+            const uint expectedIndexOfBlockToRetrieveFromBlockPool = 0;
+            var waitForDelayForToGetNextBlock = new AutoResetEvent(false);
+
+            Block nullBlock = null;
+
+            var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
+            blockPoolMock
+                .Setup(x => x.TryGet(0, out nullBlock))
+                .Returns(false);
+
+            var asyncDelayerMock = this.AutoMockContainer.GetMock<IAsyncDelayer>();
+            asyncDelayerMock
+                .Setup(x => x.Delay(It.IsAny<TimeSpan>(), It.IsAny<CancellationToken>()))
+                .Callback(() => { waitForDelayForToGetNextBlock.Set(); })
+                .Returns(Task.Run(() => { }));
+
+            var testee = this.AutoMockContainer.Create<BlockProcessor>();
+
+            testee.Run(nullBlock);
+            waitForDelayForToGetNextBlock.WaitOne();
+            testee.Dispose();
+
+            blockPoolMock.Verify(x => x.TryGet(expectedIndexOfBlockToRetrieveFromBlockPool, out nullBlock));
+
+        }
     }
 }
