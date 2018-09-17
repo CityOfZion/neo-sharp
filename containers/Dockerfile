@@ -2,16 +2,16 @@
 # use official Microsoft dotnet container
 FROM microsoft/dotnet:latest as builder
 
-# argument to choose type of git source (default is development)
-ARG BRANCH=development
+# arguments to choose branch and source repo (defaults are development and CoZ/neo-sharp)
+ARG BRANCH="development"
+ARG SOURCE_REPO="https://github.com/CityOfZion/neo-sharp.git"
 
 # create folders structure and clone neo-sharp repo
 RUN mkdir /repo && \
     cd /repo && \
-    git clone --recursive -b $BRANCH https://github.com/CityOfZion/neo-sharp.git && \
+    git clone --recursive -b $BRANCH $SOURCE_REPO && \
     cd /repo/neo-sharp/src/NeoSharp.Application && \
     dotnet publish --configuration Release --output /home/neo-sharp
-
 
 ## Runtime stage
 # use official Microsoft dotnet container
