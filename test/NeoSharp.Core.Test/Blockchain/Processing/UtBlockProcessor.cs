@@ -104,41 +104,6 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
-        public async Task AddBlock_ValidBlockNotInBlockPoolInBlockchainButNotTheRightBlockHeaderType_ThrowInvalidOperationException()
-        {
-            var block = new Block
-            {
-                PreviousBlockHash = UInt256.Zero,
-                Hash = UInt256.Parse("d4dab99ed65c3655a9619b215ab1988561b706b6e5196b6e0ada916aa6601622"),
-                NextConsensus = UInt160.Zero,
-                Transactions = new Transaction[]
-                {
-                    new ContractTransaction
-                    {
-                        Hash = UInt256.Parse("1a259dba256600620c6c91094f3a300b30f0cbaecee19c6114deffd3288957d7")
-                    }
-                }
-            };
-
-            var expectedBlockHeader = new BlockHeader(HeaderType.Extended);
-
-            var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
-            blockPoolMock
-                .Setup(x => x.Contains(block.Hash))
-                .Returns(false);
-
-            var repositoryMock = this.AutoMockContainer.GetMock<IRepository>();
-            repositoryMock
-                .Setup(x => x.GetBlockHeader(block.Hash))
-                .ReturnsAsync(expectedBlockHeader);
-
-            var testee = this.AutoMockContainer.Create<BlockProcessor>();
-
-            await testee.AddBlock(block);
-        }
-
-        [TestMethod]
         public async Task AddBlock_ValidBlockNotInBlockPoolInBlockChainWithTheRightBlockHeaderType_BlockAddedToBlockPool()
         {
             var block = new Block
@@ -234,9 +199,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
                 .Setup(x => x.TryGet(1, out newBlock))
                 .Returns(true);
 
-            var blockHeaderPersisterMock = this.AutoMockContainer.GetMock<IBlockHeaderPersister>();
-            var transactionProcessorMock = this.AutoMockContainer.GetMock<ITransactionPersister<Transaction>>();
-            var repositoryMock = this.AutoMockContainer.GetMock<IRepository>();
+            var blockPersisterMock = this.AutoMockContainer.GetMock<IBlockPersister>();
 
             var testee = this.AutoMockContainer.Create<BlockProcessor>();
 
@@ -254,14 +217,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
             waitForBlockProcessedEvent.WaitOne();
 
-            transactionProcessorMock.Verify(x => x.Persist(transactionInNewBlock));
-
-            blockHeaderPersisterMock.Verify(x => x.Persist(It.Is<BlockHeader>(blockHeader => 
-                blockHeader.ConsensusData == newBlock.ConsensusData &&
-                blockHeader.Hash == newBlock.Hash &&
-                blockHeader.Index == newBlock.Index &&
-                blockHeader.Timestamp == newBlock.Timestamp &&
-                blockHeader.Version == newBlock.Version)));
+            blockPersisterMock.Verify(x => x.Persist(newBlock));
         }
 
         [TestMethod]

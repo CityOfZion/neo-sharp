@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
-using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Blockchain.Processing
@@ -14,12 +13,9 @@ namespace NeoSharp.Core.Blockchain.Processing
         private static readonly TimeSpan DefaultBlockPollingInterval = TimeSpan.FromMilliseconds(100);
 
         private readonly IBlockPool _blockPool;
-        private readonly ITransactionPool _transactionPool;
-        private readonly IRepository _repository;
         private readonly IAsyncDelayer _asyncDelayer;
-        private readonly IBlockHeaderPersister _blockHeaderPersister;
-        private readonly ITransactionPersister<Transaction> _transactionPersister;
         private readonly IBlockOperationsManager _blockOperationsManager;
+        private readonly IBlockPersister _blockPersister;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private Block _currentBlock;
 
@@ -27,20 +23,14 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         public BlockProcessor(
             IBlockPool blockPool,
-            ITransactionPool transactionPool,
-            IRepository repository,
             IAsyncDelayer asyncDelayer,
-            IBlockHeaderPersister blockHeaderPersister,
-            ITransactionPersister<Transaction> transactionPersister, 
-            IBlockOperationsManager blockOperationsManager)
+            IBlockOperationsManager blockOperationsManager,
+            IBlockPersister blockPersister)
         {
             _blockPool = blockPool ?? throw new ArgumentNullException(nameof(blockPool));
-            _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
-            _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
-            _blockHeaderPersister = blockHeaderPersister ?? throw new ArgumentNullException(nameof(blockHeaderPersister));
-            _transactionPersister = transactionPersister ?? throw new ArgumentNullException(nameof(transactionPersister));
             _blockOperationsManager = blockOperationsManager;
+            _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(_blockPersister));
         }
 
         // TODO: We will read the current block from Blockchain
@@ -63,7 +53,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                         continue;
                     }
 
-                    await Persist(block);
+                    await this._blockPersister.Persist(block);
 
                     _blockPool.Remove(nextBlockHeight);
                     _currentBlock = block;
@@ -78,7 +68,10 @@ namespace NeoSharp.Core.Blockchain.Processing
         {
             if (block == null) throw new ArgumentNullException(nameof(block));
 
-            _blockOperationsManager.Sign(block);
+            if (block.Hash == null)
+            {
+                _blockOperationsManager.Sign(block);
+            }
 
             var blockHash = block.Hash;
 
@@ -90,39 +83,16 @@ namespace NeoSharp.Core.Blockchain.Processing
                 throw new InvalidOperationException($"The block \"{blockHash.ToString(true)}\" was already queued to be added.");
             }
 
-            var blockHeader = await _repository.GetBlockHeader(blockHash);
-            if (blockHeader?.Type == HeaderType.Extended)
+            if (!await this._blockPersister.IsBlockPersisted(block))
             {
-                throw new InvalidOperationException($"The block \"{blockHash.ToString(true)}\" exists already on the blockchain.");
+                _blockPool.Add(block);
             }
-
-            if (blockHeader != null && blockHeader.Hash != block.Hash)
-            {
-                throw new InvalidOperationException($"The block \"{blockHash.ToString(true)}\" has an invalid hash.");
-            }
-
-            _blockPool.Add(block);
         }
 
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
-        }
-
-        protected virtual async Task Persist(Block block)
-        {
-            var blockHeader = await _repository.GetBlockHeader(block.Hash);
-            if (blockHeader == null)
-            {
-                await _blockHeaderPersister.Persist(block.GetBlockHeader());
-            }
-
-            foreach (var transaction in block.Transactions)
-            {
-                await _transactionPersister.Persist(transaction);
-                _transactionPool.Remove(transaction.Hash);
-            }
         }
     }
 }

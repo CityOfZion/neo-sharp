@@ -16,31 +16,30 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         private const int MaxBlocksCountToSync = 500;
 
-        private readonly IBlockHeaderPersister _blockHeaderPersister;
+        private readonly IBlockPersister _blockPersister;
         private readonly IBlockchain _blockchain;
         private readonly ILogger<BlockHeadersMessageHandler> _logger;
 
-        public BlockHeadersMessageHandler(IBlockHeaderPersister blockHeaderPersister, IBlockchain blockchain, ILogger<BlockHeadersMessageHandler> logger)
+        public BlockHeadersMessageHandler(IBlockPersister blockPersister, IBlockchain blockchain, ILogger<BlockHeadersMessageHandler> logger)
         {
-            _blockHeaderPersister = blockHeaderPersister ?? throw new ArgumentNullException(nameof(blockHeaderPersister));
+            _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(blockPersister));
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task Handle(BlockHeadersMessage message, IPeer sender)
         {
-            EventHandler<BlockHeader[]> blockHeadersPersisted =
-                async (_, blockHeaders) => await BlockHeadersPersisted(sender, blockHeaders);
+            async void HeadersPersisted(object _, BlockHeader[] blockHeaders) => await BlockHeadersPersisted(sender, blockHeaders);
 
             try
             {
-                _blockHeaderPersister.OnBlockHeadersPersisted += blockHeadersPersisted;
+                _blockPersister.OnBlockHeadersPersisted += HeadersPersisted;
 
-                await _blockHeaderPersister.Persist(message.Payload.Headers ?? new BlockHeader[0]);
+                await _blockPersister.Persist(message.Payload.Headers ?? new BlockHeader[0]);
             }
             finally
             {
-                _blockHeaderPersister.OnBlockHeadersPersisted -= blockHeadersPersisted;
+                _blockPersister.OnBlockHeadersPersisted -= HeadersPersisted;
             }
 
             if (_blockchain.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
@@ -76,7 +75,6 @@ namespace NeoSharp.Core.Messaging.Handlers
                 await source.Send(new GetDataMessage(InventoryType.Block, blockHashesInBatch));
             }
         }
-
         #endregion
     }
 }

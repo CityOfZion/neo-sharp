@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Extensions;
@@ -28,11 +29,20 @@ namespace NeoSharp.Core.Blockchain.Processing
         {
             if (blockHeaders == null) throw new ArgumentNullException(nameof(blockHeaders));
 
-            var blockHeadersToPersist = blockHeaders
-                .Where(bh => bh != null && bh.Index > LastBlockHeader?.Index)
-                .Distinct(bh => bh.Index)
-                .OrderBy(bh => bh.Index)
-                .ToList();
+            var blockHeadersToPersist = new List<BlockHeader>();
+            if (this.LastBlockHeader == null)
+            {
+                // Persisting the Genesis block
+                blockHeadersToPersist = blockHeaders.ToList();
+            }
+            else
+            {
+                blockHeadersToPersist = blockHeaders
+                    .Where(bh => bh != null && bh.Index > LastBlockHeader?.Index)
+                    .Distinct(bh => bh.Index)
+                    .OrderBy(bh => bh.Index)
+                    .ToList();
+            }
 
             foreach (var blockHeader in blockHeadersToPersist)
             {

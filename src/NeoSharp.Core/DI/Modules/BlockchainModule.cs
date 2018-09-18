@@ -15,6 +15,7 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<ICoinIndex, CoinIndex>();
 
             #region Processing
+            containerBuilder.RegisterSingleton<IBlockPersister, BlockPersister>();
             containerBuilder.RegisterSingleton<IBlockHeaderPersister, BlockHeaderPersister>();
             containerBuilder.RegisterSingleton<IBlockProcessor, BlockProcessor>();
             containerBuilder.RegisterSingleton<IBlockPool, BlockPool>();
