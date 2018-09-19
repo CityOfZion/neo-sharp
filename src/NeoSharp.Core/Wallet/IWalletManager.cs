@@ -28,10 +28,18 @@ namespace NeoSharp.Core.Wallet
         bool Contains(UInt160 scriptHash);
 
         /// <summary>
-        /// Creates the account with random private key.
+        /// Creates the account with random private key. 
+        /// It does not add it to the user Wallet.
         /// </summary>
         /// <returns>The account.</returns>
         IWalletAccount CreateAccount(SecureString password);
+
+        /// <summary>
+        /// Creates the account with random private key 
+        /// and adds it to the current Wallet.
+        /// </summary>
+        /// <returns>The account.</returns>
+        IWalletAccount CreateAndAddAccount(SecureString password);
 
         /// <summary>
         /// Remove the account.

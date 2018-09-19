@@ -36,7 +36,7 @@ namespace NeoSharp.Application.Controllers
         {
             _walletManager.CreateWallet(fileName);
             var secureString = _consoleReader.ReadPassword();
-            var walletAccount = _walletManager.CreateAccount(secureString);
+            var walletAccount = _walletManager.CreateAndAddAccount(secureString);
             
             _consoleWriter.WriteLine("");
             _consoleWriter.WriteLine("Address: " + walletAccount.Address, ConsoleOutputStyle.Information);
@@ -87,7 +87,7 @@ namespace NeoSharp.Application.Controllers
         public void AccountCreateCommand()
         {
             var secureString = _consoleReader.ReadPassword();
-            var walletAccount = _walletManager.CreateAccount(secureString);
+            var walletAccount = _walletManager.CreateAndAddAccount(secureString);
             
             _consoleWriter.WriteLine("");
             _consoleWriter.WriteLine("Address: " + walletAccount.Address, ConsoleOutputStyle.Information);

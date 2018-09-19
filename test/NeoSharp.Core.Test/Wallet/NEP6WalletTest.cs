@@ -248,13 +248,13 @@ namespace NeoSharp.Core.Wallet.Test
             var mockWalletManager = GetAWalletManagerWithAnWallet();
 
             // Act
-            IWalletAccount walletAccount = mockWalletManager.CreateAccount(_defaultPassword);
+            IWalletAccount walletAccount = mockWalletManager.CreateAndAddAccount(_defaultPassword);
 
-            Assert.IsTrue(mockWalletManager.Wallet.Accounts.ToList().Count == 1);
+            Assert.IsTrue(mockWalletManager.Wallet.Accounts.Length == 1);
 
             mockWalletManager.DeleteAccount(walletAccount.Contract.ScriptHash);
 
-            Assert.IsTrue(mockWalletManager.Wallet.Accounts.ToList().Count == 0);
+            Assert.IsTrue(mockWalletManager.Wallet.Accounts.Length == 0);
         }
 
         [TestMethod]
@@ -263,9 +263,9 @@ namespace NeoSharp.Core.Wallet.Test
             var mockWalletManager = GetAWalletManagerWithAnWallet();
 
             // Act
-            IWalletAccount walletAccount1 = mockWalletManager.CreateAccount(_defaultPassword);
+            IWalletAccount walletAccount1 = mockWalletManager.CreateAndAddAccount(_defaultPassword);
 
-            IWalletAccount walletAccount2 = mockWalletManager.CreateAccount(_defaultPassword);
+            IWalletAccount walletAccount2 = mockWalletManager.CreateAndAddAccount(_defaultPassword);
 
             Assert.IsTrue(mockWalletManager.Wallet.Accounts.ToList().Count == 2);
 
@@ -279,7 +279,7 @@ namespace NeoSharp.Core.Wallet.Test
         public void TestDeleteAccountWalletIsNotOpened()
         {
             var mockWalletManager = GetAWalletManagerWithoutAnWallet();
-            IWalletAccount walletAccount = mockWalletManager.CreateAccount(_defaultPassword);
+            IWalletAccount walletAccount = mockWalletManager.CreateAndAddAccount(_defaultPassword);
 
             Assert.IsTrue(mockWalletManager.Wallet.Accounts.ToList().Count == 1);
 
@@ -307,7 +307,7 @@ namespace NeoSharp.Core.Wallet.Test
             var mockWalletManager = GetAWalletManagerWithAnWallet();
 
             // Act
-            NEP6Account walletAccount1 = (NEP6Account)mockWalletManager.CreateAccount(_defaultPassword);
+            NEP6Account walletAccount1 = (NEP6Account)mockWalletManager.CreateAndAddAccount(_defaultPassword);
 
             NEP6Account walletAccount2 = (NEP6Account)mockWalletManager.ImportScriptHash(walletAccount1.ScriptHash);
 
@@ -318,7 +318,7 @@ namespace NeoSharp.Core.Wallet.Test
             //TODO #412: Check & improve address verification testing
             //Assert.IsFalse(String.IsNullOrEmpty(walletAccount2.Address));
 
-            Assert.IsTrue(mockWalletManager.Wallet.Accounts.Count == 1);
+            Assert.IsTrue(mockWalletManager.Wallet.Accounts.Length == 1);
         }
 
         [TestMethod]
@@ -347,7 +347,7 @@ namespace NeoSharp.Core.Wallet.Test
         {
             var mockWalletManager = GetAWalletManagerWithoutAnWallet();
             // Act
-            NEP6Account walletAccount1 = (NEP6Account)mockWalletManager.CreateAccount(_defaultPassword);
+            NEP6Account walletAccount1 = (NEP6Account)mockWalletManager.CreateAndAddAccount(_defaultPassword);
 
             mockWalletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
             NEP6Account walletAccount2 = (NEP6Account)mockWalletManager.ImportScriptHash(walletAccount1.ScriptHash);

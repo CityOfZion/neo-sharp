@@ -72,6 +72,14 @@ namespace NeoSharp.Core.Wallet.NEP6
         }
 
         /// <inheritdoc />
+        public IWalletAccount CreateAndAddAccount(SecureString password)
+        {
+            var walletAccount = CreateAccount(password);
+            AddAccount(walletAccount);
+            return walletAccount;
+        }
+
+        /// <inheritdoc />
         public IWalletAccount CreateAccount(SecureString password)
         {
             CheckWalletIsOpen();
@@ -93,8 +101,8 @@ namespace NeoSharp.Core.Wallet.NEP6
                 throw new ArgumentNullException();
             }
             CheckWalletIsOpen();
-            
-            Wallet.Accounts = Wallet.Accounts.Where(x => !x.Contract.ScriptHash.Equals(scriptHash)).ToHashSet();
+
+            Wallet.Accounts = Wallet.Accounts.Where(x => !x.Contract.ScriptHash.Equals(scriptHash)).ToArray();
             SaveWallet();
         }
 
@@ -302,13 +310,17 @@ namespace NeoSharp.Core.Wallet.NEP6
                     Lock = account.Lock
                 };
 
-                Wallet.Accounts.Remove(account);
+                List<IWalletAccount> accounts = new List<IWalletAccount>(Wallet.Accounts);
+                accounts.Remove(account);
+                Wallet.Accounts = accounts.ToArray();
 
                 AddAccount(clonedAccount);
             }
 
             SaveWallet();
         }
+
+
 
         /// <summary>
         /// Retrieves the account from the Account list using the script hash/
@@ -357,9 +369,14 @@ namespace NeoSharp.Core.Wallet.NEP6
 
             account.ValidateAccount();
 
-            //Accounts is a set, it cannot contain duplicates.
-            Wallet.Accounts.Add(account);
-            SaveWallet();
+            var accountList = Wallet.Accounts.ToList();
+
+            if(!accountList.Contains(account))
+            {
+                accountList.Add(account);
+                Wallet.Accounts = accountList.ToArray();
+                SaveWallet();
+            }
         }
 
         /// <summary>
@@ -463,7 +480,7 @@ namespace NeoSharp.Core.Wallet.NEP6
                     throw new AccountsPasswordMismatchException();
                 }
             }
-            else if (Wallet.Accounts != null && Wallet.Accounts.Count > 0)
+            else if (Wallet.Accounts != null && Wallet.Accounts.Length > 0)
             {
                 try
                 {
