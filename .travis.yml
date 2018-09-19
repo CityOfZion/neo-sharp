@@ -8,10 +8,10 @@ sudo: required
 
 env:
   global:
-    DOCKER_USER:
-      secure: Jdo2yXp5kHgnWbEHgt8rkqMUX1BsO0ffijlKj1Sn4NK9guJavddI+1O7AJIzovl/f1oTPKQxEu9IcP8UGpuyscOjJt8dnGF5sTLhvJ+3Xb9lugBQsOB0er6oFOb5dbXlB/9awXKpkLdHbdcOvmjZ4m5U5rOtXAbrPimFw1zKJFCLx81rPKXmK8AaZj7EF3ntv3IzqevxrppUeIz6cQJwxNQrlBJVlwGrRKLX5qMwrft7Piu9BN/7D+hqt9B0+pH9eEk+ecUkZ1T3Ff2jAygl0eBloGtDGf+YJ3OGIYLf9Xmci05p0bqimW9gUiZ7w/7Wjj/SNOQ5TFMfBIZScj3tgo03vYt622kIQgdYY7OEDHrxjUg/axkPaWpTfXxvGA94ey9F/sT74kFHGOMJh4wFy3atHFzI3U79HtHnY19jxk/WoX0xF52UZHZ90tQt2RQvmFddYnf53f4mV27MnJhogU9s2TKyjobCZcPvw8ZGIvRgM0vCAOfHIQf8PmhKO5dufr7H0BAIgsRvhlapRRB+mh3+cI4Yd6EjGmWXkOpL0sXaLkHg7ONm0l+0e6A1fkcy1HFApZm1iEbEln+arGABgSw0i2kugFKOhg3dUYm/H7gywYb/ofj4C+K2KFmfUlY0Y8N6HJjwbqN6h3DWR+DHK5Nc5sAk/zMJutuMh2UajWc=
-    DOCKER_PASS:
-      secure: dq54Ms4hN0nWlmes9qb2MtXRtBYfPsEFBScxpSSxxmqGqabIHLUl5qmOTG59tfcgYntF9ZgoLqi9ap0blFaJPvJd+GaDlyOkcjtwEMHdZHbbNNkxpsollt8QOUvckW+rBXNNwuXziEjkls43bc9F0NWVqzyrB1fShbycjRD5J893lRE4PMpHO+eF1OmrtMLf0ZavEQePvpvoTCgEG2Wj5E9mKK0HJXpVn2qaO1LOHuuo0nYIIKrF2jlf8GKsxQyFUGC5moCsYBvnVtIWRVqdGkaiFVLhsx/e8kGG0YZc2k1IQluCVrkJ/UdutpV6WAzvaXN/bJwga5FwF8GoLPicMAiC0ullPw4D9tbZ/1ksCNHOjNALeQVxfC2AaOctlRmJWLmsW/KUvIQlxjfF462ZMk4+BNzH+YgkSDHL1VZmJqrjQj3E0Fte7pveRyjI+q6MXyWhoEhs/ucyZyimOeCXxOeR2DRg5EFfBQntc6h0VvrDc4uBrGwGrIfNHfs/96FYyNGUFpTx7BHeE4PGFBl1yBUzGciLgoZESXutK7FuWQurle/9sotYZUrsrm9cyAU+AhihdFtq3QniBrX7GLoVqDIb+oSbeE56WcMX1A3/bbC/vkKBVBCRokoQB50LtbvyH2S5MfKEID6oTCpCGdQEuFE0fE28tpAq5XlxKj22Xn8=
+    - DOCKER_USER:
+      secure: "HYye9FxO66bBgpwphNYRY38y9ZS5tu3VCOyTTL9+bI18Zm5X52lSDAxRKbpg2MlF2twVxt/N1U/ckCM9/CVKr8SVdQ1kHiNLr/H0Mj53OFPyLmxDUxffsYNWqKtVAU1oCj1hl/f+Q8MWZ1P+z0x/k/sG+K6G6UTHK1xei7g9rkMVzO2SZpDw1RQoCnfpEI4H3azvhr8lu5RxAGbib2rX59zSix4YltmAYSYYI4eHFNoNec4QaErRkGe8bRbNGr3LF8iHWrijR5XE9jMm5ykkJN0p6Ca8f49X/YRnlA78QnHVgryN71I4drxSsfNlf6YhQqbLlGag0YWfnQW8C7/IRYNiIL/GqrCwJQCS5j5L2f6FAJeFJ6ISEx70HDrXAecckqorbLYyNcglN1yYxF8k0ZuQwM0zZKHIDpZIG18T2GXFJ23+P/A9PAeXEV9J94OO7eLaHeotX5KK2HbsVENFewp+8hwsLskAlQWu5DggMZErnHrMyUZnU7SV4YDzhJ14HtClbSl11mVi5OuaSwGHsFV9yeXy+D1leii5Tnxs8SinMT5Jkt7XrbOJgAZwTEOmgHhM9FGRJItYqq37FYtygAteCtqB9uEjt7qsgRlkiKwxxt4pL0qI9fo46AmT/UI6Yvai9xnXUUCocfrGx0Lk2Qh5hPjW/2ZwSeyrcxaBpm0="
+    - DOCKER_PASS:
+      secure: "DarDapxHcxWOP52OmXUtcj7vMM/YmYXOCa9dfjYy8hvuTWmcIvHByd1TjGF4MyM6WH6EZJCcgLHI4mmtjXPUMWqW6Q8aahDGWclEjbnGJMQ8bLO7nBwITbV+wIieezDYNGA+VWfGsWNgXObFose/Y0PWq9BPoBAlSQv+sld/4aFPDarGKfOaLHn3AHhvj2ajgNNZJeV47TIlIJIfDJveNxj5RlaMPFiuSoUscepA9rmAn95YxogfHZauzk69suWHI8/pnuVF7GO9Ah2sxSV+5Q/VFAB+jJklvPHhxdso+hdhqOJ8MXDbTADg9oFgg+QyzRCMktFfP2kaOXEwzBh6CcqPtZdQ7aoZ0awUetyfSAHb6dJNw3JbXVtL9qDhZEHz7f2XpQ3yM0dDVeARpRHF+gdmuLRBNv9+IXm2rZ09gBWoSlfoe/8TxdAXw0D+dmQUBDmqYUoV4ZfvK1TYOHPq0U1jxj5kb6uKqGRlMDlypn/AT5rkTR/l6uJEsyHyjuYN4DnOWSmPz+1NiK3A0V5Q7zG4h8nJdxQR7YzXRAtkrjv8N6ePHckjiBKaUMRHeXnye3QuApsJR5e/N69n+3FQGlOPQhpNFfrjOCt/h1NYcoxF09//n3r6Lx3Ix7R4ncI40IzDV6mI8xHWtzKk/woINNEUpadME9+kdDZ0KTiOXgo="
 
 services:
   - docker
@@ -25,6 +25,8 @@ script:
   - dotnet restore
   - find test -name *.csproj | xargs -I % dotnet add % package coverlet.msbuild
   - dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
+  - docker run -p 8000:8000 -d --rm --name neo-sharp-node neo-sharp_runtime
+  - bash -c "sleep 10;if [ $(docker inspect -f '{{.State.Running}}' neo-sharp-node) = 'true' ]; then exit 0; else echo 'neo-sharp Node is not starting inside the clean runtime container!!' && exit 1; fi"
 
 after_success:
   # After all tests OK, Send CodeDov report
