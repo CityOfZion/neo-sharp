@@ -4,6 +4,7 @@ using NeoSharp.Application.Client;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 using NeoSharp.Core.Wallet;
+using NeoSharp.Core.Wallet.Helpers;
 
 namespace NeoSharp.Application.Controllers
 {
@@ -113,9 +114,11 @@ namespace NeoSharp.Application.Controllers
         }
 
         [PromptCommand("account delete", Category = "Account", Help = "Deletes an account")]
-        public void AccountDeleteCommand(UInt160 scriptHash)
+        public void AccountDeleteCommand(string address)
         {
-            _walletManager.DeleteAccount(scriptHash);
+            //Should we ask for a confirmation? Should we ask for the password?
+            _walletManager.DeleteAccount(address.ToScriptHash());
+            _consoleWriter.WriteLine("Account deleted.");
         }
 
         /*
