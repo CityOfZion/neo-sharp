@@ -56,6 +56,11 @@ namespace NeoSharp.DI.SimpleInjector
             _container.Register(service, implementation);
         }
 
+        public void Register(Type service, IEnumerable<Type> implementations)
+        {
+            _container.Register(service, implementations);
+        }
+
         public void RegisterCollection(Type service, IEnumerable<Type> implementations)
         {
             _container.Collection.Register(service, implementations);
