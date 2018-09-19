@@ -1,5 +1,7 @@
-﻿using NeoSharp.Application.Attributes;
+﻿using System.Linq;
+using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 using NeoSharp.Core.Wallet;
 
@@ -36,11 +38,19 @@ namespace NeoSharp.Application.Controllers
         {
             _walletManager.CreateWallet(fileName);
             var secureString = _consoleReader.ReadPassword();
-            var walletAccount = _walletManager.CreateAndAddAccount(secureString);
-            
-            _consoleWriter.WriteLine("");
-            _consoleWriter.WriteLine("Address: " + walletAccount.Address, ConsoleOutputStyle.Information);
-            _consoleWriter.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
+            _consoleWriter.WriteLine("\n", ConsoleOutputStyle.Information); //How these line breaks can be improved?
+            var confirmationString = _consoleReader.ReadPassword(); 
+            if (secureString.ToByteArray().SequenceEqual(confirmationString.ToByteArray()))
+            {
+                var walletAccount = _walletManager.CreateAndAddAccount(secureString);
+                _consoleWriter.WriteLine("\nAddress: " + walletAccount.Address, ConsoleOutputStyle.Information);
+                _consoleWriter.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
+            }
+            else
+            {
+                _consoleWriter.WriteLine("\nPasswords don't match.", ConsoleOutputStyle.Information);
+            }
+           
         }
 
         [PromptCommand("wallet open", Category = "Wallet", Help = "Open wallet")]
@@ -87,11 +97,19 @@ namespace NeoSharp.Application.Controllers
         public void AccountCreateCommand()
         {
             var secureString = _consoleReader.ReadPassword();
-            var walletAccount = _walletManager.CreateAndAddAccount(secureString);
-            
-            _consoleWriter.WriteLine("");
-            _consoleWriter.WriteLine("Address: " + walletAccount.Address, ConsoleOutputStyle.Information);
-            _consoleWriter.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
+            _consoleWriter.ApplyStyle(ConsoleOutputStyle.Prompt);
+            _consoleWriter.WriteLine("\nConfirm your password:", ConsoleOutputStyle.Information);
+            var confirmationString = _consoleReader.ReadPassword();
+            if(secureString.ToByteArray().SequenceEqual(confirmationString.ToByteArray()))
+            {
+                var walletAccount = _walletManager.CreateAndAddAccount(secureString);
+                _consoleWriter.WriteLine("\nAddress: " + walletAccount.Address, ConsoleOutputStyle.Information);
+                _consoleWriter.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
+            }
+            else
+            {
+                _consoleWriter.WriteLine("Passwords don't match.");
+            }
         }
 
         [PromptCommand("account delete", Category = "Account", Help = "Deletes an account")]
