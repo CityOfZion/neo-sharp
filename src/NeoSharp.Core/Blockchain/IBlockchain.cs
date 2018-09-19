@@ -150,7 +150,7 @@ namespace NeoSharp.Core.Blockchain
         /// <returns></returns>
         Task<Transaction> GetTransaction(UInt256 hash);
 
-        // TODO [AboimPinto] Async methods cannot have out parameters. Method not used for now.
+        // TODO #385 [AboimPinto] Async methods cannot have out parameters. Method not used for now.
         ///// <summary>
         ///// Return the corresponding transaction information and the height of the block where the transaction is located according to the specified hash value
         ///// </summary>

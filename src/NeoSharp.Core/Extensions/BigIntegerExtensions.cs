@@ -46,7 +46,7 @@ namespace NeoSharp.Core.Extensions
 
         public static BigInteger NextBigInteger(this Random rand, int sizeInBits)
         {
-            // TODO: check accuracy and ut
+            // TODO #381: check accuracy and ut
 
             if (sizeInBits < 0) throw new ArgumentOutOfRangeException(nameof(sizeInBits));
             if (sizeInBits == 0)
@@ -62,7 +62,7 @@ namespace NeoSharp.Core.Extensions
 
         public static BigInteger NextBigInteger(this RandomNumberGenerator rng, int sizeInBits)
         {
-            // TODO: check accuracy and ut
+            // TODO #381: check accuracy and ut
 
             if (sizeInBits < 0) throw new ArgumentOutOfRangeException(nameof(sizeInBits));
             if (sizeInBits == 0)

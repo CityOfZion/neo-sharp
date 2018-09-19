@@ -33,7 +33,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(_blockPersister));
         }
 
-        // TODO: We will read the current block from Blockchain
+        // TODO #384: We will read the current block from Blockchain
         // because the logic to get that too complicated 
         public void Run(Block currentBlock)
         {

@@ -51,7 +51,7 @@ namespace NeoSharp.Core.Network.Protocols
             using (var memory = new MemoryStream())
             using (var writer = new BinaryWriter(memory, Encoding.UTF8))
             {
-                // TODO: Remove this magic in V2, only for handshake
+                // TODO #366: Remove this magic in V2, only for handshake
                 writer.Write(_magic);
                 writer.Write((byte)message.Command);
 
@@ -96,7 +96,7 @@ namespace NeoSharp.Core.Network.Protocols
         {
             var buffer = await FillBufferAsync(stream, 6, cancellationToken);
 
-            // TODO: Remove this magic in V2, only for handshake
+            // TODO #366: Remove this magic in V2, only for handshake
             if (buffer.ToInt32(0) != _magic)
             {
                 throw new FormatException();
@@ -139,14 +139,14 @@ namespace NeoSharp.Core.Network.Protocols
                         using (var ms = new MemoryStream(payloadBuffer))
                         using (var gzip = new GZipStream(ms, CompressionMode.Decompress))
                         {
-                            // TODO: Prevent create dummy object
+                            // TODO #365: Prevent create dummy object
 
                             messageWithPayload.Payload = _serializer.Deserialize(gzip, messageWithPayload.Payload.GetType());
                         }
                     }
                     else
                     {
-                        // TODO: Prevent create dummy object
+                        // TODO #365: Prevent create dummy object
 
                         messageWithPayload.Payload = _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
                     }

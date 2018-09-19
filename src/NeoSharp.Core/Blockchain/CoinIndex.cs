@@ -62,8 +62,8 @@ namespace NeoSharp.Core.Blockchain
                 throw new ArgumentException(
                     $"Unable to index block: Requires next block to be {currentHeight + 1} but received block {block.Index}");
 
-            // TODO: Index Spendable
-            // TODO: Index Claimable
+            // TODO #387: Index Spendable
+            // TODO #388: Index Claimable
             await _repository.SetIndexHeight(currentHeight + 1);
         }
     }

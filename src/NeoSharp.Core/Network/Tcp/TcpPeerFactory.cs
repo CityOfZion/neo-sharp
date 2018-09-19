@@ -106,7 +106,7 @@ namespace NeoSharp.Core.Network.Tcp
         /// <returns>TcpPeer</returns>
         public TcpPeer CreateFrom(Socket socket)
         {
-            // TODO: thread etc
+            // TODO #363: thread etc
             return new TcpPeer(socket, _protocolSelector, _peerLogger);
         }
     }

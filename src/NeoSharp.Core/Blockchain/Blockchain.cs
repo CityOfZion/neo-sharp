@@ -183,11 +183,11 @@ namespace NeoSharp.Core.Blockchain
             return await _repository.GetTransaction(hash);
         }
 
-        // TODO [AboimPinto] Async methods cannot have out parameters. Method not used for now.
+        // TODO #390 [AboimPinto] Async methods cannot have out parameters. Method not used for now.
         ///// <inheritdoc />
         //public async Task<Transaction> GetTransaction(UInt256 hash, out int height)
         //{
-        //    // TODO: How to get the height?
+        //    // TODO #390: How to get the height?
 
         //    height = 0;
         //    return await _repository.GetTransaction(hash);
@@ -211,7 +211,7 @@ namespace NeoSharp.Core.Blockchain
         /// <inheritdoc />
         public async Task<bool> ContainsTransaction(UInt256 hash)
         {
-            // TODO: Optimize this
+            // TODO #389: Optimize this
             return await _repository.GetTransaction(hash) != null;
         }
 

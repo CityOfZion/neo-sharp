@@ -46,7 +46,7 @@ namespace NeoSharp.Wallet.TransactionManager
             ClaimTransaction transaction = new ClaimTransaction();
             transaction.Inputs = inputs;
             transaction.Attributes = attributes ?? new TransactionAttribute[0];
-            //TODO: Complete transaction
+            //TODO #395: Complete transaction
 
             return transaction;
         }
@@ -63,7 +63,7 @@ namespace NeoSharp.Wallet.TransactionManager
             TransactionAttribute[] attributes,
             TransactionOutput[] outputs){
 
-            //TODO: Complete transaction
+            //TODO #396: Complete transaction
             return new ContractTransaction();
         }
 
@@ -74,7 +74,7 @@ namespace NeoSharp.Wallet.TransactionManager
             CoinReference[] inputs,
             TransactionOutput[] outputs){
 
-            //TODO: Complete transaction
+            //TODO #396: Complete transaction
             return new ContractTransaction();
         }
 
@@ -85,13 +85,13 @@ namespace NeoSharp.Wallet.TransactionManager
 
         /// <inheritdoc />
         public InvocationTransaction BuildInvocationTransaction(IWalletAccount from, TransactionAttribute[] attributes, TransactionOutput[] outputs, string script, Fixed8 fee = default(Fixed8)){
-            //TODO: Complete transaction
+            //TODO #397: Complete transaction
             return new InvocationTransaction();
         }
 
         /// <inheritdoc />
         public InvocationTransaction BuildInvocationTransaction(TransactionAttribute[] attributes, CoinReference[] inputs, TransactionOutput[] outputs, string script, Fixed8 fee = default(Fixed8)){
-            //TODO: Complete transaction
+            //TODO #397: Complete transaction
             return new InvocationTransaction();
         }
 

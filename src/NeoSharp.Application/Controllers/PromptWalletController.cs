@@ -101,7 +101,7 @@ namespace NeoSharp.Application.Controllers
         }
 
         /*
-        TODO WALLET:
+        TODO #404: Implement additional wallet features
         wallet delete_addr {addr}
         wallet delete_token {token_contract_hash}
         wallet alias {addr} {title}
@@ -115,7 +115,7 @@ namespace NeoSharp.Application.Controllers
          */
 
         /*
-        TODO TRANSACTION MANAGER:
+        TODO #405: Implement additional transaction manager features
         wallet rebuild {start block}
         wallet claim
         wallet tkn_send {token symbol} {address_from} {address to} {amount} 

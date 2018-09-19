@@ -26,7 +26,7 @@ namespace NeoSharp.Core.Messaging.Messages
 
     public class GetBlocksPayload
     {
-        // TODO: Why is it an array if it is always initialized with a single value?
+        // TODO #372: Why is it an array if it is always initialized with a single value?
         [BinaryProperty(0)]
         public UInt256[] HashStart;
 

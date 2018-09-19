@@ -46,7 +46,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             if (transaction is MinerTransaction) return;
 
-            // TODO: check if the hash of the transaction is known already
+            // TODO #373: check if the hash of the transaction is known already
 
 
             var transactionExists = await _blockchain.ContainsTransaction(transaction.Hash);
@@ -59,7 +59,7 @@ namespace NeoSharp.Core.Messaging.Handlers
             // Transaction is not added right away but queued to be verified and added.
             // It is the reason why we do not broadcast immediately.
 
-            // TODO: It is a bit more complicated
+            // TODO #374: It is a bit more complicated
 
             _transactionPool.Add(transaction);
 

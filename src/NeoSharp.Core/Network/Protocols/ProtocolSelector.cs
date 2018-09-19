@@ -29,7 +29,7 @@ namespace NeoSharp.Core.Network.Protocols
             {
                 new Func<VersionPayload,ProtocolBase>
                 (
-                    // TODO: I don't know if we will use Version or Services
+                    // TODO #368: I don't know if we will use Version or Services
                     (v) => v.Version == 2 ? v2 : null
                 )
             };

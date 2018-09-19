@@ -46,7 +46,7 @@ namespace NeoSharp.Core.Messaging.Handlers
                 .Distinct()
                 .ToArray();
 
-            // TODO: support local relay cache
+            // TODO #376: support local relay cache
 
             var inventoryType = message.Payload.Type;
 
@@ -66,7 +66,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
                 case InventoryType.Consensus:
                     {
-                        // TODO: Implement after consensus
+                        // TODO #377: Implement after consensus
                         break;
                     }
 
@@ -82,7 +82,7 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             var transactions = await _blockchain.GetTransactions(transactionHashes);
 
-            // TODO: The more efficient operation would be to send many transactions per one message
+            // TODO #378: The more efficient operation would be to send many transactions per one message
             // but it breaks backward compatibility
             await Task.WhenAll(transactions.Select(t => peer.Send(new TransactionMessage(t))));
         }
@@ -97,7 +97,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             if (filter == null)
             {
-                // TODO: The more efficient operation would be to send many blocks per one message
+                // TODO #378: The more efficient operation would be to send many blocks per one message
                 // but it breaks backward compatibility
                 await Task.WhenAll(blocks.Select(b => peer.Send(new BlockMessage(b))));
             }
@@ -112,14 +112,14 @@ namespace NeoSharp.Core.Messaging.Handlers
                         )
                     );
 
-                // TODO: Why don't we have this message?
+                // TODO #379: Why don't we have this message?
                 // await peer.Send(new MerkleBlockMessage(merkleBlocks));
             }
         }
 
         private bool TestFilter(BloomFilter filter, Transaction tx)
         {
-            // TODO: encapsulate this in filter
+            // TODO #380: encapsulate this in filter
 
             return false;
         }

@@ -126,8 +126,8 @@ namespace NeoSharp.Core.Test.Blockchain
         //    repositoryMock
         //        .Verify(x => x.SetTotalBlockHeaderHeight(genesisBlock.Index));
 
-        //    // TODO: Cannot verify all the BlockPool logic of Push or PopFirstOrDefault. Suggestion to have a BlockPoolManager where this logic can be isolated and we can be sure the code is doing what is suppose to be doing.
-        //    // TODO: Cannot veryfy all the MemPool login of Push or Remove. Suggestion to have a MemPoolManager where this logic can be isolated and we can be sure the code is doing what is suppose to be doing. 
+        //    // TODO #408: Cannot verify all the BlockPool logic of Push or PopFirstOrDefault. Suggestion to have a BlockPoolManager where this logic can be isolated and we can be sure the code is doing what is suppose to be doing.
+        //    // TODO #409: Cannot veryfy all the MemPool login of Push or Remove. Suggestion to have a MemPoolManager where this logic can be isolated and we can be sure the code is doing what is suppose to be doing. 
         //}
     }
 }

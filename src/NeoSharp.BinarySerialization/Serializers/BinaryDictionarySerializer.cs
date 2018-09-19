@@ -39,7 +39,7 @@ namespace NeoSharp.BinarySerialization.Serializers
 
             if (_type.IsInterface)
             {
-                // TODO: Compose a Dictionary<T> type
+                // TODO #394: Compose a Dictionary<T> type
             }
 
             _keyType = keyType;

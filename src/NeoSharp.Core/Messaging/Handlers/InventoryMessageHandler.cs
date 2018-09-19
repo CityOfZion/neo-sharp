@@ -44,7 +44,7 @@ namespace NeoSharp.Core.Messaging.Handlers
                 .Distinct()
                 .ToArray();
 
-            // TODO: exclude known hashes
+            // TODO #375: exclude known hashes
 
             if (!hashes.Any())
             {

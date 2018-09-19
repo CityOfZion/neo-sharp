@@ -75,7 +75,7 @@ namespace NeoSharp.Core.Models
             {
                 case "Votes":
                     {
-                        // TODO: Inject this
+                        // TODO #370: Inject this
 
                         //if (Blockchain.Default == null) return false;
                         //ECPoint[] pubkeys;

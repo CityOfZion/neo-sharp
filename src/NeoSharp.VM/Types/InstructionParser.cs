@@ -18,7 +18,7 @@ namespace NeoSharp.VM.Types
         /// </summary>
         static InstructionParser()
         {
-            // TODO: ReflectionCache?
+            // TODO #392: ReflectionCache?
 
             var enumType = typeof(EVMOpCode);
             foreach (var t in Enum.GetValues(enumType))

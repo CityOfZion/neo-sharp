@@ -16,7 +16,7 @@ namespace NeoSharp.Core.Wallet.NEP6
         [JsonConverter(typeof(NEP6AccountConverter))]
         public HashSet<IWalletAccount> Accounts { get; set; }
 
-        //TODO: Replace JObject
+        //TODO #359: Replace JObject
         public Object Extra { get; set; }
 
         public NEP6Wallet()

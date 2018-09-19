@@ -7,7 +7,7 @@ namespace NeoSharp.Core.Types
 {
     public class TransactionContext
     {
-        // TODO: How to inject this
+        // TODO #362: How to inject this
 
         public static readonly Fixed8 DefaultSystemFee = Fixed8.Zero;// Settings.Default.SystemFee.TryGetValue(Type, out Fixed8 fee) ? fee : Fixed8.Zero;
         public static readonly UInt256 UtilityTokenHash = UInt256.Zero, GoverningTokenHash = UInt256.Zero;
@@ -75,7 +75,7 @@ namespace NeoSharp.Core.Types
             }
         }
 
-        // TODO [AboimPinto]: This logic need to be done in different way because we cannot await a method in the 'get' body.
+        // TODO #361 [AboimPinto]: This logic need to be done in different way because we cannot await a method in the 'get' body.
         /// <summary>
         /// Network fee
         /// </summary>

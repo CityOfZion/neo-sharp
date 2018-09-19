@@ -22,7 +22,7 @@ namespace NeoSharp.Application.Controllers
         private readonly IRpcServer _rpc;
         private readonly IConsoleWriter _consoleWriter;
 
-        // TODO: invoke and invokefunction => ContractParameter json serializable/deserializable acording to NEO
+        // TODO #402: invoke and invokefunction => ContractParameter json serializable/deserializable acording to NEO
 
         public class SendManyParams
         {

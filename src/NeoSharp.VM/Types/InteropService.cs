@@ -42,7 +42,7 @@ namespace NeoSharp.VM
         /// </summary>
         public InteropService()
         {
-            // TODO: GAS COST https://github.com/neo-project/neo/blob/b5926fe88d25c8aab2028c0ff7acad2c1d982bad/neo/SmartContract/ApplicationEngine.cs#L383
+            // TODO #391: GAS COST https://github.com/neo-project/neo/blob/b5926fe88d25c8aab2028c0ff7acad2c1d982bad/neo/SmartContract/ApplicationEngine.cs#L383
 
             Register("Neo.Runtime.GetTrigger", NeoRuntimeGetTrigger);
             Register("Neo.Runtime.Log", NeoRuntimeLog);

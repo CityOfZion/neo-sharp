@@ -34,7 +34,7 @@ namespace NeoSharp.Core.Blockchain.State
                 foreach (var pubKey in account.Votes)
                     await UpdateValidatorVote(pubKey, delta);
 
-            // TODO: Check if we need to store validatorCount because existing implementation has it
+            // TODO #382: Check if we need to store validatorCount because existing implementation has it
 //                validators_count.GetAndChange().Votes[account.Votes.Length - 1] += output.Value;
         }
 

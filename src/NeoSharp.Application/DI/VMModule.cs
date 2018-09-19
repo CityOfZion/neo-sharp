@@ -15,7 +15,7 @@ namespace NeoSharp.Application.DI
 
         public void Register(IContainerBuilder containerBuilder)
         {
-            // TODO: Inject here HyperVM Nuget package
+            // TODO #406: Inject here HyperVM Nuget package
 
             containerBuilder.RegisterSingleton<IVMFactory, NullVM>();
             //containerBuilder.RegisterSingleton<IVMFactory, NeoVM>();

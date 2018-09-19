@@ -20,7 +20,7 @@ namespace NeoSharp.Persistence.RocksDB
 
             // Initialize RocksDB (Connection String is the path to use)
             var options = new DbOptions().SetCreateIfMissing();
-            // TODO: please avoid sync IO in constructor -> Open connection with the first operation for now
+            // TODO #358: please avoid sync IO in constructor -> Open connection with the first operation for now
             _rocksDb = RocksDb.Open(options, config.FilePath);
         }
 

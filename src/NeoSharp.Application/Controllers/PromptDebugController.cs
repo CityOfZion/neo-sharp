@@ -134,7 +134,7 @@ namespace NeoSharp.Application.Controllers
 
                 Contract contract = Contract.GetContract(hash);
 
-                if (contract == null /* TODO: || (isDynamicInvoke && !contract.AllowDynamicInvokes) */) return null;
+                if (contract == null /* TODO #400: || (isDynamicInvoke && !contract.AllowDynamicInvokes) */) return null;
 
                 return contract.Script;
             }
@@ -142,7 +142,7 @@ namespace NeoSharp.Application.Controllers
 
         DebugScriptTable _scriptTable = new DebugScriptTable();
 
-        // TODO: attach
+        // TODO #401: Implement test invoke with asset attachment
         // testinvoke {contract hash} {params} (--attach-neo={amount}, --attach-gas={amount}) (--from-addr={addr})
 
         /// <summary>

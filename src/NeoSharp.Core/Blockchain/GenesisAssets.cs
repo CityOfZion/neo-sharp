@@ -118,7 +118,7 @@ namespace NeoSharp.Core.Blockchain
         }
 
         /// <summary>
-        /// TODO: Check with team how to document this
+        /// TODO #386: Check with team how to document this
         /// </summary>
         /// <returns>The witness.</returns>
         public static Witness GenesisWitness()

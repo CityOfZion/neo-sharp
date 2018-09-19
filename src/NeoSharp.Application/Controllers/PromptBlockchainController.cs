@@ -69,7 +69,7 @@ namespace NeoSharp.Application.Controllers
             var blockStr = FormatState(_blockPool.Size);
             var headStr = FormatState(_blockchain.LastBlockHeader?.Index);
             var blStr = FormatState(_blockchain.CurrentBlock?.Index);
-            var blIndex = FormatState(0); // TODO: Change me
+            var blIndex = FormatState(0); // TODO #398: Change me
 
             var numSpaces = new int[] { memStr.Length, blockStr.Length, blIndex.Length, headStr.Length, blStr.Length }.Max() + 1;
 

@@ -234,7 +234,7 @@ namespace NeoSharp.Core.Wallet.Test
             IWalletAccount walletAccount2 = mockWalletManager.GetAccount(publicKey);
 
             Assert.IsNotNull(walletAccount);
-            //TODO: Improve
+            //TODO #412: Improve address verification testing
             //Assert.IsFalse(String.IsNullOrWhiteSpace(walletAccount.Address));
         }
 
@@ -315,7 +315,7 @@ namespace NeoSharp.Core.Wallet.Test
             Assert.IsNotNull(walletAccount2);
             Assert.AreEqual(walletAccount1.ScriptHash, walletAccount2.ScriptHash);
 
-            //TODO: Check & improve
+            //TODO #412: Check & improve address verification testing
             //Assert.IsFalse(String.IsNullOrEmpty(walletAccount2.Address));
 
             Assert.IsTrue(mockWalletManager.Wallet.Accounts.Count == 1);

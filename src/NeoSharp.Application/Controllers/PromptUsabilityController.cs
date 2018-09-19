@@ -101,7 +101,7 @@ namespace NeoSharp.Application.Controllers
         }
 
         /*
-        TODO
+        TODO #403: Implement additional features
         notifications {block_number or address}
         mem
         config debug {on/off}

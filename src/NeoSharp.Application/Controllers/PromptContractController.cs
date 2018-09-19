@@ -29,7 +29,7 @@ namespace NeoSharp.Application.Controllers
         }
 
         /*
-        TODO:
+        TODO #399: Implement contract import / invoke feature
         load_run {path/to/file.avm} (test {params} {returntype} {needs_storage} {needs_dynamic_invoke} {test_params})
         import contract {path/to/file.avm} {params} {returntype} {needs_storage} {needs_dynamic_invoke}
         import contract_addr {contract_hash} {pubkey}

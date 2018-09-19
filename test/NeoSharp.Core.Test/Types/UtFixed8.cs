@@ -145,7 +145,7 @@ namespace NeoSharp.Core.Test.Types
             tryParseResult.Should().BeFalse();
             Asserting
                 .That(fixed8Result)
-                .IsZero();                  // TODO [AboimPinto]: Don't know if ZERO is the correct value when the TryParse fail.
+                .IsZero();                  // TODO #411 [AboimPinto]: Don't know if ZERO is the correct value when the TryParse fail.
         }
 
         [TestMethod]
@@ -158,7 +158,7 @@ namespace NeoSharp.Core.Test.Types
             tryParseResult.Should().BeFalse();
             Asserting
                 .That(fixed8Result)
-                .IsZero();                  // TODO [AboimPinto]: Don't know if ZERO is the correct value when the TryParse fail.
+                .IsZero();                  // TODO #411 [AboimPinto]: Don't know if ZERO is the correct value when the TryParse fail.
         }
 
         [TestMethod]
@@ -171,7 +171,7 @@ namespace NeoSharp.Core.Test.Types
             tryParseResult.Should().BeFalse();
             Asserting
                 .That(fixed8Result)
-                .IsZero();                  // TODO [AboimPinto]: Don't know if ZERO is the correct value when the TryParse fail.
+                .IsZero();                  // TODO #411 [AboimPinto]: Don't know if ZERO is the correct value when the TryParse fail.
         }
 
         [TestMethod]

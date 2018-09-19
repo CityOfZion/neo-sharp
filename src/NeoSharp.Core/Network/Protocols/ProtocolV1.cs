@@ -99,7 +99,7 @@ namespace NeoSharp.Core.Network.Protocols
                     if (payloadLength == 0)
                         throw new FormatException();
 
-                    // TODO: Prevent create the dummy object
+                    // TODO #367: Prevent create the dummy object
 
                     messageWithPayload.Payload = _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
                 }

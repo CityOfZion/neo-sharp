@@ -7,7 +7,7 @@ namespace NeoSharp.Core.Blockchain.Processing
     {
         public int Compare(Transaction x, Transaction y)
         {
-            // TODO: x.NetworkFee.CompareTo(y.NetworkFee)
+            // TODO #383: x.NetworkFee.CompareTo(y.NetworkFee)
             return 0;
         }
     }

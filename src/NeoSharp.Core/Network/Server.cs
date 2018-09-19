@@ -67,7 +67,7 @@ namespace NeoSharp.Core.Network
             _connectedPeers = new ConcurrentBag<IPeer>();
             _failedPeers = new List<IPEndPoint>();
 
-            // TODO: Change after port forwarding implementation
+            // TODO #364: Change after port forwarding implementation
             _peerEndPoints = config.PeerEndPoints;
         }
 

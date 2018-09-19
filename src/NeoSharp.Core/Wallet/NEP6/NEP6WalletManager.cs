@@ -139,7 +139,7 @@ namespace NeoSharp.Core.Wallet.NEP6
             }
             CheckWalletIsOpen();
 
-            //TODO: Load Contract from persistence?
+            //TODO #360: Load Contract from persistence?
             var emptyContractCode = new Code
             {
                 ScriptHash = scriptHash

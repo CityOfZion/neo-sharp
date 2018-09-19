@@ -15,7 +15,7 @@ namespace NeoSharp.Core.Models
         [JsonProperty("type")]
         public AssetType AssetType;
 
-#if !DEBUG //TODO: Chinese characters are having an issue in the VS Debugger?  We can't serialize Chinese Chars?
+#if !DEBUG //TODO #371: Chinese characters are having an issue in the VS Debugger?  We can't serialize Chinese Chars?
         [BinaryProperty(3)]
         [JsonProperty("name")]
 #endif

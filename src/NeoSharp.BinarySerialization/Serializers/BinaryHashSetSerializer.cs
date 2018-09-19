@@ -39,7 +39,7 @@ namespace NeoSharp.BinarySerialization.Serializers
 
             if (_type.IsInterface)
             {
-                // TODO: Compose a HashTag<T> type
+                // TODO #393: Compose a HashTag<T> type
             }
 
             MaxLength = maxLength;

@@ -52,7 +52,7 @@ namespace NeoSharp.Core.Network
                         continue;
                     }
 
-                    // TODO: Peer that sending wrong messages has to be disconnected.
+                    // TODO #369: Peer that sending wrong messages has to be disconnected.
                     if (peer.IsReady == message.IsHandshakeMessage()) continue;
 
                     await _messageHandler.Handle(message, peer);
