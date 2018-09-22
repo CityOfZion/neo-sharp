@@ -11,7 +11,7 @@ namespace NeoSharp.Core.Network.Protocols
 {
     public abstract class ProtocolBase
     {
-        private const int MaxBufferSize = 1024;
+        private const int MaxBufferSize = 4096;
 
         protected readonly ReflectionCache<MessageCommand> Cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
 
