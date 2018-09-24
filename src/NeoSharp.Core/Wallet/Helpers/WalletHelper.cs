@@ -31,7 +31,7 @@ namespace NeoSharp.Core.Wallet.Helpers
                 throw new ArgumentNullException(nameof(encryptedPrivateKey));
             }
 
-            if (passphrase == null ||  String.IsNullOrWhiteSpace(passphrase.ToString()))
+            if (passphrase == null || String.IsNullOrWhiteSpace(passphrase.ToString()))
             {
                 throw new ArgumentNullException(nameof(passphrase));
             }
@@ -160,6 +160,46 @@ namespace NeoSharp.Core.Wallet.Helpers
         public UInt160 ScriptHashFromPublicKey(ECPoint publicKey)
         {
             return ContractFactory.CreateSinglePublicKeyRedeemContract(publicKey).ScriptHash;
+        }
+
+        /// <summary>
+        /// Converts a byte array into wif string
+        /// </summary>
+        /// <returns>Wif.</returns>
+        /// <param name="privateKey">Private Key</param>
+        public string PrivateKeyToWif(byte[] privateKey)
+        {
+            byte[] data = new byte[34];
+            data[0] = 0x80;
+            Buffer.BlockCopy(privateKey, 0, data, 1, 32);
+            data[33] = 0x01;
+            string wif = Crypto.Default.Base58CheckEncode(data);
+            Array.Clear(data, 0, data.Length);
+            return wif;
+        }
+
+        /// <summary>
+        /// Gets the private key from wif.
+        /// </summary>
+        /// <returns>The private key from wif.</returns>
+        /// <param name="wif">Wif.</param>
+        public byte[] GetPrivateKeyFromWIF(string wif)
+        {
+            var internalWif = wif ?? throw new ArgumentNullException(nameof(wif));
+
+            var privateKeyByteArray = Crypto.Default.Base58CheckDecode(internalWif);
+
+            if (privateKeyByteArray.IsValidPrivateKey())
+            {
+                var privateKey = new byte[32];
+                Buffer.BlockCopy(privateKeyByteArray, 1, privateKey, 0, privateKey.Length);
+                Array.Clear(privateKeyByteArray, 0, privateKeyByteArray.Length);
+                return privateKey;
+            }
+            else
+            {
+                throw new FormatException();
+            }
         }
 
         #region Private Methods

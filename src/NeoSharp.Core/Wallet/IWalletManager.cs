@@ -120,10 +120,31 @@ namespace NeoSharp.Core.Wallet
         void CheckWalletIsOpen();
 
         /// <summary>
+        /// Check if the password provided is the same used in the first wallet account.
+        /// </summary>
+        bool CheckIfPasswordMatchesOpenWallet(SecureString password);
+
+        /// <summary>
         /// save the open wallet into a specific filename
         /// </summary>
         /// <param name="filename">the filename</param>
         void ExportWallet(string filename);
+
+        /// <summary>
+        /// Returns the private key from a NEP2 key and password
+        /// </summary>
+        /// <returns>The nep2 key.</returns>
+        /// <param name="nep2key">Nep2key.</param>
+        /// <param name="keyPassword">Key password.</param>
+        byte[] DecryptNep2(string nep2key, SecureString keyPassword);
+
+        /// <summary>
+        /// Returns the encrypted private key (nep-2)
+        /// </summary>
+        /// <returns>The nep2.</returns>
+        /// <param name="privateKey">Private key.</param>
+        /// <param name="keyPassword">Key password.</param>
+        string EncryptNep2(byte[] privateKey, SecureString keyPassword);
 
         /// <summary>
         /// Load a wallet at specified fileName.
@@ -135,5 +156,20 @@ namespace NeoSharp.Core.Wallet
         /// Close wallet.
         /// </summary>
         void Close();
+
+        /// <summary>
+        /// Converts a byte array into a wif string
+        /// </summary>
+        /// <returns>Private key in wif format.</returns>
+        /// <param name="privateKey">Private key.</param>
+        string PrivateKeyToWif(byte[] privateKey);
+
+        /// <summary>
+        /// Gets the private key from wif.
+        /// </summary>
+        /// <returns>The private key from wif.</returns>
+        /// <param name="wif">Wif.</param>
+        byte[] GetPrivateKeyFromWIF(string wif);
+
     }
 }

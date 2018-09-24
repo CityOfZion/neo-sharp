@@ -71,11 +71,11 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="promptLabel">Prompt label</param>
         /// <returns>Reteurn Secure string password</returns>
-        public SecureString ReadPassword(bool promptLabel = true)
+        public SecureString ReadPassword(string promptLabel = "Password: ")
         {
-            if (promptLabel)
+            if (promptLabel != null)
             {
-                _consoleWriter.WriteLine("Password: ");
+                _consoleWriter.WriteLine(promptLabel, ConsoleOutputStyle.Information);
             }
 
             State = ConsoleReaderState.ReadingPassword;

@@ -19,7 +19,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="promptLabel">Prompt label</param>
         /// <returns>Reteurn Secure string password</returns>
-        SecureString ReadPassword(bool promptLabel = true);
+        SecureString ReadPassword(string promptLabel = "Password: ");
         /// <summary>
         /// Read string from console
         /// </summary>
