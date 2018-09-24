@@ -14,13 +14,13 @@ using NeoSharp.TestHelpers;
 namespace NeoSharp.Core.Test.Network
 {
     [TestClass]
-    public class UtTransactionOperationsManager : TestBase
+    public class UtTransactionVerifier : TestBase
     {
         
         [TestMethod]
         public void Verify_AttributeUsageECDH02()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new EnrollmentTransaction
             {
@@ -41,7 +41,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithInputsWithSamePrevHashAndPrevIndex()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -66,59 +66,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-
-            var result = testee.Verify(transaction);
-            
-            result.Should().BeFalse();
-        }
-
-        [TestMethod]
-        public void Verify_WithInputsMatchingOnTransactionPool()
-        {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
-
-            var transaction = new Transaction
-            {
-                Attributes = new []
-                {
-                    new TransactionAttribute
-                    {
-                        Usage = TransactionAttributeUsage.ContractHash
-                    }
-                },
-                Inputs = new[]
-                {
-                    new CoinReference
-                    {
-                        PrevHash = UInt256.Zero,
-                        PrevIndex = 1
-                    },
-                    new CoinReference
-                    {
-                        PrevHash = UInt256.Zero,
-                        PrevIndex = 2
-                    }
-                }
-            };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 1
-                        }
-                    }
-                }
-            };
-            
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(transactionsInPool.GetEnumerator());
 
             var result = testee.Verify(transaction);
             
@@ -128,7 +75,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithDoubleSpending()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -153,25 +100,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
-            
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
             
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
@@ -185,7 +113,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithStrangeAssetId()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -217,25 +145,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
-            
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
             
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
@@ -250,7 +159,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithKnownAssetIdButNotGeverningAndNotUtility()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -282,25 +191,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
-            
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
             
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
@@ -318,7 +208,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithOutputValueDivisibleByAssetRule()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -352,25 +242,6 @@ namespace NeoSharp.Core.Test.Network
                 }
             };
             
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
-            
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
-            
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
             blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
@@ -387,7 +258,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithoutReferences()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -420,25 +291,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
-            
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
             
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
@@ -457,7 +309,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithMoreThanOneReferenceAmountGreaterThanZero()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -487,23 +339,6 @@ namespace NeoSharp.Core.Test.Network
                     {
                         AssetId = UInt256.Zero,
                         Value = Fixed8.One
-                    }
-                }
-            };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
                     }
                 }
             };
@@ -526,8 +361,6 @@ namespace NeoSharp.Core.Test.Network
                 }
             };
             
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
-            
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
             blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
@@ -545,7 +378,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithOnlyOneReferenceAmountGreaterThanZeroButItsNotUtilityToken()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -578,23 +411,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
 
             var transactionOfPreviousHash = new Transaction
             {
@@ -613,8 +429,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
             
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
@@ -638,7 +452,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithReferenceAmountZeroAndExistingSystemFee()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -672,23 +486,6 @@ namespace NeoSharp.Core.Test.Network
                 }
             };
             
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
-
             var transactionOfPreviousHash = new Transaction
             {
                 Outputs = new []
@@ -707,8 +504,6 @@ namespace NeoSharp.Core.Test.Network
                 }
             };
             
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
-            
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
             blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
@@ -723,7 +518,7 @@ namespace NeoSharp.Core.Test.Network
             transactionContextMock.SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
 
-            transactionContextMock.SetupGet(x => x.SystemFee)
+            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(Fixed8.One);
             
             var result = testee.Verify(transaction);
@@ -734,7 +529,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithReferenceAmountLessThanSystemFee()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new Transaction
             {
@@ -767,23 +562,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
 
             var transactionOfPreviousHash = new Transaction
             {
@@ -803,8 +581,6 @@ namespace NeoSharp.Core.Test.Network
                 }
             };
             
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
-            
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
             blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
@@ -819,7 +595,7 @@ namespace NeoSharp.Core.Test.Network
             transactionContextMock.SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
 
-            transactionContextMock.SetupGet(x => x.SystemFee)
+            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(new Fixed8(300000000));
             
             var result = testee.Verify(transaction);
@@ -830,7 +606,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_ClaimTransacWithNegativeResultOfUtilityToken()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new ClaimTransaction
             {
@@ -863,23 +639,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
 
             var transactionOfPreviousHash = new Transaction
             {
@@ -893,8 +652,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
             
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
@@ -910,7 +667,7 @@ namespace NeoSharp.Core.Test.Network
             transactionContextMock.SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
 
-            transactionContextMock.SetupGet(x => x.SystemFee)
+            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(Fixed8.Zero);
             
             var result = testee.Verify(transaction);
@@ -921,7 +678,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_NotMinerTransacWithNegativeResults()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new EnrollmentTransaction
             {
@@ -954,23 +711,6 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
 
             var transactionOfPreviousHash = new Transaction
             {
@@ -990,8 +730,6 @@ namespace NeoSharp.Core.Test.Network
                 }
             };
             
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
-            
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
             blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
@@ -1006,7 +744,7 @@ namespace NeoSharp.Core.Test.Network
             transactionContextMock.SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
 
-            transactionContextMock.SetupGet(x => x.SystemFee)
+            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(new Fixed8(190000000));
             
             var result = testee.Verify(transaction);
@@ -1017,7 +755,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WitnessVerifiedWrong()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new EnrollmentTransaction
             {
@@ -1054,23 +792,6 @@ namespace NeoSharp.Core.Test.Network
                     new Witness()
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
 
             var transactionOfPreviousHash = new Transaction
             {
@@ -1090,8 +811,6 @@ namespace NeoSharp.Core.Test.Network
                 }
             };
             
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
-            
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
             blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
@@ -1106,7 +825,7 @@ namespace NeoSharp.Core.Test.Network
             transactionContextMock.SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
 
-            transactionContextMock.SetupGet(x => x.SystemFee)
+            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(new Fixed8(190000000));
 
             var witnessOperationsManagerMock = AutoMockContainer.GetMock<IWitnessOperationsManager>();
@@ -1121,7 +840,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_Success()
         {
-            var testee = AutoMockContainer.Create<TransactionOperationsManager>();
+            var testee = AutoMockContainer.Create<TransactionVerifier>();
 
             var transaction = new EnrollmentTransaction
             {
@@ -1158,23 +877,6 @@ namespace NeoSharp.Core.Test.Network
                     new Witness()
                 }
             };
-            
-            var repositoryMock = AutoMockContainer.GetMock<ITransactionPool>();
-
-            var transactionsInPool = new List<Transaction>()
-            {
-                new Transaction
-                {
-                    Inputs = new[]
-                    {
-                        new CoinReference
-                        {
-                            PrevHash = UInt256.Zero,
-                            PrevIndex = 3
-                        }
-                    }
-                }
-            };
 
             var transactionOfPreviousHash = new Transaction
             {
@@ -1194,8 +896,6 @@ namespace NeoSharp.Core.Test.Network
                 }
             };
             
-            repositoryMock.Setup(g => g.GetEnumerator()).Returns(() => transactionsInPool.GetEnumerator());
-            
             var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
             blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
@@ -1210,7 +910,7 @@ namespace NeoSharp.Core.Test.Network
             transactionContextMock.SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
 
-            transactionContextMock.SetupGet(x => x.SystemFee)
+            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(new Fixed8(190000000));
 
             var witnessOperationsManagerMock = AutoMockContainer.GetMock<IWitnessOperationsManager>();

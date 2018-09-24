@@ -16,7 +16,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         private readonly IBlockchain _blockchain;
         private readonly ITransactionPool _transactionPool;
-        private readonly ITransactionOperationsManager _transactionOperationsManager;
+        private readonly ITransactionSigner _transactionSigner;
         private readonly ILogger<TransactionMessageHandler> _logger;
 
         #endregion
@@ -26,17 +26,17 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// </summary>
         /// <param name="blockchain">Blockchain</param>
         /// <param name="transactionPool">Transaction Pool</param>
-        /// <param name="transactionOperationsManager">The transaction operation manager</param>
+        /// <param name="transactionSigner">The transaction operation manager</param>
         /// <param name="logger">Logger</param>
         public TransactionMessageHandler(
             IBlockchain blockchain, 
             ITransactionPool transactionPool, 
-            ITransactionOperationsManager transactionOperationsManager,
+            ITransactionSigner transactionSigner,
             ILogger<TransactionMessageHandler> logger)
         {
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
-            _transactionOperationsManager = transactionOperationsManager;
+            _transactionSigner = transactionSigner;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

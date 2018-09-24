@@ -11,7 +11,8 @@ namespace NeoSharp.Core.Blockchain.Processing
 {
     public class TransactionPool : ITransactionPool
     {
-        private readonly ITransactionOperationsManager _transactionOperationsManager;
+        private readonly ITransactionSigner _transactionSigner;
+        private readonly ITransactionVerifier _transactionVerifier;
 
         private class TimeStampedTransaction
         {
@@ -55,9 +56,9 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly ConcurrentDictionary<UInt256, TimeStampedTransaction> _transactionPool = new ConcurrentDictionary<UInt256, TimeStampedTransaction>();
         private readonly IComparer<TimeStampedTransaction> _comparer;
 
-        public TransactionPool(ITransactionOperationsManager transactionOperationsManager, IComparer<Transaction> comparer = null)
+        public TransactionPool(ITransactionSigner transactionSigner, IComparer<Transaction> comparer = null)
         {
-            _transactionOperationsManager = transactionOperationsManager;
+            _transactionSigner = transactionSigner;
             _comparer = new TimeStampedTransactionComparer(comparer);
         }
 
@@ -69,11 +70,19 @@ namespace NeoSharp.Core.Blockchain.Processing
         {
             if (transaction == null) throw new ArgumentNullException(nameof(transaction));
 
-            this._transactionOperationsManager.Sign(transaction);
+            this._transactionSigner.Sign(transaction);
 
-            if (!this._transactionOperationsManager.Verify(transaction))
+            if (!this._transactionVerifier.Verify(transaction))
             {
                 throw new InvalidOperationException($"The transaction with hash \"{transaction.Hash}\" was not passed verification.");
+            }
+            
+            if (this.Where(p => p != transaction)
+                .SelectMany(p => p.Inputs)
+                .Intersect(transaction.Inputs)
+                .Any())
+            {
+                throw new InvalidOperationException($"The transaction with hash \"{transaction.Hash}\" was already queued to be added.");
             }
 
             if (!_transactionPool.TryAdd(transaction.Hash, new TimeStampedTransaction(transaction)))

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 
@@ -61,8 +62,17 @@ namespace NeoSharp.Core.Blockchain.Processing
                             continue;
                         }
 
-                        var valid = await _transactionVerifier.Verify(transaction,
-                            transactionPool.Where(t => t.Hash != transactionHash).ToArray());
+                        var valid = _transactionVerifier.Verify(transaction);
+                        
+                        if (transactionPool
+                            .Where(t => t.Hash != transactionHash)
+                            .Where(p => p != transaction)
+                            .SelectMany(p => p.Inputs)
+                            .Intersect(transaction.Inputs)
+                            .Any())
+                        {
+                            valid = false;
+                        }
 
                         if (valid)
                         {

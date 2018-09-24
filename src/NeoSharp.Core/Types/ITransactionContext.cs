@@ -10,6 +10,6 @@ namespace NeoSharp.Core.Types
         Fixed8 DefaultSystemFee { get; }
         UInt256 UtilityTokenHash { get; }
         UInt256 GoverningTokenHash { get; }
-        Fixed8 SystemFee { get; }
+        Fixed8 GetSystemFee(Transaction tx);
     }
 }

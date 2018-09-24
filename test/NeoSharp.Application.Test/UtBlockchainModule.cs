@@ -31,7 +31,8 @@ namespace NeoSharp.Application.Test
             containerBuilderMock.Verify(x => x.RegisterSingleton<ITransactionPersister<InvocationTransaction>, InvocationTransactionPersister>(), Times.Once);
 
             containerBuilderMock.Verify(x => x.RegisterSingleton<IWitnessOperationsManager, WitnessOperationsManager>(), Times.Once);
-            containerBuilderMock.Verify(x => x.RegisterSingleton<ITransactionOperationsManager, TransactionOperationsManager>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<ITransactionSigner, TransactionSigner>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<ITransactionVerifier, TransactionVerifier>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton<IBlockHeaderOperationsManager, BlockHeaderOperationsManager>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton<IBlockOperationsManager, BlockOperationsManager>(), Times.Once);
         }

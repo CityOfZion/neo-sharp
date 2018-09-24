@@ -1,50 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Processing;
-using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Models.OperationManger
 {
-    public class TransactionOperationsManager : ITransactionOperationsManager
+    public class TransactionVerifier : ITransactionVerifier
     {
-        #region Private Fields 
-        private readonly Crypto _crypto;
+        
         private readonly IWitnessOperationsManager _witnessOperationsManager;
-        private readonly ITransactionPool _transactionPool;
         private readonly IBlockchain _blockchain;
         private readonly ITransactionContext _transactionContext;
-        #endregion
 
-        #region Constructor 
-        public TransactionOperationsManager(Crypto crypto, IWitnessOperationsManager witnessOperationsManager, 
-            ITransactionPool transactionPool, IBlockchain blockchain, ITransactionContext transactionContext)
+        public TransactionVerifier(IWitnessOperationsManager witnessOperationsManager, 
+            IBlockchain blockchain, ITransactionContext transactionContext)
         {
-            _crypto = crypto;
             _witnessOperationsManager = witnessOperationsManager;
-            _transactionPool = transactionPool;
             _blockchain = blockchain;
             _transactionContext = transactionContext;
-        }
-        #endregion
-
-        #region ITransactionOperationsManager implementation 
-        public void Sign(Transaction transaction)
-        {
-            transaction.Hash = new UInt256(_crypto.Hash256(BinarySerializer.Default.Serialize(transaction, new BinarySerializerSettings
-            {
-                Filter = a => a != nameof(transaction.Witness)
-            })));
-
-            if (transaction.Witness == null) return;
-            foreach (var witness in transaction.Witness)
-            {
-                _witnessOperationsManager.Sign(witness);
-            }
         }
 
         public bool Verify(Transaction transaction)
@@ -65,15 +41,6 @@ namespace NeoSharp.Core.Models.OperationManger
                         return false;
                     }
                 }
-            }
-
-            if (_transactionPool
-                .Where(p => p != transaction)
-                .SelectMany(p => p.Inputs)
-                .Intersect(transaction.Inputs)
-                .Any())
-            {
-                return false;
             }
 
             if (_blockchain.IsDoubleSpend(transaction))
@@ -125,9 +92,9 @@ namespace NeoSharp.Core.Models.OperationManger
                 return false;
             }
 
-            if (_transactionContext.SystemFee > Fixed8.Zero 
+            if (_transactionContext.GetSystemFee(transaction) > Fixed8.Zero 
                 && (resultsDestroy.Length == 0 
-                    || resultsDestroy[0].Amount < _transactionContext.SystemFee))
+                    || resultsDestroy[0].Amount < _transactionContext.GetSystemFee(transaction)))
             {
                 return false;
             }
@@ -205,7 +172,5 @@ namespace NeoSharp.Core.Models.OperationManger
 
             return references;
         }
-        
-        #endregion
     }
 }

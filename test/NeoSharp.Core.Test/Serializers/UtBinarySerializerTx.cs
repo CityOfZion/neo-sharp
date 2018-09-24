@@ -313,7 +313,7 @@ namespace NeoSharp.Core.Test.Serializers
         private void FillRandomTx(Transaction tx)
         {
             var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
-            var transactionOperationsManager = new TransactionOperationsManager(Crypto.Default, witnessOperationsManager, null, null, null);
+            var transactionOperationsManager = new TransactionSigner(Crypto.Default, witnessOperationsManager);
 
             tx.Attributes = RandomTransactionAtrributes().ToArray();
             tx.Inputs = RandomCoinReferences(_random.Next(1, 255)).ToArray();
@@ -326,7 +326,7 @@ namespace NeoSharp.Core.Test.Serializers
         void EqualTx(Transaction original, params Transaction[] copies)
         {
             var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
-            var transactionOperationsManager = new TransactionOperationsManager(Crypto.Default, witnessOperationsManager, null, null, null);
+            var transactionOperationsManager = new TransactionSigner(Crypto.Default, witnessOperationsManager);
 
             foreach (var copy in copies)
             {

@@ -6,6 +6,6 @@ namespace NeoSharp.Core.Blockchain.Processing
 {
     public interface ITransactionVerifier
     {
-        Task<bool> Verify(Transaction transaction, IReadOnlyCollection<Transaction> transactionPool);
+        bool Verify(Transaction transaction);
     }
 }
