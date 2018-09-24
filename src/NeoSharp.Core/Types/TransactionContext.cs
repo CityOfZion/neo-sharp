@@ -5,12 +5,11 @@ using NeoSharp.Core.Models;
 
 namespace NeoSharp.Core.Types
 {
-    public class TransactionContext
+    public class TransactionContext : ITransactionContext
     {
-        // TODO #362: How to inject this
-
-        public static readonly Fixed8 DefaultSystemFee = Fixed8.Zero;// Settings.Default.SystemFee.TryGetValue(Type, out Fixed8 fee) ? fee : Fixed8.Zero;
-        public static readonly UInt256 UtilityTokenHash = UInt256.Zero, GoverningTokenHash = UInt256.Zero;
+        public Fixed8 DefaultSystemFee => Fixed8.Zero; // Settings.Default.SystemFee.TryGetValue(Type, out Fixed8 fee) ? fee : Fixed8.Zero;
+        public UInt256 UtilityTokenHash => UInt256.Zero;
+        public UInt256 GoverningTokenHash => UInt256.Zero;
 
         // ---------------------------
 

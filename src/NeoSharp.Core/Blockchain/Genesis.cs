@@ -53,7 +53,7 @@ namespace NeoSharp.Core.Blockchain
             };
 
             var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
-            var transactionOperationsManager = new TransactionOperationsManager(Crypto.Default, witnessOperationsManager);
+            var transactionOperationsManager = new TransactionOperationsManager(Crypto.Default, witnessOperationsManager, null, null, null);
 
             var blockOperationsManager = new BlockOperationsManager(
                 Crypto.Default, 

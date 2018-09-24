@@ -4,6 +4,7 @@ using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Blockchain.State;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.DI.Modules
 {
@@ -21,6 +22,7 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<IBlockPool, BlockPool>();
             containerBuilder.RegisterSingleton<IComparer<Transaction>, TransactionComparer>();
             containerBuilder.RegisterSingleton<ITransactionPool, TransactionPool>();
+            containerBuilder.RegisterSingleton<ITransactionContext, TransactionContext>();
             containerBuilder.RegisterSingleton<ITransactionPersister<Transaction>, TransactionPersister>();
 
             containerBuilder.RegisterSingleton<ITransactionPersister<ClaimTransaction>, ClaimTransactionPersister>();
