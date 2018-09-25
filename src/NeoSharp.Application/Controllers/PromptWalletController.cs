@@ -5,6 +5,7 @@ using NeoSharp.Application.Client;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 using NeoSharp.Core.Wallet;
+using NeoSharp.Core.Wallet.Exceptions;
 using NeoSharp.Core.Wallet.Helpers;
 
 namespace NeoSharp.Application.Controllers
@@ -98,19 +99,18 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("account create", Category = "Account", Help = "Create a new account")]
         public void AccountCreateCommand()
         {
-            var secureString = _consoleReader.ReadPassword();
-            var isUsingSameWalletPassword = _walletManager.CheckIfPasswordMatchesOpenWallet(secureString);
-
-            if (isUsingSameWalletPassword)
+            var secureString = _consoleReader.ReadPassword("Wallet password:");
+            try 
             {
+                _walletManager.CheckIfPasswordMatchesOpenWallet(secureString);
                 _consoleWriter.ApplyStyle(ConsoleOutputStyle.Prompt);
                 var walletAccount = _walletManager.CreateAndAddAccount(secureString);
                 _consoleWriter.WriteLine("\nAddress: " + walletAccount.Address, ConsoleOutputStyle.Information);
                 _consoleWriter.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
             }
-            else
+            catch(AccountsPasswordMismatchException)
             {
-                _consoleWriter.WriteLine("\nPasswords don't match.");
+                _consoleWriter.WriteLine("\nInvalid password.");
             }
         }
 
@@ -144,7 +144,7 @@ namespace NeoSharp.Application.Controllers
                         _consoleWriter.WriteLine("\nPasswords don't match.");
                     }
                 }
-                catch (Exception)
+                catch (AccountsPasswordMismatchException)
                 {
                     _consoleWriter.WriteLine("\nInvalid password.");
                 }
@@ -170,7 +170,7 @@ namespace NeoSharp.Application.Controllers
                     string wif = _walletManager.PrivateKeyToWif(accountPrivateKey);
                     _consoleWriter.WriteLine("\nExported wif: " + wif);
                 }
-                catch (Exception)
+                catch (AccountsPasswordMismatchException)
                 {
                     _consoleWriter.WriteLine("\nInvalid password.");
                 }
@@ -181,19 +181,28 @@ namespace NeoSharp.Application.Controllers
             }
         }
 
+        [PromptCommand("account alias", Category = "Account", Help = "Adds a label to an account")]
+        public void AddAccountAlias(string address, string alias)
+        {
+            UInt160 accountScriptHash = address.ToScriptHash();
+            if(_walletManager.Contains(accountScriptHash))
+            {
+                _walletManager.UpdateAccountAlias(accountScriptHash, alias);
+            }else
+            {
+                _consoleWriter.WriteLine("\nAccount not found.");
+            }
+        }
+
 
         /*
         TODO #404: Implement additional wallet features
-        wallet delete_addr {addr}
         wallet delete_token {token_contract_hash}
         wallet alias {addr} {title}
 
         import multisig_addr {pubkey in wallet} {minimum # of signatures required} {signing pubkey 1} {signing pubkey 2}...
         import watch_addr {address}
         import token {token_contract_hash}
-        export wif {address}
-        export nep2 {address}
-
          */
 
         /*

@@ -518,57 +518,22 @@ namespace NeoSharp.Core.Wallet.Test
         #region Check Password
 
         [TestMethod]
+        [ExpectedException(typeof(AccountsPasswordMismatchException))]
         public void TestVerifyPasswordFalse()
         {
             var mockWalletManager = GetAWalletManagerWithAnWallet();
-
+            mockWalletManager.CreateAndAddAccount(_defaultPassword);
             // Act
             SecureString fakeString = new SecureString();
             fakeString.AppendChar('1');
-            bool result = mockWalletManager.VerifyPassword(new NEP6Account(_testContract) { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, fakeString);
-
-            Assert.IsFalse(result);
+            mockWalletManager.CheckIfPasswordMatchesOpenWallet(fakeString);
         }
 
         [TestMethod]
         public void TestVerifyPassword()
         {
             var mockWalletManager = GetAWalletManagerWithAnWallet();
-
-            // Act
-            bool result = mockWalletManager.VerifyPassword(new NEP6Account(_testContract) { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, _defaultPassword);
-
-            Assert.IsTrue(result);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
-        public void TestVerifyPasswordAccountNull()
-        {
-            var mockWalletManager = GetAWalletManagerWithAnWallet();
-
-            // Act
-            mockWalletManager.VerifyPassword(null, _defaultPassword);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestVerifyPasswordNep2KeyNull()
-        {
-            var mockWalletManager = GetAWalletManagerWithAnWallet();
-
-            // Act
-            mockWalletManager.VerifyPassword(new NEP6Account(_testContract) { Key = null }, _defaultPassword);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestVerifyPasswordNep2KeyEmpty()
-        {
-            var mockWalletManager = GetAWalletManagerWithAnWallet();
-
-            // Act
-            mockWalletManager.VerifyPassword(new NEP6Account(_testContract) { Key = String.Empty }, _defaultPassword);
+            mockWalletManager.CheckIfPasswordMatchesOpenWallet(_defaultPassword);
         }
 
         [TestMethod]
@@ -578,17 +543,7 @@ namespace NeoSharp.Core.Wallet.Test
             var mockWalletManager = GetAWalletManagerWithAnWallet();
 
             // Act
-            mockWalletManager.VerifyPassword(new NEP6Account(_testContract) { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, null);
-        }
-
-        [TestMethod]
-        [ExpectedException(typeof(ArgumentNullException))]
-        public void TestVerifyPasswordPasswordEmpty()
-        {
-            var mockWalletManager = GetAWalletManagerWithAnWallet();
-
-            // Act
-            mockWalletManager.VerifyPassword(new NEP6Account(_testContract) { Key = "6PYVwbrWfiyKCFnj4EjjBESUer4hbQ48hPfn8as8ivyS3FTVVmAJomvYuv" }, null);
+            mockWalletManager.CheckIfPasswordMatchesOpenWallet(null);
         }
 
         #endregion
