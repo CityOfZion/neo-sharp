@@ -8,13 +8,5 @@ namespace NeoSharp.Core.Models
     {
         /// <inheritdoc />
         public ContractTransaction() : base(TransactionType.ContractTransaction) { }
-
-
-        //public override bool Verify()
-        //{
-        //    if (Version != 0x00) return false;
-
-        //    return base.Verify();
-        //}
     }
 }

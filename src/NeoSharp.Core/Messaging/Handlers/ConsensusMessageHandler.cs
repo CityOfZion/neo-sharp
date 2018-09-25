@@ -1,36 +1,41 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class ConsensusMessageHandler : IMessageHandler<ConsensusMessage>
+    public class ConsensusMessageHandler : MessageHandler<ConsensusMessage>
     {
-        #region Variables
-
+        #region Private fields 
         private readonly IBroadcaster _broadcaster;
-        private readonly ILogger<ConsensusMessageHandler> _logger;
-
         #endregion
 
+        #region Constructor 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="broadcaster">Broadcaster</param>
-        /// <param name="logger">Logger</param>
-        public ConsensusMessageHandler(IBroadcaster broadcaster, ILogger<ConsensusMessageHandler> logger)
+        public ConsensusMessageHandler(IBroadcaster broadcaster)
         {
             _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+        #endregion
+
+        #region MessageHandler override methods
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is ConsensusMessage;
         }
 
-        public Task Handle(ConsensusMessage message, IPeer sender)
+        /// <inheritdoc />
+        public override Task Handle(ConsensusMessage message, IPeer sender)
         {
             _broadcaster.Broadcast(message, sender);
 
             return Task.CompletedTask;
         }
+        #endregion
     }
 }

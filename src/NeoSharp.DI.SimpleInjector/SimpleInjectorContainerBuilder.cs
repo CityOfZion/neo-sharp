@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NeoSharp.Core.DI;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Messaging;
 using SimpleInjector;
 
 namespace NeoSharp.DI.SimpleInjector
@@ -92,6 +95,19 @@ namespace NeoSharp.DI.SimpleInjector
         public void RegisterInstanceCreator<TService>(Func<IContainer, TService> instanceCreator) where TService : class
         {
             _container.RegisterSingleton(() => instanceCreator(_containerAdapter));
+        }
+
+        public void RegisterCollectionOf<TService>()
+        {
+            var messageHandlers = typeof(TService)
+                .Assembly
+                .GetExportedTypes()
+                .Where(x => x.IsClass && !x.IsAbstract && x.IsAssignableToGenericType(typeof(MessageHandler<>)));
+            var registrations = messageHandlers
+                .Select(x => Lifestyle.Singleton.CreateRegistration(x, _container))
+                .ToArray();
+
+            _container.Collection.Register(typeof(TService), registrations);
         }
 
         public void RegisterModule<TModule>() where TModule : class, IModule, new()

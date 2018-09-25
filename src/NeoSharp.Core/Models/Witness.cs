@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 
@@ -71,19 +70,6 @@ namespace NeoSharp.Core.Models
             }
 
             return l;
-        }
-
-        /// <summary>
-        /// Update Hash
-        /// </summary>
-        public void UpdateHash()
-        {
-            this.Hash = new UInt160(Crypto.Default.Hash160(GetHashData()));
-        }
-
-        private byte[] GetHashData()
-        {
-            return VerificationScript;
         }
     }
 }

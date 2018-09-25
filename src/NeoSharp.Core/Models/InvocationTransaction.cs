@@ -70,12 +70,5 @@ namespace NeoSharp.Core.Models
         }
 
         #endregion
-
-        //public override bool Verify()
-        //{
-        //    if (Gas.Value % 100000000 != 0) return false;
-
-        //    return base.Verify();
-        //}
     }
 }

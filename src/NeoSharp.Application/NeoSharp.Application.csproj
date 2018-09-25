@@ -15,6 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="appsettings.neo-privnet.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="appsettings.testnet.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

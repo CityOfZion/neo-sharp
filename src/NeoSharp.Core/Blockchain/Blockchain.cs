@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Network;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 
@@ -14,21 +15,13 @@ namespace NeoSharp.Core.Blockchain
     public class Blockchain : IBlockchain, IDisposable
     {
         #region Private fields
-
         private readonly IRepository _repository;
         private readonly IBlockHeaderPersister _blockHeaderPersister;
         private readonly IBlockProcessor _blockProcessor;
+        private readonly IBlockchainContext _blockchainContext;
+
         private int _initialized;
         private readonly List<ECPoint> _validators = new List<ECPoint>();
-
-        #endregion
-
-        #region Public fields
-
-        public Block CurrentBlock { get; private set; }
-
-        public BlockHeader LastBlockHeader { get; private set; }
-
         #endregion
 
         /// <summary>
@@ -37,17 +30,20 @@ namespace NeoSharp.Core.Blockchain
         /// <param name="repository">Repository</param>
         /// <param name="blockHeaderPersister">Block Header Persister</param>
         /// <param name="blockProcessor">Block Processor</param>
+        /// <param name="blockchainContext">Block chain context class.</param>
         public Blockchain(
             IRepository repository,
             IBlockHeaderPersister blockHeaderPersister,
-            IBlockProcessor blockProcessor)
+            IBlockProcessor blockProcessor,
+            IBlockchainContext blockchainContext)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _blockHeaderPersister = blockHeaderPersister ?? throw new ArgumentNullException(nameof(blockHeaderPersister));
             _blockProcessor = blockProcessor ?? throw new ArgumentNullException(nameof(blockProcessor));
+            _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext)); ;
 
-            _blockHeaderPersister.OnBlockHeadersPersisted += (_, blockHeaders) => LastBlockHeader = blockHeaders.Last();
-            _blockProcessor.OnBlockProcessed += (_, block) => CurrentBlock = block;
+            _blockHeaderPersister.OnBlockHeadersPersisted += (_, blockHeaders) => this._blockchainContext.LastBlockHeader = blockHeaders.Last();
+            _blockProcessor.OnBlockProcessed += (_, block) => this._blockchainContext.CurrentBlock = block;
         }
 
         public async Task InitializeBlockchain()
@@ -60,15 +56,15 @@ namespace NeoSharp.Core.Blockchain
             var blockHeight = await _repository.GetTotalBlockHeight();
             var blockHeaderHeight = await _repository.GetTotalBlockHeaderHeight();
 
-            CurrentBlock = await GetBlock(blockHeight);
-            LastBlockHeader = await GetBlockHeader(blockHeaderHeight);
+            this._blockchainContext.CurrentBlock = await GetBlock(blockHeight);
+            this._blockchainContext.LastBlockHeader = await GetBlockHeader(blockHeaderHeight);
 
-            _blockHeaderPersister.LastBlockHeader = LastBlockHeader;
-            _blockProcessor.Run(CurrentBlock);
+            this._blockHeaderPersister.LastBlockHeader = this._blockchainContext.LastBlockHeader;
 
-            if (CurrentBlock == null || LastBlockHeader == null)
+            this._blockProcessor.Run(this._blockchainContext.CurrentBlock);
+            if (this._blockchainContext.CurrentBlock == null || this._blockchainContext.LastBlockHeader == null)
             {
-                await _blockProcessor.AddBlock(Genesis.GenesisBlock);
+                await this._blockProcessor.AddBlock(Genesis.GenesisBlock);
             }
         }
 

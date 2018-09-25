@@ -10,17 +10,26 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class GetBlockHeadersMessageHandler : IMessageHandler<GetBlockHeadersMessage>
+    public class GetBlockHeadersMessageHandler : MessageHandler<GetBlockHeadersMessage>
     {
+        #region Private Fields 
         private const int MaxBlockHeadersCountToReturn = 2000;
         private readonly IBlockchain _blockchain;
 
+        private Task<BlockHeader> GetBlockHeader(UInt256 hash) => _blockchain.GetBlockHeader(hash);
+        #endregion
+
+        #region Constructor 
         public GetBlockHeadersMessageHandler(IBlockchain blockchain)
         {
+            // TODO #434: Remove Blockchain dependency from GetBlockHeadersMessageHandler and GetBlocksMessageHandler
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
         }
+        #endregion
 
-        public async Task Handle(GetBlockHeadersMessage message, IPeer sender)
+        #region MessageHandler override methods
+        /// <inheritdoc />
+        public override async Task Handle(GetBlockHeadersMessage message, IPeer sender)
         {
             var hashStart = (message.Payload.HashStart ?? new UInt256[0])
                 .Where(h => h != null)
@@ -55,6 +64,11 @@ namespace NeoSharp.Core.Messaging.Handlers
             await sender.Send(new BlockHeadersMessage(blockHeaders));
         }
 
-        private Task<BlockHeader> GetBlockHeader(UInt256 hash) => _blockchain.GetBlockHeader(hash);
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is GetBlockHeadersMessage;
+        }
+        #endregion
     }
 }

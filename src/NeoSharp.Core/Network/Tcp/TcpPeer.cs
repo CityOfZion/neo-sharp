@@ -125,7 +125,7 @@ namespace NeoSharp.Core.Network.Tcp
         public void Disconnect()
         {
             Dispose();
-            _logger.LogInformation("The peer was disconnected");
+            _logger.LogInformation($"The peer {this.EndPoint.Host}:{this.EndPoint.Port} was disconnected");
         }
 
         /// <summary>
@@ -172,7 +172,6 @@ namespace NeoSharp.Core.Network.Tcp
                     {
                         await InternalSend(message);
                     }
-
                 }
             },
             cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -222,7 +221,9 @@ namespace NeoSharp.Core.Network.Tcp
 
                 try
                 {
-                    return await _protocol.ReceiveMessageAsync(_stream, tokenSource.Token);
+                    var msg = await _protocol.ReceiveMessageAsync(_stream, tokenSource.Token);
+                    this._logger.LogDebug($"Message Received: {msg.Command}");
+                    return msg;
                 }
                 catch (Exception err)
                 {
@@ -243,8 +244,10 @@ namespace NeoSharp.Core.Network.Tcp
         public async Task<TMessage> Receive<TMessage>() where TMessage : Message, new()
         {
             if (!IsConnected) return null;
+            var message = await Receive() as TMessage;
+            _logger.LogDebug($"Message Received: {message.Command}");
+            return message;
 
-            return await Receive() as TMessage;
         }
 
         /// <summary>
@@ -262,12 +265,12 @@ namespace NeoSharp.Core.Network.Tcp
 
                 try
                 {
+                    _logger.LogDebug($"Message sent: {message.Command} to {this.EndPoint.Host}.");
                     await _protocol.SendMessageAsync(_stream, message, tokenSource.Token);
                 }
                 catch (Exception err)
                 {
-                    _logger.LogError(err, "Error while send");
-
+                    _logger.LogError(err, $"Error while send message {message.Command} to {this.EndPoint.Host}.");
                     Disconnect();
                 }
             }

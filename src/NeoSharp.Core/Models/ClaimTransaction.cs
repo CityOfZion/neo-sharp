@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 
@@ -30,13 +29,5 @@ namespace NeoSharp.Core.Models
         }
 
         #endregion
-
-        //public override bool Verify()
-        //{
-        //    if (Version != 0) throw new ArgumentException(nameof(Version));
-        //    if (Claims == null || Claims.Length == 0) throw new ArgumentException(nameof(Claims));
-
-        //    return base.Verify();
-        //}
     }
 }

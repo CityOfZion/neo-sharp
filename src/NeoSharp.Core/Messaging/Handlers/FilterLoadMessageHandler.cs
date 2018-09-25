@@ -1,36 +1,14 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class FilterLoadMessageHandler : IMessageHandler<FilterLoadMessage>
+    public class FilterLoadMessageHandler : MessageHandler<FilterLoadMessage>
     {
-        #region Variables
-
-        private readonly ILogger<FilterLoadMessageHandler> _logger;
-
-        #endregion
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="logger">Logger</param>
-        public FilterLoadMessageHandler(ILogger<FilterLoadMessageHandler> logger)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-        /// <summary>
-        /// Handle FilterLoad message
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="sender">Sender</param>
-        /// <returns>Task</returns>
-        public async Task Handle(FilterLoadMessage message, IPeer sender)
+        /// <inheritdoc />
+        public override async Task Handle(FilterLoadMessage message, IPeer sender)
         {
             var payload = message.Payload;
 
@@ -41,6 +19,12 @@ namespace NeoSharp.Core.Messaging.Handlers
                 payload.Filter);
 
             await Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is FilterLoadMessage;
         }
     }
 }

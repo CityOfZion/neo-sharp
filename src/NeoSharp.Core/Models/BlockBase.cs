@@ -37,22 +37,5 @@ namespace NeoSharp.Core.Models
 
         [JsonProperty("hash")] public UInt256 Hash { get; private set; }
         #endregion
-
-        #region Protected Methods 
-        protected void Sign(BlockBase blockBase, byte[] signingSettings)
-        {
-            this.Version = blockBase.Version;
-            this.PreviousBlockHash = blockBase.PreviousBlockHash;
-            this.Timestamp = blockBase.Timestamp;
-            this.Index = blockBase.Index;
-            this.ConsensusData = blockBase.ConsensusData;
-            this.NextConsensus = blockBase.NextConsensus;
-            this.Type = blockBase.Type;
-
-            this.Hash = new UInt256(Crypto.Default.Hash256(signingSettings));
-
-        }
-        #endregion
-
     }
 }

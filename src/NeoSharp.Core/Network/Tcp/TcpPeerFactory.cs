@@ -67,6 +67,7 @@ namespace NeoSharp.Core.Network.Tcp
             _logger.LogInformation($"Connecting to {ipEp}...");
 
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            //socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             await socket.ConnectAsync(ipEp.Address, ipEp.Port);
 
             _logger.LogInformation($"Connected to {ipEp}");

@@ -82,12 +82,5 @@ namespace NeoSharp.Core.Models
         }
 
         #endregion
-
-        //public override bool Verify()
-        //{
-        //    if (Version > 1) throw new FormatException(nameof(Version));
-
-        //    return base.Verify();
-        //}
     }
 }

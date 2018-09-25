@@ -6,30 +6,25 @@ using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class GetAddrMessageMessageHandler : IMessageHandler<GetAddrMessage>
+    public class GetAddrMessageMessageHandler : MessageHandler<GetAddrMessage>
     {
-
-        #region Constants
-
-        const int MaxCountToSend = 200;
-
-        #endregion
-
-        #region Variables
+        #region Private fields
+        private const int MaxCountToSend = 200;
 
         private readonly IServer _server;
-
         #endregion
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
+        #region Constructor 
         public GetAddrMessageMessageHandler(IServer server)
         {
+            // TODO #433: Replace IServer with IServerContext
             _server = server ?? throw new ArgumentNullException(nameof(server));
         }
+        #endregion
 
-        public async Task Handle(GetAddrMessage message, IPeer sender)
+        #region MessageHandler override methods
+        /// <inheritdoc />
+        public override async Task Handle(GetAddrMessage message, IPeer sender)
         {
             var rand = new Random(Environment.TickCount);
             var peers = _server.ConnectedPeers
@@ -52,5 +47,12 @@ namespace NeoSharp.Core.Messaging.Handlers
                 new AddrMessage(networkAddressWithTimes)
             );
         }
+
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is GetAddrMessage;
+        }
+        #endregion
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
@@ -12,22 +11,31 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class BlockHeadersMessageHandler : IMessageHandler<BlockHeadersMessage>
+    public class BlockHeadersMessageHandler : MessageHandler<BlockHeadersMessage>
     {
+        #region Private Fields 
         private const int MaxBlocksCountToSync = 500;
 
         private readonly IBlockPersister _blockPersister;
-        private readonly IBlockchain _blockchain;
+        private readonly IBlockchainContext _blockchainContext;
         private readonly ILogger<BlockHeadersMessageHandler> _logger;
+        #endregion
 
-        public BlockHeadersMessageHandler(IBlockPersister blockPersister, IBlockchain blockchain, ILogger<BlockHeadersMessageHandler> logger)
+        #region Constructor 
+        public BlockHeadersMessageHandler(
+            IBlockPersister blockPersister, 
+            IBlockchainContext blockchainContext, 
+            ILogger<BlockHeadersMessageHandler> logger)
         {
             _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(blockPersister));
-            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
+            _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+        #endregion
 
-        public async Task Handle(BlockHeadersMessage message, IPeer sender)
+        #region MessageHandler override Methods 
+        /// <inheritdoc />
+        public override async Task Handle(BlockHeadersMessage message, IPeer sender)
         {
             async void HeadersPersisted(object _, BlockHeader[] blockHeaders) => await BlockHeadersPersisted(sender, blockHeaders);
 
@@ -42,16 +50,23 @@ namespace NeoSharp.Core.Messaging.Handlers
                 _blockPersister.OnBlockHeadersPersisted -= HeadersPersisted;
             }
 
-            if (_blockchain.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
+            if (this._blockchainContext.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
             {
                 _logger.LogInformation(
-                    $"The peer has {sender.Version.CurrentBlockIndex + 1} blocks but the current number of block headers is {_blockchain.LastBlockHeader.Index + 1}.");
-                await sender.Send(new GetBlockHeadersMessage(_blockchain.LastBlockHeader.Hash));
+                    $"The peer has {sender.Version.CurrentBlockIndex + 1} blocks but the current number of block headers is {this._blockchainContext.LastBlockHeader.Index + 1}.");
+                await sender.Send(new GetBlockHeadersMessage(this._blockchainContext.LastBlockHeader.Hash));
             }
         }
 
-        #region Find a better place for block sync
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is BlockHeadersMessage;
+        }
+        #endregion
 
+        #region Private Methods 
+        // TODO #432: Find btter place for block sync
         private static async Task BlockHeadersPersisted(IPeer source, IEnumerable<BlockHeader> blockHeaders)
         {
             var blockHashes = blockHeaders

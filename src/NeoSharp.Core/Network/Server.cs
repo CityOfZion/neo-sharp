@@ -76,7 +76,7 @@ namespace NeoSharp.Core.Network
         #region IServer implementation
 
         /// <inheritdoc />
-        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers.ToArray();
+        public IReadOnlyCollection<IPeer> ConnectedPeers => _connectedPeers.Where(x => x.IsConnected).ToArray();
 
         /// <inheritdoc />
         public void Start()

@@ -10,17 +10,16 @@ using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class TransactionMessageHandler : IMessageHandler<TransactionMessage>
+    public class TransactionMessageHandler : MessageHandler<TransactionMessage>
     {
-        #region Variables
-
+        #region Private Fields 
         private readonly IBlockchain _blockchain;
         private readonly ITransactionPool _transactionPool;
         private readonly ITransactionSigner _transactionSigner;
         private readonly ILogger<TransactionMessageHandler> _logger;
-
         #endregion
 
+        #region Constructor 
         /// <summary>
         /// Constructor
         /// </summary>
@@ -39,20 +38,32 @@ namespace NeoSharp.Core.Messaging.Handlers
             _transactionSigner = transactionSigner;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+        #endregion
 
-        public async Task Handle(TransactionMessage message, IPeer sender)
+        #region MessageHandler override methods
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is TransactionMessage;
+        }
+
+        /// <inheritdoc />
+        public override async Task Handle(TransactionMessage message, IPeer sender)
         {
             var transaction = message.Payload;
 
             if (transaction is MinerTransaction) return;
 
             // TODO #373: check if the hash of the transaction is known already
-
+            if (transaction.Hash == null)
+            {
+                this._transactionSigner.Sign(transaction);
+            }
 
             var transactionExists = await _blockchain.ContainsTransaction(transaction.Hash);
             if (transactionExists)
             {
-                _logger.LogInformation($"The transaction \"{transaction.Hash.ToString(true)}\" exists already on the blockchain.");
+                _logger.LogInformation($"The transaction \"{transaction.Hash?.ToString(true)}\" exists already on the blockchain.");
                 return;
             }
 
@@ -62,14 +73,8 @@ namespace NeoSharp.Core.Messaging.Handlers
             // TODO #374: It is a bit more complicated
 
             _transactionPool.Add(transaction);
-
-            var transactionAdded = true;
-
-            if (!transactionAdded)
-            {
-                _logger.LogWarning($"The transaction \"{transaction.Hash.ToString(true)}\" was not added to the blockchain.");
-                return;
-            }
+            _logger.LogInformation($"Transaction with Hash {transaction.Hash?.ToString(true)} added to the TransactionPool.");
         }
+        #endregion
     }
 }

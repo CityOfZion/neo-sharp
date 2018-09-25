@@ -17,15 +17,15 @@ namespace NeoSharp.Core.Blockchain
 
         #region Blocks & BlockHeaders
 
-        /// <summary>
-        /// Current block
-        /// </summary>
-        Block CurrentBlock { get; }
+        ///// <summary>
+        ///// Current block
+        ///// </summary>
+        //Block CurrentBlock { get; }
 
-        /// <summary>
-        /// Last block header
-        /// </summary>
-        BlockHeader LastBlockHeader { get; }
+        ///// <summary>
+        ///// Last block header
+        ///// </summary>
+        //BlockHeader LastBlockHeader { get; }
 
         /// <summary>
         /// Return the corresponding block information according to the specified height

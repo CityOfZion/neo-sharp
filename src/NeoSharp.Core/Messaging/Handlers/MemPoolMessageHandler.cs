@@ -8,14 +8,13 @@ using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class MemPoolMessageHandler : IMessageHandler<MemPoolMessage>
+    public class MemPoolMessageHandler : MessageHandler<MemPoolMessage>
     {
-        #region Variables
-
+        #region Private fields 
         private readonly ITransactionPool _transactionPool;
-
         #endregion
 
+        #region Constructor 
         /// <summary>
         /// Constructor
         /// </summary>
@@ -24,14 +23,11 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
         }
+        #endregion
 
-        /// <summary>
-        /// Handle GetMemPool message
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="sender">Sender</param>
-        /// <returns>Task</returns>
-        public async Task Handle(MemPoolMessage message, IPeer sender)
+        #region MessageHandler override methods
+        /// <inheritdoc />
+        public override async Task Handle(MemPoolMessage message, IPeer sender)
         {
             var hashes = _transactionPool
                 .Take(InventoryPayload.MaxHashes)
@@ -40,5 +36,12 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             await sender.Send(new InventoryMessage(InventoryType.Transaction, hashes));
         }
+
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is MemPoolMessage;
+        }
+        #endregion
     }
 }

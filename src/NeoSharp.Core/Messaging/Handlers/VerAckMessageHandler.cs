@@ -1,33 +1,48 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class VerAckMessageHandler : IMessageHandler<VerAckMessage>
+    public class VerAckMessageHandler : MessageHandler<VerAckMessage>
     {
-        private readonly IBlockchain _blockchain;
+        #region Private Fields 
+        private readonly IBlockchainContext _blockchainContext;
         private readonly ILogger<VerAckMessageHandler> _logger;
+        #endregion
 
-        public VerAckMessageHandler(IBlockchain blockchain, ILogger<VerAckMessageHandler> logger)
+        #region Constructor 
+        public VerAckMessageHandler(
+            IBlockchainContext blockchainContext, 
+            ILogger<VerAckMessageHandler> logger)
         {
-            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this._blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
+            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+        #endregion
+
+        #region MessageHandler override methods
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is VerAckMessage;
         }
 
-        public async Task Handle(VerAckMessage message, IPeer sender)
+        /// <inheritdoc />
+        public override async Task Handle(VerAckMessage message, IPeer sender)
         {
             sender.IsReady = true;
+            this._blockchainContext.SetPeerCurrentBlockIndex(sender.Version.CurrentBlockIndex);
 
-            if (_blockchain.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
+            if (this._blockchainContext.NeedPeerSync)
             {
-                _logger.LogInformation($"The peer has {sender.Version.CurrentBlockIndex + 1} blocks but the current number of block headers is {_blockchain.LastBlockHeader.Index + 1}.");
+                this._logger.LogInformation($"The peer has {sender.Version.CurrentBlockIndex + 1} blocks but the current number of block headers is {_blockchainContext.LastBlockHeader.Index + 1}.");
 
-                await sender.Send(new GetBlockHeadersMessage(_blockchain.LastBlockHeader.Hash));
+                await sender.Send(new GetBlockHeadersMessage(_blockchainContext.LastBlockHeader.Hash));
             }
         }
+        #endregion
     }
 }

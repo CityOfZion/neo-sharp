@@ -5,6 +5,7 @@ using NeoSharp.Application.Client;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Network;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Application.Controllers
@@ -16,6 +17,7 @@ namespace NeoSharp.Application.Controllers
         private readonly IBlockPool _blockPool;
         private readonly ITransactionPool _transactionPool;
         private readonly IBlockchain _blockchain;
+        private readonly IBlockchainContext _blockchainContext;
         private readonly IConsoleWriter _consoleWriter;
         private readonly IConsoleReader _consoleReader;
 
@@ -25,13 +27,21 @@ namespace NeoSharp.Application.Controllers
         /// Constructor
         /// </summary>
         /// <param name="blockchain">Blockchain</param>
+        /// <param name="blockchainContext">The block chain context class.</param>
         /// <param name="blockPool">Block pool</param>
         /// <param name="transactionPool">Transaction Pool</param>
         /// <param name="consoleWriter">Console writter</param>
         /// <param name="consoleReader">Console reader</param>
-        public PromptBlockchainController(IBlockchain blockchain, IBlockPool blockPool, ITransactionPool transactionPool, IConsoleWriter consoleWriter, IConsoleReader consoleReader)
+        public PromptBlockchainController(
+            IBlockchain blockchain, 
+            IBlockchainContext blockchainContext,
+            IBlockPool blockPool, 
+            ITransactionPool transactionPool, 
+            IConsoleWriter consoleWriter, 
+            IConsoleReader consoleReader)
         {
             _blockchain = blockchain;
+            _blockchainContext = blockchainContext;
             _blockPool = blockPool;
             _transactionPool = transactionPool;
             _consoleReader = consoleReader;
@@ -67,8 +77,8 @@ namespace NeoSharp.Application.Controllers
         {
             var memStr = FormatState(_transactionPool.Size);
             var blockStr = FormatState(_blockPool.Size);
-            var headStr = FormatState(_blockchain.LastBlockHeader?.Index);
-            var blStr = FormatState(_blockchain.CurrentBlock?.Index);
+            var headStr = FormatState(this._blockchainContext.LastBlockHeader?.Index);
+            var blStr = FormatState(this._blockchainContext.CurrentBlock?.Index);
             var blIndex = FormatState(0); // TODO #398: Change me
 
             var numSpaces = new int[] { memStr.Length, blockStr.Length, blIndex.Length, headStr.Length, blStr.Length }.Max() + 1;
@@ -85,8 +95,8 @@ namespace NeoSharp.Application.Controllers
 
             _consoleWriter.WriteLine("Headers: " + headStr.PadLeft(numSpaces, ' ') + " ");
 
-            WriteStatePercent(" Blocks", blStr.PadLeft(numSpaces, ' '), _blockchain.CurrentBlock?.Index, _blockchain.LastBlockHeader?.Index);
-            WriteStatePercent("  Index", blIndex.PadLeft(numSpaces, ' '), 0, _blockchain.CurrentBlock?.Index);
+            WriteStatePercent(" Blocks", blStr.PadLeft(numSpaces, ' '), this._blockchainContext.CurrentBlock?.Index, this._blockchainContext.LastBlockHeader?.Index);
+            WriteStatePercent("  Index", blIndex.PadLeft(numSpaces, ' '), 0, this._blockchainContext.CurrentBlock?.Index);
         }
 
         /// <summary>

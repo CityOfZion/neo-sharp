@@ -15,7 +15,7 @@ namespace NeoSharp.Core.Network
         private static readonly TimeSpan DefaultMessagePollingInterval = TimeSpan.FromMilliseconds(100);
 
         private readonly IAsyncDelayer _asyncDelayer;
-        private readonly IMessageHandler<Message> _messageHandler;
+        private readonly IMessageHandlerProxy _messageHandlerProxy;
         private readonly IServerContext _serverContext;
 
         #endregion
@@ -24,11 +24,11 @@ namespace NeoSharp.Core.Network
 
         public PeerMessageListener(
             IAsyncDelayer asyncDelayer,
-            IMessageHandler<Message> messageHandler,
+            IMessageHandlerProxy messageHandlerProxy,
             IServerContext serverContext)
         {
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
-            _messageHandler = messageHandler ?? throw new ArgumentNullException(nameof(messageHandler));
+            _messageHandlerProxy = messageHandlerProxy ?? throw new ArgumentNullException(nameof(messageHandlerProxy));
             _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
         }
 
@@ -55,7 +55,7 @@ namespace NeoSharp.Core.Network
                     // TODO #369: Peer that sending wrong messages has to be disconnected.
                     if (peer.IsReady == message.IsHandshakeMessage()) continue;
 
-                    await _messageHandler.Handle(message, peer);
+                    await _messageHandlerProxy.Handle(message, peer);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }

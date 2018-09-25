@@ -1,35 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using NeoSharp.Core.Logging;
+﻿using System.Threading.Tasks;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class FilterAddMessageHandler : IMessageHandler<FilterAddMessage>
+    public class FilterAddMessageHandler : MessageHandler<FilterAddMessage>
     {
-        #region Variables
-
-        private readonly ILogger<FilterAddMessageHandler> _logger;
-
-        #endregion
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="logger">Logger</param>
-        public FilterAddMessageHandler(ILogger<FilterAddMessageHandler> logger)
-        {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }
-
-        /// <summary>
-        /// Handle FilterAdd message
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="sender">Sender</param>
-        /// <returns>Task</returns>
-        public async Task Handle(FilterAddMessage message, IPeer sender)
+        /// <inheritdoc />
+        public override async Task Handle(FilterAddMessage message, IPeer sender)
         {
             if (sender.BloomFilter != null)
             {
@@ -37,6 +15,12 @@ namespace NeoSharp.Core.Messaging.Handlers
             }
 
             await Task.CompletedTask;
+        }
+
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is FilterAddMessage;
         }
     }
 }

@@ -1,153 +1,58 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using NeoSharp.Core.DI;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging
 {
-    public class MessageHandlerProxy : IMessageHandler<Message>
+    public class MessageHandlerProxy : IMessageHandlerProxy
     {
-        #region Variables
-
-        private readonly IContainer _container;
+        #region Private fields 
+        private readonly IEnumerable<IMessageHandler> _messageHandlers;
         private readonly ILogger<MessageHandlerProxy> _logger;
-        private readonly IReadOnlyDictionary<Type, Delegate> _messageHandlerInvokers;
 
+        //private readonly Dictionary<Type, IMessageHandler> _handlers;
         #endregion
 
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="container">Container</param>
-        /// <param name="messageHandlerTypes">MessageHandler types</param>
-        /// <param name="logger">Logger</param>
-        public MessageHandlerProxy(IContainer container, IEnumerable<Type> messageHandlerTypes, ILogger<MessageHandlerProxy> logger)
+        #region Constructor 
+        public MessageHandlerProxy(
+            IEnumerable<IMessageHandler> messageHandlers, 
+            ILogger<MessageHandlerProxy> logger)
         {
-            _container = container;
+            _messageHandlers = messageHandlers;
             _logger = logger;
-            _messageHandlerInvokers = messageHandlerTypes
-                .Select(CreateMessageHandlerInvoker)
-                .ToDictionary(x => x.MessageType, x => x.MessageHandlerInvoker);
         }
+        #endregion
 
-        /// <summary>
-        /// Handle message
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="sender">Sender</param>
-        /// <returns>Task</returns>
-        public Task Handle(Message message, IPeer sender)
+        #region MessageHandler implementation 
+        public async Task Handle(Message message, IPeer sender)
         {
             if (message == null) throw new ArgumentNullException(nameof(message));
 
-            var messageType = message.GetType();
-            var messageHandler = ResolveMessageHandler(messageType);
-            var messageHandlerName = messageHandler.GetType().Name;
-            var startedAt = LogMessageHandlingStart(messageHandlerName);
-            var messageHandlerInvoker = GetMessageHandlerInvoker(messageType);
-            var handleMessageTask = (Task)messageHandlerInvoker.DynamicInvoke(messageHandler, message, sender);
+            var messageHandler = this._messageHandlers.SingleOrDefault(x => x.CanHandle(message));
 
-            return handleMessageTask.ContinueWith(t =>
-            {
-                if (t.IsCompletedSuccessfully)
-                {
-                    LogMessageHandlingEnd(startedAt, messageHandlerName);
-                    return;
-                }
-
-                if (t.IsFaulted)
-                {
-                    LogMessageHandlingEnd(startedAt, messageHandlerName, handleMessageTask.Exception);
-                    return;
-                }
-            });
-        }
-
-        private static (Type MessageType, Delegate MessageHandlerInvoker) CreateMessageHandlerInvoker(Type messageHandlerType)
-        {
-            const string handleMethodName = nameof(IMessageHandler<Message>.Handle);
-            const BindingFlags bindingFlags = BindingFlags.FlattenHierarchy | BindingFlags.Instance | BindingFlags.Public;
-
-            var handleMethodInfo = messageHandlerType.GetMethod(handleMethodName, bindingFlags);
-            var messageType = handleMethodInfo.GetParameters().First().ParameterType;
-            var messageHandlerInvoker = Delegate.CreateDelegate(
-                Expression.GetFuncType(messageHandlerType, messageType, typeof(IPeer), typeof(Task)),
-                null,
-                handleMethodInfo);
-
-            return (messageType, messageHandlerInvoker);
-        }
-
-        private object ResolveMessageHandler(Type messageType)
-        {
-            var messageHandler = _container.Resolve(typeof(IMessageHandler<>).MakeGenericType(messageType));
             if (messageHandler == null)
             {
-                throw new InvalidOperationException(
-                    $"The message of \"{messageType}\" type has no registered handlers.");
+                this._logger.LogError($"could not find the handler for the message type {message.GetType()}");
+                return;
             }
 
-            return messageHandler;
-        }
+            var startedAt = DateTime.UtcNow;
+            _logger.LogDebug($"The message handler \"{messageHandler.GetType().Name}\" started message handling at {startedAt:yyyy-MM-dd HH:mm:ss}.");
 
-        private Delegate GetMessageHandlerInvoker(Type messageType)
-        {
-            if (_messageHandlerInvokers.TryGetValue(messageType, out var messageHandlerInvoker) == false)
-            {
-                throw new InvalidOperationException(
-                    $"The message of \"{messageType}\" type has no registered handlers.");
-            }
+            dynamic specificMessageHandler = Convert.ChangeType(messageHandler, messageHandler.GetType());
+            dynamic specificMessage = Convert.ChangeType(message, message.GetType());
+            await specificMessageHandler.Handle(specificMessage, sender);
+            var completedAt = DateTime.UtcNow;
 
-            return messageHandlerInvoker;
-        }
-
-        /// <summary>
-        /// Log start
-        /// </summary>
-        /// <param name="messageHandlerName">Message handler name</param>
-        /// <returns>Return start date</returns>
-        private DateTime LogMessageHandlingStart(string messageHandlerName)
-        {
-            var startedAt = DateTime.Now;
-
-            _logger.LogDebug(
-                $"The message handler \"{messageHandlerName}\" started message handling at {startedAt:yyyy-MM-dd HH:mm:ss}.");
-
-            return startedAt;
-        }
-
-        /// <summary>
-        /// Log end with error
-        /// </summary>
-        /// <param name="startedAt">Start date</param>
-        /// <param name="messageHandlerName">Message handler name</param>
-        /// <param name="error">Error</param>
-        private void LogMessageHandlingEnd(DateTime startedAt, string messageHandlerName, Exception error)
-        {
-            var completedAt = DateTime.Now;
-            var handledWithin = (completedAt - startedAt).TotalMilliseconds;
-
-            _logger.LogError(error,
-                $"The message handler \"{messageHandlerName}\" faulted message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
-        }
-
-        /// <summary>
-        /// Log end
-        /// </summary>
-        /// <param name="startedAt">Start date</param>
-        /// <param name="messageHandlerName">Message handler name</param>
-        private void LogMessageHandlingEnd(DateTime startedAt, string messageHandlerName)
-        {
-            var completedAt = DateTime.Now;
             var handledWithin = (completedAt - startedAt).TotalMilliseconds;
 
             _logger.LogDebug(
-                $"The message handler \"{messageHandlerName}\" completed message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
+                $"The message handler \"{messageHandler.GetType().Name}\" completed message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
         }
+        #endregion
     }
 }

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Models;
@@ -28,9 +27,9 @@ namespace NeoSharp.Core.Test.Network
 
             AutoMockContainer.Register(networkConfig);
 
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
+            var blockchainContextMock = AutoMockContainer.GetMock<IBlockchainContext>();
 
-            blockchainMock
+            blockchainContextMock
                 .SetupGet(x => x.CurrentBlock)
                 .Returns(new Block());
         }

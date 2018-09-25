@@ -66,21 +66,5 @@ namespace NeoSharp.Core.Models
 
             return l;
         }
-
-        //public override bool Verify()
-        //{
-        //    if (Version != 0) throw new FormatException(nameof(Version));
-
-        //    if (Owner.IsInfinity && AssetType != AssetType.GoverningToken && AssetType != AssetType.UtilityToken)
-        //        throw new FormatException();
-
-        //    if (AssetType == AssetType.GoverningToken && !Hash.Equals(TransactionContext.GoverningTokenHash))
-        //        throw new FormatException();
-
-        //    if (AssetType == AssetType.UtilityToken && !Hash.Equals(TransactionContext.UtilityTokenHash))
-        //        throw new FormatException();
-
-        //    return base.Verify();
-        //}
     }
 }

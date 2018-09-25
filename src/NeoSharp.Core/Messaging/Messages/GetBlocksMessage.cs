@@ -1,4 +1,5 @@
-﻿using NeoSharp.BinarySerialization;
+﻿using System.IO;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Messaging.Messages
@@ -24,7 +25,7 @@ namespace NeoSharp.Core.Messaging.Messages
         }
     }
 
-    public class GetBlocksPayload
+    public class GetBlocksPayload : ISerializable
     {
         // TODO #372: Why is it an array if it is always initialized with a single value?
         [BinaryProperty(0)]
@@ -32,5 +33,17 @@ namespace NeoSharp.Core.Messaging.Messages
 
         [BinaryProperty(1)]
         public UInt256 HashStop = UInt256.Zero;
+
+        public int Size { get; }
+        public void Serialize(BinaryWriter writer)
+        {
+            //writer.Write(this.HashStart);
+            //writer.Write(this.HashStop);
+        }
+
+        public void Deserialize(BinaryReader reader)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

@@ -1,9 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Linq;
+﻿using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
-using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Models
 {
@@ -30,18 +27,5 @@ namespace NeoSharp.Core.Models
             return 4;
         }
         #endregion
-
-        //public override bool Verify()
-        //{
-        //    if (Version != 0) throw new FormatException(nameof(Version));
-
-        //    if (Inputs.Length != 0)
-        //        throw new FormatException(nameof(Inputs));
-
-        //    if (Outputs.Any(p => p.AssetId != TransactionContext.UtilityTokenHash))
-        //        throw new FormatException(nameof(Outputs));
-
-        //    return base.Verify();
-        //}
     }
 }

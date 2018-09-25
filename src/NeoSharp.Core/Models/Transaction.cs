@@ -176,10 +176,5 @@ namespace NeoSharp.Core.Models
         }
 
         #endregion
-
-        //public virtual bool Verify()
-        //{
-        //    return true;
-        //}
     }
 }

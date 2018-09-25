@@ -7,14 +7,13 @@ using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class InventoryMessageHandler : IMessageHandler<InventoryMessage>
+    public class InventoryMessageHandler : MessageHandler<InventoryMessage>
     {
-        #region Variables
-
+        #region Private Fields
         private readonly ILogger<InventoryMessageHandler> _logger;
-
         #endregion
 
+        #region Constructor 
         /// <summary>
         /// Constructor
         /// </summary>
@@ -23,14 +22,17 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+        #endregion
 
-        /// <summary>
-        /// Handle Inventory message
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="sender">Sender</param>
-        /// <returns>Task</returns>
-        public Task Handle(InventoryMessage message, IPeer sender)
+        #region MessageHandler override methods 
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is InventoryMessage;
+        }
+
+        /// <inheritdoc />
+        public override Task Handle(InventoryMessage message, IPeer sender)
         {
             var inventoryType = message.Payload.Type;
             if (Enum.IsDefined(typeof(InventoryType), inventoryType) == false)
@@ -53,7 +55,9 @@ namespace NeoSharp.Core.Messaging.Handlers
                 return Task.CompletedTask;
             }
 
+
             return sender.Send(new GetDataMessage(inventoryType, hashes));
         }
+        #endregion
     }
 }

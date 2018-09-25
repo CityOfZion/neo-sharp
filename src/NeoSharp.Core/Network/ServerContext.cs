@@ -1,6 +1,5 @@
 using System;
 using System.Reflection;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging.Messages;
 
@@ -8,63 +7,51 @@ namespace NeoSharp.Core.Network
 {
     public class ServerContext : IServerContext
     {
-        #region Consts
+        #region Private fields 
+        private const uint ProtocolVersion = 0;
+        private const ulong NodeNetwork = 1;
 
-        const uint PROTOCOL_VERSION = 0;
-        const ulong NODE_NETWORK = 1;
-
-        #endregion
-
-        #region Variables
-
-        /// <summary>
-        /// Blockchain
-        /// </summary>
-        private readonly IBlockchain _blockchain;
-        /// <summary>
-        /// Cached version
-        /// </summary>
+        private readonly IBlockchainContext _blockchainContext;
         private readonly VersionPayload _version;
-
         #endregion
 
-        #region Properties
-
+        #region Public properties
         /// <inheritdoc />
         public VersionPayload Version
         {
             get
             {
-                _version.Timestamp = DateTime.UtcNow.ToTimestamp();
-                _version.CurrentBlockIndex = _blockchain.CurrentBlock?.Index ?? 0;
+                this._version.Timestamp = DateTime.UtcNow.ToTimestamp();
+                this._version.CurrentBlockIndex = this._blockchainContext.CurrentBlock?.Index ?? 0;
 
                 return _version;
             }
         }
-
         #endregion
 
+        #region Constructor
         /// <summary>
         /// Server context
         /// </summary>
         /// <param name="config">Config</param>
-        /// <param name="blockchain">Blockchain</param>
-        public ServerContext(NetworkConfig config, IBlockchain blockchain)
+        /// <param name="blockchainContext">Context information updated by blockchain.</param>
+        public ServerContext(NetworkConfig config, IBlockchainContext blockchainContext)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
-            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
+            this._blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
 
             _version = new VersionPayload
             {
-                Version = PROTOCOL_VERSION,
-                Services = NODE_NETWORK,
+                Version = ProtocolVersion,
+                Services = NodeNetwork,
                 Timestamp = DateTime.UtcNow.ToTimestamp(),
                 Port = config.Port,
                 Nonce = (uint)new Random(Environment.TickCount).Next(),
                 UserAgent = $"/NEO-Sharp:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/",
-                CurrentBlockIndex = _blockchain.CurrentBlock?.Index ?? 0,
+                CurrentBlockIndex = this._blockchainContext.CurrentBlock?.Index ?? 0,
                 Relay = true
             };
         }
+        #endregion
     }
 }

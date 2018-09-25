@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
@@ -14,15 +13,14 @@ using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {
-    public class GetDataMessageHandler : IMessageHandler<GetDataMessage>
+    public class GetDataMessageHandler : MessageHandler<GetDataMessage>
     {
-        #region Variables
-
+        #region Private fields 
         private readonly IBlockchain _blockchain;
         private readonly ILogger<GetDataMessageHandler> _logger;
-
         #endregion
 
+        #region Constructor 
         /// <summary>
         /// Constructor
         /// </summary>
@@ -30,17 +28,16 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// <param name="logger">Logger</param>
         public GetDataMessageHandler(IBlockchain blockchain, ILogger<GetDataMessageHandler> logger)
         {
+            // TODO #434: Title not aligned but the context is the same.
+
             _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+        #endregion
 
-        /// <summary>
-        /// Handle GetData message
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="sender">sender Peer</param>
-        /// <returns>Task</returns>
-        public async Task Handle(GetDataMessage message, IPeer sender)
+        #region IMessageHandler orveride Methods
+        /// <inheritdoc />
+        public override async Task Handle(GetDataMessage message, IPeer sender)
         {
             var hashes = message.Payload.Hashes
                 .Distinct()
@@ -78,6 +75,14 @@ namespace NeoSharp.Core.Messaging.Handlers
             }
         }
 
+        /// <inheritdoc />
+        public override bool CanHandle(Message message)
+        {
+            return message is GetDataMessage;
+        }
+        #endregion
+
+        #region Private Methods 
         private async Task SendTransactions(IReadOnlyCollection<UInt256> transactionHashes, IPeer peer)
         {
             var transactions = await _blockchain.GetTransactions(transactionHashes);
@@ -89,7 +94,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
         private async Task SendBlocks(IReadOnlyCollection<UInt256> blockHashes, IPeer peer)
         {
-            var blocks = await _blockchain.GetBlocks(blockHashes);
+            var blocks = (await _blockchain.GetBlocks(blockHashes)).ToList();
 
             if (!blocks.Any()) return;
 
@@ -117,11 +122,12 @@ namespace NeoSharp.Core.Messaging.Handlers
             }
         }
 
-        private bool TestFilter(BloomFilter filter, Transaction tx)
+        private static bool TestFilter(BloomFilter filter, Transaction tx)
         {
             // TODO #380: encapsulate this in filter
 
             return false;
         }
+        #endregion
     }
 }

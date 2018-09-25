@@ -2,8 +2,10 @@
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Helpers;
+using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Network;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Blockchain.Processing
@@ -16,8 +18,9 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly IBlockOperationsManager _blockOperationsManager;
         private readonly IBlockPersister _blockPersister;
+        private readonly IBlockchainContext _blockchainContext;
+        private readonly IBroadcaster _broadcaster;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private Block _currentBlock;
 
         public event EventHandler<Block> OnBlockProcessed;
 
@@ -25,19 +28,23 @@ namespace NeoSharp.Core.Blockchain.Processing
             IBlockPool blockPool,
             IAsyncDelayer asyncDelayer,
             IBlockOperationsManager blockOperationsManager,
-            IBlockPersister blockPersister)
+            IBlockPersister blockPersister, 
+            IBlockchainContext blockchainContext, 
+            IBroadcaster broadcaster)
         {
             _blockPool = blockPool ?? throw new ArgumentNullException(nameof(blockPool));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
-            _blockOperationsManager = blockOperationsManager;
-            _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(_blockPersister));
+            _blockOperationsManager = blockOperationsManager ?? throw new ArgumentNullException(nameof(blockOperationsManager));
+            _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(blockPersister));
+            _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
+            _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
         }
 
         // TODO #384: We will read the current block from Blockchain
         // because the logic to get that too complicated 
         public void Run(Block currentBlock)
         {
-            _currentBlock = currentBlock;
+            this._blockchainContext.CurrentBlock = currentBlock;
 
             var cancellationToken = _cancellationTokenSource.Token;
 
@@ -45,7 +52,13 @@ namespace NeoSharp.Core.Blockchain.Processing
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var nextBlockHeight = _currentBlock?.Index + 1 ?? 0;
+                    if (this._blockchainContext.IsPeerConnected && this._blockchainContext.NeedPeerSync && !this._blockchainContext.IsSyncing)
+                    {
+                        this._broadcaster.Broadcast(new GetBlocksMessage(this._blockchainContext.CurrentBlock.Hash));
+                        this._blockchainContext.IsSyncing = true;
+                    }
+
+                    var nextBlockHeight = currentBlock?.Index + 1 ?? 0;
 
                     if (!_blockPool.TryGet(nextBlockHeight, out var block))
                     {
@@ -56,7 +69,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                     await this._blockPersister.Persist(block);
 
                     _blockPool.Remove(nextBlockHeight);
-                    _currentBlock = block;
+                    this._blockchainContext.CurrentBlock = block;
 
 
                     OnBlockProcessed?.Invoke(this, block);
