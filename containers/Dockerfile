@@ -32,4 +32,4 @@ WORKDIR /home/neo-sharp
 EXPOSE 8000/tcp 10332/tcp
 
 # default first command to run when container is started will start app
-CMD ["/usr/bin/dotnet", "NeoSharp.Application.dll"]
+CMD ["/usr/bin/dotnet", "NeoSharp.Application.dll","network start","rpc start"]
