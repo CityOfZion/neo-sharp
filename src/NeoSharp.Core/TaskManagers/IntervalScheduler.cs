@@ -39,18 +39,18 @@ namespace NeoSharp.Core.TaskManagers
             await RunTask(interval, new CancellationTokenSource(), repetitions, action);
         }
 
-        public static async void Run(TimeSpan interval, CancellationTokenSource cancellationToken, Func<Task> action)
+        public static async Task Run(TimeSpan interval, CancellationTokenSource cancellationToken, Func<Task> action)
         {
             await RunTask(interval, cancellationToken, action);
         }
 
-        public static async void Run(TimeSpan interval, CancellationTokenSource cancellationToken, int repetitions,
+        public static async Task Run(TimeSpan interval, CancellationTokenSource cancellationToken, int repetitions,
             Func<Task> action)
         {
             await RunTask(interval, cancellationToken, repetitions, action);
         }
 
-        public static async void Run(TimeSpan interval, int repetitions, Func<Task> action)
+        public static async Task Run(TimeSpan interval, int repetitions, Func<Task> action)
         {
             await RunTask(interval, new CancellationTokenSource(), repetitions, action);
         }

@@ -26,12 +26,12 @@ namespace NeoSharp.Core.Wallet.Helpers
         /// <param name="passphrase">Passphrase.</param>
         public byte[] DecryptWif(string encryptedPrivateKey, SecureString passphrase)
         {
-            if (encryptedPrivateKey == null || String.IsNullOrWhiteSpace(encryptedPrivateKey))
+            if (string.IsNullOrWhiteSpace(encryptedPrivateKey))
             {
                 throw new ArgumentNullException(nameof(encryptedPrivateKey));
             }
 
-            if (passphrase == null || String.IsNullOrWhiteSpace(passphrase.ToString()))
+            if (passphrase == null || string.IsNullOrWhiteSpace(passphrase.ToString()))
             {
                 throw new ArgumentNullException(nameof(passphrase));
             }

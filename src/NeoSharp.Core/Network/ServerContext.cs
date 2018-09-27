@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging.Messages;
 
@@ -46,7 +47,7 @@ namespace NeoSharp.Core.Network
                 Services = NodeNetwork,
                 Timestamp = DateTime.UtcNow.ToTimestamp(),
                 Port = config.Port,
-                Nonce = (uint)new Random(Environment.TickCount).Next(),
+                Nonce = BitConverter.ToUInt32(Crypto.Default.GenerateRandomBytes(4), 0),
                 UserAgent = $"/NEO-Sharp:{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}/",
                 CurrentBlockIndex = this._blockchainContext.CurrentBlock?.Index ?? 0,
                 Relay = true

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
 
@@ -26,9 +27,8 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// <inheritdoc />
         public override async Task Handle(GetAddrMessage message, IPeer sender)
         {
-            var rand = new Random(Environment.TickCount);
             var peers = _server.ConnectedPeers
-                .OrderBy(p => rand.Next())
+                .OrderBy(p => BitConverter.ToUInt32(Crypto.Default.GenerateRandomBytes(4), 0))
                 .Take(MaxCountToSend)
                 .ToArray();
 
