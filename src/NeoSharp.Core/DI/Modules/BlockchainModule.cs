@@ -37,7 +37,8 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<ITransactionSigner, TransactionSigner>();
             containerBuilder.RegisterSingleton<ITransactionVerifier, TransactionVerifier>();
             containerBuilder.RegisterSingleton<IBlockHeaderOperationsManager, BlockHeaderOperationsManager>();
-            containerBuilder.RegisterSingleton<IBlockOperationsManager, BlockOperationsManager>();
+            containerBuilder.RegisterSingleton<IBlockSigner, BlockSigner>();
+            containerBuilder.RegisterSingleton<IBlockVerifier, BlockVerifier>();
             #endregion
 
             containerBuilder.RegisterSingleton<IAccountManager, AccountManager>();

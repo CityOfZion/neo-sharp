@@ -16,7 +16,7 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         private readonly IBlockPool _blockPool;
         private readonly IAsyncDelayer _asyncDelayer;
-        private readonly IBlockOperationsManager _blockOperationsManager;
+        private readonly IBlockSigner _blockSigner;
         private readonly IBlockPersister _blockPersister;
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBroadcaster _broadcaster;
@@ -27,14 +27,14 @@ namespace NeoSharp.Core.Blockchain.Processing
         public BlockProcessor(
             IBlockPool blockPool,
             IAsyncDelayer asyncDelayer,
-            IBlockOperationsManager blockOperationsManager,
+            IBlockSigner blockSigner,
             IBlockPersister blockPersister, 
             IBlockchainContext blockchainContext, 
             IBroadcaster broadcaster)
         {
             _blockPool = blockPool ?? throw new ArgumentNullException(nameof(blockPool));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
-            _blockOperationsManager = blockOperationsManager ?? throw new ArgumentNullException(nameof(blockOperationsManager));
+            _blockSigner = blockSigner ?? throw new ArgumentNullException(nameof(blockSigner));
             _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(blockPersister));
             _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
             _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
@@ -83,7 +83,7 @@ namespace NeoSharp.Core.Blockchain.Processing
 
             if (block.Hash == null)
             {
-                _blockOperationsManager.Sign(block);
+                _blockSigner.Sign(block);
             }
 
             var blockHash = block.Hash;

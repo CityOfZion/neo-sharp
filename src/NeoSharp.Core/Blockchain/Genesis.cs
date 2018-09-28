@@ -55,12 +55,12 @@ namespace NeoSharp.Core.Blockchain
             var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
             var transactionOperationsManager = new TransactionSigner(Crypto.Default, witnessOperationsManager);
 
-            var blockOperationsManager = new BlockOperationsManager(
+            var blockSigner = new BlockSigner(
                 Crypto.Default, 
                 BinarySerializer.Default, 
                 transactionOperationsManager,
                 witnessOperationsManager);
-            blockOperationsManager.Sign(GenesisBlock);
+            blockSigner.Sign(GenesisBlock);
 
         }
 

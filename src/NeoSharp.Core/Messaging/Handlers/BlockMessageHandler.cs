@@ -12,7 +12,8 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Private Fields 
         private readonly IBlockProcessor _blockProcessor;
-        private readonly IBlockOperationsManager _blockOperationsManager;
+        private readonly IBlockSigner _blockSigner;
+        private readonly IBlockVerifier _blockVerifier;
         private readonly IBroadcaster _broadcaster;
         private readonly ILogger<BlockMessageHandler> _logger;
         #endregion
@@ -23,17 +24,19 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// Constructor
         /// </summary>
         /// <param name="blockProcessor">Block Pool</param>
-        /// <param name="blockOperationsManager">Block operations manager.</param>
+        /// <param name="blockSigner">Block operations manager.</param>
         /// <param name="broadcaster">Broadcaster</param>
         /// <param name="logger">Logger</param>
         public BlockMessageHandler(
             IBlockProcessor blockProcessor,
-            IBlockOperationsManager blockOperationsManager,
+            IBlockSigner blockSigner,
+            IBlockVerifier blockVerifier,
             IBroadcaster broadcaster,
             ILogger<BlockMessageHandler> logger)
         {
             this._blockProcessor = blockProcessor ?? throw new ArgumentNullException(nameof(blockProcessor));
-            this._blockOperationsManager = blockOperationsManager;
+            this._blockSigner = blockSigner;
+            this._blockVerifier = blockVerifier;
             this._broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
             this._logger = logger;
         }
@@ -50,10 +53,15 @@ namespace NeoSharp.Core.Messaging.Handlers
         public override async Task Handle(BlockMessage message, IPeer sender)
         {
             var block = message.Payload;
-
+            
             if (block.Hash == null)
             {
-                this._blockOperationsManager.Sign(block);
+                this._blockSigner.Sign(block);
+            }
+
+            if (_blockVerifier.Verify(block))
+            {
+                await _blockProcessor.AddBlock(block);
             }
 
             this._logger.LogInformation($"Adding block {block.Hash} to the BlockPool with Index {block.Index}.");

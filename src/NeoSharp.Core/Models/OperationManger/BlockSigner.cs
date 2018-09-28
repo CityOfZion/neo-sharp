@@ -1,12 +1,11 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Models.OperationManger
 {
-    public class BlockOperationsManager : IBlockOperationsManager
+    public class BlockSigner : IBlockSigner
     {
         #region Private Fields
         private readonly Crypto _crypto;
@@ -16,7 +15,7 @@ namespace NeoSharp.Core.Models.OperationManger
         #endregion
 
         #region Constructor 
-        public BlockOperationsManager(
+        public BlockSigner(
             Crypto crypto, 
             IBinarySerializer binarySerializer, 
             ITransactionSigner transactionSigner,
@@ -29,7 +28,6 @@ namespace NeoSharp.Core.Models.OperationManger
         }
         #endregion
 
-        #region IBlockOperationsManager implementation 
         public void Sign(Block block)
         {
             // Compute tx hashes
@@ -57,11 +55,5 @@ namespace NeoSharp.Core.Models.OperationManger
 
             this._witnessOperationsManager.Sign(block.Witness);
         }
-
-        public bool Verify(Block block)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
     }
 }
