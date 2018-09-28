@@ -56,9 +56,10 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly ConcurrentDictionary<UInt256, TimeStampedTransaction> _transactionPool = new ConcurrentDictionary<UInt256, TimeStampedTransaction>();
         private readonly IComparer<TimeStampedTransaction> _comparer;
 
-        public TransactionPool(ITransactionSigner transactionSigner, IComparer<Transaction> comparer = null)
+        public TransactionPool(ITransactionSigner transactionSigner, ITransactionVerifier transactionVerifier, IComparer<Transaction> comparer = null)
         {
             _transactionSigner = transactionSigner;
+            _transactionVerifier = transactionVerifier;
             _comparer = new TimeStampedTransactionComparer(comparer);
         }
 

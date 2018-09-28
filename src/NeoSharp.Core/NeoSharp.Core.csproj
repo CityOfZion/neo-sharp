@@ -33,9 +33,4 @@
   <ItemGroup>
     <None Remove="SmartContract\ContractHelper.cs~HEAD" />
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="SimpleInjector">
-      <HintPath>..\..\..\..\Users\esqueleto\.nuget\packages\simpleinjector\4.3.0\lib\netstandard1.3\SimpleInjector.dll</HintPath>
-    </Reference>
-  </ItemGroup>
 </Project>
