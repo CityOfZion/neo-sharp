@@ -18,7 +18,7 @@ namespace NeoSharp.Core.Blockchain.Genesis
         private const uint DecrementInterval = 2000000;
         private readonly uint[] _gasGenerationPerBlock = { 8, 7, 6, 5, 4, 3, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
-        private readonly ITransactionOperationsManager _transactionOperationManager;
+        private readonly ISigner<Transaction> _transactionSigner;
 
         private readonly NetworkConfig _networkConfig;
 
@@ -27,44 +27,9 @@ namespace NeoSharp.Core.Blockchain.Genesis
         #endregion
 
         #region Constructor 
-        public GenesisAssetsBuilder(ITransactionOperationsManager transactionOperationManager) 
+        public GenesisAssetsBuilder(ISigner<Transaction> transactionSigner) 
         {
-            _transactionOperationManager = transactionOperationManager;
-            //// NEO Token is represented as a RegisterTransaction of type GoverningToken
-            //this.GoverningTokenRegisterTransaction = new RegisterTransaction
-            //{
-            //    AssetType = AssetType.GoverningToken,
-            //    Name = "[{\"lang\":\"zh-CN\",\"name\":\"小蚁股\"},{\"lang\":\"en\",\"name\":\"AntShare\"}]",
-            //    Amount = Fixed8.FromDecimal(100000000),
-            //    Precision = 0,
-            //    Owner = ECPoint.Infinity,
-            //    //Why this? Check with people
-            //    Admin = (new[] { (byte)EVMOpCode.PUSH1 }).ToScriptHash(),
-            //    Attributes = new TransactionAttribute[0],
-            //    Inputs = new CoinReference[0],
-            //    Outputs = new TransactionOutput[0],
-            //    Witness = new Witness[0]
-            //};
-
-            //transactionOperationManager.Sign(this.GoverningTokenRegisterTransaction);
-
-            //// GAS Token is represented as a RegisterTransaction of type UtilityToken
-            //this.UtilityTokenRegisterTransaction = new RegisterTransaction
-            //{
-            //    AssetType = AssetType.UtilityToken,
-            //    Name = "[{\"lang\":\"zh-CN\",\"name\":\"小蚁币\"},{\"lang\":\"en\",\"name\":\"AntCoin\"}]",
-            //    Amount = Fixed8.FromDecimal(_gasGenerationPerBlock.Sum(p => p) * DecrementInterval),
-            //    Precision = 8,
-            //    Owner = ECPoint.Infinity,
-            //    //Why this? Check with people
-            //    Admin = (new[] { (byte)EVMOpCode.PUSH0 }).ToScriptHash(),
-            //    Attributes = new TransactionAttribute[0],
-            //    Inputs = new CoinReference[0],
-            //    Outputs = new TransactionOutput[0],
-            //    Witness = new Witness[0]
-            //};
-
-            //transactionOperationManager.Sign(this.UtilityTokenRegisterTransaction);
+            this._transactionSigner = transactionSigner;
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
@@ -96,7 +61,7 @@ namespace NeoSharp.Core.Blockchain.Genesis
                 Witness = new Witness[0]
             };
 
-            this._transactionOperationManager.Sign(this._governingTokenRegisterTransaction);
+            this._transactionSigner.Sign(this._governingTokenRegisterTransaction);
             return this._governingTokenRegisterTransaction;
         }
 
@@ -119,7 +84,7 @@ namespace NeoSharp.Core.Blockchain.Genesis
                 Witness = new Witness[0]
             };
 
-            this._transactionOperationManager.Sign(this._utilityTokenRegisterTransaction);
+            this._transactionSigner.Sign(this._utilityTokenRegisterTransaction);
             return this._utilityTokenRegisterTransaction;
         }
 

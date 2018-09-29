@@ -20,18 +20,18 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly IRepository _repository;
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-        private readonly ITransactionOperationsManager _transactionOperationsManager;
+        private readonly IVerifier<Transaction> _transactionVerifier;
 
         public event EventHandler<Transaction> OnTransactionProcessed;
 
         public TransactionProcessor(
             ITransactionPool transactionPool,
-            ITransactionOperationsManager transactionOperationsManager,
+            IVerifier<Transaction> transactionVerifier,
             IRepository repository,
             IAsyncDelayer asyncDelayer)
         {
             _verifiedTransactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
-            _transactionOperationsManager = transactionOperationsManager ?? throw new ArgumentNullException(nameof(transactionOperationsManager));
+            _transactionVerifier = transactionVerifier ?? throw new ArgumentNullException(nameof(transactionVerifier));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
         }
@@ -62,7 +62,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                             continue;
                         }
 
-                        var valid = _transactionOperationsManager.Verify(transaction);
+                        var valid = this._transactionVerifier.Verify(transaction);
                         
                         if (transactionPool
                             .Where(t => t.Hash != transactionHash)

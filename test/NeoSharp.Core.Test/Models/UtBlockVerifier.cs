@@ -1,7 +1,6 @@
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
@@ -17,7 +16,7 @@ namespace NeoSharp.Core.Test.Models
         [TestMethod]
         public void Verify_WithPrevBlockHeaderNotFound()
         {
-            var testee = AutoMockContainer.Create<BlockVerifier>();
+            var testee = AutoMockContainer.Create<BlockOperationManager>();
 
             var block = new Block
             {
@@ -37,7 +36,7 @@ namespace NeoSharp.Core.Test.Models
         [TestMethod]
         public void Verify_WithPrevBlockHeaderIndexNotThePrevious()
         {
-            var testee = AutoMockContainer.Create<BlockVerifier>();
+            var testee = AutoMockContainer.Create<BlockOperationManager>();
 
             var block = new Block
             {
@@ -63,7 +62,7 @@ namespace NeoSharp.Core.Test.Models
         [TestMethod]
         public void Verify_WithPrevBlockHeaderGreaterTimestamp()
         {
-            var testee = AutoMockContainer.Create<BlockVerifier>();
+            var testee = AutoMockContainer.Create<BlockOperationManager>();
 
             var block = new Block
             {
@@ -91,7 +90,7 @@ namespace NeoSharp.Core.Test.Models
         [TestMethod]
         public void Verify_WithPrevBlockHeaderVerifyWitnessFail()
         {
-            var testee = AutoMockContainer.Create<BlockVerifier>();
+            var testee = AutoMockContainer.Create<BlockOperationManager>();
 
             var block = new Block
             {
@@ -125,7 +124,7 @@ namespace NeoSharp.Core.Test.Models
         [TestMethod]
         public void Verify_Success()
         {
-            var testee = AutoMockContainer.Create<BlockVerifier>();
+            var testee = AutoMockContainer.Create<BlockOperationManager>();
 
             var block = new Block
             {

@@ -1,9 +1,6 @@
 ﻿namespace NeoSharp.Core.Models.OperationManger
 {
-    public interface IWitnessOperationsManager
+    public interface IWitnessOperationsManager : ISigner<Witness>, IVerifier<Witness>
     {
-        void Sign(Witness witness);
-
-        bool Verify(Witness witness);
     }
 }

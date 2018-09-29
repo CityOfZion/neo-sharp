@@ -11,19 +11,23 @@ namespace NeoSharp.Core.Blockchain.Processing
 {
     public partial class TransactionPool : ITransactionPool
     {
-        private readonly ITransactionOperationsManager _transactionOperationsManager;
-
+        #region Private Fields
         private const int DefaultCapacity = 50_000;
 
-        private readonly ConcurrentDictionary<UInt256, TimeStampedTransaction> _transactionPool = new ConcurrentDictionary<UInt256, TimeStampedTransaction>();
+        private readonly ITransactionOperationsManager _transactionOperationsManager;
         private readonly IComparer<TimeStampedTransaction> _comparer;
+        private readonly ConcurrentDictionary<UInt256, TimeStampedTransaction> _transactionPool = new ConcurrentDictionary<UInt256, TimeStampedTransaction>();
+        #endregion
 
+        #region Constructor 
         public TransactionPool(ITransactionOperationsManager transactionOperationsManager, IComparer<Transaction> comparer = null)
         {
             _transactionOperationsManager = transactionOperationsManager;
             _comparer = new TimeStampedTransactionComparer(comparer);
         }
+        #endregion
 
+        #region ITransactionPool implementation
         public int Size => _transactionPool.Count;
 
         public int Capacity => DefaultCapacity;
@@ -78,7 +82,9 @@ namespace NeoSharp.Core.Blockchain.Processing
         {
             return GetEnumerator();
         }
+        #endregion
 
+        #region Private Methods 
         private IEnumerable<Transaction> GetTransactions()
         {
             return _transactionPool
@@ -86,5 +92,6 @@ namespace NeoSharp.Core.Blockchain.Processing
                 .OrderBy(_ => _, _comparer)
                 .Select(tst => tst.Transaction);
         }
+        #endregion
     }
 }

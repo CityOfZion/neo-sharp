@@ -10,18 +10,18 @@ namespace NeoSharp.Core.Models.OperationManger
         #region Private Fields
         private readonly Crypto _crypto;
         private readonly IBinarySerializer _binarySerializer;
-        private readonly IWitnessOperationsManager _witnessOperationsManager;
+        private readonly ISigner<Witness> _witnessSigner;
         #endregion
 
         #region Constructor 
         public BlockHeaderOperationsManager(
             Crypto crypto,
             IBinarySerializer binarySerializer,
-            IWitnessOperationsManager witnessOperationsManager)
+            ISigner<Witness> witnessSigner)
         {
             this._crypto = crypto;
             this._binarySerializer = binarySerializer;
-            this._witnessOperationsManager = witnessOperationsManager;
+            this._witnessSigner = witnessSigner;
         }
         #endregion
 
@@ -43,7 +43,7 @@ namespace NeoSharp.Core.Models.OperationManger
 
             blockHeader.Hash = new UInt256(this._crypto.Hash256(serializedBlockHeader));
 
-            this._witnessOperationsManager.Sign(blockHeader.Witness);
+            this._witnessSigner.Sign(blockHeader.Witness);
         }
 
         public bool Verify(BlockHeader blockHeader)

@@ -12,8 +12,7 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Private Fields 
         private readonly IBlockProcessor _blockProcessor;
-        private readonly IBlockSigner _blockSigner;
-        private readonly IBlockVerifier _blockVerifier;
+        private readonly IBlockOperationsManager _blockOperationsManager;
         private readonly IBroadcaster _broadcaster;
         private readonly ILogger<BlockMessageHandler> _logger;
         #endregion
@@ -24,19 +23,17 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// Constructor
         /// </summary>
         /// <param name="blockProcessor">Block Pool</param>
-        /// <param name="blockSigner">Block operations manager.</param>
+        /// <param name="blockOperationsManager">The block operations mananger.</param>
         /// <param name="broadcaster">Broadcaster</param>
         /// <param name="logger">Logger</param>
         public BlockMessageHandler(
             IBlockProcessor blockProcessor,
-            IBlockSigner blockSigner,
-            IBlockVerifier blockVerifier,
+            IBlockOperationsManager blockOperationsManager,
             IBroadcaster broadcaster,
             ILogger<BlockMessageHandler> logger)
         {
             this._blockProcessor = blockProcessor ?? throw new ArgumentNullException(nameof(blockProcessor));
-            this._blockSigner = blockSigner;
-            this._blockVerifier = blockVerifier;
+            this._blockOperationsManager = blockOperationsManager ?? throw new ArgumentNullException(nameof(blockOperationsManager));
             this._broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
             this._logger = logger;
         }
@@ -56,10 +53,10 @@ namespace NeoSharp.Core.Messaging.Handlers
             
             if (block.Hash == null)
             {
-                this._blockSigner.Sign(block);
+                this._blockOperationsManager.Sign(block);
             }
 
-            if (_blockVerifier.Verify(block))
+            if (this._blockOperationsManager.Verify(block))
             {
                 await _blockProcessor.AddBlock(block);
             }

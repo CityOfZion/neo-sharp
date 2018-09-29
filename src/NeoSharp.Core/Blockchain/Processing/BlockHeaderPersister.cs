@@ -14,7 +14,7 @@ namespace NeoSharp.Core.Blockchain.Processing
     public class BlockHeaderPersister : IBlockHeaderPersister
     {
         private readonly IRepository _repository;
-        private readonly IBlockHeaderOperationsManager _blockHeaderOperationsManager;
+        private readonly ISigner<BlockHeader> _blockHeaderSigner;
         private readonly IGenesisBuilder _genesisBuilder;
 
         public BlockHeader LastBlockHeader { get; set; }
@@ -23,11 +23,11 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         public BlockHeaderPersister(
             IRepository repository, 
-            IBlockHeaderOperationsManager blockHeaderOperationsManager,
+            ISigner<BlockHeader> blockHeaderSigner,
             IGenesisBuilder genesisBuilder)
         {
             _repository = repository;
-            _blockHeaderOperationsManager = blockHeaderOperationsManager;
+            _blockHeaderSigner = blockHeaderSigner;
             _genesisBuilder = genesisBuilder;
         }
 
@@ -54,7 +54,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             {
                 if (blockHeader.Hash == null)
                 {
-                    _blockHeaderOperationsManager.Sign(blockHeader);
+                    _blockHeaderSigner.Sign(blockHeader);
                 }
 
                 if (!Validate(blockHeader)) break;

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;

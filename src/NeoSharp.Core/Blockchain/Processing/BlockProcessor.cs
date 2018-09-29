@@ -16,7 +16,7 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         private readonly IBlockPool _blockPool;
         private readonly IAsyncDelayer _asyncDelayer;
-        private readonly IBlockSigner _blockSigner;
+        private readonly ISigner<Block> _blockSigner;
         private readonly IBlockPersister _blockPersister;
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBroadcaster _broadcaster;
@@ -27,7 +27,7 @@ namespace NeoSharp.Core.Blockchain.Processing
         public BlockProcessor(
             IBlockPool blockPool,
             IAsyncDelayer asyncDelayer,
-            IBlockSigner blockSigner,
+            ISigner<Block> blockSigner,
             IBlockPersister blockPersister, 
             IBlockchainContext blockchainContext, 
             IBroadcaster broadcaster)

@@ -11,11 +11,11 @@ namespace NeoSharp.Core.Blockchain.Genesis
     {
         #region Private Fields 
         private readonly IGenesisAssetsBuilder _genesisAssetsBuilder;
-        private readonly IBlockSigner _blockSigner;
+        private readonly ISigner<Block> _blockSigner;
         #endregion
 
         #region Constructor
-        public GenesisBuilder(IGenesisAssetsBuilder genesisAssetsBuilder, IBlockSigner blockSigner)
+        public GenesisBuilder(IGenesisAssetsBuilder genesisAssetsBuilder, ISigner<Block> blockSigner)
         {
             this._genesisAssetsBuilder = genesisAssetsBuilder;
             this._blockSigner = blockSigner;

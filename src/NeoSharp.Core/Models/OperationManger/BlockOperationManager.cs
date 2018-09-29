@@ -1,33 +1,39 @@
 ﻿using System.Linq;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Types;
 
 namespace NeoSharp.Core.Models.OperationManger
 {
-    public class BlockSigner : IBlockSigner
+    public class BlockOperationManager : IBlockOperationsManager
     {
         #region Private Fields
         private readonly Crypto _crypto;
         private readonly IBinarySerializer _binarySerializer;
-        private readonly ITransactionOperationsManager _transactionOperationsManager;
+        private readonly ISigner<Transaction> _transactionSigner;
         private readonly IWitnessOperationsManager _witnessOperationsManager;
+        private readonly IBlockRepository _blockRepository;
+
         #endregion
 
         #region Constructor 
-        public BlockSigner(
+        public BlockOperationManager(
             Crypto crypto, 
             IBinarySerializer binarySerializer, 
-            ITransactionOperationsManager transactionOperationsManager,
-            IWitnessOperationsManager witnessOperationsManager)
+            ISigner<Transaction> transactionSigner,
+            IWitnessOperationsManager witnessOperationsManager,
+            IBlockRepository blockRepository)
         {
             this._crypto = crypto;
             this._binarySerializer = binarySerializer;
-            this._transactionOperationsManager = transactionOperationsManager;
+            this._transactionSigner = transactionSigner;
             this._witnessOperationsManager = witnessOperationsManager;
+            this._blockRepository = blockRepository;
         }
         #endregion
 
+        #region IBlockOperationsManager implementation 
         public void Sign(Block block)
         {
             // Compute tx hashes
@@ -36,7 +42,7 @@ namespace NeoSharp.Core.Models.OperationManger
 
             for (var x = 0; x < txSize; x++)
             {
-                this._transactionOperationsManager.Sign(block.Transactions?[x]);
+                this._transactionSigner.Sign(block.Transactions?[x]);
                 block.TransactionHashes[x] = block.Transactions?[x].Hash;
             }
 
@@ -55,5 +61,33 @@ namespace NeoSharp.Core.Models.OperationManger
 
             this._witnessOperationsManager.Sign(block.Witness);
         }
+
+        public bool Verify(Block block)
+        {
+            var prevHeader = this._blockRepository.GetBlockHeader(block.PreviousBlockHash).Result;
+
+            if (prevHeader == null)
+            {
+                return false;
+            }
+
+            if (prevHeader.Index + 1 != block.Index)
+            {
+                return false;
+            }
+
+            if (prevHeader.Timestamp >= block.Timestamp)
+            {
+                return false;
+            }
+
+            if (!_witnessOperationsManager.Verify(block.Witness))
+            {
+                return false;
+            }
+
+            return true;
+        }
+        #endregion
     }
 }

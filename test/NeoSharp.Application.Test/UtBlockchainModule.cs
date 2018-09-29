@@ -33,8 +33,7 @@ namespace NeoSharp.Application.Test
             containerBuilderMock.Verify(x => x.RegisterSingleton<IWitnessOperationsManager, WitnessOperationsManager>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton<ITransactionOperationsManager, TransactionOperationManager>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton<IBlockHeaderOperationsManager, BlockHeaderOperationsManager>(), Times.Once);
-            containerBuilderMock.Verify(x => x.RegisterSingleton<IBlockSigner, BlockSigner>(), Times.Once);
-            containerBuilderMock.Verify(x => x.RegisterSingleton<IBlockVerifier, BlockVerifier>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<IBlockOperationsManager, BlockOperationManager>(), Times.Once);
         }
     }
 }

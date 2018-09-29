@@ -50,7 +50,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
             var block = new Block();
 
             this.AutoMockContainer
-                .GetMock<IBlockSigner>()
+                .GetMock<ISigner<Block>>()
                 .Setup(x => x.Sign(block))
                 .Callback<Block>(x => x.Hash = null);
 
@@ -66,7 +66,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
             var block = new Block();
 
             this.AutoMockContainer
-                .GetMock<IBlockSigner>()
+                .GetMock<ISigner<Block>>()
                 .Setup(x => x.Sign(block))
                 .Callback<Block>(x => x.Hash = UInt256.Zero);
 

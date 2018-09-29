@@ -15,7 +15,7 @@ namespace NeoSharp.Core.Messaging.Handlers
         #region Private Fields 
         private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionPool _transactionPool;
-        private readonly ITransactionOperationsManager _transactionOperationsManager;
+        private readonly ISigner<Transaction> _transactionSigner;
         private readonly ILogger<TransactionMessageHandler> _logger;
         #endregion
 
@@ -25,17 +25,17 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// </summary>
         /// <param name="transactionRepository">Transaction respository access.</param>
         /// <param name="transactionPool">Transaction Pool</param>
-        /// <param name="transactionOperationsManager">The transaction operation manager</param>
+        /// <param name="transactionSigner">The transaction signer</param>
         /// <param name="logger">Logger</param>
         public TransactionMessageHandler(
             ITransactionRepository transactionRepository, 
             ITransactionPool transactionPool, 
-            ITransactionOperationsManager transactionOperationsManager,
+            ISigner<Transaction> transactionSigner,
             ILogger<TransactionMessageHandler> logger)
         {
             _transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
             _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
-            _transactionOperationsManager = transactionOperationsManager ?? throw new ArgumentNullException(nameof(transactionOperationsManager));
+            _transactionSigner = transactionSigner ?? throw new ArgumentNullException(nameof(transactionSigner));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         #endregion
@@ -57,7 +57,7 @@ namespace NeoSharp.Core.Messaging.Handlers
             // TODO #373: check if the hash of the transaction is known already
             if (transaction.Hash == null)
             {
-                this._transactionOperationsManager.Sign(transaction);
+                this._transactionSigner.Sign(transaction);
             }
 
             if (await this._transactionRepository.ContainsTransaction(transaction.Hash))
