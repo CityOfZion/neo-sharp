@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
@@ -313,7 +316,7 @@ namespace NeoSharp.Core.Test.Serializers
         private void FillRandomTx(Transaction tx)
         {
             var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
-            var transactionOperationsManager = new TransactionSigner(Crypto.Default, witnessOperationsManager);
+            var transactionOperationsManager = new TransactionOperationManager(Crypto.Default, this._serializer, witnessOperationsManager, new Mock<ITransactionRepository>().Object, new Mock<IAssetRepository>().Object, new TransactionContext());
 
             tx.Attributes = RandomTransactionAtrributes().ToArray();
             tx.Inputs = RandomCoinReferences(_random.Next(1, 255)).ToArray();
@@ -326,7 +329,7 @@ namespace NeoSharp.Core.Test.Serializers
         void EqualTx(Transaction original, params Transaction[] copies)
         {
             var witnessOperationsManager = new WitnessOperationsManager(Crypto.Default);
-            var transactionOperationsManager = new TransactionSigner(Crypto.Default, witnessOperationsManager);
+            var transactionOperationsManager = new TransactionOperationManager(Crypto.Default, this._serializer, witnessOperationsManager, new Mock<ITransactionRepository>().Object, new Mock<IAssetRepository>().Object, new TransactionContext());
 
             foreach (var copy in copies)
             {

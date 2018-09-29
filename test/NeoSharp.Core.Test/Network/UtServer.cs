@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Concurrent;
 using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -11,6 +13,7 @@ using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Security;
 using NeoSharp.TestHelpers;
+using EndPoint = NeoSharp.Core.Network.EndPoint;
 
 namespace NeoSharp.Core.Test.Network
 {
@@ -40,6 +43,7 @@ namespace NeoSharp.Core.Test.Network
             // Arrange 
             var peerListenerMock = AutoMockContainer.GetMock<IPeerListener>();
             var peerMessageListenerMock = AutoMockContainer.GetMock<IPeerMessageListener>();
+
             var peerMock = AutoMockContainer.GetMock<IPeer>();
 
             peerMock
@@ -48,10 +52,14 @@ namespace NeoSharp.Core.Test.Network
 
             var peer = peerMock.Object;
             var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
-
             peerFactoryMock
                 .Setup(x => x.ConnectTo(_peerEndPoint))
                 .Returns(Task.FromResult(peer));
+
+            var serverContextMock = this.AutoMockContainer.GetMock<IServerContext>();
+            serverContextMock
+                .SetupGet(x => x.ConnectedPeers)
+                .Returns(new ConcurrentBag<IPeer>());
 
             var server = AutoMockContainer.Create<Server>();
 
@@ -110,6 +118,11 @@ namespace NeoSharp.Core.Test.Network
             var peerListenerMock = AutoMockContainer.GetMock<IPeerListener>();
             var server = AutoMockContainer.Create<Server>();
 
+            var serverContextMock = this.AutoMockContainer.GetMock<IServerContext>();
+            serverContextMock
+                .SetupGet(x => x.ConnectedPeers)
+                .Returns(new ConcurrentBag<IPeer>());
+
             // Act
             server.Start();
             server.Stop();
@@ -141,6 +154,11 @@ namespace NeoSharp.Core.Test.Network
             var peerListenerMock = AutoMockContainer.GetMock<IPeerListener>();
             var server = AutoMockContainer.Create<Server>();
 
+            var serverContextMock = this.AutoMockContainer.GetMock<IServerContext>();
+            serverContextMock
+                .SetupGet(x => x.ConnectedPeers)
+                .Returns(new ConcurrentBag<IPeer>());
+
             // Act
             server.Start();
             server.Dispose();
@@ -156,23 +174,20 @@ namespace NeoSharp.Core.Test.Network
         public void Broadcast_PeerIsTheSameAsSource_MessageNotSendToPeer()
         {
             // Arrange
-            var peerMock = AutoMockContainer.GetMock<IPeer>();
-
+            var peerMock = new Mock<IPeer>();
             peerMock
                 .SetupGet(x => x.EndPoint)
                 .Returns(_peerEndPoint);
 
-            var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
-
-            peerFactoryMock
-                .Setup(x => x.ConnectTo(It.IsAny<EndPoint>()))
-                .Returns(Task.FromResult(peerMock.Object));
+            this.AutoMockContainer
+                .GetMock<IServerContext>()
+                .SetupGet(x => x.ConnectedPeers)
+                .Returns(new ConcurrentBag<IPeer> {peerMock.Object});
 
             var server = AutoMockContainer.Create<Server>();
             var message = new Message();
 
             // Act
-            server.Start();
             server.Broadcast(message, peerMock.Object);
 
             // Assert
@@ -183,27 +198,30 @@ namespace NeoSharp.Core.Test.Network
         public void SendBroadcast_PeerIsNotTheSameAsSource_MessageSendToPeer()
         {
             // Arrange
-            var peerMock = AutoMockContainer.GetMock<IPeer>();
-
-            peerMock
+            var peerMockSource = new Mock<IPeer>();
+            peerMockSource
                 .SetupGet(x => x.EndPoint)
-                .Returns(_peerEndPoint);
+                .Returns(new EndPoint(Protocol.Tcp, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8000)));
 
-            var peerFactoryMock = AutoMockContainer.GetMock<IPeerFactory>();
+            var peerMockNotSource = new Mock<IPeer>();
+            peerMockNotSource
+                .SetupGet(x => x.EndPoint)
+                .Returns(new EndPoint(Protocol.Tcp, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8001)));
 
-            peerFactoryMock
-                .Setup(x => x.ConnectTo(It.IsAny<EndPoint>()))
-                .Returns(Task.FromResult(peerMock.Object));
+            this.AutoMockContainer
+                .GetMock<IServerContext>()
+                .SetupGet(x => x.ConnectedPeers)
+                .Returns(new ConcurrentBag<IPeer> { peerMockSource.Object, peerMockNotSource.Object });
 
             var server = AutoMockContainer.Create<Server>();
             var message = new Message();
 
             // Act
-            server.Start();
-            server.Broadcast(message);
+            server.Broadcast(message, peerMockSource.Object);
 
             // Assert
-            peerMock.Verify(x => x.Send(message), Times.Once);
+            peerMockSource.Verify(x => x.Send(message), Times.Never);
+            peerMockNotSource.Verify(x => x.Send(message), Times.Once);
         }
 
         [TestMethod]

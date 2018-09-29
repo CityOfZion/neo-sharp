@@ -1,26 +1,22 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Core.Blockchain;
-using NeoSharp.Core.Blockchain.Processing;
+using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
 
-namespace NeoSharp.Core.Test.Network
+namespace NeoSharp.Core.Test.Models
 {
     [TestClass]
-    public class UtTransactionVerifier : TestBase
+    public class UtTransactionOperationManager : TestBase
     {
-        
         [TestMethod]
         public void Verify_AttributeUsageECDH02()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new EnrollmentTransaction
             {
@@ -41,7 +37,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithInputsWithSamePrevHashAndPrevIndex()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -75,7 +71,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithDoubleSpending()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -101,9 +97,9 @@ namespace NeoSharp.Core.Test.Network
                 }
             };
             
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
-
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(true);
+            this.AutoMockContainer.GetMock<ITransactionRepository>()
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(true);
 
             var result = testee.Verify(transaction);
             
@@ -113,7 +109,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithStrangeAssetId()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -145,11 +141,16 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => null);
+            this.AutoMockContainer
+                .GetMock<ITransactionRepository>()
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => null);
 
             var result = testee.Verify(transaction);
             
@@ -159,7 +160,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithKnownAssetIdButNotGeverningAndNotUtility()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -191,14 +192,19 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.DutyFlag
-            });
+            this.AutoMockContainer
+                .GetMock<ITransactionRepository>()
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.DutyFlag
+                });
 
             var result = testee.Verify(transaction);
             
@@ -208,7 +214,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithOutputValueDivisibleByAssetRule()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -241,14 +247,19 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
+            this.AutoMockContainer
+                .GetMock<ITransactionRepository>()
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
             var result = testee.Verify(transaction);
             
@@ -258,7 +269,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithoutReferences()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -291,15 +302,22 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
-            blockchainMock.Setup(b => b.GetTransaction(It.IsAny<UInt256>())).ReturnsAsync(() => null);
+            var transactionModelMock = this.AutoMockContainer.GetMock<ITransactionRepository>();
+            transactionModelMock
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+            transactionModelMock
+                .Setup(x => x.GetTransaction(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => null);
+
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
             var result = testee.Verify(transaction);
             
@@ -309,7 +327,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithMoreThanOneReferenceAmountGreaterThanZero()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -360,15 +378,22 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
-            blockchainMock.Setup(b => b.GetTransaction(It.IsAny<UInt256>())).ReturnsAsync(() => transactionOfPreviousHash);
+            var transactionModelMock = this.AutoMockContainer.GetMock<ITransactionRepository>();
+            transactionModelMock
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+            transactionModelMock
+                .Setup(x => x.GetTransaction(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => transactionOfPreviousHash);
+
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
             var result = testee.Verify(transaction);
             
@@ -378,7 +403,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithOnlyOneReferenceAmountGreaterThanZeroButItsNotUtilityToken()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -429,19 +454,26 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
-            blockchainMock.Setup(b => b.GetTransaction(It.IsAny<UInt256>())).ReturnsAsync(() => transactionOfPreviousHash);
+            var transactionModelMock = this.AutoMockContainer.GetMock<ITransactionRepository>();
+            transactionModelMock
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+            transactionModelMock
+                .Setup(x => x.GetTransaction(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => transactionOfPreviousHash);
 
-            var transactionContextMock = AutoMockContainer.GetMock<ITransactionContext>();
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
-            transactionContextMock.SetupGet(x => x.UtilityTokenHash)
+            this.AutoMockContainer
+                .GetMock<ITransactionContext>()
+                .SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
             
             var result = testee.Verify(transaction);
@@ -452,7 +484,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithReferenceAmountZeroAndExistingSystemFee()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -503,22 +535,29 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
-            blockchainMock.Setup(b => b.GetTransaction(It.IsAny<UInt256>())).ReturnsAsync(() => transactionOfPreviousHash);
+            var transactionModelMock = this.AutoMockContainer.GetMock<ITransactionRepository>();
+            transactionModelMock
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+            transactionModelMock
+                .Setup(x => x.GetTransaction(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => transactionOfPreviousHash);
 
-            var transactionContextMock = AutoMockContainer.GetMock<ITransactionContext>();
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
-            transactionContextMock.SetupGet(x => x.UtilityTokenHash)
+            var transactionContextMock = this.AutoMockContainer.GetMock<ITransactionContext>();
+            transactionContextMock
+                .SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
-
-            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
+            transactionContextMock
+                .Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(Fixed8.One);
             
             var result = testee.Verify(transaction);
@@ -529,7 +568,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WithReferenceAmountLessThanSystemFee()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new Transaction
             {
@@ -580,24 +619,31 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
-            blockchainMock.Setup(b => b.GetTransaction(It.IsAny<UInt256>())).ReturnsAsync(() => transactionOfPreviousHash);
+            var transactionModelMock = this.AutoMockContainer.GetMock<ITransactionRepository>();
+            transactionModelMock
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+            transactionModelMock
+                .Setup(x => x.GetTransaction(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => transactionOfPreviousHash);
 
-            var transactionContextMock = AutoMockContainer.GetMock<ITransactionContext>();
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
-            transactionContextMock.SetupGet(x => x.UtilityTokenHash)
+            var transactionContextMock = this.AutoMockContainer.GetMock<ITransactionContext>();
+            transactionContextMock
+                .SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
-
-            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
+            transactionContextMock
+                .Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(new Fixed8(300000000));
-            
+
             var result = testee.Verify(transaction);
             
             result.Should().BeFalse();
@@ -606,7 +652,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_ClaimTransacWithNegativeResultOfUtilityToken()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new ClaimTransaction
             {
@@ -652,24 +698,31 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
-            blockchainMock.Setup(b => b.GetTransaction(It.IsAny<UInt256>())).ReturnsAsync(() => transactionOfPreviousHash);
+            var transactionModelMock = this.AutoMockContainer.GetMock<ITransactionRepository>();
+            transactionModelMock
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+            transactionModelMock
+                .Setup(x => x.GetTransaction(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => transactionOfPreviousHash);
 
-            var transactionContextMock = AutoMockContainer.GetMock<ITransactionContext>();
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
-            transactionContextMock.SetupGet(x => x.UtilityTokenHash)
+            var transactionContextMock = this.AutoMockContainer.GetMock<ITransactionContext>();
+            transactionContextMock
+                .SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
-
-            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
+            transactionContextMock
+                .Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(Fixed8.Zero);
-            
+
             var result = testee.Verify(transaction);
             
             result.Should().BeFalse();
@@ -678,7 +731,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_NotMinerTransacWithNegativeResults()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new EnrollmentTransaction
             {
@@ -729,24 +782,31 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
-            blockchainMock.Setup(b => b.GetTransaction(It.IsAny<UInt256>())).ReturnsAsync(() => transactionOfPreviousHash);
+            var transactionModelMock = this.AutoMockContainer.GetMock<ITransactionRepository>();
+            transactionModelMock
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+            transactionModelMock
+                .Setup(x => x.GetTransaction(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => transactionOfPreviousHash);
 
-            var transactionContextMock = AutoMockContainer.GetMock<ITransactionContext>();
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
-            transactionContextMock.SetupGet(x => x.UtilityTokenHash)
+            var transactionContextMock = this.AutoMockContainer.GetMock<ITransactionContext>();
+            transactionContextMock
+                .SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
-
-            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
+            transactionContextMock
+                .Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(new Fixed8(190000000));
-            
+
             var result = testee.Verify(transaction);
             
             result.Should().BeFalse();
@@ -755,7 +815,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_WitnessVerifiedWrong()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new EnrollmentTransaction
             {
@@ -810,27 +870,35 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
-            blockchainMock.Setup(b => b.GetTransaction(It.IsAny<UInt256>())).ReturnsAsync(() => transactionOfPreviousHash);
+            var transactionModelMock = this.AutoMockContainer.GetMock<ITransactionRepository>();
+            transactionModelMock
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+            transactionModelMock
+                .Setup(x => x.GetTransaction(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => transactionOfPreviousHash);
 
-            var transactionContextMock = AutoMockContainer.GetMock<ITransactionContext>();
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
-            transactionContextMock.SetupGet(x => x.UtilityTokenHash)
+            var transactionContextMock = this.AutoMockContainer.GetMock<ITransactionContext>();
+            transactionContextMock
+                .SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
-
-            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
+            transactionContextMock
+                .Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(new Fixed8(190000000));
 
-            var witnessOperationsManagerMock = AutoMockContainer.GetMock<IWitnessOperationsManager>();
-
-            witnessOperationsManagerMock.Setup(x => x.Verify(It.IsAny<Witness>())).Returns(false);
+            this.AutoMockContainer
+                .GetMock<IWitnessOperationsManager>()
+                .Setup(x => x.Verify(It.IsAny<Witness>()))
+                .Returns(false);
             
             var result = testee.Verify(transaction);
             
@@ -840,7 +908,7 @@ namespace NeoSharp.Core.Test.Network
         [TestMethod]
         public void Verify_Success()
         {
-            var testee = AutoMockContainer.Create<TransactionVerifier>();
+            var testee = AutoMockContainer.Create<TransactionOperationManager>();
 
             var transaction = new EnrollmentTransaction
             {
@@ -895,28 +963,36 @@ namespace NeoSharp.Core.Test.Network
                     }
                 }
             };
-            
-            var blockchainMock = AutoMockContainer.GetMock<IBlockchain>();
 
-            blockchainMock.Setup(b => b.IsDoubleSpend(transaction)).Returns(false);
-            blockchainMock.Setup(b => b.GetAsset(It.IsAny<UInt256>())).ReturnsAsync(() => new Asset
-            {
-                AssetType = AssetType.GoverningToken
-            });
-            blockchainMock.Setup(b => b.GetTransaction(It.IsAny<UInt256>())).ReturnsAsync(() => transactionOfPreviousHash);
+            var transactionModelMock = this.AutoMockContainer.GetMock<ITransactionRepository>();
+            transactionModelMock
+                .Setup(b => b.IsDoubleSpend(transaction))
+                .Returns(false);
+            transactionModelMock
+                .Setup(x => x.GetTransaction(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => transactionOfPreviousHash);
 
-            var transactionContextMock = AutoMockContainer.GetMock<ITransactionContext>();
+            this.AutoMockContainer
+                .GetMock<IAssetRepository>()
+                .Setup(b => b.GetAsset(It.IsAny<UInt256>()))
+                .ReturnsAsync(() => new Asset
+                {
+                    AssetType = AssetType.GoverningToken
+                });
 
-            transactionContextMock.SetupGet(x => x.UtilityTokenHash)
+            var transactionContextMock = this.AutoMockContainer.GetMock<ITransactionContext>();
+            transactionContextMock
+                .SetupGet(x => x.UtilityTokenHash)
                 .Returns(UInt256.Parse("602c79718b16e442de58778e148d0b1084e3b2dffd5de6b7b16cee7969282de7"));
-
-            transactionContextMock.Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
+            transactionContextMock
+                .Setup(x => x.GetSystemFee(It.IsAny<Transaction>()))
                 .Returns(new Fixed8(190000000));
 
-            var witnessOperationsManagerMock = AutoMockContainer.GetMock<IWitnessOperationsManager>();
+            this.AutoMockContainer
+                .GetMock<IWitnessOperationsManager>()
+                .Setup(x => x.Verify(It.IsAny<Witness>()))
+                .Returns(true);
 
-            witnessOperationsManagerMock.Setup(x => x.Verify(It.IsAny<Witness>())).Returns(true);
-            
             var result = testee.Verify(transaction);
 
             result.Should().BeTrue();

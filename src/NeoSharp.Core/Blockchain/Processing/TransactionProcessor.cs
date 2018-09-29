@@ -17,21 +17,21 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         private readonly ConcurrentDictionary<UInt256, Transaction> _unverifiedTransactionPool = new ConcurrentDictionary<UInt256, Transaction>();
         private readonly ITransactionPool _verifiedTransactionPool;
-        private readonly ITransactionVerifier _transactionVerifier;
         private readonly IRepository _repository;
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        private readonly ITransactionOperationsManager _transactionOperationsManager;
 
         public event EventHandler<Transaction> OnTransactionProcessed;
 
         public TransactionProcessor(
             ITransactionPool transactionPool,
-            ITransactionVerifier transactionVerifier,
+            ITransactionOperationsManager transactionOperationsManager,
             IRepository repository,
             IAsyncDelayer asyncDelayer)
         {
             _verifiedTransactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
-            _transactionVerifier = transactionVerifier ?? throw new ArgumentNullException(nameof(transactionVerifier));
+            _transactionOperationsManager = transactionOperationsManager ?? throw new ArgumentNullException(nameof(transactionOperationsManager));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
         }
@@ -62,7 +62,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                             continue;
                         }
 
-                        var valid = _transactionVerifier.Verify(transaction);
+                        var valid = _transactionOperationsManager.Verify(transaction);
                         
                         if (transactionPool
                             .Where(t => t.Hash != transactionHash)

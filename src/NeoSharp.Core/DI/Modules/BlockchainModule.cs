@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Blockchain.Genesis;
 using NeoSharp.Core.Blockchain.Processing;
+using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Blockchain.State;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
@@ -12,6 +14,9 @@ namespace NeoSharp.Core.DI.Modules
     {
         public void Register(IContainerBuilder containerBuilder)
         {
+            containerBuilder.RegisterSingleton<IGenesisBuilder, GenesisBuilder>();
+            containerBuilder.RegisterSingleton<IGenesisAssetsBuilder, GenesisAssetsBuilder>();
+
             containerBuilder.RegisterSingleton<IBlockchain, Blockchain.Blockchain>();
             containerBuilder.RegisterSingleton<ICoinIndex, CoinIndex>();
 
@@ -34,14 +39,17 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<ITransactionPersister<EnrollmentTransaction>, EnrollmentTransactionPersister>();
 
             containerBuilder.RegisterSingleton<IWitnessOperationsManager, WitnessOperationsManager>();
-            containerBuilder.RegisterSingleton<ITransactionSigner, TransactionSigner>();
-            containerBuilder.RegisterSingleton<ITransactionVerifier, TransactionVerifier>();
+            containerBuilder.RegisterSingleton<ITransactionOperationsManager, TransactionOperationManager>();
             containerBuilder.RegisterSingleton<IBlockHeaderOperationsManager, BlockHeaderOperationsManager>();
             containerBuilder.RegisterSingleton<IBlockSigner, BlockSigner>();
             containerBuilder.RegisterSingleton<IBlockVerifier, BlockVerifier>();
             #endregion
 
             containerBuilder.RegisterSingleton<IAccountManager, AccountManager>();
+
+            containerBuilder.RegisterSingleton<ITransactionRepository, TransactionRepository>();
+            containerBuilder.RegisterSingleton<IAssetRepository, AssetRepository>();
+            containerBuilder.RegisterSingleton<IBlockRepository, BlockRepository>();
         }
     }
 }

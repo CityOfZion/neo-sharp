@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Reflection;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
@@ -28,6 +29,9 @@ namespace NeoSharp.Core.Network
                 return _version;
             }
         }
+
+        /// <inheritdoc />
+        public ConcurrentBag<IPeer> ConnectedPeers { get; }
         #endregion
 
         #region Constructor
@@ -41,7 +45,7 @@ namespace NeoSharp.Core.Network
             if (config == null) throw new ArgumentNullException(nameof(config));
             this._blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
 
-            _version = new VersionPayload
+            this._version = new VersionPayload
             {
                 Version = ProtocolVersion,
                 Services = NodeNetwork,
@@ -52,6 +56,8 @@ namespace NeoSharp.Core.Network
                 CurrentBlockIndex = this._blockchainContext.CurrentBlock?.Index ?? 0,
                 Relay = true
             };
+
+            this.ConnectedPeers = new ConcurrentBag<IPeer>();
         }
         #endregion
     }

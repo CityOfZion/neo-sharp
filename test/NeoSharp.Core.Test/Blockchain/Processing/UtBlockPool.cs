@@ -2,8 +2,7 @@
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Blockchain.Genesis;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
@@ -74,7 +73,8 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
         public void Add_GenesisBlockWithIndexDifferentFromZero_InvalidOperationExceptionThrown()
         {
             // Arrange
-            var genesisBlock = Genesis.GenesisBlock;
+            var genesisBuilder = this.AutoMockContainer.Create<GenesisBuilder>();
+            var genesisBlock = genesisBuilder.Build();
 
             var indexField = typeof(Block).GetField("Index", BindingFlags.Instance | BindingFlags.Public);
             indexField.SetValue(genesisBlock, (uint)1);

@@ -7,26 +7,21 @@ namespace NeoSharp.Application.Controllers
     public class PromptNetworkController : IPromptController
     {
         #region Private fields
-
-        private readonly IServer _server;
+        private readonly IServerContext _serverContext;
         private readonly INetworkManager _networkManager;
         private readonly IConsoleWriter _consoleWriter;
-        private readonly IConsoleReader _consoleReader;
-
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="server">Server</param>
+        /// <param name="serverContext">Server context</param>
         /// <param name="networkManager">Network manages</param>
         /// <param name="consoleWriter">Console writter</param>
-        /// <param name="consoleReader">Console reader</param>
-        public PromptNetworkController(IServer server, INetworkManager networkManager, IConsoleWriter consoleWriter, IConsoleReader consoleReader)
+        public PromptNetworkController(IServerContext serverContext, INetworkManager networkManager, IConsoleWriter consoleWriter)
         {
-            _server = server;
+            _serverContext = serverContext;
             _networkManager = networkManager;
-            _consoleReader = consoleReader;
             _consoleWriter = consoleWriter;
         }
 
@@ -36,7 +31,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("nodes", Category = "Network", Help = "Get nodes information")]
         public void NodesCommand()
         {
-            var peers = _server.ConnectedPeers;
+            var peers = this._serverContext.ConnectedPeers;
 
             _consoleWriter.WriteLine("Connected: " + peers.Count);
 

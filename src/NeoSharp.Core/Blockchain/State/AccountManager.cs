@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using NeoSharp.Core.Blockchain.Genesis;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
@@ -9,10 +10,12 @@ namespace NeoSharp.Core.Blockchain.State
     public class AccountManager : IAccountManager
     {
         private readonly IRepository _repository;
+        private readonly IGenesisAssetsBuilder _genesisAssets;
 
-        public AccountManager(IRepository repository)
+        public AccountManager(IRepository repository, IGenesisAssetsBuilder genesisAssets)
         {
             _repository = repository;
+            _genesisAssets = genesisAssets;
         }
 
         public async Task<Account> Get(UInt160 hash)
@@ -30,7 +33,7 @@ namespace NeoSharp.Core.Blockchain.State
 
             await _repository.AddAccount(account);
 
-            if (assetId.Equals(GenesisAssets.GoverningTokenRegisterTransaction.Hash) && account.Votes?.Length > 0)
+            if (assetId.Equals(_genesisAssets.BuildGoverningTokenRegisterTransaction().Hash) && account.Votes?.Length > 0)
                 foreach (var pubKey in account.Votes)
                     await UpdateValidatorVote(pubKey, delta);
 
@@ -41,7 +44,7 @@ namespace NeoSharp.Core.Blockchain.State
         public async Task UpdateVotes(UInt160 hash, ECPoint[] newCandidates)
         {
             var account = await Get(hash) ?? new Account(hash);
-            var governingTokenBalance = account.Balances[GenesisAssets.GoverningTokenRegisterTransaction.Hash];
+            var governingTokenBalance = account.Balances[_genesisAssets.BuildGoverningTokenRegisterTransaction().Hash];
 
             foreach (var keyOfOldValidator in account.Votes)
                 await UpdateValidatorVote(keyOfOldValidator, -governingTokenBalance);

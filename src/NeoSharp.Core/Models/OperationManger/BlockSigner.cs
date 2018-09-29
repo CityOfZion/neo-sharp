@@ -10,7 +10,7 @@ namespace NeoSharp.Core.Models.OperationManger
         #region Private Fields
         private readonly Crypto _crypto;
         private readonly IBinarySerializer _binarySerializer;
-        private readonly ITransactionSigner _transactionSigner;
+        private readonly ITransactionOperationsManager _transactionOperationsManager;
         private readonly IWitnessOperationsManager _witnessOperationsManager;
         #endregion
 
@@ -18,12 +18,12 @@ namespace NeoSharp.Core.Models.OperationManger
         public BlockSigner(
             Crypto crypto, 
             IBinarySerializer binarySerializer, 
-            ITransactionSigner transactionSigner,
+            ITransactionOperationsManager transactionOperationsManager,
             IWitnessOperationsManager witnessOperationsManager)
         {
             this._crypto = crypto;
             this._binarySerializer = binarySerializer;
-            this._transactionSigner = transactionSigner;
+            this._transactionOperationsManager = transactionOperationsManager;
             this._witnessOperationsManager = witnessOperationsManager;
         }
         #endregion
@@ -36,7 +36,7 @@ namespace NeoSharp.Core.Models.OperationManger
 
             for (var x = 0; x < txSize; x++)
             {
-                this._transactionSigner.Sign(block.Transactions?[x]);
+                this._transactionOperationsManager.Sign(block.Transactions?[x]);
                 block.TransactionHashes[x] = block.Transactions?[x].Hash;
             }
 

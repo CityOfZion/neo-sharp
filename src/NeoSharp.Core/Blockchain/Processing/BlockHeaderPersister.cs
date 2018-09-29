@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NeoSharp.Core.Blockchain.Genesis;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
@@ -14,15 +15,20 @@ namespace NeoSharp.Core.Blockchain.Processing
     {
         private readonly IRepository _repository;
         private readonly IBlockHeaderOperationsManager _blockHeaderOperationsManager;
+        private readonly IGenesisBuilder _genesisBuilder;
 
         public BlockHeader LastBlockHeader { get; set; }
 
         public event EventHandler<BlockHeader[]> OnBlockHeadersPersisted;
 
-        public BlockHeaderPersister(IRepository repository, IBlockHeaderOperationsManager blockHeaderOperationsManager)
+        public BlockHeaderPersister(
+            IRepository repository, 
+            IBlockHeaderOperationsManager blockHeaderOperationsManager,
+            IGenesisBuilder genesisBuilder)
         {
             _repository = repository;
             _blockHeaderOperationsManager = blockHeaderOperationsManager;
+            _genesisBuilder = genesisBuilder;
         }
 
         public async Task Persist(params BlockHeader[] blockHeaders)
@@ -82,8 +88,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             }
             else
             {
-                if (blockHeader.Index != 0 ||
-                    blockHeader.Hash != Genesis.GenesisBlock.Hash)
+                if (blockHeader.Index != 0 || blockHeader.Hash != this._genesisBuilder.Build().Hash)
                 {
                     return false;
                 }

@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
@@ -24,7 +26,7 @@ namespace NeoSharp.Core.Test.Blockchain
         [TestMethod]
         public void IsDoubleSpend_NoInputs()
         {
-            var testee = AutoMockContainer.Create<Core.Blockchain.Blockchain>();
+            var testee = AutoMockContainer.Create<TransactionRepository>();
 
             var tx = new Transaction();
             
@@ -36,7 +38,7 @@ namespace NeoSharp.Core.Test.Blockchain
         [TestMethod]
         public void IsDoubleSpend_InputWithoutFoundHash()
         {
-            var testee = AutoMockContainer.Create<Core.Blockchain.Blockchain>();
+            var testee = AutoMockContainer.Create<TransactionRepository>();
 
             var tx = new Transaction { Inputs = new[] { new CoinReference() } };
             tx.Inputs[0].PrevHash = new UInt256();
@@ -49,7 +51,7 @@ namespace NeoSharp.Core.Test.Blockchain
         [TestMethod]
         public void IsDoubleSpend_SpentInput()
         {
-            var testee = AutoMockContainer.Create<Core.Blockchain.Blockchain>();
+            var testee = AutoMockContainer.Create<TransactionRepository>();
 
             var tx = new Transaction { Inputs = new[] { new CoinReference() } };
             tx.Inputs[0].PrevHash = new UInt256(new byte[]{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 });
@@ -69,7 +71,7 @@ namespace NeoSharp.Core.Test.Blockchain
         [TestMethod]
         public void IsDoubleSpend_ConfirmedInput()
         {
-            var testee = AutoMockContainer.Create<Core.Blockchain.Blockchain>();
+            var testee = AutoMockContainer.Create<TransactionRepository>();
 
             var tx = new Transaction { Inputs = new[] { new CoinReference() } };
             tx.Inputs[0].PrevHash = new UInt256(new byte[]{ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31 });

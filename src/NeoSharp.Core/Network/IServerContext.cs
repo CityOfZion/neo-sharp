@@ -9,5 +9,10 @@ namespace NeoSharp.Core.Network
         /// Version
         /// </summary>
         VersionPayload Version { get; }
+
+        /// <summary>
+        /// Connected peers
+        /// </summary>
+        ConcurrentBag<IPeer> ConnectedPeers { get; }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NeoSharp.Core.Blockchain;
+using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
@@ -14,16 +14,15 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Private Fields 
         private const int MaxBlockHeadersCountToReturn = 2000;
-        private readonly IBlockchain _blockchain;
+        private readonly IBlockRepository _blockRepository;
 
-        private Task<BlockHeader> GetBlockHeader(UInt256 hash) => _blockchain.GetBlockHeader(hash);
+        private Task<BlockHeader> GetBlockHeader(UInt256 hash) => this._blockRepository.GetBlockHeader(hash);
         #endregion
 
         #region Constructor 
-        public GetBlockHeadersMessageHandler(IBlockchain blockchain)
+        public GetBlockHeadersMessageHandler(IBlockRepository blockModel)
         {
-            // TODO #434: Remove Blockchain dependency from GetBlockHeadersMessageHandler and GetBlocksMessageHandler
-            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
+            _blockRepository = blockModel ?? throw new ArgumentNullException(nameof(blockModel));
         }
         #endregion
 
@@ -52,11 +51,11 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             do
             {
-                blockHash = await _blockchain.GetNextBlockHash(blockHash);
+                blockHash = await this._blockRepository.GetNextBlockHash(blockHash);
 
                 if (blockHash == null || blockHash == hashStop) break;
 
-                blockHeaders.Add(await _blockchain.GetBlockHeader(blockHash));
+                blockHeaders.Add(await this._blockRepository.GetBlockHeader(blockHash));
             } while (blockHeaders.Count < MaxBlockHeadersCountToReturn);
 
             if (blockHeaders.Count == 0) return;

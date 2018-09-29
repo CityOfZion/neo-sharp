@@ -1,4 +1,4 @@
-﻿using NeoSharp.Core.Blockchain;
+﻿using NeoSharp.Core.Blockchain.Repositories;
 
 namespace NeoSharp.Core.Models.OperationManger
 {
@@ -6,22 +6,22 @@ namespace NeoSharp.Core.Models.OperationManger
     {
         #region Private Fields
         private readonly IWitnessOperationsManager _witnessOperationsManager;
-        private readonly IBlockchain _blockchain;
+        private readonly IBlockRepository _blockRepository;
         #endregion
 
         #region Constructor 
         public BlockVerifier(
             IWitnessOperationsManager witnessOperationsManager,
-            IBlockchain blockchain)
+            IBlockRepository blockRepository)
         {
-            _witnessOperationsManager = witnessOperationsManager;
-            _blockchain = blockchain;
+            this._witnessOperationsManager = witnessOperationsManager;
+            this._blockRepository = blockRepository;
         }
         #endregion
 
         public bool Verify(Block block)
         {
-            var prevHeader = _blockchain.GetBlockHeader(block.PreviousBlockHash).Result;
+            var prevHeader = this._blockRepository.GetBlockHeader(block.PreviousBlockHash).Result;
 
             if (prevHeader == null)
             {

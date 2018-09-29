@@ -1,14 +1,7 @@
-﻿using System.Collections.Generic;
-
-namespace NeoSharp.Core.Network
+﻿namespace NeoSharp.Core.Network
 {
     public interface IServer
     {
-        /// <summary>
-        /// Connected peers
-        /// </summary>
-        IReadOnlyCollection<IPeer> ConnectedPeers { get; }
-
         /// <summary>
         /// Start server
         /// </summary>

@@ -1,7 +1,9 @@
 ﻿namespace NeoSharp.Core.Models.OperationManger
 {
-    public interface ITransactionSigner
+    public interface ITransactionOperationsManager
     {
         void Sign(Transaction transaction);
+
+        bool Verify(Transaction transaction);
     }
 }

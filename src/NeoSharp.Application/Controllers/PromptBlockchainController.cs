@@ -1,9 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Processing;
+using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Types;
@@ -17,34 +19,41 @@ namespace NeoSharp.Application.Controllers
         private readonly IBlockPool _blockPool;
         private readonly ITransactionPool _transactionPool;
         private readonly IBlockchain _blockchain;
+        private readonly IBlockRepository _blockRepository;
+        private readonly ITransactionRepository _transactionModel;
+        private readonly IAssetRepository _assetModel;
         private readonly IBlockchainContext _blockchainContext;
         private readonly IConsoleWriter _consoleWriter;
-        private readonly IConsoleReader _consoleReader;
-
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="blockchain">Blockchain</param>
+        /// <param name="blockRepository">The Block Model.</param>
+        /// <param name="transactionModel"></param>
+        /// <param name="assetModel"></param>
         /// <param name="blockchainContext">The block chain context class.</param>
         /// <param name="blockPool">Block pool</param>
         /// <param name="transactionPool">Transaction Pool</param>
         /// <param name="consoleWriter">Console writter</param>
-        /// <param name="consoleReader">Console reader</param>
         public PromptBlockchainController(
             IBlockchain blockchain, 
+            IBlockRepository blockRepository,
+            ITransactionRepository transactionModel,
+            IAssetRepository assetModel,
             IBlockchainContext blockchainContext,
             IBlockPool blockPool, 
             ITransactionPool transactionPool, 
-            IConsoleWriter consoleWriter, 
-            IConsoleReader consoleReader)
+            IConsoleWriter consoleWriter)
         {
             _blockchain = blockchain;
+            _blockRepository = blockRepository;
+            _transactionModel = transactionModel;
+            _assetModel = assetModel;
             _blockchainContext = blockchainContext;
             _blockPool = blockPool;
             _transactionPool = transactionPool;
-            _consoleReader = consoleReader;
             _consoleWriter = consoleWriter;
         }
 
@@ -107,7 +116,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("header", Category = "Blockchain", Help = "Get header by index or by hash")]
         public async Task HeaderCommand(uint blockIndex, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await _blockchain?.GetBlockHeader(blockIndex), output);
+            _consoleWriter.WriteObject(await this._blockRepository.GetBlockHeader(blockIndex), output);
         }
 
         /// <summary>
@@ -118,7 +127,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("header", Category = "Blockchain", Help = "Get header by index or by hash")]
         public async Task HeaderCommand(UInt256 blockHash, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await _blockchain?.GetBlockHeader(blockHash), output);
+            _consoleWriter.WriteObject(await this._blockRepository.GetBlockHeader(blockHash), output);
         }
 
         /// <summary>
@@ -129,7 +138,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
         public async Task BlockCommand(uint blockIndex, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await _blockchain?.GetBlock(blockIndex), output);
+            _consoleWriter.WriteObject(await this._blockRepository.GetBlock(blockIndex), output);
         }
 
         /// <summary>
@@ -140,7 +149,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
         public async Task BlockCommand(UInt256 blockHash, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await _blockchain?.GetBlock(blockHash), output);
+            _consoleWriter.WriteObject(await this._blockRepository.GetBlock(blockHash), output);
         }
 
         /// <summary>
@@ -151,7 +160,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("tx", Category = "Blockchain", Help = "Get tx")]
         public async Task TxCommand(UInt256 hash, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await _blockchain?.GetTransaction(hash), output);
+            _consoleWriter.WriteObject(await this._transactionModel.GetTransaction(hash), output);
         }
 
         /// <summary>
@@ -163,7 +172,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("tx", Category = "Blockchain", Help = "Get tx by block num/tx number")]
         public async Task TxCommand(uint blockIndex, ushort txNumber, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            var block = await _blockchain.GetBlock(blockIndex);
+            var block = await this._blockRepository.GetBlock(blockIndex);
             _consoleWriter.WriteObject(block.Transactions?[txNumber], output);
         }
 
@@ -175,7 +184,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("asset", Category = "Blockchain", Help = "Get asset", Order = 0)]
         public async Task AssetCommand(UInt256 hash, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await _blockchain?.GetAsset(hash), output);
+            _consoleWriter.WriteObject(await this._assetModel.GetAsset(hash), output);
         }
 
         /// <summary>
@@ -187,7 +196,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("asset", Category = "Blockchain", Help = "Get asset", Order = 1)]
         public async Task AssetCommand(string query, EnumerableExtensions.QueryMode mode = EnumerableExtensions.QueryMode.Contains, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            var assets = await _blockchain?.GetAssets();
+            var assets = await this._assetModel.GetAssets();
             var result = assets.QueryResult(query, mode).ToArray();
 
             _consoleWriter.WriteObject(result, output);
@@ -199,9 +208,10 @@ namespace NeoSharp.Application.Controllers
         /// <param name="hash">Hash</param>
         /// <param name="output">Output</param>
         [PromptCommand("contract", Category = "Blockchain", Help = "Get asset", Order = 0)]
-        public async Task ContractCommand(UInt160 hash, PromptOutputStyle output = PromptOutputStyle.json)
+        public Task ContractCommand(UInt160 hash, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await _blockchain?.GetContract(hash), output);
+            throw new NotImplementedException();
+            //_consoleWriter.WriteObject(await _blockchain?.GetContract(hash), output);
         }
 
         /// <summary>
@@ -211,12 +221,13 @@ namespace NeoSharp.Application.Controllers
         /// <param name="mode">Regex/Contains</param>
         /// <param name="output">Output</param>
         [PromptCommand("contract", Category = "Blockchain", Help = "Get asset", Order = 1)]
-        public async Task ContractCommand(string query, EnumerableExtensions.QueryMode mode = EnumerableExtensions.QueryMode.Contains, PromptOutputStyle output = PromptOutputStyle.json)
+        public Task ContractCommand(string query, EnumerableExtensions.QueryMode mode = EnumerableExtensions.QueryMode.Contains, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            var contracts = await _blockchain?.GetContracts();
-            var result = contracts.QueryResult(query, mode).ToArray();
+            throw new NotImplementedException();
+            //var contracts = await _blockchain?.GetContracts();
+            //var result = contracts.QueryResult(query, mode).ToArray();
 
-            _consoleWriter.WriteObject(result, output);
+            //_consoleWriter.WriteObject(result, output);
         }
     }
 }

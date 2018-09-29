@@ -15,7 +15,7 @@ namespace NeoSharp.Core.Network.Protocols
 
         protected readonly ReflectionCache<MessageCommand> Cache = ReflectionCache<MessageCommand>.CreateFromEnum<MessageCommand>();
 
-        private static readonly Type[] _highPrioritySendMessageTypes =
+        private readonly Type[] _highPrioritySendMessageTypes =
         {
             typeof(VersionMessage),
             typeof(VerAckMessage)

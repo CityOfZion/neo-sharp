@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Processing;
+using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
@@ -13,9 +13,9 @@ namespace NeoSharp.Core.Messaging.Handlers
     public class TransactionMessageHandler : MessageHandler<TransactionMessage>
     {
         #region Private Fields 
-        private readonly IBlockchain _blockchain;
+        private readonly ITransactionRepository _transactionRepository;
         private readonly ITransactionPool _transactionPool;
-        private readonly ITransactionSigner _transactionSigner;
+        private readonly ITransactionOperationsManager _transactionOperationsManager;
         private readonly ILogger<TransactionMessageHandler> _logger;
         #endregion
 
@@ -23,19 +23,19 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="blockchain">Blockchain</param>
+        /// <param name="transactionRepository">Transaction respository access.</param>
         /// <param name="transactionPool">Transaction Pool</param>
-        /// <param name="transactionSigner">The transaction operation manager</param>
+        /// <param name="transactionOperationsManager">The transaction operation manager</param>
         /// <param name="logger">Logger</param>
         public TransactionMessageHandler(
-            IBlockchain blockchain, 
+            ITransactionRepository transactionRepository, 
             ITransactionPool transactionPool, 
-            ITransactionSigner transactionSigner,
+            ITransactionOperationsManager transactionOperationsManager,
             ILogger<TransactionMessageHandler> logger)
         {
-            _blockchain = blockchain ?? throw new ArgumentNullException(nameof(blockchain));
+            _transactionRepository = transactionRepository ?? throw new ArgumentNullException(nameof(transactionRepository));
             _transactionPool = transactionPool ?? throw new ArgumentNullException(nameof(transactionPool));
-            _transactionSigner = transactionSigner;
+            _transactionOperationsManager = transactionOperationsManager ?? throw new ArgumentNullException(nameof(transactionOperationsManager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         #endregion
@@ -57,11 +57,10 @@ namespace NeoSharp.Core.Messaging.Handlers
             // TODO #373: check if the hash of the transaction is known already
             if (transaction.Hash == null)
             {
-                this._transactionSigner.Sign(transaction);
+                this._transactionOperationsManager.Sign(transaction);
             }
 
-            var transactionExists = await _blockchain.ContainsTransaction(transaction.Hash);
-            if (transactionExists)
+            if (await this._transactionRepository.ContainsTransaction(transaction.Hash))
             {
                 _logger.LogInformation($"The transaction \"{transaction.Hash?.ToString(true)}\" exists already on the blockchain.");
                 return;
