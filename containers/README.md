@@ -16,7 +16,7 @@ Goals:
 
 Install <a href="https://docs.docker.com/install/#supported-platforms">Docker</a> and <a href="https://docs.docker.com/compose/install/#install-compose">docker-compose</a><br>
 
-# How to build (optional)
+# How to build
 
 The Dockerfile will run in two stages. The fisrt stage called Builder will create a SDK container image (where we compile the Node) and then the second stage will create a Runtime container image (where it will run).
 
