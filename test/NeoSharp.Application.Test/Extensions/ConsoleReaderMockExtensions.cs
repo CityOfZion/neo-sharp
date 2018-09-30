@@ -5,7 +5,7 @@ namespace NeoSharp.Application.Test.Extensions
 {
     public static class ConsoleReaderMockExtensions
     {
-        public static Mock<IConsoleReader> SetupStringCommandReader(this Mock<IConsoleReader> consoleReaderMock, string cmd)
+        public static Mock<IConsoleHandler> SetupStringCommandReader(this Mock<IConsoleHandler> consoleReaderMock, string cmd)
         {
             consoleReaderMock
                 .SetupSequence(x => x.ReadFromConsole(null))

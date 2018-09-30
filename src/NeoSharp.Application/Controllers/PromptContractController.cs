@@ -12,20 +12,17 @@ namespace NeoSharp.Application.Controllers
     {
         #region Private fields
 
-        private readonly IConsoleWriter _consoleWriter;
-        private readonly IConsoleReader _consoleReader;
+        private readonly IConsoleHandler _consoleHandler;
 
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="consoleWriter">Console writter</param>
-        /// <param name="consoleReader">Console reader</param>
-        public PromptContractController(IConsoleWriter consoleWriter, IConsoleReader consoleReader)
+        /// <param name="consoleHandler">Console handler</param>
+        public PromptContractController(IConsoleHandler consoleHandler)
         {
-            _consoleReader = consoleReader;
-            _consoleWriter = consoleWriter;
+            _consoleHandler = consoleHandler;
         }
 
         /*
@@ -68,7 +65,7 @@ namespace NeoSharp.Application.Controllers
 
             foreach (var line in dump)
             {
-                _consoleWriter.WriteLine(line, ConsoleOutputStyle.Log);
+                _consoleHandler.WriteLine(line, ConsoleOutputStyle.Log);
             }
 
             // Looking for .abi.json
@@ -79,7 +76,7 @@ namespace NeoSharp.Application.Controllers
                 try
                 {
                     JToken json = JToken.Parse(File.ReadAllText(tempFile));
-                    _consoleWriter.WriteLine(json.ToString(Formatting.Indented), ConsoleOutputStyle.Information);
+                    _consoleHandler.WriteLine(json.ToString(Formatting.Indented), ConsoleOutputStyle.Information);
                 }
                 catch { }
             }

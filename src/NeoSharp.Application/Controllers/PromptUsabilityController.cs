@@ -11,8 +11,7 @@ namespace NeoSharp.Application.Controllers
         #region Private fields
 
         private readonly IPromptUserVariables _variables;
-        private readonly IConsoleWriter _consoleWriter;
-        private readonly IConsoleReader _consoleReader;
+        private readonly IConsoleHandler _consoleHandler;
 
         #endregion
 
@@ -20,17 +19,15 @@ namespace NeoSharp.Application.Controllers
         /// Constructor
         /// </summary>
         /// <param name="variables">Variables</param>
-        /// <param name="consoleWriter">Console writter</param>
-        /// <param name="consoleReader">Console reader</param>
+        /// <param name="consoleHandler">Console handler</param>
         public PromptUsabilityController
             (
             IPromptUserVariables variables,
-            IConsoleWriter consoleWriter, IConsoleReader consoleReader
+            IConsoleHandler consoleHandler
             )
         {
             _variables = variables;
-            _consoleReader = consoleReader;
-            _consoleWriter = consoleWriter;
+            _consoleHandler = consoleHandler;
         }
 
         /// <summary>
@@ -39,7 +36,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("clear", Help = "clear output", Category = "Usability")]
         public void ClearCommand()
         {
-            _consoleWriter.Clear();
+            _consoleHandler.Clear();
         }
 
         /// <summary>
@@ -68,8 +65,8 @@ namespace NeoSharp.Application.Controllers
         {
             foreach (var keyValue in _variables)
             {
-                _consoleWriter.Write(keyValue.Key + "  ", ConsoleOutputStyle.Output);
-                _consoleWriter.WriteLine(keyValue.Value, ConsoleOutputStyle.Information);
+                _consoleHandler.Write(keyValue.Key + "  ", ConsoleOutputStyle.Output);
+                _consoleHandler.WriteLine(keyValue.Value, ConsoleOutputStyle.Information);
             }
         }
 
@@ -82,22 +79,22 @@ namespace NeoSharp.Application.Controllers
         {
             if (!commandsFile.Exists)
             {
-                _consoleWriter.WriteLine("File not found", ConsoleOutputStyle.Error);
+                _consoleHandler.WriteLine("File not found", ConsoleOutputStyle.Error);
                 return;
             }
 
             if (commandsFile.Length > 1024 * 1024)
             {
-                _consoleWriter.WriteLine("The specified file is too large", ConsoleOutputStyle.Error);
+                _consoleHandler.WriteLine("The specified file is too large", ConsoleOutputStyle.Error);
                 return;
             }
 
             var lines = File.ReadAllLines(commandsFile.FullName, Encoding.UTF8);
-            _consoleReader.AppendInputs(lines.Where(u => !u.StartsWith("#")).ToArray());
+            _consoleHandler.AppendInputs(lines.Where(u => !u.StartsWith("#")).ToArray());
 
             // Print result
 
-            _consoleWriter.WriteLine($"Loaded inputs: {lines.Length}");
+            _consoleHandler.WriteLine($"Loaded inputs: {lines.Length}");
         }
 
         /*

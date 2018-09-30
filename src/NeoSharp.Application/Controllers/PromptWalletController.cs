@@ -18,8 +18,7 @@ namespace NeoSharp.Application.Controllers
         /// The wallet.
         /// </summary>
         private readonly IWalletManager _walletManager;
-        private readonly IConsoleWriter _consoleWriter;
-        private readonly IConsoleReader _consoleReader;
+        private readonly IConsoleHandler _consoleHandler;
 
         #endregion
 
@@ -27,32 +26,30 @@ namespace NeoSharp.Application.Controllers
         /// Constructor
         /// </summary>
         /// <param name="walletManager">Wallet manager</param>
-        /// <param name="consoleWriter">Console writter</param>
-        /// <param name="consoleReader">Console reader</param>
-        public PromptWalletController(IWalletManager walletManager, IConsoleWriter consoleWriter, IConsoleReader consoleReader)
+        /// <param name="consoleHandler">Console handler</param>
+        public PromptWalletController(IWalletManager walletManager, IConsoleHandler consoleHandler)
         {
             _walletManager = walletManager;
-            _consoleReader = consoleReader;
-            _consoleWriter = consoleWriter;
+            _consoleHandler = consoleHandler;
         }
 
         [PromptCommand("wallet create", Category = "Wallet", Help = "Create a new wallet")]
         public void WalletCreateCommand(string fileName)
         {
-            var secureString = _consoleReader.ReadPassword();
-            _consoleWriter.ApplyStyle(ConsoleOutputStyle.Prompt);
-            var confirmationString = _consoleReader.ReadPassword("\nConfirm your password:");
+            var secureString = _consoleHandler.ReadPassword();
+            _consoleHandler.ApplyStyle(ConsoleOutputStyle.Prompt);
+            var confirmationString = _consoleHandler.ReadPassword("\nConfirm your password:");
             if (secureString.ToByteArray().SequenceEqual(confirmationString.ToByteArray()))
             {
                 _walletManager.CreateWallet(fileName);
                 var walletAccount = _walletManager.CreateAndAddAccount(secureString);
-                _consoleWriter.ApplyStyle(ConsoleOutputStyle.Prompt);
-                _consoleWriter.WriteLine("\nAddress: " + walletAccount.Address, ConsoleOutputStyle.Information);
-                _consoleWriter.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
+                _consoleHandler.ApplyStyle(ConsoleOutputStyle.Prompt);
+                _consoleHandler.WriteLine("\nAddress: " + walletAccount.Address, ConsoleOutputStyle.Information);
+                _consoleHandler.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
             }
             else
             {
-                _consoleWriter.WriteLine("\nPasswords don't match.", ConsoleOutputStyle.Information);
+                _consoleHandler.WriteLine("\nPasswords don't match.", ConsoleOutputStyle.Information);
             }
         }
 
@@ -71,14 +68,14 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("import wif", Category = "Wallet", Help = "Close wallet")]
         public void ImportWif(string wif)
         {
-            var secureString = _consoleReader.ReadPassword();
+            var secureString = _consoleHandler.ReadPassword();
             _walletManager.ImportWif(wif, secureString);
         }
 
         [PromptCommand("import nep2", Category = "Wallet", Help = "Close wallet")]
         public void ImportNep2(string nep2key)
         {
-            var secureString = _consoleReader.ReadPassword();
+            var secureString = _consoleHandler.ReadPassword();
             _walletManager.ImportEncryptedWif(nep2key, secureString);
         }
 
@@ -87,7 +84,7 @@ namespace NeoSharp.Application.Controllers
         {
             _walletManager.CheckWalletIsOpen();
             var currentWallet = _walletManager.Wallet;
-            _consoleWriter.WriteObject(currentWallet, output);
+            _consoleHandler.WriteObject(currentWallet, output);
         }
 
         [PromptCommand("wallet save", Category = "Wallet", Help = "Saves the open wallet into a new file")]
@@ -99,18 +96,18 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("account create", Category = "Account", Help = "Create a new account")]
         public void AccountCreateCommand()
         {
-            var secureString = _consoleReader.ReadPassword("Wallet password:");
+            var secureString = _consoleHandler.ReadPassword("Wallet password:");
             try 
             {
                 _walletManager.CheckIfPasswordMatchesOpenWallet(secureString);
-                _consoleWriter.ApplyStyle(ConsoleOutputStyle.Prompt);
+                _consoleHandler.ApplyStyle(ConsoleOutputStyle.Prompt);
                 var walletAccount = _walletManager.CreateAndAddAccount(secureString);
-                _consoleWriter.WriteLine("\nAddress: " + walletAccount.Address, ConsoleOutputStyle.Information);
-                _consoleWriter.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
+                _consoleHandler.WriteLine("\nAddress: " + walletAccount.Address, ConsoleOutputStyle.Information);
+                _consoleHandler.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
             }
             catch(AccountsPasswordMismatchException)
             {
-                _consoleWriter.WriteLine("\nInvalid password.");
+                _consoleHandler.WriteLine("\nInvalid password.");
             }
         }
 
@@ -119,7 +116,7 @@ namespace NeoSharp.Application.Controllers
         {
             //Should we ask for a confirmation? Should we ask for the password?
             _walletManager.DeleteAccount(address.ToScriptHash());
-            _consoleWriter.WriteLine("Account deleted.");
+            _consoleHandler.WriteLine("Account deleted.");
         }
 
         [PromptCommand("account export nep2", Category = "Account", Help = "Exports an account in nep-2 format")]
@@ -130,29 +127,29 @@ namespace NeoSharp.Application.Controllers
             {
                 try
                 {
-                    var walletPassword = _consoleReader.ReadPassword();
+                    var walletPassword = _consoleHandler.ReadPassword();
                     byte[] accountPrivateKey = _walletManager.DecryptNep2(walletAccount.Key, walletPassword);
-                    var newKeyPassword = _consoleReader.ReadPassword("\nNew key password:");
-                    var newKeyPasswordConfirmation = _consoleReader.ReadPassword("\nConfirm your password:");
+                    var newKeyPassword = _consoleHandler.ReadPassword("\nNew key password:");
+                    var newKeyPasswordConfirmation = _consoleHandler.ReadPassword("\nConfirm your password:");
                     if (newKeyPassword.ToByteArray().SequenceEqual(newKeyPasswordConfirmation.ToByteArray()))
                     {
                         string nep2Key = _walletManager.EncryptNep2(accountPrivateKey, newKeyPassword);
-                        _consoleWriter.WriteLine("\nExported NEP-2 Key: " + nep2Key);
+                        _consoleHandler.WriteLine("\nExported NEP-2 Key: " + nep2Key);
                     }
                     else
                     {
-                        _consoleWriter.WriteLine("\nPasswords don't match.");
+                        _consoleHandler.WriteLine("\nPasswords don't match.");
                     }
                 }
                 catch (AccountsPasswordMismatchException)
                 {
-                    _consoleWriter.WriteLine("\nInvalid password.");
+                    _consoleHandler.WriteLine("\nInvalid password.");
                 }
 
             }
             else
             {
-                _consoleWriter.WriteLine("\nAccount not found.");
+                _consoleHandler.WriteLine("\nAccount not found.");
             }
 
         }
@@ -165,19 +162,19 @@ namespace NeoSharp.Application.Controllers
             {
                 try
                 {
-                    var walletPassword = _consoleReader.ReadPassword();
+                    var walletPassword = _consoleHandler.ReadPassword();
                     byte[] accountPrivateKey = _walletManager.DecryptNep2(walletAccount.Key, walletPassword);
                     string wif = _walletManager.PrivateKeyToWif(accountPrivateKey);
-                    _consoleWriter.WriteLine("\nExported wif: " + wif);
+                    _consoleHandler.WriteLine("\nExported wif: " + wif);
                 }
                 catch (AccountsPasswordMismatchException)
                 {
-                    _consoleWriter.WriteLine("\nInvalid password.");
+                    _consoleHandler.WriteLine("\nInvalid password.");
                 }
             }
             else
             {
-                _consoleWriter.WriteLine("\nAccount not found.");
+                _consoleHandler.WriteLine("\nAccount not found.");
             }
         }
 
@@ -190,7 +187,7 @@ namespace NeoSharp.Application.Controllers
                 _walletManager.UpdateAccountAlias(accountScriptHash, alias);
             }else
             {
-                _consoleWriter.WriteLine("\nAccount not found.");
+                _consoleHandler.WriteLine("\nAccount not found.");
             }
         }
 

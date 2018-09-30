@@ -24,8 +24,7 @@ namespace NeoSharp.Application.Test
             // Assert
             containerBuilderMock.Verify(x => x.Register<IBootstrapper, Bootstrapper>(), Times.Once);
             containerBuilderMock.Verify(x => x.RegisterSingleton<IPrompt, Prompt>(), Times.Once);
-            containerBuilderMock.Verify(x => x.RegisterSingleton<IConsoleReader, ConsoleReader>(), Times.Once);
-            containerBuilderMock.Verify(x => x.RegisterSingleton<IConsoleWriter, ConsoleWriter>(), Times.Once);
+            containerBuilderMock.Verify(x => x.RegisterSingleton<IConsoleHandler, ConsoleHandler>(), Times.Once);
         }
     }
 }

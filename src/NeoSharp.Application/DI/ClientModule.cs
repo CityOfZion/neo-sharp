@@ -13,8 +13,8 @@ namespace NeoSharp.Application.DI
             containerBuilder.Register<IBootstrapper, Bootstrapper>();
             containerBuilder.RegisterSingleton<IPrompt, Prompt>();
             containerBuilder.RegisterSingleton<IPromptUserVariables, PromptUserVariables>();
-            containerBuilder.RegisterSingleton<IConsoleReader, ConsoleReader>();
-            containerBuilder.RegisterSingleton<IConsoleWriter, ConsoleWriter>();
+
+            containerBuilder.RegisterSingleton<IConsoleHandler, ConsoleHandler>();
 
             // Get prompt controllers
 

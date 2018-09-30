@@ -7,9 +7,11 @@ namespace NeoSharp.Application.Controllers
     public class PromptNetworkController : IPromptController
     {
         #region Private fields
+
         private readonly IServerContext _serverContext;
         private readonly INetworkManager _networkManager;
-        private readonly IConsoleWriter _consoleWriter;
+        private readonly IConsoleHandler _consoleHandler;
+
         #endregion
 
         /// <summary>
@@ -17,12 +19,12 @@ namespace NeoSharp.Application.Controllers
         /// </summary>
         /// <param name="serverContext">Server context</param>
         /// <param name="networkManager">Network manages</param>
-        /// <param name="consoleWriter">Console writter</param>
-        public PromptNetworkController(IServerContext serverContext, INetworkManager networkManager, IConsoleWriter consoleWriter)
+        /// <param name="consoleHandler">Console writter</param>
+        public PromptNetworkController(IServerContext serverContext, INetworkManager networkManager, IConsoleHandler consoleHandler)
         {
             _serverContext = serverContext;
             _networkManager = networkManager;
-            _consoleWriter = consoleWriter;
+            _consoleHandler = consoleHandler;
         }
 
         /// <summary>
@@ -31,13 +33,13 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("nodes", Category = "Network", Help = "Get nodes information")]
         public void NodesCommand()
         {
-            var peers = this._serverContext.ConnectedPeers;
+            var peers = _serverContext.ConnectedPeers;
 
-            _consoleWriter.WriteLine("Connected: " + peers.Count);
+            _consoleHandler.WriteLine("Connected: " + peers.Count);
 
             foreach (var peer in peers)
             {
-                _consoleWriter.WriteLine(peer.ToString());
+                _consoleHandler.WriteLine(peer.ToString());
             }
         }
 

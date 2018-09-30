@@ -24,8 +24,7 @@ namespace NeoSharp.Application.Controllers
         private readonly ILoggerFactoryExtended _log;
 
         private readonly IVMFactory _vmFactory;
-        private readonly IConsoleWriter _consoleWriter;
-        private readonly IConsoleReader _consoleReader;
+        private readonly IConsoleHandler _consoleHandler;
 
         #endregion
 
@@ -93,24 +92,23 @@ namespace NeoSharp.Application.Controllers
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="logBag">Log bag</param>
         /// <param name="logger">Logger</param>
         /// <param name="log">Log</param>
         /// <param name="vmFactory">VM Factory</param>
-        /// <param name="consoleWriter">Console writter</param>
-        /// <param name="consoleReader">Console reader</param>
+        /// <param name="consoleHandler">Console handler</param>
         public PromptDebugController
             (
             ILogBag logBag,
             Core.Logging.ILogger<Prompt> logger, ILoggerFactoryExtended log,
-            IVMFactory vmFactory, IConsoleWriter consoleWriter, IConsoleReader consoleReader
+            IVMFactory vmFactory, IConsoleHandler consoleHandler
             )
         {
             _logs = logBag;
             _log = log;
             _logger = logger;
             _vmFactory = vmFactory;
-            _consoleReader = consoleReader;
-            _consoleWriter = consoleWriter;
+            _consoleHandler = consoleHandler;
         }
 
         class DebugScriptTable : IScriptTable
@@ -158,7 +156,7 @@ namespace NeoSharp.Application.Controllers
 
             foreach (var h in _scriptTable.VirtualContracts.Keys)
             {
-                _consoleWriter.WriteLine(h.ToString(true), h == hash ? ConsoleOutputStyle.Information : ConsoleOutputStyle.Output);
+                _consoleHandler.WriteLine(h.ToString(true), h == hash ? ConsoleOutputStyle.Information : ConsoleOutputStyle.Output);
             }
         }
 
@@ -191,7 +189,7 @@ namespace NeoSharp.Application.Controllers
         {
             foreach (var h in _scriptTable.VirtualContracts.Keys)
             {
-                _consoleWriter.WriteLine(h.ToString(true));
+                _consoleHandler.WriteLine(h.ToString(true));
             }
         }
 
@@ -209,16 +207,16 @@ namespace NeoSharp.Application.Controllers
             var parser = new InstructionParser();
             foreach (var i in parser.Parse(script))
             {
-                _consoleWriter.Write(i.Location.ToString() + " ", ConsoleOutputStyle.Information);
+                _consoleHandler.Write(i.Location.ToString() + " ", ConsoleOutputStyle.Information);
 
                 if (i is InstructionWithPayload ip)
                 {
-                    _consoleWriter.Write(i.OpCode.ToString() + " ");
-                    _consoleWriter.WriteLine("{" + ip.Payload.ToHexString(true) + "}", ConsoleOutputStyle.DarkGray);
+                    _consoleHandler.Write(i.OpCode.ToString() + " ");
+                    _consoleHandler.WriteLine("{" + ip.Payload.ToHexString(true) + "}", ConsoleOutputStyle.DarkGray);
                 }
                 else
                 {
-                    _consoleWriter.WriteLine(i.OpCode.ToString());
+                    _consoleHandler.WriteLine(i.OpCode.ToString());
                 }
             }
         }
@@ -265,7 +263,7 @@ namespace NeoSharp.Application.Controllers
                     vm.ConsumedGas
                 };
 
-                _consoleWriter.WriteObject(result, PromptOutputStyle.json);
+                _consoleHandler.WriteObject(result, PromptOutputStyle.json);
             }
 
             //_logger.LogDebug("Execution opcodes:" + Environment.NewLine + log.ToString());

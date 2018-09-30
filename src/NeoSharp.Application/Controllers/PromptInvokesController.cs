@@ -10,20 +10,17 @@ namespace NeoSharp.Application.Controllers
     {
         #region Private fields
 
-        private readonly IConsoleWriter _consoleWriter;
-        private readonly IConsoleReader _consoleReader;
+        private readonly IConsoleHandler _consoleHandler;
 
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="consoleWriter">Console writter</param>
-        /// <param name="consoleReader">Console reader</param>
-        public PromptInvokesController(IConsoleWriter consoleWriter, IConsoleReader consoleReader)
+        /// <param name="consoleHandler">Console handler</param>
+        public PromptInvokesController(IConsoleHandler consoleHandler)
         {
-            _consoleReader = consoleReader;
-            _consoleWriter = consoleWriter;
+            _consoleHandler = consoleHandler;
         }
 
         // testinvoke {contract hash} {params} (--attach-neo={amount}, --attach-gas={amount}) (--from-addr={addr})

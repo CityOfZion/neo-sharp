@@ -22,17 +22,13 @@ namespace NeoSharp.Application.Client
         /// </summary>
         private bool _exit;
         /// <summary>
-        /// Console Reader
-        /// </summary>
-        private readonly IConsoleReader _consoleReader;
-        /// <summary>
         /// Network manager
         /// </summary>
         private readonly INetworkManager _networkManager;
         /// <summary>
-        /// Console Writer
+        /// Console Handler
         /// </summary>
-        private readonly IConsoleWriter _consoleWriter;
+        private readonly IConsoleHandler _consoleHandler;
         /// <summary>
         /// Logger
         /// </summary>
@@ -81,8 +77,7 @@ namespace NeoSharp.Application.Client
         /// <param name="variables">Variables</param>
         /// <param name="logs">Logs</param>
         /// <param name="networkManager">Network manger</param>
-        /// <param name="consoleReaderInit">Console reader init</param>
-        /// <param name="consoleWriterInit">Console writer init</param>
+        /// <param name="consoleHandler">Console handler</param>
         /// <param name="logger">Logger</param>
         /// <param name="blockchain">Blockchain</param>
         /// <param name="vmFactory">VM Factory</param>
@@ -92,15 +87,13 @@ namespace NeoSharp.Application.Client
             IPromptUserVariables variables,
             ILogBag logs,
             INetworkManager networkManager,
-            IConsoleReader consoleReaderInit,
-            IConsoleWriter consoleWriterInit,
+            IConsoleHandler consoleHandler,
             Core.Logging.ILogger<Prompt> logger,
             IBlockchain blockchain
             )
         {
             _networkManager = networkManager;
-            _consoleReader = consoleReaderInit;
-            _consoleWriter = consoleWriterInit;
+            _consoleHandler = consoleHandler;
             _logger = logger;
             _blockchain = blockchain;
             _logs = logs;
@@ -122,13 +115,13 @@ namespace NeoSharp.Application.Client
         public void StartPrompt(string[] args)
         {
             _logger.LogInformation("Starting Prompt");
-            _consoleWriter.WriteLine("Neo-Sharp", ConsoleOutputStyle.Prompt);
+            _consoleHandler.WriteLine("Neo-Sharp", ConsoleOutputStyle.Prompt);
 
             if (args != null)
             {
                 // Append arguments as inputs
 
-                _consoleReader.AppendInputs(args.Where(u => !u.StartsWith("#")).ToArray());
+                _consoleHandler.AppendInputs(args.Where(u => !u.StartsWith("#")).ToArray());
             }
 
             _blockchain.InitializeBlockchain().Wait();
@@ -139,7 +132,7 @@ namespace NeoSharp.Application.Client
 
                 while (_logs.TryTake(out var log))
                 {
-                    _consoleWriter.WriteLine
+                    _consoleHandler.WriteLine
                         (
                         "[" + log.Level + (string.IsNullOrEmpty(log.Category) ? "" : "-" + log.Category) + "] " +
                         log.MessageWithError, _logStyle[log.Level]
@@ -148,7 +141,7 @@ namespace NeoSharp.Application.Client
 
                 // Read input
 
-                var fullCmd = _consoleReader.ReadFromConsole(_commandAutocompleteCache);
+                var fullCmd = _consoleHandler.ReadFromConsole(_commandAutocompleteCache);
 
                 if (string.IsNullOrWhiteSpace(fullCmd))
                 {
@@ -162,7 +155,7 @@ namespace NeoSharp.Application.Client
                 Execute(fullCmd);
             }
 
-            _consoleWriter.WriteLine("Exiting", ConsoleOutputStyle.Information);
+            _consoleHandler.WriteLine("Exiting", ConsoleOutputStyle.Information);
         }
 
         /// <inheritdoc />
@@ -191,30 +184,30 @@ namespace NeoSharp.Application.Client
 
                 // Get command
 
-                lock (_consoleReader) lock (_consoleWriter)
+                lock (_consoleHandler)
+                {
+                    // Raise event
+
+                    OnCommandRequested?.Invoke(this, cmd, command);
+
+                    // Invoke
+
+                    var ret = cmd.Method.Invoke(cmd.Instance, args);
+
+                    if (ret is Task task)
                     {
-                        // Raise event
-
-                        OnCommandRequested?.Invoke(this, cmd, command);
-
-                        // Invoke
-
-                        var ret = cmd.Method.Invoke(cmd.Instance, args);
-
-                        if (ret is Task task)
-                        {
-                            task.Wait();
-                        }
+                        task.Wait();
                     }
+                }
 
                 return true;
             }
             catch (Exception e)
             {
                 var msg = e.InnerException != null ? e.InnerException.Message : e.Message;
-                _consoleWriter.WriteLine(msg, ConsoleOutputStyle.Error);
+                _consoleHandler.WriteLine(msg, ConsoleOutputStyle.Error);
 #if DEBUG
-                _consoleWriter.WriteLine(e.ToString(), ConsoleOutputStyle.Error);
+                _consoleHandler.WriteLine(e.ToString(), ConsoleOutputStyle.Error);
 #endif
 
                 PrintHelp(cmds);

@@ -6,11 +6,11 @@ namespace NeoSharp.Application.Client
     {
         #region Variables
 
-        long _maxValue, _value;
-        Decimal _lastFactor;
+        private long _maxValue, _value;
+        private decimal _lastFactor;
 
-        readonly IConsoleWriter _writer;
-        readonly int _x, _y;
+        private readonly IConsoleHandler _handler;
+        private readonly int _x, _y;
 
         #endregion
 
@@ -31,6 +31,7 @@ namespace NeoSharp.Application.Client
                 Invalidate();
             }
         }
+
         /// <summary>
         /// Maximum value
         /// </summary>
@@ -49,10 +50,11 @@ namespace NeoSharp.Application.Client
                 Invalidate();
             }
         }
+
         /// <summary>
         /// Percent
         /// </summary>
-        public Decimal Percent
+        public decimal Percent
         {
             get
             {
@@ -66,18 +68,20 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="writer">Writer</param>
+        /// <param name="handler">Handler</param>
         /// <param name="value">Value</param>
         /// <param name="maxValue">Maximum value</param>
-        public ConsolePercentWriter(IConsoleWriter writer, long value = 0, long maxValue = 100)
+        public ConsolePercentWriter(IConsoleHandler handler, long value = 0, long maxValue = 100)
         {
-            _writer = writer;
             _lastFactor = -1;
-            _writer.GetCursorPosition(out _x, out _y);
+            _handler = handler;
+            _handler.GetCursorPosition(out _x, out _y);
+
             MaxValue = maxValue;
             Value = value;
             Invalidate();
         }
+
         /// <summary>
         /// Invalidate
         /// </summary>
@@ -94,17 +98,18 @@ namespace NeoSharp.Application.Client
             var fill = string.Empty.PadLeft((int)(10 * factor), '■');
             var clean = string.Empty.PadLeft(10 - fill.Length, '■');
 
-            _writer.SetCursorPosition(_x, _y);
-            _writer.Write("[");
-            _writer.Write(fill, ConsoleOutputStyle.Input);
-            _writer.Write(clean + "] (" + Percent.ToString("0.0").PadLeft(5, ' ') + "%)");
+            _handler.SetCursorPosition(_x, _y);
+            _handler.Write("[");
+            _handler.Write(fill, ConsoleOutputStyle.Input);
+            _handler.Write(clean + "] (" + Percent.ToString("0.0").PadLeft(5, ' ') + "%)");
         }
+
         /// <summary>
         /// Free console
         /// </summary>
         public void Dispose()
         {
-            _writer.WriteLine("");
+            _handler.WriteLine("");
         }
     }
 }

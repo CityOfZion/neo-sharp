@@ -29,10 +29,10 @@ namespace NeoSharp.Application.Client
 
             if (cmd != null && !string.IsNullOrEmpty(cmd.Help))
             {
-                _consoleWriter.WriteLine(cmd.Help, ConsoleOutputStyle.Information);
+                _consoleHandler.WriteLine(cmd.Help, ConsoleOutputStyle.Information);
 
-                _consoleWriter.WriteLine("");
-                _consoleWriter.WriteLine("Examples:", ConsoleOutputStyle.Information);
+                _consoleHandler.WriteLine("");
+                _consoleHandler.WriteLine("Examples:", ConsoleOutputStyle.Information);
 
                 // How to use?
 
@@ -66,18 +66,18 @@ namespace NeoSharp.Application.Client
                         }
                     }
 
-                    _consoleWriter.WriteLine("  " + v.Command + args, ConsoleOutputStyle.Information);
+                    _consoleHandler.WriteLine("  " + v.Command + args, ConsoleOutputStyle.Information);
                 }
 
                 if (modes.Count > 0)
                 {
                     // Options
 
-                    _consoleWriter.WriteLine("Options:", ConsoleOutputStyle.Information);
+                    _consoleHandler.WriteLine("Options:", ConsoleOutputStyle.Information);
 
                     foreach (var par in modes)
                     {
-                        _consoleWriter.WriteLine("  " + par, ConsoleOutputStyle.Information);
+                        _consoleHandler.WriteLine("  " + par, ConsoleOutputStyle.Information);
                     }
                 }
             }
@@ -104,7 +104,7 @@ namespace NeoSharp.Application.Client
                   {
                       while (!cancel.IsCancellationRequested)
                       {
-                          if (_consoleReader.KeyAvailable)
+                          if (_consoleHandler.KeyAvailable)
                           {
                               cancel.Cancel();
                               return;
@@ -117,7 +117,7 @@ namespace NeoSharp.Application.Client
 
                 while (!cancel.IsCancellationRequested)
                 {
-                    _consoleWriter.Clear();
+                    _consoleHandler.Clear();
 
                     if (!Execute(line))
                     {
@@ -199,7 +199,7 @@ namespace NeoSharp.Application.Client
 
                 if (cmds.Length == 0)
                 {
-                    _consoleWriter.WriteLine("Command not found <" + command + ">", ConsoleOutputStyle.Error);
+                    _consoleHandler.WriteLine("Command not found <" + command + ">", ConsoleOutputStyle.Error);
                 }
                 else PrintHelp(cmds);
 
@@ -225,14 +225,14 @@ namespace NeoSharp.Application.Client
                     // Print category
 
                     lastCat = c.Category;
-                    _consoleWriter.WriteLine(lastCat, ConsoleOutputStyle.Information);
+                    _consoleHandler.WriteLine(lastCat, ConsoleOutputStyle.Information);
                 }
 
                 var command = string.Join(" ", key);
                 if (lastCom == command) continue;
 
                 lastCom = command;
-                _consoleWriter.WriteLine("  " + command);
+                _consoleHandler.WriteLine("  " + command);
             }
         }
     }

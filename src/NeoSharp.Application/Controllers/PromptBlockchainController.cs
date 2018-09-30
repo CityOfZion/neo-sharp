@@ -23,7 +23,8 @@ namespace NeoSharp.Application.Controllers
         private readonly ITransactionRepository _transactionModel;
         private readonly IAssetRepository _assetModel;
         private readonly IBlockchainContext _blockchainContext;
-        private readonly IConsoleWriter _consoleWriter;
+        private readonly IConsoleHandler _consoleHandler;
+
         #endregion
 
         /// <summary>
@@ -45,7 +46,7 @@ namespace NeoSharp.Application.Controllers
             IBlockchainContext blockchainContext,
             IBlockPool blockPool, 
             ITransactionPool transactionPool, 
-            IConsoleWriter consoleWriter)
+            IConsoleHandler consoleHandler)
         {
             _blockchain = blockchain;
             _blockRepository = blockRepository;
@@ -54,20 +55,20 @@ namespace NeoSharp.Application.Controllers
             _blockchainContext = blockchainContext;
             _blockPool = blockPool;
             _transactionPool = transactionPool;
-            _consoleWriter = consoleWriter;
+            _consoleHandler = consoleHandler;
         }
 
         void WriteStatePercent(string title, string msg, long? value, long? max)
         {
             if (!value.HasValue || !max.HasValue)
             {
-                _consoleWriter.WriteLine(title + ": " + msg + " ");
+                _consoleHandler.WriteLine(title + ": " + msg + " ");
                 return;
             }
 
-            _consoleWriter.Write(title + ": " + msg + " ");
+            _consoleHandler.Write(title + ": " + msg + " ");
 
-            using (var pg = _consoleWriter.CreatePercent(max.Value))
+            using (var pg = _consoleHandler.CreatePercent(max.Value))
             {
                 pg.Value = value.Value;
             }
@@ -92,17 +93,17 @@ namespace NeoSharp.Application.Controllers
 
             var numSpaces = new int[] { memStr.Length, blockStr.Length, blIndex.Length, headStr.Length, blStr.Length }.Max() + 1;
 
-            _consoleWriter.WriteLine("Pools", ConsoleOutputStyle.Information);
-            _consoleWriter.WriteLine("");
+            _consoleHandler.WriteLine("Pools", ConsoleOutputStyle.Information);
+            _consoleHandler.WriteLine("");
 
             WriteStatePercent(" Memory", memStr.PadLeft(numSpaces, ' '), _transactionPool.Size, _transactionPool.Capacity);
             WriteStatePercent(" Blocks", blockStr.PadLeft(numSpaces, ' '), _blockPool.Size, _blockPool.Capacity);
 
-            _consoleWriter.WriteLine("");
-            _consoleWriter.WriteLine("Heights", ConsoleOutputStyle.Information);
-            _consoleWriter.WriteLine("");
+            _consoleHandler.WriteLine("");
+            _consoleHandler.WriteLine("Heights", ConsoleOutputStyle.Information);
+            _consoleHandler.WriteLine("");
 
-            _consoleWriter.WriteLine("Headers: " + headStr.PadLeft(numSpaces, ' ') + " ");
+            _consoleHandler.WriteLine("Headers: " + headStr.PadLeft(numSpaces, ' ') + " ");
 
             WriteStatePercent(" Blocks", blStr.PadLeft(numSpaces, ' '), this._blockchainContext.CurrentBlock?.Index, this._blockchainContext.LastBlockHeader?.Index);
             WriteStatePercent("  Index", blIndex.PadLeft(numSpaces, ' '), 0, this._blockchainContext.CurrentBlock?.Index);
@@ -116,7 +117,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("header", Category = "Blockchain", Help = "Get header by index or by hash")]
         public async Task HeaderCommand(uint blockIndex, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await this._blockRepository.GetBlockHeader(blockIndex), output);
+            _consoleHandler.WriteObject(await this._blockRepository.GetBlockHeader(blockIndex), output);
         }
 
         /// <summary>
@@ -127,7 +128,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("header", Category = "Blockchain", Help = "Get header by index or by hash")]
         public async Task HeaderCommand(UInt256 blockHash, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await this._blockRepository.GetBlockHeader(blockHash), output);
+            _consoleHandler.WriteObject(await this._blockRepository.GetBlockHeader(blockHash), output);
         }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
         public async Task BlockCommand(uint blockIndex, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await this._blockRepository.GetBlock(blockIndex), output);
+            _consoleHandler.WriteObject(await this._blockRepository.GetBlock(blockIndex), output);
         }
 
         /// <summary>
@@ -149,7 +150,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("block", Category = "Blockchain", Help = "Get block by index or by hash")]
         public async Task BlockCommand(UInt256 blockHash, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await this._blockRepository.GetBlock(blockHash), output);
+            _consoleHandler.WriteObject(await this._blockRepository.GetBlock(blockHash), output);
         }
 
         /// <summary>
@@ -160,7 +161,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("tx", Category = "Blockchain", Help = "Get tx")]
         public async Task TxCommand(UInt256 hash, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await this._transactionModel.GetTransaction(hash), output);
+            _consoleHandler.WriteObject(await this._transactionModel.GetTransaction(hash), output);
         }
 
         /// <summary>
@@ -173,7 +174,7 @@ namespace NeoSharp.Application.Controllers
         public async Task TxCommand(uint blockIndex, ushort txNumber, PromptOutputStyle output = PromptOutputStyle.json)
         {
             var block = await this._blockRepository.GetBlock(blockIndex);
-            _consoleWriter.WriteObject(block.Transactions?[txNumber], output);
+            _consoleHandler.WriteObject(block.Transactions?[txNumber], output);
         }
 
         /// <summary>
@@ -184,7 +185,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("asset", Category = "Blockchain", Help = "Get asset", Order = 0)]
         public async Task AssetCommand(UInt256 hash, PromptOutputStyle output = PromptOutputStyle.json)
         {
-            _consoleWriter.WriteObject(await this._assetModel.GetAsset(hash), output);
+            _consoleHandler.WriteObject(await this._assetModel.GetAsset(hash), output);
         }
 
         /// <summary>
@@ -199,7 +200,7 @@ namespace NeoSharp.Application.Controllers
             var assets = await this._assetModel.GetAssets();
             var result = assets.QueryResult(query, mode).ToArray();
 
-            _consoleWriter.WriteObject(result, output);
+            _consoleHandler.WriteObject(result, output);
         }
 
         /// <summary>
@@ -211,7 +212,7 @@ namespace NeoSharp.Application.Controllers
         public Task ContractCommand(UInt160 hash, PromptOutputStyle output = PromptOutputStyle.json)
         {
             throw new NotImplementedException();
-            //_consoleWriter.WriteObject(await _blockchain?.GetContract(hash), output);
+            //_consoleHandler.WriteObject(await _blockchain?.GetContract(hash), output);
         }
 
         /// <summary>
@@ -227,7 +228,7 @@ namespace NeoSharp.Application.Controllers
             //var contracts = await _blockchain?.GetContracts();
             //var result = contracts.QueryResult(query, mode).ToArray();
 
-            //_consoleWriter.WriteObject(result, output);
+            //_consoleHandler.WriteObject(result, output);
         }
     }
 }
