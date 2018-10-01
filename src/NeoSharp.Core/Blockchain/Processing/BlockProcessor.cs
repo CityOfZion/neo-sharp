@@ -58,7 +58,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                         _blockchainContext.IsSyncing = true;
                     }
 
-                    var nextBlockHeight = currentBlock?.Index + 1 ?? 0;
+                    var nextBlockHeight = this._blockchainContext.CurrentBlock?.Index + 1 ?? 0;
 
                     if (!_blockPool.TryGet(nextBlockHeight, out var block))
                     {

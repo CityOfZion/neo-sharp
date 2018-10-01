@@ -10,6 +10,7 @@ using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Network;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
@@ -200,6 +201,11 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
                 .Returns(true);
 
             var blockPersisterMock = this.AutoMockContainer.GetMock<IBlockPersister>();
+
+            this.AutoMockContainer
+                .GetMock<IBlockchainContext>()
+                .SetupGet(x => x.CurrentBlock)
+                .Returns(currentBlock);
 
             var testee = this.AutoMockContainer.Create<BlockProcessor>();
 

@@ -93,12 +93,14 @@ namespace NeoSharp.Core.Blockchain.Processing
 
             if (blockHeader?.Type == HeaderType.Extended)
             {
-                throw new InvalidOperationException($"The block \"{block.Hash.ToString(true)}\" exists already on the blockchain.");
+                this._logger.LogDebug($"The block \"{block.Hash.ToString(true)}\" exists already on the blockchain.");
+                return true;
             }
 
             if (blockHeader != null && blockHeader.Hash != block.Hash)
             {
-                throw new InvalidOperationException($"The block \"{block.Hash.ToString(true)}\" has an invalid hash.");
+                this._logger.LogDebug($"The block \"{block.Hash.ToString(true)}\" has an invalid hash.");       // <-- [AboimPinto] I'm not sure if this validation should be on this method.
+                return true;
             }
 
             _logger.LogDebug($"The block with the hash {block.Hash} is not int the blockchain.");

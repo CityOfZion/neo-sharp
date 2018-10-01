@@ -29,6 +29,7 @@ namespace NeoSharp.Core.Models.OperationManger
 
         public bool Verify(Witness witness)
         {
+            // TODO [AboimPinto]: need to be implemented.
             return true;
         }
         
