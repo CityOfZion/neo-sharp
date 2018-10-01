@@ -18,7 +18,7 @@ namespace NeoSharp.Core.Converters
         /// <param name="type">Type</param>
         /// <param name="settings">Settigns</param>
         /// <returns>Return object</returns>
-        public object Deserialize(IBinaryDeserializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinarySerializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             byte[] data;
             var usage = (TransactionAttributeUsage)reader.ReadByte();

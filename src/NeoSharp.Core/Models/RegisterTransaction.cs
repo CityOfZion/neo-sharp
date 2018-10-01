@@ -43,7 +43,7 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public RegisterTransaction() : base(TransactionType.RegisterTransaction) { }
 
-        protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        protected override void DeserializeExclusiveData(IBinarySerializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             AssetType = (AssetType)reader.ReadByte();
             Name = reader.ReadVarString(1024);

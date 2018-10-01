@@ -20,14 +20,12 @@ namespace NeoSharp.Core.Test.Serializers
     public class UtBinarySerializer : TestBase
     {
         private IBinarySerializer _serializer;
-        private IBinaryDeserializer _deserializer;
 
         [TestInitialize]
         public void WarmUpSerializer()
         {
             BinarySerializer.RegisterTypes(typeof(SetTest));
             _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
-            _deserializer = new BinaryDeserializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
         }
 
         public class SetTest
@@ -70,7 +68,7 @@ namespace NeoSharp.Core.Test.Serializers
                 RandomInt() }));
 
             var ret = _serializer.Serialize(list);
-            var clone = _deserializer.Deserialize<ReadOnlyListDummyClass>(ret);
+            var clone = _serializer.Deserialize<ReadOnlyListDummyClass>(ret);
 
             CollectionAssert.AreEqual(list.List.ToArray(), clone.List.ToArray());
         }
@@ -97,7 +95,7 @@ namespace NeoSharp.Core.Test.Serializers
 
             // Test deserialization
 
-            var clone = _deserializer.Deserialize<ReadOnlyDummyClass>(ret);
+            var clone = _serializer.Deserialize<ReadOnlyDummyClass>(ret);
 
             Assert.AreEqual(set.Set.Count, clone.Test.Set.Count);
             Assert.AreEqual(set.Dictionary.Count, clone.Test.Dictionary.Count);
@@ -119,7 +117,7 @@ namespace NeoSharp.Core.Test.Serializers
             }
 
             var ret = _serializer.Serialize(set);
-            var clone = _deserializer.Deserialize<SetTest>(ret);
+            var clone = _serializer.Deserialize<SetTest>(ret);
 
             Assert.AreEqual(set.Set.Count, clone.Set.Count);
             Assert.AreEqual(set.Dictionary.Count, clone.Dictionary.Count);
@@ -150,23 +148,23 @@ namespace NeoSharp.Core.Test.Serializers
 
             List<DummyParent> ls = new List<DummyParent>
             {
-                _deserializer.Deserialize<DummyParent>(data),
-                (DummyParent)_deserializer.Deserialize(data, typeof(DummyParent))
+                _serializer.Deserialize<DummyParent>(data),
+                (DummyParent)_serializer.Deserialize(data, typeof(DummyParent))
             };
 
             using (var ms = new MemoryStream(data))
             {
-                ls.Add((DummyParent)_deserializer.Deserialize(ms, typeof(DummyParent)));
+                ls.Add((DummyParent)_serializer.Deserialize(ms, typeof(DummyParent)));
                 ms.Seek(0, SeekOrigin.Begin);
-                ls.Add(_deserializer.Deserialize<DummyParent>(ms));
+                ls.Add(_serializer.Deserialize<DummyParent>(ms));
             }
 
             using (var ms = new MemoryStream(data))
             using (var mr = new BinaryReader(ms))
             {
-                ls.Add((DummyParent)_deserializer.Deserialize(mr, typeof(DummyParent)));
+                ls.Add((DummyParent)_serializer.Deserialize(mr, typeof(DummyParent)));
                 ms.Seek(0, SeekOrigin.Begin);
-                ls.Add(_deserializer.Deserialize<DummyParent>(mr));
+                ls.Add(_serializer.Deserialize<DummyParent>(mr));
             }
 
             foreach (var parent in ls)
@@ -192,7 +190,7 @@ namespace NeoSharp.Core.Test.Serializers
         [TestMethod]
         public void Deserialize()
         {
-            var actual = _deserializer.Deserialize<Dummy>(new byte[]
+            var actual = _serializer.Deserialize<Dummy>(new byte[]
             {
                 0x01,
                 0x02,
@@ -314,7 +312,7 @@ namespace NeoSharp.Core.Test.Serializers
         public void Serialize_EnumArray()
         {
             var test = new CoinState[] { CoinState.Confirmed, CoinState.Locked };
-            var copy = BinaryDeserializer.Default.Deserialize<CoinState[]>(BinarySerializer.Default.Serialize(test));
+            var copy = BinarySerializer.Default.Deserialize<CoinState[]>(BinarySerializer.Default.Serialize(test));
 
             CollectionAssert.AreEqual(test, copy);
         }
@@ -323,7 +321,7 @@ namespace NeoSharp.Core.Test.Serializers
         public void DeserializeReadOnly()
         {
             var readOnly = new DummyReadOnly();
-            var copy = _deserializer.Deserialize<DummyReadOnly>(_serializer.Serialize(readOnly));
+            var copy = _serializer.Deserialize<DummyReadOnly>(_serializer.Serialize(readOnly));
 
             Assert.AreEqual(readOnly.A, copy.A);
         }
@@ -350,7 +348,7 @@ namespace NeoSharp.Core.Test.Serializers
                 }
             };
 
-            var copy = _deserializer.Deserialize<AddrPayload>(_serializer.Serialize(original));
+            var copy = _serializer.Deserialize<AddrPayload>(_serializer.Serialize(original));
 
             Assert.AreEqual(copy.Address.Length, original.Address.Length);
 
@@ -366,7 +364,7 @@ namespace NeoSharp.Core.Test.Serializers
         public void SerializeDeserialize_Fixed8()
         {
             var original = new Fixed8(long.MaxValue);
-            var copy = _deserializer.Deserialize<Fixed8>(_serializer.Serialize(original));
+            var copy = _serializer.Deserialize<Fixed8>(_serializer.Serialize(original));
 
             Assert.AreEqual(original, copy);
         }
@@ -381,7 +379,7 @@ namespace NeoSharp.Core.Test.Serializers
                 Timestamp = uint.MaxValue
             };
 
-            var copy = _deserializer.Deserialize<NetworkAddressWithTime>(_serializer.Serialize(original));
+            var copy = _serializer.Deserialize<NetworkAddressWithTime>(_serializer.Serialize(original));
 
             Assert.AreEqual(original.Timestamp, copy.Timestamp);
             Assert.AreEqual(original.Services, copy.Services);
@@ -396,7 +394,7 @@ namespace NeoSharp.Core.Test.Serializers
             rand.NextBytes(hash);
 
             var original = new UInt256(hash);
-            var copy = _deserializer.Deserialize<UInt256>(_serializer.Serialize(original));
+            var copy = _serializer.Deserialize<UInt256>(_serializer.Serialize(original));
 
             Assert.AreEqual(original, copy);
         }
@@ -409,7 +407,7 @@ namespace NeoSharp.Core.Test.Serializers
             rand.NextBytes(hash);
 
             var original = new UInt160(hash);
-            var copy = _deserializer.Deserialize<UInt160>(_serializer.Serialize(original));
+            var copy = _serializer.Deserialize<UInt160>(_serializer.Serialize(original));
 
             Assert.AreEqual(original, copy);
         }
@@ -449,7 +447,7 @@ namespace NeoSharp.Core.Test.Serializers
 
             blockHeaderOperationsManager.Sign(blockHeader);
 
-            var blockHeaderCopy = _deserializer.Deserialize<Block>(_serializer.Serialize(blockHeader));
+            var blockHeaderCopy = _serializer.Deserialize<Block>(_serializer.Serialize(blockHeader));
             blockHeaderOperationsManager.Sign(blockHeaderCopy);
 
             Assert.AreEqual(blockHeader.ConsensusData, blockHeaderCopy.ConsensusData);

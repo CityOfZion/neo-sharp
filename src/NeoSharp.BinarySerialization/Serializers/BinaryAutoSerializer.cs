@@ -118,7 +118,7 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="reader">Reader</param>
         /// <param name="settings">Settings</param>
         /// <returns>Deserialized object</returns>
-        public T Deserialize<T>(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        public T Deserialize<T>(IBinarySerializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             return (T)Deserialize(deserializer, reader, Type, settings);
         }
@@ -130,7 +130,7 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="reader">Reader</param>
         /// <param name="settings">Settings</param>
         /// <returns>Deserialized object</returns>
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinarySerializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             return Deserialize(deserializer, reader, Type, settings);
         }
@@ -143,7 +143,7 @@ namespace NeoSharp.BinarySerialization.Serializers
         /// <param name="type">Type</param>
         /// <param name="settings">Settings</param>
         /// <returns>Deserialized object</returns>
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinarySerializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             object ret;
 

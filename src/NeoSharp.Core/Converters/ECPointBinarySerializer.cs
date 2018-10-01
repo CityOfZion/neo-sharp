@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Cryptography;
@@ -11,7 +10,7 @@ namespace NeoSharp.Core.Converters
     {
         const int expectedLength = 32;// (curve.Q.GetBitLength() + 7) / 8;
 
-        public object Deserialize(IBinaryDeserializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinarySerializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             var prefix = reader.ReadByte();
 

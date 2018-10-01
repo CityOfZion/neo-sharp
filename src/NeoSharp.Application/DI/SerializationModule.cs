@@ -15,21 +15,16 @@ namespace NeoSharp.Application.DI
                 .ToArray();
 
             containerBuilder.RegisterSingleton<IBinarySerializer>(() => new BinarySerializer(assemblies));
-            containerBuilder.RegisterSingleton<IBinaryDeserializer>(() => new BinaryDeserializer(assemblies));
-            containerBuilder.RegisterSingleton<IBinaryConverter>(() => new BinaryConverter(assemblies));
 
             containerBuilder.OnBuild += c =>
             {
-                InitializeBinarySerializer(c.Resolve<IBinarySerializer>(), c.Resolve<IBinaryDeserializer>());
+                InitializeBinarySerializer(c.Resolve<IBinarySerializer>());
             };
         }
 
-        private static void InitializeBinarySerializer(
-            IBinarySerializer binarySerializer,
-            IBinaryDeserializer binaryDeserializer)
+        private static void InitializeBinarySerializer(IBinarySerializer binarySerializer)
         {
             BinarySerializer.Initialize(binarySerializer);
-            BinaryDeserializer.Initialize(binaryDeserializer);
         }
     }
 }

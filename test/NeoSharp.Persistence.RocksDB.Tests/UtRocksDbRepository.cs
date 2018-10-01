@@ -17,13 +17,11 @@ namespace NeoSharp.Persistence.RocksDB.Tests
     [TestClass]
     public class UtRocksDbRepository : TestBase
     {
-        private Mock<IBinaryDeserializer> _deserializerMock;
         private Mock<IBinarySerializer> _serializerMock;
 
         [TestInitialize]
         public void TestInit()
         {
-            _deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             _serializerMock = AutoMockContainer.GetMock<IBinarySerializer>();
         }
 
@@ -105,7 +103,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(x => x.Get(It.Is<byte[]>(b => b.SequenceEqual(new[] {(byte) DataEntryPrefix.SysVersion}))))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<string>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<string>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
             var result = await testee.GetVersion();
@@ -305,7 +303,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateAccountKey()))))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<Account>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<Account>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
             var result = await testee.GetAccount(input);
@@ -367,7 +365,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateCoinKey()))))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<CoinState[]>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<CoinState[]>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
             var result = await testee.GetCoinStates(input);
@@ -431,7 +429,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateValidatorKey()))))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<Validator>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<Validator>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
             var result = await testee.GetValidator(input);
@@ -496,7 +494,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateAssetKey()))))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<Asset>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<Asset>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
             var result = await testee.GetAsset(input);
@@ -557,7 +555,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateContractKey()))))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<Contract>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<Contract>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
             var result = await testee.GetContract(input);
@@ -626,7 +624,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildStateStorageKey()))))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<StorageValue>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<StorageValue>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
 
             var result = await testee.GetStorage(input);
@@ -735,7 +733,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildIndexConfirmedKey()))))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock
+            _serializerMock
                 .Setup(m => m.Deserialize<HashSet<CoinReference>>(expectedBytes, null))
                 .Returns(expectedReferences);
             var testee = AutoMockContainer.Create<RocksDbRepository>();
@@ -816,7 +814,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             rocksDbContextMock
                 .Setup(m => m.Get(It.Is<byte[]>(b => b.SequenceEqual(input.BuildIndexClaimableKey()))))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock
+            _serializerMock
                 .Setup(m => m.Deserialize<HashSet<CoinReference>>(expectedBytes, null))
                 .Returns(expectedReferences);
             var testee = AutoMockContainer.Create<RocksDbRepository>();

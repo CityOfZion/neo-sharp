@@ -12,7 +12,7 @@ namespace NeoSharp.BinarySerialization.Serializers
             return 4;
         }
 
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinarySerializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             return reader.ReadUInt32();
         }

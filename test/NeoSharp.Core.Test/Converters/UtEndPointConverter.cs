@@ -65,14 +65,13 @@ namespace NeoSharp.Core.Test.Converters
             // Arrange
             BinarySerializer.RegisterTypes(typeof(EndPoint));
             var _serializer = new BinarySerializer();
-            var _deserializer = new BinaryDeserializer();
             var result = new byte[] {
                 23, 116, 99, 112, 58, 47, 47, 49, 49, 46, 50, 50,
                 46, 51, 51, 46, 52, 52, 58, 49, 48, 51, 51, 50};
 
             // Act
             var ret = _serializer.Serialize(_value);
-            var clone = _deserializer.Deserialize<EndPoint>(ret);
+            var clone = _serializer.Deserialize<EndPoint>(ret);
 
             // Assert
             CollectionAssert.AreEqual(result, ret);

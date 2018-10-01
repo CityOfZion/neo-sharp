@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 
@@ -18,7 +17,7 @@ namespace NeoSharp.Core.Models
 
         #region Exclusive data
 
-        protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        protected override void DeserializeExclusiveData(IBinarySerializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             Descriptors = deserializer.Deserialize<StateDescriptor[]>(reader, settings);
         }

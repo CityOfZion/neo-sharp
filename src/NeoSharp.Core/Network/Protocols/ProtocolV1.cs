@@ -22,7 +22,6 @@ namespace NeoSharp.Core.Network.Protocols
 
         #region Variables
 
-        private readonly IBinaryConverter _serializer;
         private readonly uint _magic;
 
         #endregion
@@ -31,11 +30,9 @@ namespace NeoSharp.Core.Network.Protocols
         /// Constructor
         /// </summary>
         /// <param name="config">Configuration</param>
-        /// <param name="serializer">Serializer</param>
-        public ProtocolV1(NetworkConfig config, IBinaryConverter serializer)
+        public ProtocolV1(NetworkConfig config)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
 
             _magic = config.Magic;
         }
@@ -50,7 +47,7 @@ namespace NeoSharp.Core.Network.Protocols
                 writer.Write(Encoding.UTF8.GetBytes(message.Command.ToString().PadRight(12, '\0')));
 
                 var payloadBuffer = message is ICarryPayload messageWithPayload
-                    ? _serializer.Serialize(messageWithPayload.Payload)
+                    ? BinarySerializer.Default.Serialize(messageWithPayload.Payload)
                     : new byte[0];
 
                 writer.Write((uint)payloadBuffer.Length);
@@ -101,7 +98,7 @@ namespace NeoSharp.Core.Network.Protocols
 
                     // TODO #367: Prevent create the dummy object
 
-                    messageWithPayload.Payload = _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
+                    messageWithPayload.Payload = BinarySerializer.Default.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
                 }
 
                 return message;

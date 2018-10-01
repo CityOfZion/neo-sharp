@@ -42,7 +42,7 @@ namespace NeoSharp.Core.Models
 
         #region Exclusive serialization
 
-        protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        protected override void DeserializeExclusiveData(IBinarySerializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             Script = reader.ReadVarBytes();
             ParameterList = reader.ReadVarBytes().Select(p => (ContractParameterType)p).ToArray();

@@ -57,7 +57,7 @@ namespace NeoSharp.BinarySerialization.Serializers
             return x;
         }
 
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinarySerializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             var l = (int)reader.ReadVarInt(ushort.MaxValue);
             if (l > MaxLength) throw new FormatException(nameof(MaxLength));

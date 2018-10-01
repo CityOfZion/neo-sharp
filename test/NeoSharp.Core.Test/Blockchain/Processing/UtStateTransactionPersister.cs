@@ -34,7 +34,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
                 }
             };
             var ecpoints = new ECPoint[0];
-            var deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
+            var deserializerMock = AutoMockContainer.GetMock<IBinarySerializer>();
             deserializerMock.Setup(m => m.Deserialize<ECPoint[]>(value, null)).Returns(ecpoints);
             var accountManagerMock = AutoMockContainer.GetMock<IAccountManager>();
             var testee = AutoMockContainer.Create<StateTransactionPersister>();

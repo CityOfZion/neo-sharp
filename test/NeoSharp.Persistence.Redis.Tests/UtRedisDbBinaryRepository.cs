@@ -20,13 +20,11 @@ namespace NeoSharp.Persistence.Redis.Tests
     [TestClass]
     public class UtRedisDbBinaryRepository : TestBase
     {
-        private Mock<IBinaryDeserializer> _deserializerMock;
         private Mock<IBinarySerializer> _serializerMock;
 
         [TestInitialize]
         public void TestInit()
         {
-            _deserializerMock = AutoMockContainer.GetMock<IBinaryDeserializer>();
             _serializerMock = AutoMockContainer.GetMock<IBinarySerializer>();
         }
 
@@ -301,7 +299,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             redisDbContextMock
                 .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateAccountKey())))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<Account>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<Account>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetAccount(input);
@@ -363,7 +361,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             redisDbContextMock
                 .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateCoinKey())))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<CoinState[]>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<CoinState[]>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetCoinStates(input);
@@ -427,7 +425,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             redisDbContextMock
                 .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateValidatorKey())))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<Validator>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<Validator>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetValidator(input);
@@ -492,7 +490,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             redisDbContextMock
                 .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateAssetKey())))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<Asset>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<Asset>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetAsset(input);
@@ -553,7 +551,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             redisDbContextMock
                 .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateContractKey())))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<Contract>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<Contract>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetContract(input);
@@ -622,7 +620,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             redisDbContextMock
                 .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateStorageKey())))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock.Setup(m => m.Deserialize<StorageValue>(expectedBytes, null)).Returns(expectedResult);
+            _serializerMock.Setup(m => m.Deserialize<StorageValue>(expectedBytes, null)).Returns(expectedResult);
             var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
 
             var result = await testee.GetStorage(input);
@@ -730,7 +728,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             redisDbContextMock
                 .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildIxConfirmedKey())))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock
+            _serializerMock
                 .Setup(m => m.Deserialize<HashSet<CoinReference>>(expectedBytes, null))
                 .Returns(expectedReferences);
             var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();
@@ -809,7 +807,7 @@ namespace NeoSharp.Persistence.Redis.Tests
             redisDbContextMock
                 .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildIxClaimableKey())))
                 .ReturnsAsync(expectedBytes);
-            _deserializerMock
+            _serializerMock
                 .Setup(m => m.Deserialize<HashSet<CoinReference>>(expectedBytes, null))
                 .Returns(expectedReferences);
             var testee = AutoMockContainer.Create<RedisDbBinaryRepository>();

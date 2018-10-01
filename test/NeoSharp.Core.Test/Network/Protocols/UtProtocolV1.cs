@@ -1,16 +1,14 @@
-﻿using FluentAssertions;
+﻿using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network.Protocols;
 using NeoSharp.TestHelpers;
-using System;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace NeoSharp.Core.Test.Network.Protocols
 {
@@ -20,7 +18,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
         [TestInitialize]
         public void WarmSerializer()
         {
-            AutoMockContainer.Register<IBinaryConverter>(new BinaryConverter(typeof(VersionMessage).Assembly));
+            AutoMockContainer.Register<IBinarySerializer>(new BinarySerializer(typeof(VersionMessage).Assembly));
         }
 
         [TestMethod]

@@ -12,14 +12,11 @@ namespace NeoSharp.Core.Blockchain.Processing
     public class StateTransactionPersister : ITransactionPersister<StateTransaction>
     {
         private readonly IRepository _repository;
-        private readonly IBinaryDeserializer _deserializer;
         private readonly IAccountManager _accountManager;
 
-        public StateTransactionPersister(IRepository repository, IBinaryDeserializer deserializer,
-            IAccountManager accountManager)
+        public StateTransactionPersister(IRepository repository, IAccountManager accountManager)
         {
             _repository = repository;
-            _deserializer = deserializer;
             _accountManager = accountManager;
         }
 
@@ -46,7 +43,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             switch (descriptor.Field)
             {
                 case "Votes":
-                    var chosenValidators = _deserializer.Deserialize<ECPoint[]>(descriptor.Value);
+                    var chosenValidators = BinarySerializer.Default.Deserialize<ECPoint[]>(descriptor.Value);
                     await _accountManager.UpdateVotes(accountHash, chosenValidators);
                     break;
             }

@@ -18,7 +18,6 @@ namespace NeoSharp.Persistence.RedisDB
 
         private readonly IRedisDbContext _redisDbContext;
         private readonly IBinarySerializer _binarySerializer;
-        private readonly IBinaryDeserializer _binaryDeserializer;
 
         private readonly string _sysCurrentBlockKey = DataEntryPrefix.SysCurrentBlock.ToString();
         private readonly string _sysCurrentBlockHeaderKey = DataEntryPrefix.SysCurrentHeader.ToString();
@@ -32,13 +31,11 @@ namespace NeoSharp.Persistence.RedisDB
         public RedisDbBinaryRepository
         (
             IRedisDbContext redisDbContext,
-            IBinarySerializer binarySerializer,
-            IBinaryDeserializer binaryDeserializer
+            IBinarySerializer binarySerializer
         )
         {
             _redisDbContext = redisDbContext ?? throw new ArgumentNullException(nameof(redisDbContext));
             _binarySerializer = binarySerializer ?? throw new ArgumentNullException(nameof(binarySerializer));
-            _binaryDeserializer = binaryDeserializer ?? throw new ArgumentNullException(nameof(binaryDeserializer));
         }
 
         #endregion
@@ -106,13 +103,13 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
             var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());
-            return _binaryDeserializer.Deserialize<BlockHeader>(blockHeaderRedisValue);
+            return _binarySerializer.Deserialize<BlockHeader>(blockHeaderRedisValue);
         }
 
         public async Task<Transaction> GetTransaction(UInt256 hash)
         {
             var transactionRedisValue = await _redisDbContext.Get(hash.BuildDataTransactionKey());
-            return _binaryDeserializer.Deserialize<Transaction>(transactionRedisValue);
+            return _binarySerializer.Deserialize<Transaction>(transactionRedisValue);
         }
 
         #endregion
@@ -124,7 +121,7 @@ namespace NeoSharp.Persistence.RedisDB
             var raw = await _redisDbContext.Get(hash.BuildStateAccountKey());
             return raw == RedisValue.Null
                 ? null
-                : _binaryDeserializer.Deserialize<Account>(raw);
+                : _binarySerializer.Deserialize<Account>(raw);
         }
 
         public async Task AddAccount(Account acct)
@@ -142,7 +139,7 @@ namespace NeoSharp.Persistence.RedisDB
             var raw = await _redisDbContext.Get(txHash.BuildStateCoinKey());
             return raw == RedisValue.Null
                 ? null
-                : _binaryDeserializer.Deserialize<CoinState[]>(raw);
+                : _binarySerializer.Deserialize<CoinState[]>(raw);
         }
 
         public async Task AddCoinStates(UInt256 txHash, CoinState[] coinStates)
@@ -160,7 +157,7 @@ namespace NeoSharp.Persistence.RedisDB
             var raw = await _redisDbContext.Get(publicKey.BuildStateValidatorKey());
             return raw == RedisValue.Null
                 ? null
-                : _binaryDeserializer.Deserialize<Validator>(raw);
+                : _binarySerializer.Deserialize<Validator>(raw);
         }
 
         public async Task AddValidator(Validator validator)
@@ -176,7 +173,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<Asset> GetAsset(UInt256 assetId)
         {
             var raw = await _redisDbContext.Get(assetId.BuildStateAssetKey());
-            return raw == RedisValue.Null ? null : _binaryDeserializer.Deserialize<Asset>(raw);
+            return raw == RedisValue.Null ? null : _binarySerializer.Deserialize<Asset>(raw);
         }
 
         public async Task AddAsset(Asset asset)
@@ -194,7 +191,7 @@ namespace NeoSharp.Persistence.RedisDB
             var raw = await _redisDbContext.Get(contractHash.BuildStateContractKey());
             return raw == RedisValue.Null
                 ? null
-                : _binaryDeserializer.Deserialize<Contract>(raw);
+                : _binarySerializer.Deserialize<Contract>(raw);
         }
 
         public async Task AddContract(Contract contract)
@@ -212,7 +209,7 @@ namespace NeoSharp.Persistence.RedisDB
             var raw = await _redisDbContext.Get(key.BuildStateStorageKey());
             return raw == RedisValue.Null
                 ? null
-                : _binaryDeserializer.Deserialize<StorageValue>(raw);
+                : _binarySerializer.Deserialize<StorageValue>(raw);
         }
 
         public async Task AddStorage(StorageKey key, StorageValue val)
@@ -244,7 +241,7 @@ namespace NeoSharp.Persistence.RedisDB
         {
             var raw = await _redisDbContext.Get(scriptHash.BuildIxConfirmedKey());
             if (raw == RedisValue.Null) return new HashSet<CoinReference>();
-            return _binaryDeserializer.Deserialize<HashSet<CoinReference>>(raw);
+            return _binarySerializer.Deserialize<HashSet<CoinReference>>(raw);
         }
 
         public async Task SetIndexConfirmed(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
@@ -257,7 +254,7 @@ namespace NeoSharp.Persistence.RedisDB
         {
             var raw = await _redisDbContext.Get(scriptHash.BuildIxClaimableKey());
             if (raw == RedisValue.Null) return new HashSet<CoinReference>();
-            return _binaryDeserializer.Deserialize<HashSet<CoinReference>>(raw);
+            return _binarySerializer.Deserialize<HashSet<CoinReference>>(raw);
         }
 
         public async Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences)

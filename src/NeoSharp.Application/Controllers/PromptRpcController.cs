@@ -87,7 +87,7 @@ namespace NeoSharp.Application.Controllers
 
                 if (deserializeResult)
                 {
-                    var obj = BinaryDeserializer.Default.Deserialize<T>(json["result"].Value<string>().HexToBytes());
+                    var obj = BinarySerializer.Default.Deserialize<T>(json["result"].Value<string>().HexToBytes());
 
                     _consoleHandler.WriteObject(obj, PromptOutputStyle.json);
                 }

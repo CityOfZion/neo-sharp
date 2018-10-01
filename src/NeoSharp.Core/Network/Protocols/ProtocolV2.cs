@@ -23,7 +23,6 @@ namespace NeoSharp.Core.Network.Protocols
 
         #region Variables
 
-        private readonly IBinaryConverter _serializer;
         private readonly uint _magic;
 
         #endregion
@@ -32,11 +31,9 @@ namespace NeoSharp.Core.Network.Protocols
         /// Constructor
         /// </summary>
         /// <param name="config">Configuration</param>
-        /// <param name="serializer">Serializer</param>
-        public ProtocolV2(NetworkConfig config, IBinaryConverter serializer)
+        public ProtocolV2(NetworkConfig config)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
-            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _magic = config.Magic;
         }
 
@@ -58,7 +55,7 @@ namespace NeoSharp.Core.Network.Protocols
                 if (message is ICarryPayload messageWithPayload)
                 {
                     message.Flags |= MessageFlags.WithPayload;
-                    byte[] payloadBuffer = _serializer.Serialize(messageWithPayload.Payload);
+                    byte[] payloadBuffer = BinarySerializer.Default.Serialize(messageWithPayload.Payload);
 
                     if (payloadBuffer.Length > 100)
                     {
@@ -141,14 +138,14 @@ namespace NeoSharp.Core.Network.Protocols
                         {
                             // TODO #365: Prevent create dummy object
 
-                            messageWithPayload.Payload = _serializer.Deserialize(gzip, messageWithPayload.Payload.GetType());
+                            messageWithPayload.Payload = BinarySerializer.Default.Deserialize(gzip, messageWithPayload.Payload.GetType());
                         }
                     }
                     else
                     {
                         // TODO #365: Prevent create dummy object
 
-                        messageWithPayload.Payload = _serializer.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
+                        messageWithPayload.Payload = BinarySerializer.Default.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
                     }
                 }
             }

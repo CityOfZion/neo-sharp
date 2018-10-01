@@ -25,7 +25,7 @@ namespace NeoSharp.BinarySerialization.Serializers
             return Serializer.Serialize(serializer, writer, value, settings);
         }
 
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinarySerializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             var ret = Serializer.Deserialize(deserializer, reader, type, settings);
 

@@ -43,7 +43,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
         [TestMethod]
         public async Task SendReceiveMessage_ValidVersionMessageWithZeroLengthSent_ReceiveMessageUncompressedAndIsEquivalent()
         {
-            this.AutoMockContainer.Register<IBinaryConverter>(new BinaryConverter(typeof(VersionMessage).Assembly));
+            this.AutoMockContainer.Register<IBinarySerializer>(new BinarySerializer(typeof(VersionMessage).Assembly));
 
             var sendedVersionMessage = new VersionMessageBuilder()
                 .WithLength(0)
@@ -74,7 +74,7 @@ namespace NeoSharp.Core.Test.Network.Protocols
         [TestMethod]
         public async Task SendReceiveMessage_ValidVersionMessageWith200LengthSent_ReceiveMessageIsCompressedAndEquivalent()
         {
-            this.AutoMockContainer.Register<IBinaryConverter>(new BinaryConverter(typeof(VersionMessage).Assembly));
+            this.AutoMockContainer.Register<IBinarySerializer>(new BinarySerializer(typeof(VersionMessage).Assembly));
 
             var sendedVersionMessage = new VersionMessageBuilder()
                 .WithLength(200)

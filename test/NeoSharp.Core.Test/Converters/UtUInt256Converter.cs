@@ -59,14 +59,13 @@ namespace NeoSharp.Core.Test.Converters
             // Arrange
             BinarySerializer.RegisterTypes(typeof(UInt256));
             var _serializer = new BinarySerializer();
-            var _deserializer = new BinaryDeserializer();
             var result = new byte[] {
                 157, 179, 60, 8, 66, 122, 255, 105, 126, 49, 180, 74, 212, 41, 126, 177,
                 14, 255, 59, 82, 218, 113, 248, 145, 98, 5, 128, 140, 42, 70, 32, 69};
 
             // Act
             var ret = _serializer.Serialize(_value);
-            var clone = _deserializer.Deserialize<UInt256>(ret);
+            var clone = _serializer.Deserialize<UInt256>(ret);
 
             // Assert
             CollectionAssert.AreEqual(result, ret);

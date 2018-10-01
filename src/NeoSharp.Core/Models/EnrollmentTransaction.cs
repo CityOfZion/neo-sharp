@@ -20,7 +20,7 @@ namespace NeoSharp.Core.Models
         /// </summary>
         public EnrollmentTransaction() : base(TransactionType.EnrollmentTransaction) { }
 
-        protected override void DeserializeExclusiveData(IBinaryDeserializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
+        protected override void DeserializeExclusiveData(IBinarySerializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
             PublicKey = deserializer.Deserialize<ECPoint>(reader, settings);
         }

@@ -62,7 +62,7 @@ namespace NeoSharp.Core.Converters
             return base.ConvertFrom(context, culture, value);
         }
 
-        public object Deserialize(IBinaryDeserializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinarySerializer binaryDeserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             var val = reader.ReadInt64();
 

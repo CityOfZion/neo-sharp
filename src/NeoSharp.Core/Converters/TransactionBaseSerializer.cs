@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Caching;
@@ -16,7 +14,7 @@ namespace NeoSharp.Core.Converters
         /// </summary>
         private static readonly ReflectionCache<byte> Cache = ReflectionCache<byte>.CreateFromEnum<TransactionType>();
 
-        public object Deserialize(IBinaryDeserializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
+        public object Deserialize(IBinarySerializer deserializer, BinaryReader reader, Type type, BinarySerializerSettings settings = null)
         {
             // Read transaction Type
 
