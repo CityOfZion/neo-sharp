@@ -16,28 +16,35 @@ namespace NeoSharp.Core.Blockchain.Repositories
         #region Constructor
         public BlockRepository(IRepository repository, ITransactionRepository transactionModel)
         {
-            this._repository = repository;
+            _repository = repository;
             _transactionModel = transactionModel;
         }
         #endregion
 
         #region IBlocksModel implementation 
+
         /// <inheritdoc />
         public async Task<uint> GetTotalBlockHeight()
         {
-            return await this._repository.GetTotalBlockHeight();
+            return await _repository.GetTotalBlockHeight();
+        }
+
+        /// <inheritdoc />
+        public async Task SetTotalBlockHeight(uint index)
+        {
+            await _repository.SetTotalBlockHeight(index);
         }
 
         /// <inheritdoc />
         public async Task<uint> GetTotalBlockHeaderHeight()
         {
-            return await this._repository.GetTotalBlockHeaderHeight();
+            return await _repository.GetTotalBlockHeaderHeight();
         }
 
         /// <inheritdoc />
         public async Task<Block> GetBlock(uint height)
         {
-            var hash = await this.GetBlockHash(height);
+            var hash = await GetBlockHash(height);
 
             return hash == null ? null : await GetBlock(hash);
         }
@@ -45,7 +52,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
         /// <inheritdoc />
         public async Task<Block> GetBlock(UInt256 hash)
         {
-            var header = await this._repository.GetBlockHeader(hash);
+            var header = await _repository.GetBlockHeader(hash);
 
             if (header == null || header.Type != HeaderType.Extended) return null;
 
@@ -53,7 +60,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
 
             for (int x = 0, m = header.TransactionCount; x < m; x++)
             {
-                transactions[x] = await this._transactionModel.GetTransaction(header.TransactionHashes[x]);
+                transactions[x] = await _transactionModel.GetTransaction(header.TransactionHashes[x]);
             }
 
             header.Hash = hash;
@@ -68,7 +75,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
 
             foreach (var hash in blockHashes)
             {
-                var block = await this.GetBlock(hash);
+                var block = await GetBlock(hash);
 
                 if (block == null) continue;
 
@@ -81,17 +88,17 @@ namespace NeoSharp.Core.Blockchain.Repositories
         /// <inheritdoc />
         public async Task<UInt256> GetBlockHash(uint height)
         {
-            return await this._repository.GetBlockHashFromHeight(height);
+            return await _repository.GetBlockHashFromHeight(height);
         }
 
         /// <inheritdoc />
         public async Task<Block> GetNextBlock(UInt256 hash)
         {
-            var header = await this._repository.GetBlockHeader(hash);
+            var header = await _repository.GetBlockHeader(hash);
 
             if (header != null)
             {
-                return await this.GetBlock(header.Index + 1);
+                return await GetBlock(header.Index + 1);
             }
 
             return null;
@@ -100,11 +107,11 @@ namespace NeoSharp.Core.Blockchain.Repositories
         /// <inheritdoc />
         public async Task<UInt256> GetNextBlockHash(UInt256 hash)
         {
-            var header = await this._repository.GetBlockHeader(hash);
+            var header = await _repository.GetBlockHeader(hash);
 
             if (header != null)
             {
-                return await this._repository.GetBlockHashFromHeight(header.Index + 1);
+                return await _repository.GetBlockHashFromHeight(header.Index + 1);
             }
 
             return UInt256.Zero;
@@ -125,16 +132,16 @@ namespace NeoSharp.Core.Blockchain.Repositories
         /// <inheritdoc />
         public async Task<BlockHeader> GetBlockHeader(uint height)
         {
-            var hash = await this._repository.GetBlockHashFromHeight(height);
+            var hash = await _repository.GetBlockHashFromHeight(height);
 
-            if (hash != null) return await this.GetBlockHeader(hash);
+            if (hash != null) return await GetBlockHeader(hash);
             return null;
         }
 
         /// <inheritdoc />
         public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
-            var header = await this._repository.GetBlockHeader(hash);
+            var header = await _repository.GetBlockHeader(hash);
 
             if (header != null) header.Hash = hash;
             return header;

@@ -20,6 +20,11 @@ namespace NeoSharp.BinarySerialization
         public int MaxLength { get; set; } = ushort.MaxValue;
 
         /// <summary>
+        /// Value handler logic
+        /// </summary>
+        public ValueHandlerLogicType ValueHandlerLogic { get; set; } = ValueHandlerLogicType.Writable;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="order">Order</param>

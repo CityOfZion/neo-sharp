@@ -18,22 +18,27 @@ namespace NeoSharp.Core.Models.OperationManger
         #endregion
 
         #region Constructor 
-        public BlockOperationManager(
-            Crypto crypto, 
-            IBinarySerializer binarySerializer, 
+
+        public BlockOperationManager
+            (
+            Crypto crypto,
+            IBinarySerializer binarySerializer,
             ISigner<Transaction> transactionSigner,
             IWitnessOperationsManager witnessOperationsManager,
-            IBlockRepository blockRepository)
+            IBlockRepository blockRepository
+            )
         {
-            this._crypto = crypto;
-            this._binarySerializer = binarySerializer;
-            this._transactionSigner = transactionSigner;
-            this._witnessOperationsManager = witnessOperationsManager;
-            this._blockRepository = blockRepository;
+            _crypto = crypto;
+            _binarySerializer = binarySerializer;
+            _transactionSigner = transactionSigner;
+            _witnessOperationsManager = witnessOperationsManager;
+            _blockRepository = blockRepository;
         }
+
         #endregion
 
         #region IBlockOperationsManager implementation 
+
         public void Sign(Block block)
         {
             // Compute tx hashes
@@ -42,29 +47,32 @@ namespace NeoSharp.Core.Models.OperationManger
 
             for (var x = 0; x < txSize; x++)
             {
-                this._transactionSigner.Sign(block.Transactions?[x]);
+                _transactionSigner.Sign(block.Transactions?[x]);
                 block.TransactionHashes[x] = block.Transactions?[x].Hash;
             }
 
             block.MerkleRoot = MerkleTree.ComputeRoot(block.TransactionHashes.ToArray());
 
             // Compute hash
-            var serializedBlock = this._binarySerializer.Serialize(block, new BinarySerializerSettings
+            var serializedBlock = _binarySerializer.Serialize(block, new BinarySerializerSettings
             {
-                Filter = a => a != nameof(block.Witness) && 
-                              a != nameof(block.Transactions) && 
-                              a != nameof(block.TransactionHashes) && 
+                Filter = a => a != nameof(block.Witness) &&
+                              a != nameof(block.Transactions) &&
+                              a != nameof(block.TransactionHashes) &&
                               a != nameof(block.Type)
             });
 
-            block.Hash = new UInt256(this._crypto.Hash256(serializedBlock));
+            block.Hash = new UInt256(_crypto.Hash256(serializedBlock));
 
-            this._witnessOperationsManager.Sign(block.Witness);
+            _witnessOperationsManager.Sign(block.Witness);
         }
 
         public bool Verify(Block block)
         {
-            var prevHeader = this._blockRepository.GetBlockHeader(block.PreviousBlockHash).Result;
+            var task = _blockRepository.GetBlockHeader(block.PreviousBlockHash);
+            task.Wait();
+
+            var prevHeader = task.Result;
 
             if (prevHeader == null)
             {
@@ -88,6 +96,7 @@ namespace NeoSharp.Core.Models.OperationManger
 
             return true;
         }
+
         #endregion
     }
 }

@@ -10,37 +10,44 @@ namespace NeoSharp.Core.Blockchain.Genesis
     public class GenesisBuilder : IGenesisBuilder
     {
         #region Private Fields 
+
+        private Block _genesisBlock;
         private readonly IGenesisAssetsBuilder _genesisAssetsBuilder;
         private readonly ISigner<Block> _blockSigner;
+
         #endregion
 
         #region Constructor
+
         public GenesisBuilder(IGenesisAssetsBuilder genesisAssetsBuilder, ISigner<Block> blockSigner)
         {
-            this._genesisAssetsBuilder = genesisAssetsBuilder;
-            this._blockSigner = blockSigner;
+            _genesisAssetsBuilder = genesisAssetsBuilder;
+            _blockSigner = blockSigner;
 
             BinarySerializer.RegisterTypes(typeof(Transaction).Assembly, typeof(BlockHeader).Assembly);
         }
+
         #endregion
 
         #region IGenesisBuilder implementation
 
         public Block Build()
         {
-            var governingToken = this._genesisAssetsBuilder.BuildGoverningTokenRegisterTransaction();
-            var utilityToken = this._genesisAssetsBuilder.BuildUtilityTokenRegisterTransaction();
+            if (_genesisBlock != null) return _genesisBlock;
 
-            var genesisMinerTransaction = this._genesisAssetsBuilder.BuildGenesisMinerTransaction();
-            var genesisIssueTransaction = this._genesisAssetsBuilder.BuildGenesisIssueTransaction();
+            var governingToken = _genesisAssetsBuilder.BuildGoverningTokenRegisterTransaction();
+            var utilityToken = _genesisAssetsBuilder.BuildUtilityTokenRegisterTransaction();
 
-            var genesisWitness = this._genesisAssetsBuilder.BuildGenesisWitness();
+            var genesisMinerTransaction = _genesisAssetsBuilder.BuildGenesisMinerTransaction();
+            var genesisIssueTransaction = _genesisAssetsBuilder.BuildGenesisIssueTransaction();
+
+            var genesisWitness = _genesisAssetsBuilder.BuildGenesisWitness();
             var genesisTimestamp = new DateTime(2016, 7, 15, 15, 8, 21, DateTimeKind.Utc).ToTimestamp();
-            ulong genesisConsensusData = 2083236893; //向比特币致敬
+            ulong genesisConsensusData = 2083236893;
 
-            var nextConsensusAddress = this._genesisAssetsBuilder.BuildGenesisNextConsensusAddress();
+            var nextConsensusAddress = _genesisAssetsBuilder.BuildGenesisNextConsensusAddress();
 
-            var genesisBlock = new Block
+            _genesisBlock = new Block
             {
                 PreviousBlockHash = UInt256.Zero,
                 Timestamp = genesisTimestamp,
@@ -61,9 +68,10 @@ namespace NeoSharp.Core.Blockchain.Genesis
                 }
             };
 
-            this._blockSigner.Sign(genesisBlock);
-            return genesisBlock;
+            _blockSigner.Sign(_genesisBlock);
+            return _genesisBlock;
         }
+
         #endregion
     }
 }

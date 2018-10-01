@@ -9,7 +9,6 @@ namespace NeoSharp.Core.Persistence
 {
     public interface IRepository
     {
-
         #region System
 
         /// <summary>

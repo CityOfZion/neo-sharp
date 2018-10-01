@@ -8,6 +8,12 @@ namespace NeoSharp.Core.Blockchain.Repositories
     public interface IBlockRepository
     {
         /// <summary>
+        /// Set the total/ current block height
+        /// </summary>
+        /// <param name="height">Total / current block height</param>
+        Task SetTotalBlockHeight(uint height);
+
+        /// <summary>
         /// Retrieves the total / current block height
         /// </summary>
         /// <returns>Total / current block height</returns>

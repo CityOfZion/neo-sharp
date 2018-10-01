@@ -32,10 +32,10 @@ namespace NeoSharp.Core.Messaging.Handlers
             IBroadcaster broadcaster,
             ILogger<BlockMessageHandler> logger)
         {
-            this._blockProcessor = blockProcessor ?? throw new ArgumentNullException(nameof(blockProcessor));
-            this._blockOperationsManager = blockOperationsManager ?? throw new ArgumentNullException(nameof(blockOperationsManager));
-            this._broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
-            this._logger = logger;
+            _blockProcessor = blockProcessor ?? throw new ArgumentNullException(nameof(blockProcessor));
+            _blockOperationsManager = blockOperationsManager ?? throw new ArgumentNullException(nameof(blockOperationsManager));
+            _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
+            _logger = logger;
         }
         #endregion
 
@@ -50,22 +50,25 @@ namespace NeoSharp.Core.Messaging.Handlers
         public override async Task Handle(BlockMessage message, IPeer sender)
         {
             var block = message.Payload;
-            
+
             if (block.Hash == null)
             {
-                this._blockOperationsManager.Sign(block);
+                _blockOperationsManager.Sign(block);
             }
 
-            if (this._blockOperationsManager.Verify(block))
+            if (_blockOperationsManager.Verify(block))
             {
+                _logger.LogInformation($"Broadcasting block {block.Hash} with Index {block.Index}.");
+                _broadcaster.Broadcast(message, sender);
+
                 await _blockProcessor.AddBlock(block);
+                _logger.LogInformation($"Adding block {block.Hash} to the BlockPool with Index {block.Index}.");
+            }
+            else
+            {
+                _logger.LogError($"Block {block.Hash} with Index {block.Index} verification fail.");
             }
 
-            this._logger.LogInformation($"Adding block {block.Hash} to the BlockPool with Index {block.Index}.");
-            await this._blockProcessor.AddBlock(block);
-
-            this._logger.LogInformation($"Broadcasting block {block.Hash} with Index {block.Index}.");
-            this._broadcaster.Broadcast(message, sender);
         }
         #endregion
     }

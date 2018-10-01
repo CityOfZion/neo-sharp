@@ -29,6 +29,8 @@ namespace NeoSharp.BinarySerialization.Serializers
         {
             var ret = Serializer.Deserialize(deserializer, reader, type, settings);
 
+            // TODO: Check if values outside the enum throw an exception (should throw it)
+
             return Enum.ToObject(Type, ret);
         }
     }

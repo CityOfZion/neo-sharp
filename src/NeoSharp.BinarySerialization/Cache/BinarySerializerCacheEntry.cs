@@ -28,7 +28,7 @@ namespace NeoSharp.BinarySerialization.Cache
         public readonly Type Type;
         public readonly string Name;
         public readonly int MaxLength;
-        public readonly bool ReadOnly;
+        public readonly ValueHandlerLogicType ValueHandlerLogic;
         public readonly bool Override;
         public readonly BinaryPropertyAttribute Context;
 
@@ -48,7 +48,6 @@ namespace NeoSharp.BinarySerialization.Cache
         {
             GetValue = pi.GetValue;
             SetValue = pi.SetValue;
-            ReadOnly = !pi.CanWrite;
         }
         /// <summary>
         /// Constructor
@@ -59,7 +58,6 @@ namespace NeoSharp.BinarySerialization.Cache
         {
             GetValue = fi.GetValue;
             SetValue = fi.SetValue;
-            ReadOnly = fi.IsInitOnly;
         }
         /// <summary>
         /// Constructor
@@ -83,6 +81,7 @@ namespace NeoSharp.BinarySerialization.Cache
                 Context = null;
                 MaxLength = Order = 0;
                 Override = false;
+                ValueHandlerLogic = ValueHandlerLogicType.Writable;
             }
             else
             {
@@ -90,6 +89,7 @@ namespace NeoSharp.BinarySerialization.Cache
                 Context = atr;
                 MaxLength = atr.MaxLength;
                 Order = atr.Order;
+                ValueHandlerLogic = atr.ValueHandlerLogic;
             }
 
             if (type == typeof(byte[]))

@@ -22,7 +22,7 @@ namespace NeoSharp.Core.Blockchain.Processing
         public event EventHandler<BlockHeader[]> OnBlockHeadersPersisted;
 
         public BlockHeaderPersister(
-            IRepository repository, 
+            IRepository repository,
             ISigner<BlockHeader> blockHeaderSigner,
             IGenesisBuilder genesisBuilder)
         {
@@ -36,7 +36,8 @@ namespace NeoSharp.Core.Blockchain.Processing
             if (blockHeaders == null) throw new ArgumentNullException(nameof(blockHeaders));
 
             var blockHeadersToPersist = new List<BlockHeader>();
-            if (this.LastBlockHeader == null)
+
+            if (LastBlockHeader == null)
             {
                 // Persisting the Genesis block
                 blockHeadersToPersist = blockHeaders.ToList();
@@ -50,14 +51,18 @@ namespace NeoSharp.Core.Blockchain.Processing
                     .ToList();
             }
 
-            foreach (var blockHeader in blockHeadersToPersist)
+            foreach (var blockHeader in blockHeadersToPersist.ToArray())
             {
                 if (blockHeader.Hash == null)
                 {
                     _blockHeaderSigner.Sign(blockHeader);
                 }
 
-                if (!Validate(blockHeader)) break;
+                if (!Validate(blockHeader))
+                {
+                    blockHeadersToPersist.Remove(blockHeader);
+                    break;
+                }
 
                 await _repository.AddBlockHeader(blockHeader);
 
@@ -66,13 +71,9 @@ namespace NeoSharp.Core.Blockchain.Processing
                 await _repository.SetTotalBlockHeaderHeight(LastBlockHeader.Index);
             }
 
-            var persistedBlockHeaders = blockHeadersToPersist
-                .TakeWhile(bh => bh.Index <= LastBlockHeader?.Index)
-                .ToArray();
-
-            if (persistedBlockHeaders.Length != 0)
+            if (blockHeadersToPersist.Count != 0)
             {
-                OnBlockHeadersPersisted?.Invoke(this, persistedBlockHeaders);
+                OnBlockHeadersPersisted?.Invoke(this, blockHeadersToPersist.ToArray());
             }
         }
 
@@ -88,13 +89,13 @@ namespace NeoSharp.Core.Blockchain.Processing
             }
             else
             {
-                if (blockHeader.Index != 0 || blockHeader.Hash != this._genesisBuilder.Build().Hash)
+                if (blockHeader.Index != 0 || blockHeader.Hash != _genesisBuilder.Build().Hash)
                 {
                     return false;
                 }
             }
 
-            return blockHeader.Type == HeaderType.Extended;
+            return true;
         }
     }
 }

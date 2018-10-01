@@ -182,20 +182,25 @@ namespace NeoSharp.BinarySerialization.Serializers
 
                 foreach (var e in dic)
                 {
-                    if (e.Key.ReadOnly)
+                    switch (e.Key.ValueHandlerLogic)
                     {
-                        // Should be equal
+                        case ValueHandlerLogicType.Writable:
+                            {
+                                e.Key.SetValue(ret, e.Value);
+                                break;
+                            }
+                        case ValueHandlerLogicType.JustConsume: break;
+                        case ValueHandlerLogicType.MustBeEqual:
+                            {
+                                if (!e.Value.Equals(e.Key.GetValue(ret)))
+                                {
+                                    // If a readonly property or field is not the same, throw and exception !
 
-                        if (!e.Value.Equals(e.Key.GetValue(ret)))
-                        {
-                            // If a readonly property or field is not the same, throw and exception !
+                                    throw new FormatException(e.Key.Name);
+                                }
 
-                            throw new FormatException(e.Key.Name);
-                        }
-                    }
-                    else
-                    {
-                        e.Key.SetValue(ret, e.Value);
+                                break;
+                            }
                     }
                 }
             }
@@ -209,24 +214,36 @@ namespace NeoSharp.BinarySerialization.Serializers
                 {
                     if (settings?.Filter?.Invoke(e.Name) == false) continue;
 
-                    if (e.ReadOnly)
+                    switch (e.ValueHandlerLogic)
                     {
-                        // Consume it
+                        case ValueHandlerLogicType.Writable:
+                            {
+                                e.SetValue(ret, e.Serializer.Deserialize(deserializer, reader, e.Type, settings));
+                                break;
+                            }
+                        case ValueHandlerLogicType.JustConsume:
+                            {
+                                // Consume it
+                                e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
+                                break;
+                            }
+                        case ValueHandlerLogicType.MustBeEqual:
+                            {
+                                // Consume it
 
-                        var val = e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
+                                var val = e.Serializer.Deserialize(deserializer, reader, e.Type, settings);
 
-                        // Should be equal
+                                // Should be equal
 
-                        if (!val.Equals(e.GetValue(ret)))
-                        {
-                            // If a readonly property or field is not the same, throw and exception !
+                                if (!val.Equals(e.GetValue(ret)))
+                                {
+                                    // If a readonly property or field is not the same, throw and exception !
 
-                            throw new FormatException(e.Name);
-                        }
-                    }
-                    else
-                    {
-                        e.SetValue(ret, e.Serializer.Deserialize(deserializer, reader, e.Type, settings));
+                                    throw new FormatException(e.Name);
+                                }
+
+                                break;
+                            }
                     }
                 }
             }

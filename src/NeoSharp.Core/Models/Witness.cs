@@ -9,7 +9,8 @@ namespace NeoSharp.Core.Models
     [Serializable]
     public class Witness : IEquatable<Witness>
     {
-        [JsonProperty("txid")] public UInt160 Hash { get; set; }
+        [JsonProperty("hash")]
+        public UInt160 Hash { get; set; }
 
         [BinaryProperty(0, MaxLength = 65536)]
         [JsonProperty("invocation")]

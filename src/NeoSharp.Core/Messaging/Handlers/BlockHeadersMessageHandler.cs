@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain.Processing;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
@@ -13,6 +14,26 @@ namespace NeoSharp.Core.Messaging.Handlers
 {
     public class BlockHeadersMessageHandler : MessageHandler<BlockHeadersMessage>
     {
+        class PeerHandler
+        {
+            private readonly IPeer _sender;
+
+            public PeerHandler(IPeer sender)
+            {
+                _sender = sender;
+            }
+
+            public async void HeadersPersisted(object sender, BlockHeader[] blockHeaders)
+            {
+                var blockHashes = blockHeaders
+                    .Select(bh => bh.Hash)
+                    .Where(bh => bh != null)
+                    .ToArray();
+
+                await SynchronizeBlocks(_sender, blockHashes);
+            }
+        }
+
         #region Private Fields 
         private const int MaxBlocksCountToSync = 500;
 
@@ -22,60 +43,57 @@ namespace NeoSharp.Core.Messaging.Handlers
         #endregion
 
         #region Constructor 
-        public BlockHeadersMessageHandler(
-            IBlockPersister blockPersister, 
-            IBlockchainContext blockchainContext, 
-            ILogger<BlockHeadersMessageHandler> logger)
+
+        public BlockHeadersMessageHandler
+            (
+            IBlockPersister blockPersister,
+            IBlockchainContext blockchainContext,
+            ILogger<BlockHeadersMessageHandler> logger
+            )
         {
             _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(blockPersister));
             _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
         #endregion
 
         #region MessageHandler override Methods 
+
         /// <inheritdoc />
         public override async Task Handle(BlockHeadersMessage message, IPeer sender)
         {
-            async void HeadersPersisted(object _, BlockHeader[] blockHeaders) => await BlockHeadersPersisted(sender, blockHeaders);
+            var h = new PeerHandler(sender);
 
             try
             {
-                _blockPersister.OnBlockHeadersPersisted += HeadersPersisted;
+                _blockPersister.OnBlockHeadersPersisted += h.HeadersPersisted;
+
+                // If the remote node have Blocks, the flag Type will be Extended, and we want to store this as Headers
+
+                message.Payload.Headers.ForEach(a => a.Type = HeaderType.Header);
 
                 await _blockPersister.Persist(message.Payload.Headers ?? new BlockHeader[0]);
             }
             finally
             {
-                _blockPersister.OnBlockHeadersPersisted -= HeadersPersisted;
+                _blockPersister.OnBlockHeadersPersisted -= h.HeadersPersisted;
             }
 
-            if (this._blockchainContext.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
+            if (_blockchainContext.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
             {
                 _logger.LogInformation(
-                    $"The peer has {sender.Version.CurrentBlockIndex + 1} blocks but the current number of block headers is {this._blockchainContext.LastBlockHeader.Index + 1}.");
-                await sender.Send(new GetBlockHeadersMessage(this._blockchainContext.LastBlockHeader.Hash));
+                    $"The peer has {sender.Version.CurrentBlockIndex + 1} blocks but the current number of block headers is {_blockchainContext.LastBlockHeader.Index + 1}.");
+                await sender.Send(new GetBlockHeadersMessage(_blockchainContext.LastBlockHeader.Hash));
             }
         }
 
         /// <inheritdoc />
-        public override bool CanHandle(Message message)
-        {
-            return message is BlockHeadersMessage;
-        }
+        public override bool CanHandle(Message message) => message is BlockHeadersMessage;
+
         #endregion
 
         #region Private Methods 
-        // TODO #432: Find btter place for block sync
-        private static async Task BlockHeadersPersisted(IPeer source, IEnumerable<BlockHeader> blockHeaders)
-        {
-            var blockHashes = blockHeaders
-                .Select(bh => bh.Hash)
-                .Where(bh => bh != null)
-                .ToArray();
-
-            await SynchronizeBlocks(source, blockHashes);
-        }
 
         private static async Task SynchronizeBlocks(IPeer source, IReadOnlyCollection<UInt256> blockHashes)
         {
@@ -90,6 +108,7 @@ namespace NeoSharp.Core.Messaging.Handlers
                 await source.Send(new GetDataMessage(InventoryType.Block, blockHashesInBatch));
             }
         }
+
         #endregion
     }
 }

@@ -19,9 +19,9 @@ namespace NeoSharp.Core.Models.OperationManger
             IBinarySerializer binarySerializer,
             ISigner<Witness> witnessSigner)
         {
-            this._crypto = crypto;
-            this._binarySerializer = binarySerializer;
-            this._witnessSigner = witnessSigner;
+            _crypto = crypto;
+            _binarySerializer = binarySerializer;
+            _witnessSigner = witnessSigner;
         }
         #endregion
 
@@ -34,16 +34,16 @@ namespace NeoSharp.Core.Models.OperationManger
                 blockHeader.MerkleRoot = MerkleTree.ComputeRoot(blockHeader.TransactionHashes);
             }
 
-            var serializedBlockHeader = this._binarySerializer.Serialize(blockHeader, new BinarySerializerSettings()
+            var serializedBlockHeader = _binarySerializer.Serialize(blockHeader, new BinarySerializerSettings()
             {
                 Filter = a => a != nameof(Witness) && 
                               a != nameof(Type) && 
                               a != nameof(blockHeader.TransactionHashes)
             });
 
-            blockHeader.Hash = new UInt256(this._crypto.Hash256(serializedBlockHeader));
+            blockHeader.Hash = new UInt256(_crypto.Hash256(serializedBlockHeader));
 
-            this._witnessSigner.Sign(blockHeader.Witness);
+            _witnessSigner.Sign(blockHeader.Witness);
         }
 
         public bool Verify(BlockHeader blockHeader)

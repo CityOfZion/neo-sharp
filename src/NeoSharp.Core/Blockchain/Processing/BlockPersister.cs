@@ -9,27 +9,31 @@ namespace NeoSharp.Core.Blockchain.Processing
     public class BlockPersister : IBlockPersister
     {
         #region Private Fields 
+
         private readonly IBlockRepository _blockRepository;
         private readonly IBlockHeaderPersister _blockHeaderPersister;
         private readonly ITransactionPersister<Transaction> _transactionPersister;
         private readonly ITransactionPool _transactionPool;
         private readonly ILogger<BlockPersister> _logger;
+
         #endregion
 
         #region Constructor 
+
         public BlockPersister(
-            IBlockRepository blockRepository, 
+            IBlockRepository blockRepository,
             IBlockHeaderPersister blockHeaderPersister,
             ITransactionPersister<Transaction> transactionPersister,
-            ITransactionPool transactionPool, 
+            ITransactionPool transactionPool,
             ILogger<BlockPersister> logger)
         {
-            this._blockRepository = blockRepository;
-            this._blockHeaderPersister = blockHeaderPersister;
-            this._transactionPersister = transactionPersister;
-            this._transactionPool = transactionPool;
-            this._logger = logger;
+            _blockRepository = blockRepository;
+            _blockHeaderPersister = blockHeaderPersister;
+            _transactionPersister = transactionPersister;
+            _transactionPool = transactionPool;
+            _logger = logger;
         }
+
         #endregion
 
         #region IBlockPersister Implementation 
@@ -39,20 +43,32 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         public async Task Persist(params Block[] blocks)
         {
+            var index = await _blockRepository.GetTotalBlockHeight();
+
             foreach (var block in blocks)
             {
-                this.LastPersistedBlock = block;
+                var blockHeader = await _blockRepository.GetBlockHeader(block.Hash);
 
-                var blockHeader = await this._blockRepository.GetBlockHeader(block.Hash);
-                if (blockHeader == null)
+                if (
+                    blockHeader == null ||
+                    (blockHeader.Type == HeaderType.Header && blockHeader.Hash.Equals(block.Hash))
+                    )
                 {
-                    await this._blockHeaderPersister.Persist(block.GetBlockHeader());
-                }
+                    LastPersistedBlock = block;
 
-                foreach (var transaction in block.Transactions)
-                {
-                    await this._transactionPersister.Persist(transaction);
-                    this._transactionPool.Remove(transaction.Hash);
+                    await _blockHeaderPersister.Persist(block.GetBlockHeader());
+
+                    if (index + 1 == block.Index)
+                    {
+                        await _blockRepository.SetTotalBlockHeight(block.Index);
+                        index = block.Index;
+                    }
+
+                    foreach (var transaction in block.Transactions)
+                    {
+                        await _transactionPersister.Persist(transaction);
+                        _transactionPool.Remove(transaction.Hash);
+                    }
                 }
             }
         }
@@ -61,19 +77,19 @@ namespace NeoSharp.Core.Blockchain.Processing
         {
             try
             {
-                this._blockHeaderPersister.OnBlockHeadersPersisted += this.HandleBlockHandlePersisted;
-                await this._blockHeaderPersister.Persist(blockHeaders);
+                _blockHeaderPersister.OnBlockHeadersPersisted += HandleBlockHandlePersisted;
+                await _blockHeaderPersister.Persist(blockHeaders);
             }
             finally
             {
-                this._blockHeaderPersister.OnBlockHeadersPersisted -= this.HandleBlockHandlePersisted;
+                _blockHeaderPersister.OnBlockHeadersPersisted -= HandleBlockHandlePersisted;
             }
         }
 
         public async Task<bool> IsBlockPersisted(Block block)
         {
-            this._logger.LogDebug($"Verify if the {block.Hash} is already in the blockchain.");
-            var blockHeader = await this._blockRepository.GetBlockHeader(block.Hash);
+            _logger.LogDebug($"Verify if the {block.Hash} is already in the blockchain.");
+            var blockHeader = await _blockRepository.GetBlockHeader(block.Hash);
 
             if (blockHeader?.Type == HeaderType.Extended)
             {
@@ -85,7 +101,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                 throw new InvalidOperationException($"The block \"{block.Hash.ToString(true)}\" has an invalid hash.");
             }
 
-            this._logger.LogDebug($"The block with the hash {block.Hash} is not int the blockchain.");
+            _logger.LogDebug($"The block with the hash {block.Hash} is not int the blockchain.");
             return false;
         }
         #endregion
@@ -93,7 +109,7 @@ namespace NeoSharp.Core.Blockchain.Processing
         #region Private Method 
         private void HandleBlockHandlePersisted(object sender, BlockHeader[] e)
         {
-            this.OnBlockHeadersPersisted?.Invoke(sender, e);
+            OnBlockHeadersPersisted?.Invoke(sender, e);
         }
         #endregion
     }
