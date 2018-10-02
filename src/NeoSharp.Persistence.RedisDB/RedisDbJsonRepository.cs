@@ -29,12 +29,12 @@ namespace NeoSharp.Persistence.RedisDB
 
         public RedisDbJsonRepository
         (
-            IRedisDbContext redisDbContext,
-            IJsonConverter jsonConverter
+            IRedisDbContext redisDbContext
+            //IJsonConverter jsonConverter
         )
         {
             _redisDbContext = redisDbContext ?? throw new ArgumentNullException(nameof(redisDbContext));
-            _jsonConverter = jsonConverter ?? throw new ArgumentNullException(nameof(jsonConverter));
+            _jsonConverter = new JsonConverter(); //jsonConverter ?? throw new ArgumentNullException(nameof(jsonConverter));
         }
 
         #endregion
@@ -102,14 +102,14 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
             var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());
-            return _jsonConverter.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
+            return blockHeaderRedisValue.IsNull ? null : _jsonConverter.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
 
         }
 
         public async Task<Transaction> GetTransaction(UInt256 hash)
         {
             var transactionRedisValue = await _redisDbContext.Get(hash.BuildDataTransactionKey());
-            return _jsonConverter.DeserializeObject<Transaction>(transactionRedisValue);
+            return transactionRedisValue.IsNull ? null : _jsonConverter.DeserializeObject<Transaction>(transactionRedisValue);
         }
 
         #endregion
@@ -119,9 +119,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<Account> GetAccount(UInt160 hash)
         {
             var raw = await _redisDbContext.Get(hash.BuildStateAccountKey());
-            return raw == RedisValue.Null
-                ? null
-                : _jsonConverter.DeserializeObject<Account>(raw);
+            return raw.IsNull ? null : _jsonConverter.DeserializeObject<Account>(raw);
         }
 
         public async Task AddAccount(Account acct)
@@ -137,9 +135,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<CoinState[]> GetCoinStates(UInt256 txHash)
         {
             var raw = await _redisDbContext.Get(txHash.BuildStateCoinKey());
-            return raw == RedisValue.Null
-                ? null
-                : _jsonConverter.DeserializeObject<CoinState[]>(raw);
+            return raw.IsNull ? null : _jsonConverter.DeserializeObject<CoinState[]>(raw);
         }
 
         public async Task AddCoinStates(UInt256 txHash, CoinState[] coinStates)
@@ -155,9 +151,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<Validator> GetValidator(ECPoint publicKey)
         {
             var raw = await _redisDbContext.Get(publicKey.BuildStateValidatorKey());
-            return raw == RedisValue.Null
-                ? null
-                : _jsonConverter.DeserializeObject<Validator>(raw);
+            return raw.IsNull ? null : _jsonConverter.DeserializeObject<Validator>(raw);
         }
 
         public async Task AddValidator(Validator validator)
@@ -173,7 +167,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<Asset> GetAsset(UInt256 assetId)
         {
             var raw = await _redisDbContext.Get(assetId.BuildStateAssetKey());
-            return raw == RedisValue.Null ? null : _jsonConverter.DeserializeObject<Asset>(raw);
+            return raw.IsNull ? null : _jsonConverter.DeserializeObject<Asset>(raw);
         }
 
         public async Task AddAsset(Asset asset)
@@ -189,9 +183,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<Contract> GetContract(UInt160 contractHash)
         {
             var raw = await _redisDbContext.Get(contractHash.BuildStateContractKey());
-            return raw == RedisValue.Null
-                ? null
-                : _jsonConverter.DeserializeObject<Contract>(raw);
+            return raw.IsNull ? null : _jsonConverter.DeserializeObject<Contract>(raw);
         }
 
         public async Task AddContract(Contract contract)
@@ -207,9 +199,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<StorageValue> GetStorage(StorageKey key)
         {
             var raw = await _redisDbContext.Get(key.BuildStateStorageKey());
-            return raw == RedisValue.Null
-                ? null
-                : _jsonConverter.DeserializeObject<StorageValue>(raw);
+            return raw.IsNull ? null : _jsonConverter.DeserializeObject<StorageValue>(raw);
         }
 
         public async Task AddStorage(StorageKey key, StorageValue val)
@@ -229,7 +219,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<uint> GetIndexHeight()
         {
             var val = await _redisDbContext.Get(DataEntryPrefix.IxIndexHeight.ToString());
-            return val == RedisValue.Null ? uint.MinValue : (uint) val;
+            return val.IsNull ? uint.MinValue : (uint) val;
         }
 
         public async Task SetIndexHeight(uint height)
@@ -240,8 +230,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<HashSet<CoinReference>> GetIndexConfirmed(UInt160 scriptHash)
         {
             var redisVal = await _redisDbContext.Get(scriptHash.BuildIxConfirmedKey());
-            if (redisVal == RedisValue.Null) return new HashSet<CoinReference>();
-            return _jsonConverter.DeserializeObject<HashSet<CoinReference>>(redisVal);
+            return redisVal.IsNull ? new HashSet<CoinReference>() : _jsonConverter.DeserializeObject<HashSet<CoinReference>>(redisVal);
         }
 
         public async Task SetIndexConfirmed(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
@@ -253,8 +242,7 @@ namespace NeoSharp.Persistence.RedisDB
         public async Task<HashSet<CoinReference>> GetIndexClaimable(UInt160 scriptHash)
         {
             var redisVal = await _redisDbContext.Get(scriptHash.BuildIxClaimableKey());
-            if (redisVal == RedisValue.Null) return new HashSet<CoinReference>();
-            return _jsonConverter.DeserializeObject<HashSet<CoinReference>>(redisVal);
+            return redisVal.IsNull ? new HashSet<CoinReference>() : _jsonConverter.DeserializeObject<HashSet<CoinReference>>(redisVal);
         }
 
         public async Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences)
