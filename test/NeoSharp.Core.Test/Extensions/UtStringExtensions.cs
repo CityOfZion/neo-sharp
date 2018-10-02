@@ -20,21 +20,21 @@ namespace NeoSharp.Core.Test.Extensions
             var command = "sum";
             var cmdArgs = command.SplitCommandLine().ToArray();
 
-            CollectionAssert.AreEqual(new CommandToken[] { new CommandToken("sum") }, cmdArgs);
+            CollectionAssert.AreEqual(new CommandToken[] { new CommandToken("sum", 0, 3) }, cmdArgs);
 
             // quoted
 
-            command = "\"sum numbers\" 1 2";
+            command = "\"sum numbers\"  1 2";
             cmdArgs = command.SplitCommandLine().ToArray();
 
-            CollectionAssert.AreEqual(new CommandToken[] { new CommandToken("sum numbers", true), new CommandToken("1"), new CommandToken("2") }, cmdArgs);
+            CollectionAssert.AreEqual(new CommandToken[] { new CommandToken("\"sum numbers\"", 0, 13), new CommandToken("1", 15, 1), new CommandToken("2", 17, 1) }, cmdArgs);
 
             // quoted & escaping
 
             command = "\"sum \\\"numbers\\\"\" 1 2";
             cmdArgs = command.SplitCommandLine().ToArray();
 
-            CollectionAssert.AreEqual(new CommandToken[] { new CommandToken("sum \"numbers\"", true), new CommandToken("1"), new CommandToken("2") }, cmdArgs);
+            CollectionAssert.AreEqual(new CommandToken[] { new CommandToken("sum \"numbers\"", true, 0, 17), new CommandToken("1", 18, 1), new CommandToken("2", 20, 1) }, cmdArgs);
         }
 
         [TestMethod]

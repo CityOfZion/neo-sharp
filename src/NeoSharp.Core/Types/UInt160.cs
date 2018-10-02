@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
-using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Wallet.Helpers;
 

@@ -176,10 +176,10 @@ namespace NeoSharp.Application.Client
                 {
                     if (cmds.Length > 0)
                     {
-                        throw (new Exception($"Wrong parameters for <{cmds.FirstOrDefault().Command}>"));
+                        throw new Exception($"Wrong parameters for <{cmds.FirstOrDefault().Command}>");
                     }
 
-                    throw (new Exception($"Command not found <{command}>"));
+                    throw new Exception($"Command not found <{command}>");
                 }
 
                 // Get command

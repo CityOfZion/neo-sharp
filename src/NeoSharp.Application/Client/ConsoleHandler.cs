@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
 using NeoSharp.Application.Attributes;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Types;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
@@ -16,6 +18,17 @@ namespace NeoSharp.Application.Client
 {
     public class ConsoleHandler : IConsoleHandler
     {
+        class AutoCompleteCommand
+        {
+            public int ParameterIndex { get; set; } = -1;
+
+            public bool IsExact { get; set; } = true;
+
+            public string Method { get; set; }
+
+            public IList<ParameterInfo[]> Parameters { get; set; }
+        }
+
         #region Constants
 
         /// <summary>
@@ -289,41 +302,126 @@ namespace NeoSharp.Application.Client
             }
         }
 
+        private AutoCompleteCommand[] SearchCommands(CommandToken[] tokens, IAutoCompleteHandler autocomplete)
+        {
+            if (autocomplete == null) return null;
+
+            var ret = new Dictionary<string, AutoCompleteCommand>();
+
+            foreach (var entry in autocomplete.Keys)
+            {
+                var entryTokens = entry.SplitCommandLine().ToArray();
+
+                // check start with
+
+                if (tokens.Length > entry.Length) continue;
+
+                var exact = true;
+                var parIndex = 0;
+                var error = false;
+
+                for (var max = Math.Min(tokens.Length, entryTokens.Length); parIndex < max; parIndex++)
+                {
+                    var a = entryTokens[parIndex].Value;
+                    var b = tokens[parIndex].Value;
+
+                    if (!string.Equals(a, b, StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        if (parIndex == max - 1)
+                        {
+                            if (!a.StartsWith(b, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                error = true;
+                                break;
+                            }
+
+                            exact = false;
+                        }
+                        else
+                        {
+                            error = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (error) continue;
+
+                if (!ret.TryGetValue(entry, out var value))
+                {
+                    value = new AutoCompleteCommand()
+                    {
+                        IsExact = exact,
+                        ParameterIndex = parIndex,
+                        Method = entry,
+                        Parameters = new List<ParameterInfo[]>()
+                    };
+
+                    ret.Add(entry, value);
+                }
+
+                // return the entry
+
+                if (autocomplete.TryGetValue(entry, out var avalue))
+                {
+                    foreach (var ls in avalue)
+                    {
+                        value.Parameters.Add(ls.ToArray());
+                    }
+                }
+            }
+
+            // Return the find
+
+            return ret.Count > 0 ? ret.Values.OrderBy(u => u.IsExact).ThenBy(u => u.Method).ToArray() : null;
+        }
+
         private void ReadFromConsole_Tab(ConsoleKey key, ConsoleInputState state)
         {
-            string cmd = state.Txt.ToString().ToLowerInvariant();
-            string[] matches = state.Autocomplete?.Keys.Where(k => k.StartsWith(cmd)).OrderBy(u => u).ToArray();
+            var cmdArgs = new List<CommandToken>(state.Txt.ToString().SplitCommandLine()).ToArray();
+            var matches = SearchCommands(cmdArgs, state.Autocomplete);
 
             if (matches == null || matches.Length <= 0)
             {
                 // No match
+
                 return;
             }
 
-            int max = 0;
+            var max = 0;
 
             if (matches.Length == 1)
             {
                 // 1 found
 
-                state.Txt.Clear();
-                state.Txt.Append(matches[0] + " ");
-                state.Cursor = state.Txt.Length;
-                max = matches[0].Length;
+                var match = matches[0];
+
+                if (match.IsExact)
+                {
+                    // TODO: Autocomplete args here
+                }
+                else
+                {
+                    state.Txt.Clear();
+                    state.Txt.Append(match.Method + " ");
+                    state.Cursor = state.Txt.Length;
+                    max = match.Method.Length;
+                }
             }
             else
             {
                 // Search match
 
-                cmd = matches[0];
+                var cmd = matches[0].Method;
+
                 for (int x = 1, m = cmd.Length; x <= m; x++)
                 {
                     var ok = true;
                     var split = cmd.Substring(0, x);
 
-                    foreach (string s in matches)
+                    foreach (var s in matches)
                     {
-                        if (s.StartsWith(split)) continue;
+                        if (s.Method.StartsWith(split)) continue;
 
                         ok = false;
                         break;
@@ -336,7 +434,7 @@ namespace NeoSharp.Application.Client
                 // Take coincidences
 
                 state.Txt.Clear();
-                state.Txt.Append(matches[0].Substring(0, max));
+                state.Txt.Append(cmd.Substring(0, max));
                 state.Cursor = state.Txt.Length;
             }
 
@@ -344,10 +442,10 @@ namespace NeoSharp.Application.Client
 
             WriteLine("", ConsoleOutputStyle.Input);
 
-            foreach (var var in matches)
+            foreach (var match in matches)
             {
-                Write(var.Substring(0, max), ConsoleOutputStyle.AutocompleteMatch);
-                WriteLine(var.Substring(max), ConsoleOutputStyle.Autocomplete);
+                Write(match.Method.Substring(0, max), ConsoleOutputStyle.AutocompleteMatch);
+                WriteLine(match.Method.Substring(max), ConsoleOutputStyle.Autocomplete);
             }
 
             // Prompt
@@ -574,10 +672,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         /// <param name="maxValue">Maximum value</param>
         /// <returns>Return Console percent writer</returns>
-        public ConsolePercentWriter CreatePercent(long maxValue = 100)
-        {
-            return new ConsolePercentWriter(this, 0, maxValue);
-        }
+        public ConsolePercentWriter CreatePercent(long maxValue = 100) => new ConsolePercentWriter(this, 0, maxValue);
 
         /// <summary>
         /// Write object

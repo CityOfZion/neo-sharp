@@ -8,29 +8,50 @@ namespace NeoSharp.Core.Types
         /// <summary>
         /// Value
         /// </summary>
-        public readonly string Value;
+        public string Value { get; }
+
         /// <summary>
         /// Is Quoted
         /// </summary>
-        public readonly bool Quoted;
+        public bool Quoted { get; }
+
+        /// <summary>
+        /// Start index
+        /// </summary>
+        public int StartIndex { get; }
+
+        /// <summary>
+        /// Real length
+        /// </summary>
+        public int RealLength { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="value">Value</param>
         /// <param name="quoted">Quoted</param>
-        public CommandToken(string value, bool quoted)
+        /// <param name="startIndex">Start index</param>
+        /// <param name="realLength">Real length</param>
+        public CommandToken(string value, bool quoted, int startIndex = -1, int realLength = -1)
         {
             Value = value;
             Quoted = quoted;
+
+            StartIndex = startIndex;
+            RealLength = realLength;
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="value">Value (calculate quoted)</param>
-        public CommandToken(string value)
+        /// <param name="startIndex">Start index</param>
+        /// <param name="realLength">Real length</param>
+        public CommandToken(string value, int startIndex = -1, int realLength = -1)
         {
+            StartIndex = startIndex;
+            RealLength = realLength;
+
             value = value.Trim();
             Value = value.Trim().TrimMatchingQuotes('\"');
             Quoted = Value != value;
@@ -44,7 +65,11 @@ namespace NeoSharp.Core.Types
         /// <returns>Return true if is equal</returns>
         public bool Equals(CommandToken obj)
         {
-            return obj != null && obj.Value == Value && obj.Quoted == Quoted;
+            return obj != null &&
+                obj.Value == Value &&
+                obj.Quoted == Quoted &&
+                StartIndex == obj.StartIndex &&
+                RealLength == obj.RealLength;
         }
 
         /// <summary>
@@ -62,10 +87,7 @@ namespace NeoSharp.Core.Types
             return base.Equals(obj);
         }
 
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
-        }
+        public override int GetHashCode() => base.GetHashCode();
 
         /// <summary>
         /// String representation

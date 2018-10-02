@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
@@ -23,19 +22,26 @@ namespace NeoSharp.Core.Extensions
             var inQuotes = false;
             var isEscaping = false;
 
-            return commandLine.Split(c =>
+            var reslist = commandLine.Split((c) =>
+             {
+                 if (c == '\\' && !isEscaping) { isEscaping = true; return false; }
+
+                 if (c == '\"' && !isEscaping)
+                     inQuotes = !inQuotes;
+
+                 isEscaping = false;
+
+                 return !inQuotes && char.IsWhiteSpace(c)/*c == ' '*/;
+             });
+
+            foreach (var (Value, Index) in reslist)
             {
-                if (c == '\\' && !isEscaping) { isEscaping = true; return false; }
+                var cmd = new CommandToken(Value, Index, Value.Length);
 
-                if (c == '\"' && !isEscaping)
-                    inQuotes = !inQuotes;
+                if (string.IsNullOrEmpty(cmd.Value)) continue;
 
-                isEscaping = false;
-
-                return !inQuotes && char.IsWhiteSpace(c)/*c == ' '*/;
-            })
-                .Select(arg => new CommandToken(arg))
-                .Where(arg => !string.IsNullOrEmpty(arg.Value));
+                yield return cmd;
+            }
         }
 
         /// <summary>
@@ -44,7 +50,7 @@ namespace NeoSharp.Core.Extensions
         /// <param name="str">String</param>
         /// <param name="controller">Controller Func</param>
         /// <returns></returns>
-        public static IEnumerable<string> Split(this string str, Func<char, bool> controller)
+        public static IEnumerable<(string Value, int Index)> Split(this string str, Func<char, bool> controller)
         {
             var nextPiece = 0;
 
@@ -52,12 +58,12 @@ namespace NeoSharp.Core.Extensions
             {
                 if (controller(str[c]))
                 {
-                    yield return str.Substring(nextPiece, c - nextPiece);
+                    yield return (Value: str.Substring(nextPiece, c - nextPiece), Index: nextPiece);
                     nextPiece = c + 1;
                 }
             }
 
-            yield return str.Substring(nextPiece);
+            yield return (Value: str.Substring(nextPiece), Index: nextPiece);
         }
 
         /// <summary>
