@@ -55,8 +55,15 @@ namespace NeoSharp.Core.Blockchain.Processing
                     )
                 {
                     LastPersistedBlock = block;
-
-                    await _blockHeaderPersister.Persist(block.GetBlockHeader());
+					if (block.GetBlockHeader().Type == HeaderType.Extended && block.Index > 0)
+					{
+						await _blockHeaderPersister.Update(block.GetBlockHeader());
+					}
+					else
+					{
+						await _blockHeaderPersister.Persist(block.GetBlockHeader());
+					}
+                    
 
                     if (index + 1 == block.Index)
                     {

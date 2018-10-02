@@ -11,5 +11,6 @@ namespace NeoSharp.Core.Blockchain.Processing
         event EventHandler<BlockHeader[]> OnBlockHeadersPersisted;
 
         Task Persist(params BlockHeader[] blockHeaders);
-    }
+		Task Update(BlockHeader blockHeader);
+	}
 }

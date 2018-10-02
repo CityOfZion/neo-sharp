@@ -31,7 +31,15 @@ namespace NeoSharp.Core.Blockchain.Processing
             _genesisBuilder = genesisBuilder;
         }
 
-        public async Task Persist(params BlockHeader[] blockHeaders)
+
+		public async Task Update(BlockHeader blockHeader)
+		{
+			if(blockHeader == null) throw new ArgumentNullException(nameof(blockHeader));
+
+			await _repository.AddBlockHeader(blockHeader);
+		}
+
+		public async Task Persist(params BlockHeader[] blockHeaders)
         {
             if (blockHeaders == null) throw new ArgumentNullException(nameof(blockHeaders));
 
