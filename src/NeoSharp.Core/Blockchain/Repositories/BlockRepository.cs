@@ -46,7 +46,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
         {
             var hash = await GetBlockHash(height);
 
-            return hash == UInt256.Zero ? null : await GetBlock(hash);
+            return hash == null ? null : await GetBlock(hash);
         }
 
         /// <inheritdoc />
@@ -134,7 +134,8 @@ namespace NeoSharp.Core.Blockchain.Repositories
         {
             var hash = await _repository.GetBlockHashFromHeight(height);
 
-            return hash == UInt256.Zero ? null : await GetBlockHeader(hash);
+            if (hash != null) return await GetBlockHeader(hash);
+            return null;
         }
 
         /// <inheritdoc />

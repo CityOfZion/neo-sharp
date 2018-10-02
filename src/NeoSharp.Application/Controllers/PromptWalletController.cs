@@ -97,7 +97,6 @@ namespace NeoSharp.Application.Controllers
         public void AccountCreateCommand()
         {
             var secureString = _consoleHandler.ReadPassword("Wallet password:");
-            
             try 
             {
                 _walletManager.CheckIfPasswordMatchesOpenWallet(secureString);
@@ -124,19 +123,17 @@ namespace NeoSharp.Application.Controllers
         public void AccountExportNep2(string address)
         {
             var walletAccount = _walletManager.GetAccount(address.ToScriptHash());
-            
             if (walletAccount != null)
             {
                 try
                 {
                     var walletPassword = _consoleHandler.ReadPassword();
-                    var accountPrivateKey = _walletManager.DecryptNep2(walletAccount.Key, walletPassword);
+                    byte[] accountPrivateKey = _walletManager.DecryptNep2(walletAccount.Key, walletPassword);
                     var newKeyPassword = _consoleHandler.ReadPassword("\nNew key password:");
                     var newKeyPasswordConfirmation = _consoleHandler.ReadPassword("\nConfirm your password:");
-                    
                     if (newKeyPassword.ToByteArray().SequenceEqual(newKeyPasswordConfirmation.ToByteArray()))
                     {
-                        var nep2Key = _walletManager.EncryptNep2(accountPrivateKey, newKeyPassword);
+                        string nep2Key = _walletManager.EncryptNep2(accountPrivateKey, newKeyPassword);
                         _consoleHandler.WriteLine("\nExported NEP-2 Key: " + nep2Key);
                     }
                     else
@@ -148,11 +145,13 @@ namespace NeoSharp.Application.Controllers
                 {
                     _consoleHandler.WriteLine("\nInvalid password.");
                 }
+
             }
             else
             {
                 _consoleHandler.WriteLine("\nAccount not found.");
             }
+
         }
 
         [PromptCommand("account export wif", Category = "Account", Help = "Exports an account in nep-2 format")]
@@ -164,8 +163,8 @@ namespace NeoSharp.Application.Controllers
                 try
                 {
                     var walletPassword = _consoleHandler.ReadPassword();
-                    var accountPrivateKey = _walletManager.DecryptNep2(walletAccount.Key, walletPassword);
-                    var wif = _walletManager.PrivateKeyToWif(accountPrivateKey);
+                    byte[] accountPrivateKey = _walletManager.DecryptNep2(walletAccount.Key, walletPassword);
+                    string wif = _walletManager.PrivateKeyToWif(accountPrivateKey);
                     _consoleHandler.WriteLine("\nExported wif: " + wif);
                 }
                 catch (AccountsPasswordMismatchException)
@@ -182,7 +181,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("account alias", Category = "Account", Help = "Adds a label to an account")]
         public void AddAccountAlias(string address, string alias)
         {
-            var accountScriptHash = address.ToScriptHash();
+            UInt160 accountScriptHash = address.ToScriptHash();
             if(_walletManager.Contains(accountScriptHash))
             {
                 _walletManager.UpdateAccountAlias(accountScriptHash, alias);
@@ -191,6 +190,7 @@ namespace NeoSharp.Application.Controllers
                 _consoleHandler.WriteLine("\nAccount not found.");
             }
         }
+
 
         /*
         TODO #404: Implement additional wallet features
