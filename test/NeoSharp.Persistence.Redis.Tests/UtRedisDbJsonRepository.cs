@@ -278,42 +278,42 @@ namespace NeoSharp.Persistence.Redis.Tests
             result.Should().BeNull();
         }
 
-        [TestMethod]
-        public async Task GetAccount_ValueFound_ReturnsAccount()
-        {
-            var input = UInt160.Parse(RandomInt().ToString("X40"));
-            var expectedJson = "{}";
-            var expectedResult = new Account();
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            redisDbContextMock
-                .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateAccountKey())))
-                .ReturnsAsync(expectedJson);
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.DeserializeObject<Account>(expectedJson)).Returns(expectedResult);
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //[TestMethod]
+        //public async Task GetAccount_ValueFound_ReturnsAccount()
+        //{
+        //    var input = UInt160.Parse(RandomInt().ToString("X40"));
+        //    var expectedJson = "{}";
+        //    var expectedResult = new Account();
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    redisDbContextMock
+        //        .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateAccountKey())))
+        //        .ReturnsAsync(expectedJson);
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.DeserializeObject<Account>(expectedJson)).Returns(expectedResult);
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            var result = await testee.GetAccount(input);
+        //    var result = await testee.GetAccount(input);
 
-            result.Should().Be(expectedResult);
-        }
+        //    result.Should().Be(expectedResult);
+        //}
 
-        [TestMethod]
-        public async Task AddAccount_WritesCorrectKeyValue()
-        {
-            var input = new Account
-            {
-                ScriptHash = UInt160.Parse(RandomInt().ToString("X40"))
-            };
-            var expectedJson = "{}";
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.SerializeObject(input)).Returns(expectedJson);
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
-            await testee.AddAccount(input);
+        //[TestMethod]
+        //public async Task AddAccount_WritesCorrectKeyValue()
+        //{
+        //    var input = new Account
+        //    {
+        //        ScriptHash = UInt160.Parse(RandomInt().ToString("X40"))
+        //    };
+        //    var expectedJson = "{}";
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.SerializeObject(input)).Returns(expectedJson);
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //    await testee.AddAccount(input);
 
-            redisDbContextMock.Verify(m =>
-                  m.Set(It.Is<RedisKey>(b => b == input.ScriptHash.BuildStateAccountKey()), expectedJson));
-        }
+        //    redisDbContextMock.Verify(m =>
+        //          m.Set(It.Is<RedisKey>(b => b == input.ScriptHash.BuildStateAccountKey()), expectedJson));
+        //}
 
         [TestMethod]
         public async Task DeleteAccount_DeletesCorrectKey()
@@ -342,40 +342,40 @@ namespace NeoSharp.Persistence.Redis.Tests
             result.Should().BeNull();
         }
 
-        [TestMethod]
-        public async Task GetCoinStates_ValueFound_ReturnsCoinStates()
-        {
-            var input = UInt256.Parse(RandomInt().ToString("X64"));
-            var expectedJson = "{}";
-            var expectedResult = new[] { new CoinState() };
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            redisDbContextMock
-                .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateCoinKey())))
-                .ReturnsAsync(expectedJson);
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.DeserializeObject<CoinState[]>(expectedJson)).Returns(expectedResult);
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //[TestMethod]
+        //public async Task GetCoinStates_ValueFound_ReturnsCoinStates()
+        //{
+        //    var input = UInt256.Parse(RandomInt().ToString("X64"));
+        //    var expectedJson = "{}";
+        //    var expectedResult = new[] { new CoinState() };
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    redisDbContextMock
+        //        .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateCoinKey())))
+        //        .ReturnsAsync(expectedJson);
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.DeserializeObject<CoinState[]>(expectedJson)).Returns(expectedResult);
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            var result = await testee.GetCoinStates(input);
+        //    var result = await testee.GetCoinStates(input);
 
-            result.Should().Equal(expectedResult);
-        }
+        //    result.Should().Equal(expectedResult);
+        //}
 
-        [TestMethod]
-        public async Task AddCoinStates_WritesCorrectKeyValue()
-        {
-            var inputHash = UInt256.Parse(RandomInt().ToString("X64"));
-            var inputStates = new[] { new CoinState() };
-            var expectedJson = "{}";
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.SerializeObject(inputStates)).Returns(expectedJson);
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
-            await testee.AddCoinStates(inputHash, inputStates);
+        //[TestMethod]
+        //public async Task AddCoinStates_WritesCorrectKeyValue()
+        //{
+        //    var inputHash = UInt256.Parse(RandomInt().ToString("X64"));
+        //    var inputStates = new[] { new CoinState() };
+        //    var expectedJson = "{}";
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.SerializeObject(inputStates)).Returns(expectedJson);
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //    await testee.AddCoinStates(inputHash, inputStates);
 
-            redisDbContextMock.Verify(m =>
-                      m.Set(It.Is<RedisKey>(b => b == inputHash.BuildStateCoinKey()), expectedJson));
-        }
+        //    redisDbContextMock.Verify(m =>
+        //              m.Set(It.Is<RedisKey>(b => b == inputHash.BuildStateCoinKey()), expectedJson));
+        //}
 
         [TestMethod]
         public async Task DeleteCoinStates_DeletesCorrectKey()
@@ -406,44 +406,44 @@ namespace NeoSharp.Persistence.Redis.Tests
             result.Should().BeNull();
         }
 
-        [TestMethod]
-        public async Task GetValidator_ValueFound_ReturnsValidator()
-        {
-            var pubkey = new byte[33];
-            pubkey[0] = 0x02;
-            var input = new ECPoint(pubkey);
-            var expectedJson = "{}";
-            var expectedResult = new Validator();
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            redisDbContextMock
-                .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateValidatorKey())))
-                .ReturnsAsync(expectedJson);
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.DeserializeObject<Validator>(expectedJson)).Returns(expectedResult);
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //[TestMethod]
+        //public async Task GetValidator_ValueFound_ReturnsValidator()
+        //{
+        //    var pubkey = new byte[33];
+        //    pubkey[0] = 0x02;
+        //    var input = new ECPoint(pubkey);
+        //    var expectedJson = "{}";
+        //    var expectedResult = new Validator();
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    redisDbContextMock
+        //        .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateValidatorKey())))
+        //        .ReturnsAsync(expectedJson);
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.DeserializeObject<Validator>(expectedJson)).Returns(expectedResult);
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            var result = await testee.GetValidator(input);
+        //    var result = await testee.GetValidator(input);
 
-            result.Should().Be(expectedResult);
-        }
+        //    result.Should().Be(expectedResult);
+        //}
 
-        [TestMethod]
-        public async Task AddValidator_WritesCorrectKeyValue()
-        {
-            var pubkey = new byte[33];
-            pubkey[0] = 0x02;
-            var point = new ECPoint(pubkey);
-            var input = new Validator { PublicKey = point };
-            var expectedJson = "{}";
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.SerializeObject(input)).Returns(expectedJson);
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
-            await testee.AddValidator(input);
+        //[TestMethod]
+        //public async Task AddValidator_WritesCorrectKeyValue()
+        //{
+        //    var pubkey = new byte[33];
+        //    pubkey[0] = 0x02;
+        //    var point = new ECPoint(pubkey);
+        //    var input = new Validator { PublicKey = point };
+        //    var expectedJson = "{}";
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.SerializeObject(input)).Returns(expectedJson);
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //    await testee.AddValidator(input);
 
-            redisDbContextMock.Verify(m =>
-                m.Set(It.Is<RedisKey>(b => b == point.BuildStateValidatorKey()), expectedJson));
-        }
+        //    redisDbContextMock.Verify(m =>
+        //        m.Set(It.Is<RedisKey>(b => b == point.BuildStateValidatorKey()), expectedJson));
+        //}
 
         [TestMethod]
         public async Task DeleteValidator_DeletesCorrectKey()
@@ -475,40 +475,40 @@ namespace NeoSharp.Persistence.Redis.Tests
             result.Should().BeNull();
         }
 
-        [TestMethod]
-        public async Task GetAsset_ValueFound_ReturnsValidator()
-        {
-            var input = UInt256.Parse(RandomInt().ToString("X64"));
-            var expectedJson = "{}";
-            var expectedResult = new Asset();
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            redisDbContextMock
-                .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateAssetKey())))
-                .ReturnsAsync(expectedJson);
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.DeserializeObject<Asset>(expectedJson)).Returns(expectedResult);
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //[TestMethod]
+        //public async Task GetAsset_ValueFound_ReturnsValidator()
+        //{
+        //    var input = UInt256.Parse(RandomInt().ToString("X64"));
+        //    var expectedJson = "{}";
+        //    var expectedResult = new Asset();
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    redisDbContextMock
+        //        .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateAssetKey())))
+        //        .ReturnsAsync(expectedJson);
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.DeserializeObject<Asset>(expectedJson)).Returns(expectedResult);
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            var result = await testee.GetAsset(input);
+        //    var result = await testee.GetAsset(input);
 
-            result.Should().Be(expectedResult);
-        }
+        //    result.Should().Be(expectedResult);
+        //}
 
-        [TestMethod]
-        public async Task AddAsset_WritesCorrectKeyValue()
-        {
-            var inputHash = UInt256.Parse(RandomInt().ToString("X64"));
-            var input = new Asset { Id = inputHash };
-            var expectedJson = "{}";
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.SerializeObject(input)).Returns(expectedJson);
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
-            await testee.AddAsset(input);
+        //[TestMethod]
+        //public async Task AddAsset_WritesCorrectKeyValue()
+        //{
+        //    var inputHash = UInt256.Parse(RandomInt().ToString("X64"));
+        //    var input = new Asset { Id = inputHash };
+        //    var expectedJson = "{}";
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.SerializeObject(input)).Returns(expectedJson);
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //    await testee.AddAsset(input);
 
-            redisDbContextMock.Verify(m =>
-              m.Set(It.Is<RedisKey>(b => b == inputHash.BuildStateAssetKey()), expectedJson));
-        }
+        //    redisDbContextMock.Verify(m =>
+        //      m.Set(It.Is<RedisKey>(b => b == inputHash.BuildStateAssetKey()), expectedJson));
+        //}
 
         [TestMethod]
         public async Task DeleteAsset_DeletesCorrectKey()
@@ -538,42 +538,42 @@ namespace NeoSharp.Persistence.Redis.Tests
             result.Should().BeNull();
         }
 
-        [TestMethod]
-        public async Task GetContract_ValueFound_ReturnsContract()
-        {
-            var input = UInt160.Parse(RandomInt().ToString("X40"));
-            var expectedJson = "{}";
-            var expectedResult = new Contract();
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            redisDbContextMock
-                .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateContractKey())))
-                .ReturnsAsync(expectedJson);
+        //[TestMethod]
+        //public async Task GetContract_ValueFound_ReturnsContract()
+        //{
+        //    var input = UInt160.Parse(RandomInt().ToString("X40"));
+        //    var expectedJson = "{}";
+        //    var expectedResult = new Contract();
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    redisDbContextMock
+        //        .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateContractKey())))
+        //        .ReturnsAsync(expectedJson);
 
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.DeserializeObject<Contract>(expectedJson)).Returns(expectedResult);
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.DeserializeObject<Contract>(expectedJson)).Returns(expectedResult);
 
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            var result = await testee.GetContract(input);
+        //    var result = await testee.GetContract(input);
 
-            result.Should().Be(expectedResult);
-        }
+        //    result.Should().Be(expectedResult);
+        //}
 
-        [TestMethod]
-        public async Task AddContract_WritesCorrectKeyValue()
-        {
-            var inputHash = UInt160.Parse(RandomInt().ToString("X40"));
-            var input = new Contract { Code = new Code { ScriptHash = inputHash } };
-            var expectedJson = "{}";
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.SerializeObject(input)).Returns(expectedJson);
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
-            await testee.AddContract(input);
+        //[TestMethod]
+        //public async Task AddContract_WritesCorrectKeyValue()
+        //{
+        //    var inputHash = UInt160.Parse(RandomInt().ToString("X40"));
+        //    var input = new Contract { Code = new Code { ScriptHash = inputHash } };
+        //    var expectedJson = "{}";
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.SerializeObject(input)).Returns(expectedJson);
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //    await testee.AddContract(input);
 
-            redisDbContextMock.Verify(m =>
-              m.Set(It.Is<RedisKey>(b => b == inputHash.BuildStateContractKey()), expectedJson));
-        }
+        //    redisDbContextMock.Verify(m =>
+        //      m.Set(It.Is<RedisKey>(b => b == inputHash.BuildStateContractKey()), expectedJson));
+        //}
 
         [TestMethod]
         public async Task DeleteContract_DeletesCorrectKey()
@@ -607,28 +607,28 @@ namespace NeoSharp.Persistence.Redis.Tests
             result.Should().BeNull();
         }
 
-        [TestMethod]
-        public async Task GetStorage_ValueFound_ReturnsStorageValue()
-        {
-            var input = new StorageKey
-            {
-                ScriptHash = UInt160.Parse(RandomInt().ToString("X40")),
-                Key = new byte[1]
-            };
-            var expectedJson = "{}";
-            var expectedResult = new StorageValue();
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            redisDbContextMock
-                .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateStorageKey())))
-                .ReturnsAsync(expectedJson);
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock.Setup(m => m.DeserializeObject<StorageValue>(expectedJson)).Returns(expectedResult);
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //[TestMethod]
+        //public async Task GetStorage_ValueFound_ReturnsStorageValue()
+        //{
+        //    var input = new StorageKey
+        //    {
+        //        ScriptHash = UInt160.Parse(RandomInt().ToString("X40")),
+        //        Key = new byte[1]
+        //    };
+        //    var expectedJson = "{}";
+        //    var expectedResult = new StorageValue();
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    redisDbContextMock
+        //        .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildStateStorageKey())))
+        //        .ReturnsAsync(expectedJson);
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock.Setup(m => m.DeserializeObject<StorageValue>(expectedJson)).Returns(expectedResult);
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            var result = await testee.GetStorage(input);
+        //    var result = await testee.GetStorage(input);
 
-            result.Should().Be(expectedResult);
-        }
+        //    result.Should().Be(expectedResult);
+        //}
 
         [TestMethod]
         public async Task AddStorage_WritesCorrectKeyValue()
@@ -707,72 +707,72 @@ namespace NeoSharp.Persistence.Redis.Tests
             result.Count.Should().Be(0);
         }
 
-        [TestMethod]
-        public async Task GetIndexConfirmed_ValueFound_ReturnsFilledSet()
-        {
-            var input = UInt160.Parse(RandomInt().ToString("X40"));
-            var expectedJson = "{}";
-            var expectedReferences = new List<CoinReference>
-            {
-                new CoinReference
-                {
-                    PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
-                    PrevIndex = (ushort) RandomInt(10)
-                },
-                new CoinReference
-                {
-                    PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
-                    PrevIndex = (ushort) RandomInt(10)
-                }
-            }.ToHashSet();
+        //[TestMethod]
+        //public async Task GetIndexConfirmed_ValueFound_ReturnsFilledSet()
+        //{
+        //    var input = UInt160.Parse(RandomInt().ToString("X40"));
+        //    var expectedJson = "{}";
+        //    var expectedReferences = new List<CoinReference>
+        //    {
+        //        new CoinReference
+        //        {
+        //            PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
+        //            PrevIndex = (ushort) RandomInt(10)
+        //        },
+        //        new CoinReference
+        //        {
+        //            PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
+        //            PrevIndex = (ushort) RandomInt(10)
+        //        }
+        //    }.ToHashSet();
 
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            redisDbContextMock
-                .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildIxConfirmedKey())))
-                .ReturnsAsync(expectedJson);
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock
-                .Setup(m => m.DeserializeObject<HashSet<CoinReference>>(expectedJson))
-                .Returns(expectedReferences);
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    redisDbContextMock
+        //        .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildIxConfirmedKey())))
+        //        .ReturnsAsync(expectedJson);
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock
+        //        .Setup(m => m.DeserializeObject<HashSet<CoinReference>>(expectedJson))
+        //        .Returns(expectedReferences);
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            var result = await testee.GetIndexConfirmed(input);
+        //    var result = await testee.GetIndexConfirmed(input);
 
-            result.Should().BeOfType<HashSet<CoinReference>>();
-            result.Count.Should().Be(expectedReferences.Count);
-            result.SetEquals(expectedReferences).Should().BeTrue();
-        }
+        //    result.Should().BeOfType<HashSet<CoinReference>>();
+        //    result.Count.Should().Be(expectedReferences.Count);
+        //    result.SetEquals(expectedReferences).Should().BeTrue();
+        //}
 
-        [TestMethod]
-        public async Task SetIndexConfirmed_WritesCorrectKeyValue()
-        {
-            var inputHash = UInt160.Parse(RandomInt().ToString("X40"));
-            var expectedKey = inputHash.BuildIxConfirmedKey();
-            var inputReferences = new List<CoinReference>
-            {
-                new CoinReference
-                {
-                    PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
-                    PrevIndex = (ushort) RandomInt(10)
-                },
-                new CoinReference
-                {
-                    PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
-                    PrevIndex = (ushort) RandomInt(10)
-                }
-            }.ToHashSet();
-            var expectedJson = "{}";
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock
-                .Setup(m => m.SerializeObject(It.Is<HashSet<CoinReference>>(arr => arr.SequenceEqual(inputReferences))))
-                .Returns(expectedJson);
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //[TestMethod]
+        //public async Task SetIndexConfirmed_WritesCorrectKeyValue()
+        //{
+        //    var inputHash = UInt160.Parse(RandomInt().ToString("X40"));
+        //    var expectedKey = inputHash.BuildIxConfirmedKey();
+        //    var inputReferences = new List<CoinReference>
+        //    {
+        //        new CoinReference
+        //        {
+        //            PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
+        //            PrevIndex = (ushort) RandomInt(10)
+        //        },
+        //        new CoinReference
+        //        {
+        //            PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
+        //            PrevIndex = (ushort) RandomInt(10)
+        //        }
+        //    }.ToHashSet();
+        //    var expectedJson = "{}";
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock
+        //        .Setup(m => m.SerializeObject(It.Is<HashSet<CoinReference>>(arr => arr.SequenceEqual(inputReferences))))
+        //        .Returns(expectedJson);
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            await testee.SetIndexConfirmed(inputHash, inputReferences);
+        //    await testee.SetIndexConfirmed(inputHash, inputReferences);
 
-            redisDbContextMock.Verify(m => m.Set(It.Is<RedisKey>(b => b.Equals(expectedKey)), It.Is<RedisValue>(b => b.Equals(expectedJson))));
-        }
+        //    redisDbContextMock.Verify(m => m.Set(It.Is<RedisKey>(b => b.Equals(expectedKey)), It.Is<RedisValue>(b => b.Equals(expectedJson))));
+        //}
 
         [TestMethod]
         public async Task GetIndexClaimable_NoValueFound_ReturnsEmptySet()
@@ -788,72 +788,72 @@ namespace NeoSharp.Persistence.Redis.Tests
             result.Count.Should().Be(0);
         }
 
-        [TestMethod]
-        public async Task GetIndexClaimable_ValueFound_ReturnsFilledSet()
-        {
-            var input = UInt160.Parse(RandomInt().ToString("X40"));
-            var expectedJson = "{}";
-            var expectedReferences = new List<CoinReference>
-            {
-                new CoinReference
-                {
-                    PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
-                    PrevIndex = (ushort) RandomInt(10)
-                },
-                new CoinReference
-                {
-                    PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
-                    PrevIndex = (ushort) RandomInt(10)
-                }
-            }.ToHashSet();
+        //[TestMethod]
+        //public async Task GetIndexClaimable_ValueFound_ReturnsFilledSet()
+        //{
+        //    var input = UInt160.Parse(RandomInt().ToString("X40"));
+        //    var expectedJson = "{}";
+        //    var expectedReferences = new List<CoinReference>
+        //    {
+        //        new CoinReference
+        //        {
+        //            PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
+        //            PrevIndex = (ushort) RandomInt(10)
+        //        },
+        //        new CoinReference
+        //        {
+        //            PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
+        //            PrevIndex = (ushort) RandomInt(10)
+        //        }
+        //    }.ToHashSet();
 
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            redisDbContextMock
-                .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildIxClaimableKey())))
-                .ReturnsAsync(expectedJson);
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock
-                .Setup(m => m.DeserializeObject<HashSet<CoinReference>>(expectedJson))
-                .Returns(expectedReferences);
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    redisDbContextMock
+        //        .Setup(m => m.Get(It.Is<RedisKey>(b => b == input.BuildIxClaimableKey())))
+        //        .ReturnsAsync(expectedJson);
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock
+        //        .Setup(m => m.DeserializeObject<HashSet<CoinReference>>(expectedJson))
+        //        .Returns(expectedReferences);
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            var result = await testee.GetIndexClaimable(input);
+        //    var result = await testee.GetIndexClaimable(input);
 
-            result.Should().BeOfType<HashSet<CoinReference>>();
-            result.Count.Should().Be(expectedReferences.Count);
-            result.SetEquals(expectedReferences).Should().BeTrue();
-        }
+        //    result.Should().BeOfType<HashSet<CoinReference>>();
+        //    result.Count.Should().Be(expectedReferences.Count);
+        //    result.SetEquals(expectedReferences).Should().BeTrue();
+        //}
 
-        [TestMethod]
-        public async Task SetIndexClaimable_WritesCorrectKeyValue()
-        {
-            var inputHash = UInt160.Parse(RandomInt().ToString("X40"));
-            var expectedKey = inputHash.BuildIxClaimableKey();
-            var inputReferences = new List<CoinReference>
-            {
-                new CoinReference
-                {
-                    PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
-                    PrevIndex = (ushort) RandomInt(10)
-                },
-                new CoinReference
-                {
-                    PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
-                    PrevIndex = (ushort) RandomInt(10)
-                }
-            }.ToHashSet();
-            var expectedJson = "{}";
-            var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
-            jsonConverterMock
-                .Setup(m => m.SerializeObject(It.Is<CoinReference[]>(arr => arr.SequenceEqual(inputReferences))))
-                .Returns(expectedJson);
-            var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
-            var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
+        //[TestMethod]
+        //public async Task SetIndexClaimable_WritesCorrectKeyValue()
+        //{
+        //    var inputHash = UInt160.Parse(RandomInt().ToString("X40"));
+        //    var expectedKey = inputHash.BuildIxClaimableKey();
+        //    var inputReferences = new List<CoinReference>
+        //    {
+        //        new CoinReference
+        //        {
+        //            PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
+        //            PrevIndex = (ushort) RandomInt(10)
+        //        },
+        //        new CoinReference
+        //        {
+        //            PrevHash = UInt256.Parse(RandomInt().ToString("X64")),
+        //            PrevIndex = (ushort) RandomInt(10)
+        //        }
+        //    }.ToHashSet();
+        //    var expectedJson = "{}";
+        //    var jsonConverterMock = AutoMockContainer.GetMock<IJsonConverter>();
+        //    jsonConverterMock
+        //        .Setup(m => m.SerializeObject(It.Is<CoinReference[]>(arr => arr.SequenceEqual(inputReferences))))
+        //        .Returns(expectedJson);
+        //    var redisDbContextMock = AutoMockContainer.GetMock<IRedisDbContext>();
+        //    var testee = AutoMockContainer.Create<RedisDbJsonRepository>();
 
-            await testee.SetIndexClaimable(inputHash, inputReferences);
+        //    await testee.SetIndexClaimable(inputHash, inputReferences);
 
-            redisDbContextMock.Verify(m => m.Set(It.Is<RedisKey>(b => b.Equals(expectedKey)), It.Is<RedisValue>(b => b.Equals(expectedJson))));
-        }
+        //    redisDbContextMock.Verify(m => m.Set(It.Is<RedisKey>(b => b.Equals(expectedKey)), It.Is<RedisValue>(b => b.Equals(expectedJson))));
+        //}
 
         #endregion
     }
