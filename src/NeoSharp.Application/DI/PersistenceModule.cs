@@ -20,7 +20,7 @@ namespace NeoSharp.Application.DI
                 {
                     containerBuilder.RegisterSingleton<RedisDbJsonConfig>();
                     containerBuilder.RegisterSingleton<IRepository, RedisDbJsonRepository>();
-                    containerBuilder.RegisterSingleton<IRedisDbContext, RedisDbContext>();
+                    containerBuilder.RegisterSingleton<IRedisDbJsonContext, RedisDbJsonContext>();
                     break;
                 }
                 
