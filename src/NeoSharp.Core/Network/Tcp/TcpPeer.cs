@@ -125,7 +125,7 @@ namespace NeoSharp.Core.Network.Tcp
         public void Disconnect()
         {
             Dispose();
-            _logger.LogInformation($"The peer {this.EndPoint.Host}:{this.EndPoint.Port} was disconnected");
+            _logger.LogInformation($"The peer {EndPoint.Host}:{EndPoint.Port} was disconnected");
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ namespace NeoSharp.Core.Network.Tcp
                 try
                 {
                     var msg = await _protocol.ReceiveMessageAsync(_stream, tokenSource.Token);
-                    this._logger.LogDebug($"Message Received: {msg.Command}");
+                    _logger.LogDebug($"Message Received: {msg.Command}");
                     return msg;
                 }
                 catch (Exception err)
@@ -265,12 +265,12 @@ namespace NeoSharp.Core.Network.Tcp
 
                 try
                 {
-                    _logger.LogDebug($"Message sent: {message.Command} to {this.EndPoint.Host}.");
+                    _logger.LogDebug($"Message sent: {message.Command} to {EndPoint.Host}.");
                     await _protocol.SendMessageAsync(_stream, message, tokenSource.Token);
                 }
                 catch (Exception err)
                 {
-                    _logger.LogError(err, $"Error while send message {message.Command} to {this.EndPoint.Host}.");
+                    _logger.LogError(err, $"Error while send message {message.Command} to {EndPoint.Host}.");
                     Disconnect();
                 }
             }

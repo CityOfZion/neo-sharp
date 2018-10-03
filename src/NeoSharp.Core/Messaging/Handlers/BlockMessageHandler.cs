@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Logging;
@@ -11,10 +11,12 @@ namespace NeoSharp.Core.Messaging.Handlers
     public class BlockMessageHandler : MessageHandler<BlockMessage>
     {
         #region Private Fields 
+
         private readonly IBlockProcessor _blockProcessor;
         private readonly IBlockOperationsManager _blockOperationsManager;
         private readonly IBroadcaster _broadcaster;
         private readonly ILogger<BlockMessageHandler> _logger;
+
         #endregion
 
         #region Constructor 
@@ -37,14 +39,13 @@ namespace NeoSharp.Core.Messaging.Handlers
             _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
             _logger = logger;
         }
+
         #endregion
 
         #region MessageHandler override methods 
+
         /// <inheritdoc />
-        public override bool CanHandle(Message message)
-        {
-            return message is BlockMessage;
-        }
+        public override bool CanHandle(Message message) => message is BlockMessage;
 
         /// <inheritdoc />
         public override async Task Handle(BlockMessage message, IPeer sender)
@@ -70,6 +71,7 @@ namespace NeoSharp.Core.Messaging.Handlers
             }
 
         }
+
         #endregion
     }
 }

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +11,8 @@ namespace NeoSharp.Core.Network
 {
     public class Server : IServer, IBroadcaster, IDisposable
     {
-        #region Private Fields 
+        #region Private Fields
+
         private bool _isRunning;
         private readonly ILogger<Server> _logger;
         private readonly IPeerMessageListener _peerMessageListener;
@@ -26,9 +26,11 @@ namespace NeoSharp.Core.Network
         private readonly IList<IPEndPoint> _failedPeers;
         private readonly EndPoint[] _peerEndPoints;
         private CancellationTokenSource _messageListenerTokenSource;
+
         #endregion
 
         #region Constructor
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -66,9 +68,11 @@ namespace NeoSharp.Core.Network
             // TODO #364: Change after port forwarding implementation
             _peerEndPoints = config.PeerEndPoints;
         }
+
         #endregion
 
         #region IServer implementation
+
         /// <inheritdoc />
         public void Start()
         {
@@ -122,7 +126,7 @@ namespace NeoSharp.Core.Network
         /// <inheritdoc />
         public void Broadcast(Message message, IPeer source = null)
         {
-            Parallel.ForEach(this._serverContext.ConnectedPeers, peer =>
+            Parallel.ForEach(_serverContext.ConnectedPeers, peer =>
             {
                 if (source == null)
                 {
@@ -163,7 +167,7 @@ namespace NeoSharp.Core.Network
                     throw new UnauthorizedAccessException($"The endpoint \"{peer.EndPoint}\" is prohibited by ACL.");
                 }
 
-                this._serverContext.ConnectedPeers.Add(peer);
+                _serverContext.ConnectedPeers.Add(peer);
                 _peerMessageListener.StartFor(peer, _messageListenerTokenSource.Token);
             }
             catch (Exception e)
@@ -178,12 +182,12 @@ namespace NeoSharp.Core.Network
         /// </summary>
         private void DisconnectPeers()
         {
-            foreach (var peer in this._serverContext.ConnectedPeers)
+            foreach (var peer in _serverContext.ConnectedPeers)
             {
                 peer.Disconnect();
             }
 
-            this._serverContext.ConnectedPeers.Clear();
+            _serverContext.ConnectedPeers.Clear();
         }
         #endregion
     }
