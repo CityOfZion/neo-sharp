@@ -8,7 +8,7 @@ using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Network;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
 
 namespace NeoSharp.Application.Controllers
 {

@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Types;
-using NeoSharp.Wallet;
-using NeoSharp.VM;
-using NeoSharp.Core.Wallet;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Persistence;
+using NeoSharp.Types;
 
-namespace NeoSharp.Wallet.TransactionManager
+namespace NeoSharp.Core.Wallet.TransactionManager
 {
 
     // assetId, unspent list

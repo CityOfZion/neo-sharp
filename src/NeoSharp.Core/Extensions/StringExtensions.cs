@@ -83,28 +83,6 @@ namespace NeoSharp.Core.Extensions
         }
 
         /// <summary>
-        /// Convert Hex string to byte array
-        /// </summary>
-        /// <param name="value">Value</param>
-        /// <param name="limit">Limit</param>
-        /// <returns>Byte Array</returns>
-        public static byte[] HexToBytes(this string value, int limit = 0)
-        {
-            if (string.IsNullOrEmpty(value))
-                return new byte[0];
-            if (value.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
-                value = value.Substring(2);
-            if (value.Length % 2 == 1)
-                throw new FormatException();
-            if (limit != 0 && value.Length != limit)
-                throw new FormatException();
-            var result = new byte[value.Length / 2];
-            for (var i = 0; i < result.Length; i++)
-                result[i] = byte.Parse(value.Substring(i * 2, 2), NumberStyles.AllowHexSpecifier);
-            return result;
-        }
-
-        /// <summary>
         /// Converts SecureString to byte array
         /// </summary>
         /// <param name="secureString">SecureString</param>
@@ -135,14 +113,5 @@ namespace NeoSharp.Core.Extensions
             }
         }
 
-        /// <summary>
-        /// Check string is in hex format.
-        /// </summary>
-        /// <returns>if hex in string was onlyed true, otherwise false.</returns>
-        /// <param name="value">Value.</param>
-        public static bool IsHexString(this string value)
-        {
-            return Regex.IsMatch(value, @"\A\b(0[xX])?[0-9a-fA-F]+\b\Z");
-        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.Test.Extensions
 {
@@ -7,7 +8,7 @@ namespace NeoSharp.Core.Test.Extensions
     public class UtIntExtensions
     {
         // Arrange
-        byte[] _data = new byte[] { 157, 179, 60, 8, 66, 122, 255, 105, 126, 49, 180, 74, 212, 41, 126, 177, 14, 255, 59, 82, 218, 113, 248, 145, 98, 5, 128, 140, 42, 70, 32, 69 };
+        readonly byte[] _data = new byte[] { 157, 179, 60, 8, 66, 122, 255, 105, 126, 49, 180, 74, 212, 41, 126, 177, 14, 255, 59, 82, 218, 113, 248, 145, 98, 5, 128, 140, 42, 70, 32, 69 };
         
         [TestMethod]
         public void ToInt32()

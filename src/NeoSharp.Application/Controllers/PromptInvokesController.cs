@@ -2,7 +2,7 @@
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
 
 namespace NeoSharp.Application.Controllers
 {

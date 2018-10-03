@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.SmartContract.ContractParameters;
-using NeoSharp.Core.Types;
+using NeoSharp.Cryptography;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types;
 using NeoSharp.VM;
 
 namespace NeoSharp.Core.Test.SmartContracts

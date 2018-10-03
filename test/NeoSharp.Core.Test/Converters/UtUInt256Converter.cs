@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Converters
 {
@@ -10,7 +10,7 @@ namespace NeoSharp.Core.Test.Converters
     {
         // Arrange
         private readonly UInt256 _value = UInt256.Parse("0x4520462a8c80056291f871da523bff0eb17e29d44ab4317e69ff7a42083cb39d");
-        private TypeConverter _converter = TypeDescriptor.GetConverter(typeof(UInt256));
+        private readonly TypeConverter _converter = TypeDescriptor.GetConverter(typeof(UInt256));
 
 
         [TestMethod]

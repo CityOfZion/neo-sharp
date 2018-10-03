@@ -10,6 +10,8 @@ using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
+using NeoSharp.Cryptography;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Serializers
 {
@@ -23,7 +25,7 @@ namespace NeoSharp.Core.Test.Serializers
         public void WarmUpSerializer()
         {
             _random = new Random(Environment.TickCount);
-            _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
+            _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly, typeof(Fixed8).Assembly);
         }
 
         [TestMethod]

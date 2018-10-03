@@ -2,7 +2,8 @@
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Types;
+using NeoSharp.Cryptography;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Models.OperationManger
 {

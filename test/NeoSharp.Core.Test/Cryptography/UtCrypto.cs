@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Extensions;
+using NeoSharp.Cryptography;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.Test.Cryptography
 {

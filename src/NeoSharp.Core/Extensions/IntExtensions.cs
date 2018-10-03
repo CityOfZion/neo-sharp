@@ -6,18 +6,6 @@ namespace NeoSharp.Core.Extensions
     public static class IntExtensions
     {
         /// <summary>
-        /// Convert Byte Array to Int32
-        /// </summary>
-        /// <param name="value">Value</param>
-        /// <param name="startIndex">Start index</param>
-        /// <returns>Int32</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int ToInt32(this byte[] value, int startIndex = 0)
-        {
-            return BitConverter.ToInt32(value, startIndex);
-        }
-
-        /// <summary>
         /// Convert Byte Array to Int64
         /// </summary>
         /// <param name="value">Value</param>
@@ -39,18 +27,6 @@ namespace NeoSharp.Core.Extensions
         public static ushort ToUInt16(this byte[] value, int startIndex = 0)
         {
             return BitConverter.ToUInt16(value, startIndex);
-        }
-
-        /// <summary>
-        /// Convert Byte Array to UInt32
-        /// </summary>
-        /// <param name="value">Value</param>
-        /// <param name="startIndex">Start index</param>
-        /// <returns>UInt32</returns>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static uint ToUInt32(this byte[] value, int startIndex = 0)
-        {
-            return BitConverter.ToUInt32(value, startIndex);
         }
 
         /// <summary>

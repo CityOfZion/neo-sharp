@@ -4,6 +4,7 @@ using NeoSharp.Core.Models;
 using NeoSharp.VM;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.SmartContract
 {

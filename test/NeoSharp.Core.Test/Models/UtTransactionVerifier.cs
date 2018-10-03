@@ -1,12 +1,12 @@
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Models
 {

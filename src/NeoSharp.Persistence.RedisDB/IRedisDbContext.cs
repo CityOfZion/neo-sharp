@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using NeoSharp.Core.Types;
 using NeoSharp.Persistence.RedisDB.Helpers;
+using NeoSharp.Types;
 using StackExchange.Redis;
 
 namespace NeoSharp.Persistence.RedisDB

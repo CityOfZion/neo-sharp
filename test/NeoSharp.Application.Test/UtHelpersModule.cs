@@ -5,6 +5,7 @@ using NeoSharp.Core.DI;
 using NeoSharp.Core.DI.Modules;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Wallet.Wrappers;
+using NeoSharp.Cryptography;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Application.Test

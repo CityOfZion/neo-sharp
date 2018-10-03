@@ -9,20 +9,14 @@ using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 
-namespace NeoSharp.Core.Cryptography
+namespace NeoSharp.Cryptography
 {
     public class BouncyCastleCrypto : Crypto
     {
         static readonly X9ECParameters _curve = SecNamedCurves.GetByName("secp256r1");
         static readonly ECDomainParameters _domain = new ECDomainParameters(_curve.Curve, _curve.G, _curve.N, _curve.H, _curve.GetSeed());
 
-        /// <summary>
-        /// Sha256 digests
-        /// </summary>
-        /// <param name="message">Message bytearray</param>
-        /// <param name="offset">Offset</param>
-        /// <param name="count">Length</param>
-        /// <returns>Hash bytearray</returns>
+        /// <inheritdoc />
         public override byte[] Sha256(byte[] message, int offset, int count)
         {
             var hash = new Sha256Digest();
@@ -34,13 +28,7 @@ namespace NeoSharp.Core.Cryptography
             return result;
         }
 
-        /// <summary>
-        /// RIPEMD160 digests
-        /// </summary>
-        /// <param name="message">Message bytearray</param>
-        /// <param name="offset">Offset</param>
-        /// <param name="count">Length</param>
-        /// <returns>Hash bytearray</returns>
+        /// <inheritdoc />
         public override byte[] RIPEMD160(byte[] message, int offset, int count)
         {
             var hash = new RipeMD160Digest();
@@ -52,12 +40,7 @@ namespace NeoSharp.Core.Cryptography
             return result;
         }
 
-        /// <summary>
-        /// Murmur3 hash function
-        /// </summary>
-        /// <param name="message">Message bytearray</param>
-        /// <param name="seed">Seed</param>
-        /// <returns>Hash bytearray</returns>
+        /// <inheritdoc />
         public override byte[] Murmur3(byte[] message, uint seed)
         {
             using (var murmur = new Murmur3(seed))
@@ -66,18 +49,12 @@ namespace NeoSharp.Core.Cryptography
             }
         }
 
-        /// <summary>
-        /// Check ECDSA Signature (secp256r1)
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="signature">Signature</param>
-        /// <param name="pubkey">Public Key</param>
-        /// <returns>Bool</returns>
+        /// <inheritdoc />
         public override bool VerifySignature(byte[] message, byte[] signature, byte[] pubkey)
         {
-            byte[] fullpubkey = DecodePublicKey(pubkey, false, out System.Numerics.BigInteger x, out System.Numerics.BigInteger y);
+            var fullpubkey = DecodePublicKey(pubkey, false, out _, out _);
 
-            Org.BouncyCastle.Math.EC.ECPoint point = _curve.Curve.DecodePoint(fullpubkey);
+            var point = _curve.Curve.DecodePoint(fullpubkey);
             var keyParameters = new ECPublicKeyParameters(point, _domain);
 
             var signer = SignerUtilities.GetSigner("SHA256withECDSA");
@@ -95,12 +72,7 @@ namespace NeoSharp.Core.Cryptography
             return signer.VerifySignature(signature);
         }
 
-        /// <summary>
-        /// Sign sha256 Message (secp256r1)
-        /// </summary>
-        /// <param name="message">Message</param>
-        /// <param name="prikey">Private Key</param>
-        /// <returns>Siganture bytearray</returns>
+        /// <inheritdoc />
         public override byte[] Sign(byte[] message, byte[] prikey)
         {
             ECPrivateKeyParameters priv = new ECPrivateKeyParameters("ECDSA", (new BigInteger(1, prikey)), _domain);
@@ -136,12 +108,7 @@ namespace NeoSharp.Core.Cryptography
             return fullsign;
         }
 
-        /// <summary>
-        /// Derive Public Key from private
-        /// </summary>
-        /// <param name="privateKey">Private Key</param>
-        /// <param name="compress">Compress pubkey</param>
-        /// <returns>Bytearray Public Key</returns>
+        /// <inheritdoc />
         public override byte[] ComputePublicKey(byte[] privateKey, bool compress = false)
         {
             if (privateKey == null) throw new ArgumentException(nameof(privateKey));
@@ -152,14 +119,7 @@ namespace NeoSharp.Core.Cryptography
             return publicParams.Q.GetEncoded(compress);
         }
 
-        /// <summary>
-        /// Decode Public Key
-        /// </summary>
-        /// <param name="pubkey">Data</param>
-        /// <param name="compress">Compress public key</param>
-        /// <param name="x">X</param>
-        /// <param name="y">Y</param>
-        /// <returns>Public key bytearray</returns>
+        /// <inheritdoc />
         public override byte[] DecodePublicKey(byte[] pubkey, bool compress, out System.Numerics.BigInteger x, out System.Numerics.BigInteger y)
         {
             if (pubkey == null || pubkey.Length != 33 && pubkey.Length != 64 && pubkey.Length != 65)
@@ -193,12 +153,7 @@ namespace NeoSharp.Core.Cryptography
             return ret.GetEncoded(compress);
         }
 
-        /// <summary>
-        /// Encrypt using ECB
-        /// </summary>
-        /// <param name="data">Data</param>
-        /// <param name="key">Key</param>
-        /// <returns>Bytearray</returns>
+        /// <inheritdoc />
         public override byte[] AesEncrypt(byte[] data, byte[] key)
         {
             if (data == null || data.Length % 16 != 0) throw new ArgumentException(nameof(data));
@@ -210,12 +165,7 @@ namespace NeoSharp.Core.Cryptography
             return cipher.DoFinal(data);
         }
 
-        /// <summary>
-        /// Decrypt using ECB
-        /// </summary>
-        /// <param name="data">Data</param>
-        /// <param name="key">Key</param>
-        /// <returns>Bytearray</returns>
+        /// <inheritdoc />
         public override byte[] AesDecrypt(byte[] data, byte[] key)
         {
             if (data == null || data.Length % 16 != 0) throw new ArgumentException(nameof(data));
@@ -227,13 +177,7 @@ namespace NeoSharp.Core.Cryptography
             return cipher.DoFinal(data);
         }
 
-        /// <summary>
-        /// Encrypt/Decrypt using CBC
-        /// </summary>
-        /// <param name="data">Data</param>
-        /// <param name="key">Key</param>
-        /// <param name="iv">IV</param>
-        /// <returns>Bytearray</returns>
+        /// <inheritdoc />
         public override byte[] AesEncrypt(byte[] data, byte[] key, byte[] iv)
         {
             if (data == null || data.Length % 16 != 0) throw new ArgumentException(nameof(data));
@@ -246,13 +190,7 @@ namespace NeoSharp.Core.Cryptography
             return cipher.DoFinal(data);
         }
 
-        /// <summary>
-        /// Encrypt/Decrypt using CBC
-        /// </summary>
-        /// <param name="data">Data</param>
-        /// <param name="key">Key</param>
-        /// <param name="iv">IV</param>
-        /// <returns>Bytearray</returns>
+        /// <inheritdoc />
         public override byte[] AesDecrypt(byte[] data, byte[] key, byte[] iv)
         {
             if (data == null || data.Length % 16 != 0) throw new ArgumentException(nameof(data));
@@ -265,32 +203,20 @@ namespace NeoSharp.Core.Cryptography
             return cipher.DoFinal(data);
         }
 
-        /// <summary>
-        /// Generate SCrypt key
-        /// </summary>
-        /// <param name="P">Password</param>
-        /// <param name="S">Salt</param>
-        /// <param name="N">CPU/Memory cost parameter. Must be larger than 1, a power of 2 and less than 2^(128 * r / 8).</param>
-        /// <param name="r">Block size, must be >= 1.</param>
-        /// <param name="p">Parallelization. Must be a positive integer less than or equal to Int32.MaxValue / (128 * r * 8).</param>
-        /// <param name="dkLen">Generate key length</param>
+        /// <inheritdoc />
         public override byte[] SCrypt(byte[] P, byte[] S, int N, int r, int p, int dkLen)
         {
             if (P == null) throw new ArgumentException(nameof(P));
             if (S == null) throw new ArgumentException(nameof(S));
-            if ((N & (N - 1)) != 0 || N < 2 || N >= Math.Pow(2, (128 * r / 8))) throw new ArgumentException(nameof(N));
+            if ((N & (N - 1)) != 0 || N < 2 || N >= Math.Pow(2, 128 * r / 8)) throw new ArgumentException(nameof(N));
             if (r < 1) throw new ArgumentException(nameof(r));
-            if (p < 1 || p > Int32.MaxValue / (128 * r * 8)) throw new ArgumentException(nameof(p));
+            if (p < 1 || p > int.MaxValue / (128 * r * 8)) throw new ArgumentException(nameof(p));
             if (dkLen < 1) throw new ArgumentException(nameof(dkLen));
 
             return Org.BouncyCastle.Crypto.Generators.SCrypt.Generate(P, S, N, r, p, dkLen);
         }
 
-        /// <summary>
-        /// Generates random bytes
-        /// </summary>
-        /// <param name="length">Length</param>
-        /// <returns>Random bytearray</returns>
+        /// <inheritdoc />
         public override byte[] GenerateRandomBytes(int length)
         {
             if (length < 1) throw new ArgumentException(nameof(length));

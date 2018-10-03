@@ -6,6 +6,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.Test.Extensions
 {

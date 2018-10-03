@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj" />
+    <ProjectReference Include="..\NeoSharp.Cryptography\NeoSharp.Cryptography.csproj" />
+  </ItemGroup>
+
+</Project>

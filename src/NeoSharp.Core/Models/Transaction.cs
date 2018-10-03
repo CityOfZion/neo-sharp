@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models

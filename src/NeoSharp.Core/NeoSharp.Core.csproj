@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.2" />
     <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.1.1" />
@@ -21,6 +20,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj" />
+    <ProjectReference Include="..\NeoSharp.Cryptography\NeoSharp.Cryptography.csproj" />
+    <ProjectReference Include="..\NeoSharp.Types\NeoSharp.Types.csproj" />
     <ProjectReference Include="..\NeoSharp.VM\NeoSharp.VM.csproj" />
   </ItemGroup>
 

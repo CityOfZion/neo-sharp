@@ -9,6 +9,8 @@ using System.Reflection;
 using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
+using NeoSharp.Types;
+using NeoSharp.Types.ExtensionMethods;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Application.Attributes

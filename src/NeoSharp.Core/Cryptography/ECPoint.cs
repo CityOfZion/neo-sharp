@@ -3,7 +3,8 @@ using System.Linq;
 using System.Numerics;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
-using NeoSharp.Core.Extensions;
+using NeoSharp.Cryptography;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.Cryptography
 {

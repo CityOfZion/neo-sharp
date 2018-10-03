@@ -11,7 +11,8 @@ using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.SmartContract.ContractParameters;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
+using NeoSharp.Types.ExtensionMethods;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.Network.Protocols
 {

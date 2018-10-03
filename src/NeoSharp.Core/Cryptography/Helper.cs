@@ -2,6 +2,7 @@
 using System.Security;
 using System.Text;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Cryptography;
 
 namespace NeoSharp.Core.Cryptography
 {

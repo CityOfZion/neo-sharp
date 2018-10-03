@@ -4,11 +4,10 @@ using System.Globalization;
 using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
-using NeoSharp.Core.Types;
 
-namespace NeoSharp.Core.Converters
+namespace NeoSharp.Types.Converters
 {
-    class Fixed8TypeConverter : TypeConverter, IBinaryCustomSerializable
+    public class Fixed8TypeConverter : TypeConverter, IBinaryCustomSerializable
     {
         public static readonly int FixedLength = 8;
 

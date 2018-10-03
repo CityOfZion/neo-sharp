@@ -6,8 +6,8 @@ using Moq;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
-using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Blockchain.Processing
 {

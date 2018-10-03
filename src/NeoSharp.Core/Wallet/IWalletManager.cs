@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
-using System.Security;
+﻿using System.Security;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Wallet
 {

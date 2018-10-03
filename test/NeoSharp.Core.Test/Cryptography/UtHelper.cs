@@ -2,7 +2,7 @@
 using System.Security;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Extensions;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.Test.Cryptography
 {

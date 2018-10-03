@@ -10,6 +10,7 @@ using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Caching;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
+using NeoSharp.Types.ExtensionMethods;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;

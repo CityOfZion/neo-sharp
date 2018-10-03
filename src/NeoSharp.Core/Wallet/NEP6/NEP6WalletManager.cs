@@ -7,10 +7,11 @@ using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.SmartContract;
-using NeoSharp.Core.Types;
 using NeoSharp.Core.Wallet.Exceptions;
 using NeoSharp.Core.Wallet.Helpers;
 using NeoSharp.Core.Wallet.Wrappers;
+using NeoSharp.Cryptography;
+using NeoSharp.Types;
 
 
 namespace NeoSharp.Core.Wallet.NEP6

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Blockchain.Processing
 {

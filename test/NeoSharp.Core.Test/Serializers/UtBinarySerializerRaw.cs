@@ -4,12 +4,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain.Repositories;
-using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
+using NeoSharp.Cryptography;
+using NeoSharp.Types;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.Test.Serializers
 {
@@ -21,7 +22,7 @@ namespace NeoSharp.Core.Test.Serializers
         [TestInitialize]
         public void WarmUpSerializer()
         {
-            _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
+            _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly, typeof(Fixed8).Assembly);
         }
 
         [TestMethod]

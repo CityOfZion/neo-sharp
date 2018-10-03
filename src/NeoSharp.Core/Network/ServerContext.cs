@@ -4,6 +4,7 @@ using System.Reflection;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Cryptography;
 
 namespace NeoSharp.Core.Network
 {

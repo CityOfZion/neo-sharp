@@ -3,28 +3,27 @@ using System.Collections;
 using System.ComponentModel;
 using System.Linq;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Converters;
-using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Wallet.Helpers;
+using NeoSharp.Types.Converters;
+using NeoSharp.Types.ExtensionMethods;
 
-namespace NeoSharp.Core.Types
+namespace NeoSharp.Types
 {
-    [TypeConverter(typeof(UInt160Converter))]
-    [BinaryTypeSerializer(typeof(UInt160Converter))]
-    public class UInt160 : IEquatable<UInt160>, IComparable<UInt160>
+    [TypeConverter(typeof(UInt256Converter))]
+    [BinaryTypeSerializer(typeof(UInt256Converter))]
+    public class UInt256 : IEquatable<UInt256>, IComparable<UInt256>
     {
-        public static readonly int BufferLength = 20;
+        public static readonly int BufferLength = 32;
 
-        public static readonly UInt160 Zero = new UInt160();
+        public static readonly UInt256 Zero = new UInt256();
 
         private readonly byte[] _buffer;
 
-        public UInt160()
+        public UInt256()
         {
             _buffer = new byte[Size];
         }
 
-        public UInt160(byte[] value) : this()
+        public UInt256(byte[] value) : this()
         {
             if (value.Length != Size)
                 throw new ArgumentException();
@@ -34,7 +33,7 @@ namespace NeoSharp.Core.Types
 
         public int Size => BufferLength;
 
-        public bool Equals(UInt160 other)
+        public bool Equals(UInt256 other)
         {
             if (other == null)
                 return false;
@@ -53,7 +52,7 @@ namespace NeoSharp.Core.Types
             if (ReferenceEquals(this, obj))
                 return true;
 
-            if (obj is UInt160 other)
+            if (obj is UInt256 other)
             {
                 return _buffer.SequenceEqual(other._buffer);
             }
@@ -66,7 +65,7 @@ namespace NeoSharp.Core.Types
             return _buffer.ToInt32(0);
         }
 
-        public int CompareTo(UInt160 other)
+        public int CompareTo(UInt256 other)
         {
             return ((IStructuralComparable)_buffer).CompareTo(other._buffer, StructuralComparisons.StructuralComparer);
         }
@@ -86,17 +85,12 @@ namespace NeoSharp.Core.Types
             return _buffer.Reverse().ToHexString(append0x);
         }
 
-        public static UInt160 Parse(string value)
+        public static UInt256 Parse(string value)
         {
-            if (value.IsHexString()) 
-            {
-                return new UInt160(value.HexToBytes(BufferLength * 2).Reverse().ToArray());
-            }
-
-            return value.ToScriptHash();
+            return new UInt256(value.HexToBytes(BufferLength * 2).Reverse().ToArray());
         }
 
-        public static bool TryParse(string s, out UInt160 result)
+        public static bool TryParse(string s, out UInt256 result)
         {
             try
             {
@@ -110,32 +104,32 @@ namespace NeoSharp.Core.Types
             }
         }
 
-        public static bool operator ==(UInt160 left, UInt160 right)
+        public static bool operator ==(UInt256 left, UInt256 right)
         {
             return left is null ? right is null : left.Equals(right);
         }
 
-        public static bool operator !=(UInt160 left, UInt160 right)
+        public static bool operator !=(UInt256 left, UInt256 right)
         {
             return !(left is null ? right is null : left.Equals(right));
         }
 
-        public static bool operator >(UInt160 left, UInt160 right)
+        public static bool operator >(UInt256 left, UInt256 right)
         {
             return left.CompareTo(right) > 0;
         }
 
-        public static bool operator >=(UInt160 left, UInt160 right)
+        public static bool operator >=(UInt256 left, UInt256 right)
         {
             return left.CompareTo(right) >= 0;
         }
 
-        public static bool operator <(UInt160 left, UInt160 right)
+        public static bool operator <(UInt256 left, UInt256 right)
         {
             return left.CompareTo(right) < 0;
         }
 
-        public static bool operator <=(UInt160 left, UInt160 right)
+        public static bool operator <=(UInt256 left, UInt256 right)
         {
             return left.CompareTo(right) <= 0;
         }

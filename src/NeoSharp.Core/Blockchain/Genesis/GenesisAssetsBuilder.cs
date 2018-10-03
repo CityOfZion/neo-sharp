@@ -7,7 +7,8 @@ using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.SmartContract;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
+using NeoSharp.Types.ExtensionMethods;
 using NeoSharp.VM;
 
 namespace NeoSharp.Core.Blockchain.Genesis

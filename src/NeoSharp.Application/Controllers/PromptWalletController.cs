@@ -1,12 +1,11 @@
-using System;
 using System.Linq;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Types;
 using NeoSharp.Core.Wallet;
 using NeoSharp.Core.Wallet.Exceptions;
-using NeoSharp.Core.Wallet.Helpers;
+using NeoSharp.Types;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Application.Controllers
 {

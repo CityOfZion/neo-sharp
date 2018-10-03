@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
+using NeoSharp.Cryptography;
 
 namespace NeoSharp.Core.Messaging.Handlers
 {

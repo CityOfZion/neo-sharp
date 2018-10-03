@@ -5,7 +5,8 @@ using System.Text;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.SmartContract;
-using NeoSharp.Core.Types;
+using NeoSharp.Cryptography;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Wallet.Helpers
 {

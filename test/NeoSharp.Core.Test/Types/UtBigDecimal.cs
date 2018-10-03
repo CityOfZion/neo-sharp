@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeoSharp.Core.Types;
 using FluentAssertions;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Types
 {

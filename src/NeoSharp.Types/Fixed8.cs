@@ -2,9 +2,9 @@
 using System.ComponentModel;
 using System.Globalization;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Converters;
+using NeoSharp.Types.Converters;
 
-namespace NeoSharp.Core.Types
+namespace NeoSharp.Types
 {
     /// <summary>
     /// Accurate to 10^-8 64-bit fixed-point numbers minimize rounding errors.

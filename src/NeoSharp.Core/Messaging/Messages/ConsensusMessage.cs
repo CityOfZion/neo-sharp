@@ -1,7 +1,7 @@
 ﻿using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Types;
+using NeoSharp.Cryptography;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Messaging.Messages
 {

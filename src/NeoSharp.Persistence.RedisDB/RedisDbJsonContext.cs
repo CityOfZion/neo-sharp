@@ -1,12 +1,10 @@
-﻿using NeoSharp.Core.Types;
-using NeoSharp.Persistence.RedisDB.Helpers;
+﻿using NeoSharp.Persistence.RedisDB.Helpers;
 using StackExchange.Redis;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 using System.Threading.Tasks;
-using NeoSharp.Core.Extensions;
+using NeoSharp.Types;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Persistence.RedisDB
 {

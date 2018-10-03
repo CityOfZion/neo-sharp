@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Types;
+using NeoSharp.Cryptography;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Extensions
 {
@@ -82,25 +80,25 @@ namespace NeoSharp.Core.Extensions
             return result;
         }
 
-        /// <summary>
-        /// Convert to Hex String
-        /// </summary>
-        /// <param name="value">Value</param>
-        /// <param name="append0x">Append 0x hex prefix</param>
-        /// <returns>String</returns>
-        public static string ToHexString(this IEnumerable<byte> value, bool append0x = false)
-        {
-            var sb = new StringBuilder();
+        ///// <summary>
+        ///// Convert to Hex String
+        ///// </summary>
+        ///// <param name="value">Value</param>
+        ///// <param name="append0x">Append 0x hex prefix</param>
+        ///// <returns>String</returns>
+        //public static string ToHexString(this IEnumerable<byte> value, bool append0x = false)
+        //{
+        //    var sb = new StringBuilder();
 
-            foreach (var b in value)
-                sb.AppendFormat("{0:x2}", b);
+        //    foreach (var b in value)
+        //        sb.AppendFormat("{0:x2}", b);
 
-            if (append0x)
-            {
-                if (sb.Length > 0) return "0x" + sb.ToString();
-            }
+        //    if (append0x)
+        //    {
+        //        if (sb.Length > 0) return "0x" + sb.ToString();
+        //    }
 
-            return sb.ToString();
-        }
+        //    return sb.ToString();
+        //}
     }
 }

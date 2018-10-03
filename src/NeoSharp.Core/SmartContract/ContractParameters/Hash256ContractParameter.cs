@@ -1,4 +1,4 @@
-﻿using NeoSharp.Core.Types;
+﻿using NeoSharp.Types;
 using NeoSharp.VM;
 
 namespace NeoSharp.Core.SmartContract.ContractParameters

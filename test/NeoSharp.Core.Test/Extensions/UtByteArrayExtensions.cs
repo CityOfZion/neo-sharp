@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.Test.Extensions
 {

@@ -48,10 +48,10 @@ namespace NeoSharp.Core.Messaging
             await specificMessageHandler.Handle(specificMessage, sender);
             var completedAt = DateTime.UtcNow;
 
-            var handledWithin = (completedAt - startedAt).TotalMilliseconds;
+            var handledWithin = (completedAt - startedAt).TotalSeconds;
 
             _logger.LogDebug(
-                $"The message handler \"{messageHandler.GetType().Name}\" completed message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} ms).");
+                $"The message handler \"{messageHandler.GetType().Name}\" completed message handling at {completedAt:yyyy-MM-dd HH:mm:ss} ({handledWithin} s).");
         }
         #endregion
     }

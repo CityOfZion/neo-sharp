@@ -6,13 +6,13 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
-using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Test.Types;
-using NeoSharp.Core.Types;
+using NeoSharp.Cryptography;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Serializers
 {
@@ -25,7 +25,7 @@ namespace NeoSharp.Core.Test.Serializers
         public void WarmUpSerializer()
         {
             BinarySerializer.RegisterTypes(typeof(SetTest));
-            _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly);
+            _serializer = new BinarySerializer(typeof(BlockHeader).Assembly, typeof(UtBinarySerializer).Assembly, typeof(Fixed8).Assembly);
         }
 
         public class SetTest

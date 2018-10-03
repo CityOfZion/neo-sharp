@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Linq;
-using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Types;
+using NeoSharp.Cryptography;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Wallet.Helpers
 {
@@ -19,25 +18,6 @@ namespace NeoSharp.Core.Wallet.Helpers
             data[0] = 0x17;
             Buffer.BlockCopy(scriptHash.ToArray(), 0, data, 1, 20);
             return Crypto.Default.Base58CheckEncode(data);
-        }
-
-        /// <summary>
-        /// Converts a Address into a ScriptHash representation 
-        /// </summary>
-        /// <param name="address">Address</param>
-        /// <returns>The script hash.</returns>
-        public static UInt160 ToScriptHash(this string address)
-        {
-            var buffer = Crypto.Default.Base58CheckDecode(address);
-
-            if (buffer.Length != 21 || buffer[0] != 0x017)
-            {
-                throw (new ArgumentException(nameof(address)));
-            }
-            else
-            {
-                return new UInt160(buffer.Skip(1).ToArray());
-            }
         }
 
         /// <summary>

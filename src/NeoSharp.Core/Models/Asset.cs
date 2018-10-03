@@ -1,6 +1,6 @@
 ﻿using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models

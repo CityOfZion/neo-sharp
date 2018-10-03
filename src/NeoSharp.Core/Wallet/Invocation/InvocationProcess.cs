@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using NeoSharp.Core.Blockchain;
+﻿using System.Collections.Generic;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Models;
+using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.SmartContract.ContractParameters;
-using NeoSharp.Core.Types;
+using NeoSharp.Types;
 using NeoSharp.VM;
 
-namespace NeoSharp.Core.SmartContract
+namespace NeoSharp.Core.Wallet.Invocation
 {
     public class InvocationProcess
     {
-        private IExecutionEngine _executionEngine;
+        private readonly IExecutionEngine _executionEngine;
 
         public InvocationProcess(IExecutionEngine executionEngine)
         {

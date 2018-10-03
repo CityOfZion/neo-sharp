@@ -4,9 +4,8 @@ using System.Globalization;
 using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
-using NeoSharp.Core.Types;
 
-namespace NeoSharp.Core.Converters
+namespace NeoSharp.Types.Converters
 {
     class UInt256Converter : TypeConverter, IBinaryCustomSerializable
     {

@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
-using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Types.ExtensionMethods
 {

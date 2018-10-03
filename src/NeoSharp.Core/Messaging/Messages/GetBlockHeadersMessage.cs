@@ -1,4 +1,4 @@
-﻿using NeoSharp.Core.Types;
+﻿using NeoSharp.Types;
 
 namespace NeoSharp.Core.Messaging.Messages
 {

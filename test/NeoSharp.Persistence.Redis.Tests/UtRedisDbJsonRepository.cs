@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -8,10 +7,10 @@ using Moq;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
-using NeoSharp.Core.Types;
 using NeoSharp.Persistence.RedisDB;
 using NeoSharp.Persistence.RedisDB.Helpers;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types;
 using StackExchange.Redis;
 
 namespace NeoSharp.Persistence.Redis.Tests

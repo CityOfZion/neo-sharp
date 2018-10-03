@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Linq;
+using NeoSharp.Cryptography;
 
 namespace NeoSharp.Core.Cryptography
 {

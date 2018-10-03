@@ -1,9 +1,8 @@
 ﻿using System.Numerics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.DI;
-using NeoSharp.Core.Extensions;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types.ExtensionMethods;
 
 namespace NeoSharp.Core.Test.Cryptography
 {

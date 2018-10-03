@@ -1,6 +1,6 @@
-﻿using NeoSharp.Core.Cryptography;
-using NeoSharp.Core.Helpers;
+﻿using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Wallet.Wrappers;
+using NeoSharp.Cryptography;
 
 namespace NeoSharp.Core.DI.Modules
 {

@@ -6,8 +6,8 @@ using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
-using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Messaging.Handlers
 {

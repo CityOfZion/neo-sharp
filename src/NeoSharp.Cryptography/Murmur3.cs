@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
-using NeoSharp.Core.Extensions;
 
-namespace NeoSharp.Core.Cryptography
+namespace NeoSharp.Cryptography
 {
-    sealed class Murmur3 : HashAlgorithm
+    internal sealed class Murmur3 : HashAlgorithm
     {
-        private const uint _c1 = 0xcc9e2d51;
-        private const uint _c2 = 0x1b873593;
-        private const int _r1 = 15;
-        private const int _r2 = 13;
-        private const uint _m = 5;
-        private const uint _n = 0xe6546b64;
+        private const uint C1 = 0xcc9e2d51;
+        private const uint C2 = 0x1b873593;
+        private const int R1 = 15;
+        private const int R2 = 13;
+        private const uint M = 5;
+        private const uint N = 0xe6546b64;
 
         private readonly uint _seed;
         private uint _hash;
@@ -33,13 +32,13 @@ namespace NeoSharp.Core.Cryptography
             int alignedLength = ibStart + (cbSize - remainder);
             for (int i = ibStart; i < alignedLength; i += 4)
             {
-                uint k = array.ToUInt32(i);
-                k *= _c1;
-                k = RotateLeft(k, _r1);
-                k *= _c2;
+                uint k = BitConverter.ToUInt32(array, i);
+                k *= C1;
+                k = RotateLeft(k, R1);
+                k *= C2;
                 _hash ^= k;
-                _hash = RotateLeft(_hash, _r2);
-                _hash = _hash * _m + _n;
+                _hash = RotateLeft(_hash, R2);
+                _hash = _hash * M + N;
             }
             if (remainder > 0)
             {
@@ -50,9 +49,9 @@ namespace NeoSharp.Core.Cryptography
                     case 2: remainingBytes ^= (uint)array[alignedLength + 1] << 8; goto case 1;
                     case 1: remainingBytes ^= array[alignedLength]; break;
                 }
-                remainingBytes *= _c1;
-                remainingBytes = RotateLeft(remainingBytes, _r1);
-                remainingBytes *= _c2;
+                remainingBytes *= C1;
+                remainingBytes = RotateLeft(remainingBytes, R1);
+                remainingBytes *= C2;
                 _hash ^= remainingBytes;
             }
         }

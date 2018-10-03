@@ -5,10 +5,11 @@ using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Types;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Messaging.Handlers
 {
-    class NullBlockchain : IBlockchain
+    internal class NullBlockchain : IBlockchain
     {
         public Block CurrentBlock { get; } = new Block();
 

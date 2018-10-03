@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Security.Cryptography;
-using NeoSharp.Core.Cryptography;
+using NeoSharp.Cryptography;
 
 namespace NeoSharp.Core.Test.Cryptography
 {

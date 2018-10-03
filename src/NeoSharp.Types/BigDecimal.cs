@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Numerics;
 
-namespace NeoSharp.Core.Types
+namespace NeoSharp.Types
 {
     public struct BigDecimal
     {

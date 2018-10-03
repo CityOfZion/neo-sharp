@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Globalization;
-using System.IO;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Test.Types.ExtensionMethods;
-using NeoSharp.Core.Types;
 using NeoSharp.TestHelpers;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.Types
 {

@@ -1,10 +1,9 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.SmartContract.ContractParameters;
-using NeoSharp.Core.Types;
+using NeoSharp.Core.Wallet.Invocation;
 using NeoSharp.TestHelpers;
-using NeoSharp.VM;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.Test.SmartContracts
 {
