@@ -63,7 +63,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                     await _claimTransactionPersister.Persist(claim);
                     break;
                 case InvocationTransaction invocation:
-                    //await _invocationTransactionPersister.Persist(invocation);
+                    await _invocationTransactionPersister.Persist(invocation);
                     break;
                 case StateTransaction state:
                     await _stateTransactionPersister.Persist(state);
