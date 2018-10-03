@@ -55,7 +55,7 @@ namespace NeoSharp.Persistence.RedisDB
         {
             var values = (await _redisDb.SortedSetRangeByScoreAsync(index.ToString(), indexScore, indexScore)).ToStringArray();
 
-            return values.Any() ? new UInt256(values.First().HexToBytes()) : null;
+            return values.Any() ? UInt256.Parse(values.First()) : null;
         }
 
         public async Task<bool> Delete(RedisKey key)

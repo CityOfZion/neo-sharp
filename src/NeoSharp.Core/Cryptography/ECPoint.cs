@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
@@ -51,10 +52,22 @@ namespace NeoSharp.Core.Cryptography
         /// <param name="point">Point</param>
         public ECPoint(byte[] point)
         {
-            IsInfinity = false;
+            if (point == null || !point.Any(u => u != 0x00))
+            {
+                IsInfinity = true;
 
-            EncodedData = Crypto.Default.DecodePublicKey(point, true, out X, out Y);
-            DecodedData = Crypto.Default.DecodePublicKey(point, false, out X, out Y);
+                DecodedData = EncodedData = new byte[] { 0x00 };
+
+                X = BigInteger.Zero;
+                Y = BigInteger.Zero;
+            }
+            else
+            {
+                IsInfinity = false;
+
+                EncodedData = Crypto.Default.DecodePublicKey(point, true, out X, out Y);
+                DecodedData = Crypto.Default.DecodePublicKey(point, false, out X, out Y);
+            }
         }
 
         /// <summary>
