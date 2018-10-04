@@ -32,23 +32,27 @@ namespace NeoSharp.Persistence.RocksDB
 
         public Task<byte[]> Get(byte[] key)
         {
-            return Task.Run(() => _rocksDb.Get(key));
+            return Task.FromResult(_rocksDb.Get(key));
         }
 
         public Task<IDictionary<byte[], byte[]>> GetMany(IEnumerable<byte[]> keys)
         {
-            return Task.Run<IDictionary<byte[], byte[]>>(() =>
-                _rocksDb.MultiGet(keys.ToArray()).ToDictionary(kv => kv.Key, k => k.Value));
+            return Task.FromResult<IDictionary<byte[], byte[]>>(_rocksDb.MultiGet(keys.ToArray())
+                .ToDictionary(kv => kv.Key, k => k.Value));
         }
 
         public Task Save(byte[] key, byte[] content)
         {
-            return Task.Run(() => _rocksDb.Put(key, content));
+            _rocksDb.Put(key, content);
+
+            return Task.CompletedTask;
         }
 
         public Task Delete(byte[] key)
         {
-            return Task.Run(() => _rocksDb.Remove(key));
+            _rocksDb.Remove(key);
+
+            return Task.CompletedTask;
         }
 
         public void Dispose()
