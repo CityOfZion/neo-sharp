@@ -12,6 +12,7 @@ namespace NeoSharp.Core.Blockchain.Processing
 {
     public class BlockProcessor : IBlockProcessor
     {
+        #region Private Fields 
         private static readonly TimeSpan DefaultBlockPollingInterval = TimeSpan.FromMilliseconds(100);
 
         private readonly IBlockPool _blockPool;
@@ -21,9 +22,9 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBroadcaster _broadcaster;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+        #endregion
 
-        public event EventHandler<Block> OnBlockProcessed;
-
+        #region Constructor 
         public BlockProcessor(
             IBlockPool blockPool,
             IAsyncDelayer asyncDelayer,
@@ -39,13 +40,14 @@ namespace NeoSharp.Core.Blockchain.Processing
             _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
             _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
         }
+        #endregion
 
+        #region IBlockProcessor implementation
         // TODO #384: We will read the current block from Blockchain
         // because the logic to get that too complicated 
-        public void Run(Block currentBlock)
+        /// <inheritdoc />
+        public void Run()
         {
-            _blockchainContext.CurrentBlock = currentBlock;
-
             var cancellationToken = _cancellationTokenSource.Token;
 
             Task.Factory.StartNew(async () =>
@@ -54,7 +56,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                 {
                     if (_blockchainContext.IsPeerConnected && _blockchainContext.NeedPeerSync && !_blockchainContext.IsSyncing)
                     {
-                        _broadcaster.Broadcast(new GetBlocksMessage(_blockchainContext.CurrentBlock.Hash));
+                        _broadcaster.Broadcast(new GetBlocksMessage(_blockchainContext.CurrentBlock?.Hash));
                         _blockchainContext.IsSyncing = true;
                     }
 
@@ -68,15 +70,13 @@ namespace NeoSharp.Core.Blockchain.Processing
 
                     await _blockPersister.Persist(block);
 
-                    _blockPool.Remove(nextBlockHeight);
-                    _blockchainContext.CurrentBlock = block;
-
-
-                    OnBlockProcessed?.Invoke(this, block);
+                    // TODO [CheckWithTeam] [AboimPinto]: Maybe when we get the block out of the block we can remove it and this line will not be necessary
+                    _blockPool.Remove(nextBlockHeight);     
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
 
+        /// <inheritdoc />
         public async Task AddBlock(Block block)
         {
             if (block == null) throw new ArgumentNullException(nameof(block));
@@ -102,13 +102,12 @@ namespace NeoSharp.Core.Blockchain.Processing
             }
         }
 
-        /// <summary>
-        /// Free resources
-        /// </summary>
+        /// <inheritdoc />
         public void Dispose()
         {
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
         }
+        #endregion
     }
 }

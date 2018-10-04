@@ -14,26 +14,6 @@ namespace NeoSharp.Core.Messaging.Handlers
 {
     public class BlockHeadersMessageHandler : MessageHandler<BlockHeadersMessage>
     {
-        class PeerHandler
-        {
-            private readonly IPeer _sender;
-
-            public PeerHandler(IPeer sender)
-            {
-                _sender = sender;
-            }
-
-            public async void HeadersPersisted(object sender, BlockHeader[] blockHeaders)
-            {
-                var blockHashes = blockHeaders
-                    .Select(bh => bh.Hash)
-                    .Where(bh => bh != null)
-                    .ToArray();
-
-                await SynchronizeBlocks(_sender, blockHashes);
-            }
-        }
-
         #region Private Fields 
         private const int MaxBlocksCountToSync = 500;
 
@@ -59,26 +39,18 @@ namespace NeoSharp.Core.Messaging.Handlers
         #endregion
 
         #region MessageHandler override Methods 
-
         /// <inheritdoc />
         public override async Task Handle(BlockHeadersMessage message, IPeer sender)
         {
-            var h = new PeerHandler(sender);
+            message.Payload.Headers.ForEach(a => a.Type = HeaderType.Header);
+            var persistedBlockHeaders = await _blockPersister.Persist(message.Payload.Headers ?? new BlockHeader[0]);
 
-            try
-            {
-                _blockPersister.OnBlockHeadersPersisted += h.HeadersPersisted;
+            var persistedBlockHashes = persistedBlockHeaders
+                .Select(bh => bh.Hash)
+                .Where(bh => bh != null)
+                .ToArray();
 
-                // If the remote node have Blocks, the flag Type will be Extended, and we want to store this as Headers
-
-                message.Payload.Headers.ForEach(a => a.Type = HeaderType.Header);
-
-                await _blockPersister.Persist(message.Payload.Headers ?? new BlockHeader[0]);
-            }
-            finally
-            {
-                _blockPersister.OnBlockHeadersPersisted -= h.HeadersPersisted;
-            }
+            await SynchronizeBlocks(sender, persistedBlockHashes);
 
             if (_blockchainContext.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
             {
@@ -94,7 +66,6 @@ namespace NeoSharp.Core.Messaging.Handlers
         #endregion
 
         #region Private Methods 
-
         private static async Task SynchronizeBlocks(IPeer source, IReadOnlyCollection<UInt256> blockHashes)
         {
             var batchesCount = blockHashes.Count / MaxBlocksCountToSync + (blockHashes.Count % MaxBlocksCountToSync != 0 ? 1 : 0);
@@ -108,7 +79,6 @@ namespace NeoSharp.Core.Messaging.Handlers
                 await source.Send(new GetDataMessage(InventoryType.Block, blockHashesInBatch));
             }
         }
-
         #endregion
     }
 }

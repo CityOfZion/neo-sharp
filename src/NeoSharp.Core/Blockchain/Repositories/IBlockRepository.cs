@@ -94,5 +94,20 @@ namespace NeoSharp.Core.Blockchain.Repositories
         /// <param name="hash"></param>
         /// <returns></returns>
         Task<BlockHeader> GetBlockHeader(UInt256 hash);
+
+        /// <summary>
+        /// Add block header to the repository and update the block header height.
+        /// This two operations are always together and make sense on this level to put them together.
+        /// </summary>
+        /// <param name="blockHeader"></param>
+        /// <returns></returns>
+        Task AddBlockHeader(BlockHeader blockHeader);
+
+        /// <summary>
+        /// Update block header in the repository
+        /// </summary>
+        /// <param name="blockHeader"></param>
+        /// <returns></returns>
+        Task UpdateBlockHeader(BlockHeader blockHeader);
     }
 }

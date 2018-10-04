@@ -6,9 +6,10 @@ namespace NeoSharp.Core.Blockchain.Processing
 {
     public interface IBlockProcessor : IDisposable
     {
-        event EventHandler<Block> OnBlockProcessed;
-
-        void Run(Block currentBlock);
+        /// <summary>
+        /// Run process that will process blocks
+        /// </summary>
+        void Run();
 
         /// <summary>
         /// Add the specified block to the blockchain

@@ -29,6 +29,9 @@ namespace NeoSharp.Core.Models.OperationManger
         #region IBlockHeaderOperationsManager implementation 
         public void Sign(BlockHeader blockHeader)
         {
+            // Check if the BlockHeader is already signed.
+            if (blockHeader.Hash != null && blockHeader.Hash != UInt256.Zero) return;       
+
             if (blockHeader.MerkleRoot == null)
             {
                 // Compute hash

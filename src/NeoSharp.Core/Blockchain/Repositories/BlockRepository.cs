@@ -21,8 +21,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
         }
         #endregion
 
-        #region IBlocksModel implementation 
-
+        #region IBlockModel implementation 
         /// <inheritdoc />
         public async Task<uint> GetTotalBlockHeight()
         {
@@ -144,6 +143,18 @@ namespace NeoSharp.Core.Blockchain.Repositories
 
             if (header != null) header.Hash = hash;
             return header;
+        }
+
+        /// <inheritdoc />
+        public async Task AddBlockHeader(BlockHeader blockHeader)
+        {
+            await _repository.AddBlockHeader(blockHeader);
+            await _repository.SetTotalBlockHeaderHeight(blockHeader.Index);
+        }
+
+        public Task UpdateBlockHeader(BlockHeader blockHeader)
+        {
+            return _repository.AddBlockHeader(blockHeader);
         }
         #endregion
     }
