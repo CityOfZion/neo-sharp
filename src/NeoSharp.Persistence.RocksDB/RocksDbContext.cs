@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using RocksDbSharp;
 
@@ -28,14 +30,20 @@ namespace NeoSharp.Persistence.RocksDB
 
         #region IRocksDbContext implementation
 
-        public Task Save(byte[] key, byte[] content)
-        {
-            return Task.Run(() => _rocksDb.Put(key, content));
-        }
-
         public Task<byte[]> Get(byte[] key)
         {
             return Task.Run(() => _rocksDb.Get(key));
+        }
+
+        public Task<IDictionary<byte[], byte[]>> GetMany(IEnumerable<byte[]> keys)
+        {
+            return Task.Run<IDictionary<byte[], byte[]>>(() =>
+                _rocksDb.MultiGet(keys.ToArray()).ToDictionary(kv => kv.Key, k => k.Value));
+        }
+
+        public Task Save(byte[] key, byte[] content)
+        {
+            return Task.Run(() => _rocksDb.Put(key, content));
         }
 
         public Task Delete(byte[] key)
