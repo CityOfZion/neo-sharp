@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NeoSharp.Core.Blockchain.Genesis;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
@@ -10,7 +9,7 @@ using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Network;
 
-namespace NeoSharp.Core.Blockchain.Processing
+namespace NeoSharp.Core.Blockchain.Processing.BlockHeaderProcessing
 {
     /// <inheritdoc />
     public class BlockHeaderPersister : IBlockHeaderPersister
@@ -19,7 +18,7 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly IBlockRepository _blockRepository;
         private readonly ISigner<BlockHeader> _blockHeaderSigner;
         private readonly IBlockchainContext _blockchainContext;
-        private readonly IGenesisBuilder _genesisBuilder;
+        private readonly IBlockHeaderValidator _blockHeaderValidator;
         private readonly ILogger<BlockHeaderPersister> _logger;
         #endregion        
 
@@ -28,13 +27,13 @@ namespace NeoSharp.Core.Blockchain.Processing
             IBlockRepository blockRepository,
             ISigner<BlockHeader> blockHeaderSigner,
             IBlockchainContext blockchainContext,
-            IGenesisBuilder genesisBuilder, 
+            IBlockHeaderValidator blockHeaderValidator,
             ILogger<BlockHeaderPersister> logger)
         {
             _blockRepository = blockRepository;
             _blockHeaderSigner = blockHeaderSigner;
             _blockchainContext = blockchainContext;
-            _genesisBuilder = genesisBuilder;
+            _blockHeaderValidator = blockHeaderValidator;
             _logger = logger;
         }
         #endregion
@@ -64,7 +63,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             {
                 _blockHeaderSigner.Sign(blockHeader);
 
-                if (!IsBlockHeaderValid(blockHeader))
+                if (!_blockHeaderValidator.IsValid(blockHeader))
                 {
                     _logger.LogInformation($"Block header with hash {blockHeader.Hash} and index {blockHeader.Index} is invalid and will not be persist.");
                     blockHeadersToPersist.Remove(blockHeader);
@@ -76,29 +75,6 @@ namespace NeoSharp.Core.Blockchain.Processing
             }
 
             return blockHeadersToPersist;
-        }
-        #endregion
-
-        #region Private methods
-        private bool IsBlockHeaderValid(BlockHeader blockHeader)
-        {
-            if (_blockchainContext.LastBlockHeader != null)
-            {
-                if (_blockchainContext.LastBlockHeader.Index + 1 != blockHeader.Index ||
-                    _blockchainContext.LastBlockHeader.Hash != blockHeader.PreviousBlockHash)
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                if (blockHeader.Index != 0 || blockHeader.Hash != _genesisBuilder.Build().Hash)
-                {
-                    return false;
-                }
-            }
-
-            return true;
         }
         #endregion
     }

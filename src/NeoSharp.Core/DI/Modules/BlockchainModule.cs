@@ -2,6 +2,7 @@
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Genesis;
 using NeoSharp.Core.Blockchain.Processing;
+using NeoSharp.Core.Blockchain.Processing.BlockHeaderProcessing;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Blockchain.State;
 using NeoSharp.Core.Models;
@@ -29,6 +30,7 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<ITransactionPool, TransactionPool>();
             containerBuilder.RegisterSingleton<ITransactionContext, TransactionContext>();
             containerBuilder.RegisterSingleton<ITransactionPersister<Transaction>, TransactionPersister>();
+            containerBuilder.RegisterSingleton<IBlockHeaderValidator, BlockHeaderValidator>();
 
             containerBuilder.RegisterSingleton<ITransactionPersister<ClaimTransaction>, ClaimTransactionPersister>();
             containerBuilder.RegisterSingleton<ITransactionPersister<InvocationTransaction>, InvocationTransactionPersister>();
