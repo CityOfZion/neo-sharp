@@ -21,13 +21,13 @@ namespace NeoSharp.Application.Client
     {
         class AutoCompleteCommand
         {
-            public int ParameterIndex { get; set; } = -1;
+            public int ParameterStartIndex { get; set; } = -1;
 
             public bool IsExact { get; set; } = true;
 
             public string Method { get; set; }
 
-            public IList<ParameterInfo[]> Parameters { get; set; }
+            public IList<ParameterInfo[]> Methods { get; set; }
         }
 
         #region Constants
@@ -309,13 +309,11 @@ namespace NeoSharp.Application.Client
 
             var ret = new Dictionary<string, AutoCompleteCommand>();
 
-            foreach (var entry in autocomplete.Keys)
+            foreach (var entry in autocomplete.Commands)
             {
                 var entryTokens = entry.SplitCommandLine().ToArray();
 
                 // check start with
-
-                if (tokens.Length > entry.Length) continue;
 
                 var exact = true;
                 var parIndex = 0;
@@ -353,9 +351,9 @@ namespace NeoSharp.Application.Client
                     value = new AutoCompleteCommand()
                     {
                         IsExact = exact,
-                        ParameterIndex = parIndex,
+                        ParameterStartIndex = parIndex,
                         Method = entry,
-                        Parameters = new List<ParameterInfo[]>()
+                        Methods = new List<ParameterInfo[]>()
                     };
 
                     ret.Add(entry, value);
@@ -363,11 +361,11 @@ namespace NeoSharp.Application.Client
 
                 // return the entry
 
-                if (autocomplete.TryGetValue(entry, out var avalue))
+                if (autocomplete.TryGetMethods(entry, out var avalue))
                 {
                     foreach (var ls in avalue)
                     {
-                        value.Parameters.Add(ls.ToArray());
+                        value.Methods.Add(ls.ToArray());
                     }
                 }
             }
@@ -382,72 +380,91 @@ namespace NeoSharp.Application.Client
             var cmdArgs = new List<CommandToken>(state.Txt.ToString().SplitCommandLine()).ToArray();
             var matches = SearchCommands(cmdArgs, state.Autocomplete);
 
-            if (matches == null || matches.Length <= 0)
+            if (matches == null || matches.Length <= 0) return;
+
+            string[] allowed;
+            var isArgument = matches.Length == 1 && matches[0].IsExact;
+
+            // Search match
+
+            var argInjectionPoint = -1;
+            var argInjectonPointLength = -1;
+
+            if (isArgument)
             {
-                // No match
+                var parIndex = 0;
+                var selectedToken = cmdArgs.Where(u => u.IsInside(state.Cursor)).FirstOrDefault();
 
-                return;
-            }
-
-            var max = 0;
-
-            if (matches.Length == 1)
-            {
-                // 1 found
-
-                var match = matches[0];
-
-                if (match.IsExact)
+                if (selectedToken != null)
                 {
-                    // TODO: Autocomplete args here
+                    parIndex = Array.IndexOf(cmdArgs, selectedToken) - matches[0].ParameterStartIndex;
+                    argInjectionPoint = selectedToken.StartIndex;
+                    argInjectonPointLength = selectedToken.RealLength;
+
+                    if (selectedToken.Quoted)
+                    {
+                        argInjectionPoint++;
+                        argInjectonPointLength -= 2;
+                    }
                 }
                 else
                 {
-                    state.Txt.Clear();
-                    state.Txt.Append(match.Method + " ");
-                    state.Cursor = state.Txt.Length;
-                    max = match.Method.Length;
+                    parIndex = -1;
+                    argInjectionPoint = state.Txt.Length;
+                    argInjectonPointLength = 0;
+                }
+
+                var parameter = GetParameterCandidate(matches[0].Methods, parIndex);
+
+                allowed = state.Autocomplete.GetParameterValues(parameter, selectedToken?.Value)?.ToArray();
+
+                // If any option have one space ...
+
+                if (allowed != null && selectedToken != null && !selectedToken.Quoted && allowed.Any(u => u.Contains(" ")))
+                {
+                    // Check if we need to append the quotes (c:\\Program files)
+
+                    state.Txt.Insert(selectedToken.StartIndex + selectedToken.RealLength, "\"");
+                    state.Txt.Insert(selectedToken.StartIndex, "\"");
+
+                    argInjectionPoint++;
                 }
             }
             else
             {
-                // Search match
+                allowed = matches.Select(u => u.Method).ToArray();
+            }
 
-                var cmd = matches[0].Method;
+            var maxCommonLength = ComputeMaxString(allowed, out var cmd);
 
-                for (int x = 1, m = cmd.Length; x <= m; x++)
-                {
-                    var ok = true;
-                    var split = cmd.Substring(0, x);
+            if (string.IsNullOrEmpty(cmd)) return;
 
-                    foreach (var s in matches)
-                    {
-                        if (s.Method.StartsWith(split)) continue;
+            // Take coincidences
 
-                        ok = false;
-                        break;
-                    }
-
-                    if (ok) max = x;
-                    else break;
-                }
-
-                // Take coincidences
+            if (isArgument)
+            {
+                state.Txt.Remove(argInjectionPoint, argInjectonPointLength);
+                state.Txt.Insert(argInjectionPoint, cmd.Substring(0, maxCommonLength));
+                state.Cursor = argInjectionPoint + maxCommonLength;
+            }
+            else
+            {
+                // Is method
 
                 state.Txt.Clear();
-                state.Txt.Append(cmd.Substring(0, max));
+                state.Txt.Append(cmd.Substring(0, maxCommonLength));
+
+                if (allowed.Length == 1)
+                {
+                    state.Txt.Append(' ');
+                }
+
                 state.Cursor = state.Txt.Length;
             }
 
             // Print found
 
-            WriteLine("", ConsoleOutputStyle.Input);
-
-            foreach (var match in matches)
-            {
-                Write(match.Method.Substring(0, max), ConsoleOutputStyle.AutocompleteMatch);
-                WriteLine(match.Method.Substring(max), ConsoleOutputStyle.Autocomplete);
-            }
+            OutFoundStrs(allowed, maxCommonLength);
 
             // Prompt
 
@@ -456,6 +473,97 @@ namespace NeoSharp.Application.Client
 
             Write(state.Txt.ToString(), ConsoleOutputStyle.Input);
             SetCursorPosition(state.StartX + state.Cursor, state.StartY);
+        }
+
+        private ParameterInfo GetParameterCandidate(IList<ParameterInfo[]> methods, int parIndex)
+        {
+            ParameterInfo parameter = null;
+
+            foreach (var candidate in methods)
+            {
+                var pi = parIndex < 0 ? candidate.Length - 1 : parIndex;
+
+                if (pi < 0 || candidate.Length <= pi) continue;
+
+                if (parameter == null)
+                {
+                    // Get this parameter
+
+                    parameter = candidate[pi];
+                }
+                else
+                {
+                    // We don't know what overload should be used
+
+                    if (parameter.ParameterType != candidate[pi].ParameterType)
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            return parameter;
+        }
+
+        private void OutFoundStrs(string[] matches, int maxCommonLength)
+        {
+            WriteLine("", ConsoleOutputStyle.Input);
+
+            // TODO: If there are more than 100 values we should ask
+
+            if (maxCommonLength == 0)
+            {
+                // Prevent console blink
+
+                var join = string.Join(Environment.NewLine, matches);
+
+                WriteLine(join, ConsoleOutputStyle.Autocomplete);
+            }
+            else
+            {
+                foreach (var match in matches)
+                {
+                    Write(match.Substring(0, maxCommonLength), ConsoleOutputStyle.AutocompleteMatch);
+                    WriteLine(match.Substring(maxCommonLength), ConsoleOutputStyle.Autocomplete);
+                }
+            }
+        }
+
+        private int ComputeMaxString(string[] allowedStrings, out string cmd)
+        {
+            if (allowedStrings == null || allowedStrings.Length == 0)
+            {
+                cmd = null;
+                return 0;
+            }
+
+            cmd = allowedStrings.FirstOrDefault();
+
+            if (string.IsNullOrEmpty(cmd))
+            {
+                return 0;
+            }
+
+            var max = 0;
+
+            for (int x = 1, m = cmd.Length; x <= m; x++)
+            {
+                var ok = true;
+                var split = cmd.Substring(0, x);
+
+                foreach (var s in allowedStrings)
+                {
+                    if (s.StartsWith(split)) continue;
+
+                    ok = false;
+                    break;
+                }
+
+                if (ok) max = x;
+                else break;
+            }
+
+            return max;
         }
 
         private void ReadFromConsole_Insert(ConsoleKey key, ConsoleInputState state)
@@ -470,7 +578,7 @@ namespace NeoSharp.Application.Client
 
         private void ReadFromConsole_UpDown(ConsoleKey key, ConsoleInputState state)
         {
-            string strH = "";
+            var strH = "";
 
             if (_history.Count > 0)
             {
@@ -524,7 +632,8 @@ namespace NeoSharp.Application.Client
             else if (state.Cursor == 0)
                 return;
 
-            int l = state.Txt.Length - state.Cursor;
+            var l = state.Txt.Length - state.Cursor;
+
             if (l > 0)
             {
                 Write("".PadLeft(l, ' '), ConsoleOutputStyle.Input);
@@ -612,6 +721,7 @@ namespace NeoSharp.Application.Client
             x = Console.CursorLeft;
             y = Console.CursorTop;
         }
+
         /// <summary>
         /// Set cursor position
         /// </summary>

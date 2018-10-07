@@ -28,7 +28,7 @@ namespace NeoSharp.Application.Extensions
 
                     if (autoComplete == null) continue;
 
-                    if (autoComplete.TryGetValue(atr.Command, out var value))
+                    if (autoComplete.TryGetMethods(atr.Command, out var value))
                     {
                         value.Add(mi.GetParameters());
                     }

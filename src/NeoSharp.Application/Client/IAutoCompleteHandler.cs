@@ -8,7 +8,7 @@ namespace NeoSharp.Application.Client
         /// <summary>
         /// Keys
         /// </summary>
-        IEnumerable<string> Keys { get; }
+        IEnumerable<string> Commands { get; }
 
         /// <summary>
         /// Count
@@ -21,7 +21,7 @@ namespace NeoSharp.Application.Client
         /// <param name="command">Command</param>
         /// <param name="value">Value</param>
         /// <returns>Return true if is found</returns>
-        bool TryGetValue(string command, out List<ParameterInfo[]> value);
+        bool TryGetMethods(string command, out List<ParameterInfo[]> value);
 
         /// <summary>
         /// Add
@@ -29,5 +29,13 @@ namespace NeoSharp.Application.Client
         /// <param name="command">Command</param>
         /// <param name="ls">List</param>
         void Add(string command, List<ParameterInfo[]> ls);
+
+        /// <summary>
+        /// Get values
+        /// </summary>
+        /// <param name="parameter">Parameter</param>
+        /// <param name="currentValue">Current value</param>
+        /// <returns>Return allowed values</returns>
+        IEnumerable<string> GetParameterValues(ParameterInfo parameter, string currentValue);
     }
 }

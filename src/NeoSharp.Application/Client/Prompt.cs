@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Extensions;
+using NeoSharp.Application.Providers;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Logging;
@@ -109,6 +110,20 @@ namespace NeoSharp.Application.Client
             {
                 _commandCache.Cache(controller, _commandAutocompleteCache);
             }
+
+            // Help autocomplete
+
+            var ls = new List<string>();
+
+            foreach (var keys in _commandCache.Keys) foreach (var key in keys)
+                {
+                    if (_commandCache.TryGetValue(keys, out var value) && !ls.Contains(value.Command))
+                    {
+                        ls.Add(value.Command);
+                    }
+                }
+
+            CommandAutoCompleteAttribute.Availables = ls.OrderBy(u => u).ToArray();
         }
 
         /// <inheritdoc />

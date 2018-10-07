@@ -19,7 +19,5 @@ namespace NeoSharp.Core.Wallet.Wrappers
             var internalObject = value ?? throw new ArgumentNullException(nameof(value));
             return JsonConvert.SerializeObject(value);
         }
-
-
     }
 }

@@ -1,3 +1,4 @@
+using System.IO;
 using System.Linq;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
@@ -33,14 +34,14 @@ namespace NeoSharp.Application.Controllers
         }
 
         [PromptCommand("wallet create", Category = "Wallet", Help = "Create a new wallet")]
-        public void WalletCreateCommand(string fileName)
+        public void WalletCreateCommand(FileInfo file)
         {
             var secureString = _consoleHandler.ReadPassword();
             _consoleHandler.ApplyStyle(ConsoleOutputStyle.Prompt);
             var confirmationString = _consoleHandler.ReadPassword("\nConfirm your password:");
             if (secureString.ToByteArray().SequenceEqual(confirmationString.ToByteArray()))
             {
-                _walletManager.CreateWallet(fileName);
+                _walletManager.CreateWallet(file.FullName);
                 var walletAccount = _walletManager.CreateAndAddAccount(secureString);
                 _consoleHandler.ApplyStyle(ConsoleOutputStyle.Prompt);
                 _consoleHandler.WriteLine("\nAddress: " + walletAccount.Address, ConsoleOutputStyle.Information);
@@ -53,9 +54,9 @@ namespace NeoSharp.Application.Controllers
         }
 
         [PromptCommand("wallet open", Category = "Wallet", Help = "Open wallet")]
-        public void WalletOpenCommand(string fileName)
+        public void WalletOpenCommand(FileInfo file)
         {
-            _walletManager.Load(fileName);
+            _walletManager.Load(file.FullName);
         }
 
         [PromptCommand("wallet close", Category = "Wallet", Help = "Close wallet")]
@@ -78,7 +79,7 @@ namespace NeoSharp.Application.Controllers
             _walletManager.ImportEncryptedWif(nep2key, secureString);
         }
 
-        [PromptCommand("wallet", Category = "Wallet", Help = "List all accounts from wallet")]
+        [PromptCommand("wallet list", Category = "Wallet", Help = "List all accounts from wallet")]
         public void WalletListAccountCommand(PromptOutputStyle output = PromptOutputStyle.json)
         {
             _walletManager.CheckWalletIsOpen();
@@ -87,16 +88,16 @@ namespace NeoSharp.Application.Controllers
         }
 
         [PromptCommand("wallet save", Category = "Wallet", Help = "Saves the open wallet into a new file")]
-        public void WalletSaveCommand(string fileName)
+        public void WalletSaveCommand(FileInfo file)
         {
-            _walletManager.ExportWallet(fileName);
+            _walletManager.ExportWallet(file.FullName);
         }
 
         [PromptCommand("account create", Category = "Account", Help = "Create a new account")]
         public void AccountCreateCommand()
         {
             var secureString = _consoleHandler.ReadPassword("Wallet password:");
-            try 
+            try
             {
                 _walletManager.CheckIfPasswordMatchesOpenWallet(secureString);
                 _consoleHandler.ApplyStyle(ConsoleOutputStyle.Prompt);
@@ -104,7 +105,7 @@ namespace NeoSharp.Application.Controllers
                 _consoleHandler.WriteLine("\nAddress: " + walletAccount.Address, ConsoleOutputStyle.Information);
                 _consoleHandler.WriteLine("Public Key: " + _walletManager.GetPublicKeyFromNep2(walletAccount.Key, secureString), ConsoleOutputStyle.Information);
             }
-            catch(AccountsPasswordMismatchException)
+            catch (AccountsPasswordMismatchException)
             {
                 _consoleHandler.WriteLine("\nInvalid password.");
             }
@@ -181,10 +182,11 @@ namespace NeoSharp.Application.Controllers
         public void AddAccountAlias(string address, string alias)
         {
             UInt160 accountScriptHash = address.ToScriptHash();
-            if(_walletManager.Contains(accountScriptHash))
+            if (_walletManager.Contains(accountScriptHash))
             {
                 _walletManager.UpdateAccountAlias(accountScriptHash, alias);
-            }else
+            }
+            else
             {
                 _consoleHandler.WriteLine("\nAccount not found.");
             }

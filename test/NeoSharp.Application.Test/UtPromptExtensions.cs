@@ -113,6 +113,14 @@ namespace NeoSharp.Application.Test
             Assert.AreEqual("sum", cmd.Command);
             Assert.AreEqual(2, cmd.Parameters.Length);
 
+            Assert.IsTrue(cmdArgs[0].IsInside(0));
+            Assert.IsTrue(cmdArgs[0].IsInside(1));
+            Assert.IsTrue(cmdArgs[0].IsInside(2));
+            Assert.IsTrue(cmdArgs[0].IsInside(3));
+            Assert.IsTrue(cmdArgs[0].IsInside(4));
+            Assert.IsTrue(cmdArgs[0].IsInside(5));
+            Assert.IsFalse(cmdArgs[0].IsInside(6));
+
             // execute
 
             var res = cmd.Method.Invoke(new DummyPrompt(), args);
@@ -142,7 +150,7 @@ namespace NeoSharp.Application.Test
 
             Assert.AreEqual(nameof(DummyPrompt.Mul), atr.Method.Name);
 
-            CollectionAssert.AreEqual(new string[] { "mul", "sum" }, autoComplete.Keys.ToArray());
+            CollectionAssert.AreEqual(new string[] { "mul", "sum" }, autoComplete.Commands.ToArray());
         }
     }
 }

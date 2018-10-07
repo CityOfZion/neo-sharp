@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Extensions;
+using NeoSharp.Application.Providers;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
 
@@ -89,7 +90,7 @@ namespace NeoSharp.Application.Client
         /// <param name="ms">Miliseconds</param>
         /// <param name="line">Line</param>
         [PromptCommand("watch", Help = "Watch command", Category = "Usability")]
-        private void WatchCommand(uint ms, [PromptCommandParameterBody] string line)
+        private void WatchCommand(uint ms, [PromptCommandParameterBody, CommandAutoComplete] string line)
         {
             if (line.Trim().ToLowerInvariant().StartsWith("watch"))
             {
@@ -190,7 +191,7 @@ namespace NeoSharp.Application.Client
         /// Show help
         /// </summary>
         [PromptCommand("help", Category = "Usability", Help = "Show help for commands")]
-        public void HelpCommand([PromptCommandParameterBody]string command)
+        public void HelpCommand([PromptCommandParameterBody, CommandAutoComplete]string command)
         {
             if (!string.IsNullOrWhiteSpace(command))
             {

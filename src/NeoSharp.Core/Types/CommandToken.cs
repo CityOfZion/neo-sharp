@@ -96,5 +96,15 @@ namespace NeoSharp.Core.Types
         {
             return Quoted ? "\"" + Value.Replace("\"", "\\\"") + "\"" : Value;
         }
+
+        /// <summary>
+        /// Return if cursos is inside this token
+        /// </summary>
+        /// <param name="cursor">Cursor</param>
+        /// <returns>Return true if is inside</returns>
+        public bool IsInside(int cursor)
+        {
+            return StartIndex <= cursor && StartIndex + RealLength >= cursor;
+        }
     }
 }
