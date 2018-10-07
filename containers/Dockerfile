@@ -6,6 +6,12 @@ FROM microsoft/dotnet:latest as builder
 ARG BRANCH="development"
 ARG SOURCE_REPO="https://github.com/CityOfZion/neo-sharp.git"
 
+# make builds faster. Caching packages on a temporary build machine is a waste of time
+ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+
+# opt-out telemetry
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
+
 # create folders structure and clone neo-sharp repo
 RUN mkdir /repo && \
     cd /repo && \
@@ -25,8 +31,14 @@ RUN export arch=$(uname -m);if [ "$arch" = "armv7l" ]; then apt-get update && \
 # use official Microsoft dotnet container
 FROM microsoft/dotnet:2.1-runtime as runtime
 
-# arguments to choose what network to useb (defaults to mainnet)
+# arguments to choose what network to used (defaults to mainnet)
 ARG NEO_NETWORK="mainnet"
+
+# make builds faster. Caching packages on a temporary build machine is a waste of time
+ENV DOTNET_SKIP_FIRST_TIME_EXPERIENCE=1
+
+# opt-out telemetry
+ENV DOTNET_CLI_TELEMETRY_OPTOUT=1
 
 # install rocksdb dependencies and delete temp packages after to clean the most garbase possible
 RUN apt-get update && \
