@@ -11,14 +11,11 @@ namespace NeoSharp.Core.Blockchain.Processing
     public class BlockPool : IBlockPool
     {
         private const int DefaultCapacity = 10_000;
-
         private readonly ILogger<BlockPool> _logger;
         private readonly ConcurrentDictionary<uint, Block> _blockPool = new ConcurrentDictionary<uint, Block>();
 
         public int Size => _blockPool.Count;
-
         public int Capacity => DefaultCapacity;
-
         public event EventHandler<Block> OnAdded;
 
         public BlockPool(ILogger<BlockPool> logger)
@@ -42,7 +39,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                 throw new InvalidOperationException($"The block with height \"{block.Index}\" was already queued to be added.");
             }
 
-            this._logger.LogInformation($"BlockPool count: {this._blockPool.Count}");
+            _logger.LogInformation($"BlockPool count: {_blockPool.Count}");
             OnAdded?.Invoke(this, block);
 
             PrioritizeBlocks();

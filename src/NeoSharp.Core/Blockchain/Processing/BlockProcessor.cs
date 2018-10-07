@@ -13,6 +13,7 @@ namespace NeoSharp.Core.Blockchain.Processing
     public class BlockProcessor : IBlockProcessor
     {
         #region Private Fields 
+
         private static readonly TimeSpan DefaultBlockPollingInterval = TimeSpan.FromMilliseconds(100);
 
         private readonly IBlockPool _blockPool;
@@ -22,15 +23,17 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBroadcaster _broadcaster;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
         #endregion
 
         #region Constructor 
+
         public BlockProcessor(
             IBlockPool blockPool,
             IAsyncDelayer asyncDelayer,
             ISigner<Block> blockSigner,
-            IBlockPersister blockPersister, 
-            IBlockchainContext blockchainContext, 
+            IBlockPersister blockPersister,
+            IBlockchainContext blockchainContext,
             IBroadcaster broadcaster)
         {
             _blockPool = blockPool ?? throw new ArgumentNullException(nameof(blockPool));
@@ -40,6 +43,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
             _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
         }
+
         #endregion
 
         #region IBlockProcessor implementation
@@ -54,15 +58,16 @@ namespace NeoSharp.Core.Blockchain.Processing
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    if (_blockchainContext.IsPeerConnected && _blockchainContext.NeedPeerSync && !_blockchainContext.IsSyncing)
+                    var block = _blockchainContext.CurrentBlock;
+                    var nextBlockHeight = block?.Index + 1U ?? 0U;
+
+                    if (block != null && _blockchainContext.IsPeerConnected && _blockchainContext.NeedPeerSync && !_blockchainContext.IsSyncing)
                     {
-                        _broadcaster.Broadcast(new GetBlocksMessage(_blockchainContext.CurrentBlock?.Hash));
+                        _broadcaster.Broadcast(new GetBlocksMessage(block.Hash));
                         _blockchainContext.IsSyncing = true;
                     }
 
-                    var nextBlockHeight = this._blockchainContext.CurrentBlock?.Index + 1 ?? 0;
-
-                    if (!_blockPool.TryGet(nextBlockHeight, out var block))
+                    if (!_blockPool.TryGet(nextBlockHeight, out block))
                     {
                         await _asyncDelayer.Delay(DefaultBlockPollingInterval, cancellationToken);
                         continue;
@@ -71,7 +76,7 @@ namespace NeoSharp.Core.Blockchain.Processing
                     await _blockPersister.Persist(block);
 
                     // TODO [CheckWithTeam] [AboimPinto]: Maybe when we get the block out of the block we can remove it and this line will not be necessary
-                    _blockPool.Remove(nextBlockHeight);     
+                    _blockPool.Remove(nextBlockHeight);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
@@ -108,6 +113,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
         }
+
         #endregion
     }
 }
