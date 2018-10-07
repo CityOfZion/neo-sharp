@@ -60,7 +60,9 @@ services:
 ## neo-sharp Node
   neo-sharp-node1:
     build: .
-    image: neo-sharp-node:0.1_runtime
+    args:
+        NEO_NETWORK: privatenet
+    image: neo-sharp-node:0.1_runtime    
     container_name: "neo-sharp"
     ports:
       - 8000:8000

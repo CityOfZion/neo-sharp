@@ -25,6 +25,9 @@ RUN export arch=$(uname -m);if [ "$arch" = "armv7l" ]; then apt-get update && \
 # use official Microsoft dotnet container
 FROM microsoft/dotnet:2.1-runtime as runtime
 
+# arguments to choose what network to useb (defaults to mainnet)
+ARG NEO_NETWORK="mainnet"
+
 # install rocksdb dependencies and delete temp packages after to clean the most garbase possible
 RUN apt-get update && \
     apt-get install -y libgflags-dev libsnappy-dev zlib1g-dev libbz2-dev liblz4-dev libzstd-dev && \
@@ -33,6 +36,9 @@ RUN apt-get update && \
 
 # copy app from builder stage
 COPY --from=builder /home/neo-sharp/* /home/neo-sharp/
+
+# Set 
+RUN cp /home/neo-sharp/appsettings.$NEO_NETWORK.json /home/neo-sharp/appsettings.json
 
 # workdir
 WORKDIR /home/neo-sharp
