@@ -28,7 +28,8 @@ namespace NeoSharp.Core.Messaging.Messages
 
     public class GetBlocksPayload : ISerializable
     {
-        // TODO #372: Why is it an array if it is always initialized with a single value?
+        // This should be optimized on Neo 3.0
+
         [BinaryProperty(0)]
         public UInt256[] HashStart;
 
