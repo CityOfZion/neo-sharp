@@ -1,6 +1,5 @@
-using System;
-using System.Collections.Generic;
 using NeoSharp.Core.Cryptography;
+using Newtonsoft.Json.Linq;
 
 namespace NeoSharp.Core.Wallet
 {
@@ -37,6 +36,6 @@ namespace NeoSharp.Core.Wallet
         /// extra is an object that is defined by the implementor of the client
         /// for storing extra data. This field can be null.
         /// </summary>
-        Object Extra { get; set; }
+        JObject Extra { get; set; }
     }
 }
