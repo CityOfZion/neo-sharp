@@ -53,6 +53,8 @@ namespace NeoSharp.Core.Blockchain.Repositories
         /// <returns></returns>
         Task<UInt256> GetBlockHash(uint height);
 
+        Task<IEnumerable<UInt256>> GetBlockHashes(uint fromHeight, uint toHeight);
+
         /// <summary>
         /// Returns the information for the next block based on the specified hash value
         /// </summary>

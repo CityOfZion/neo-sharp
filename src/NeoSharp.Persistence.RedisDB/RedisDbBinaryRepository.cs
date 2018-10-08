@@ -100,6 +100,12 @@ namespace NeoSharp.Persistence.RedisDB
             return hash ?? UInt256.Zero;
         }
 
+        public async Task<IEnumerable<UInt256>> GetBlockHashesFromHeights(IEnumerable<uint> heights)
+        {
+            var hashes = await Task.WhenAll(heights.Select(GetBlockHashFromHeight));
+            return hashes;
+        }
+
         public async Task<BlockHeader> GetBlockHeader(UInt256 hash)
         {
             var blockHeaderRedisValue = await _redisDbContext.Get(hash.BuildDataBlockKey());

@@ -72,6 +72,8 @@ namespace NeoSharp.Core.Persistence
         /// <returns>Block hash at specified height / index</returns>
         Task<UInt256> GetBlockHashFromHeight(uint height);
 
+        Task<IEnumerable<UInt256>> GetBlockHashesFromHeights(IEnumerable<uint> heights);
+
         #endregion
 
         #region Transactions
@@ -259,6 +261,5 @@ namespace NeoSharp.Core.Persistence
         Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences);
 
         #endregion
-
     }
 }

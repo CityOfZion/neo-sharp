@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
@@ -80,6 +81,12 @@ namespace NeoSharp.Persistence.RocksDB
         {
             var hash = await this._rocksDbContext.Get(height.BuildIxHeightToHashKey());
             return hash == null || hash.Length == 0 ? UInt256.Zero : new UInt256(hash);
+        }
+
+        public async Task<IEnumerable<UInt256>> GetBlockHashesFromHeights(IEnumerable<uint> heights)
+        {
+            var heightsHashes = await this._rocksDbContext.GetMany(heights.Select(h => h.BuildIxHeightToHashKey()));
+            return heightsHashes.Values.Where(h => h != null && h.Length == UInt256.Zero.Size).Select(h => new UInt256(h));
         }
 
         public async Task AddBlockHeader(BlockHeader blockHeader)

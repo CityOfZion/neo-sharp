@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
@@ -88,6 +90,13 @@ namespace NeoSharp.Core.Blockchain.Repositories
         public async Task<UInt256> GetBlockHash(uint height)
         {
             return await _repository.GetBlockHashFromHeight(height);
+        }
+
+        public Task<IEnumerable<UInt256>> GetBlockHashes(uint fromHeight, uint toHeight)
+        {
+            var heights = Enumerable.Range((int)fromHeight, (int)toHeight).Select(Convert.ToUInt32);
+
+            return _repository.GetBlockHashesFromHeights(heights);
         }
 
         /// <inheritdoc />

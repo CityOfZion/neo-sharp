@@ -61,11 +61,11 @@ namespace NeoSharp.Core.Blockchain.Processing
                     var block = _blockchainContext.CurrentBlock;
                     var nextBlockHeight = block?.Index + 1U ?? 0U;
 
-                    if (block != null && _blockchainContext.IsPeerConnected && _blockchainContext.NeedPeerSync && !_blockchainContext.IsSyncing)
-                    {
-                        _broadcaster.Broadcast(new GetBlocksMessage(block.Hash));
-                        _blockchainContext.IsSyncing = true;
-                    }
+                    //if (block != null && _blockchainContext.IsPeerConnected && _blockchainContext.NeedPeerSync && !_blockchainContext.IsSyncing)
+                    //{
+                    //    _broadcaster.Broadcast(new GetBlocksMessage(block.Hash));
+                    //    _blockchainContext.IsSyncing = true;
+                    //}
 
                     if (!_blockPool.TryGet(nextBlockHeight, out block))
                     {
@@ -75,7 +75,6 @@ namespace NeoSharp.Core.Blockchain.Processing
 
                     await _blockPersister.Persist(block);
 
-                    // TODO [CheckWithTeam] [AboimPinto]: Maybe when we get the block out of the block we can remove it and this line will not be necessary
                     _blockPool.Remove(nextBlockHeight);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
