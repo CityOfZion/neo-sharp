@@ -1,7 +1,7 @@
-﻿using Moq;
+﻿using System;
+using System.Text;
+using Moq;
 using NeoSharp.TestHelpers.AutoMock;
-using System;
-using System.Linq;
 
 namespace NeoSharp.TestHelpers
 {
@@ -9,6 +9,9 @@ namespace NeoSharp.TestHelpers
     {
         private readonly MockRepository _mockRepository;
         private readonly Random _rand;
+
+        private const string RandStringAlphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        private readonly int RandStringAlphabetLength = RandStringAlphabet.Length;
 
         public IAutoMockContainer AutoMockContainer { get; private set; }
 
@@ -29,11 +32,15 @@ namespace NeoSharp.TestHelpers
         /// <returns>String</returns>
         public string RandomString(int length)
         {
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var result = new byte[length];
+            _rand.NextBytes(result);
 
-            // TODO #407: Very slow method, for 65K iteration with long text string
+            for (int i = 0; i < length; ++i)
+            {
+                result[i] = (byte)RandStringAlphabet[result[i] % RandStringAlphabetLength];
+            }
 
-            return new string(Enumerable.Repeat(chars, length).Select(s => s[_rand.Next(s.Length)]).ToArray());
+            return Encoding.ASCII.GetString(result);
         }
 
         /// <summary>
