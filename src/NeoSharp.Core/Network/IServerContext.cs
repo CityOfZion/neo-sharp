@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using NeoSharp.Core.Messaging.Messages;
 
 namespace NeoSharp.Core.Network
@@ -13,6 +14,6 @@ namespace NeoSharp.Core.Network
         /// <summary>
         /// Connected peers
         /// </summary>
-        ConcurrentBag<IPeer> ConnectedPeers { get; }
+        ConcurrentDictionary<EndPoint, IPeer> ConnectedPeers { get; }
     }
 }

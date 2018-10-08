@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Messaging;
@@ -29,5 +30,7 @@ namespace NeoSharp.Core.Network
         Task<TMessage> Receive<TMessage>() where TMessage : Message, new();
 
         void Disconnect();
+
+        event EventHandler OnDisconnect;
     }
 }

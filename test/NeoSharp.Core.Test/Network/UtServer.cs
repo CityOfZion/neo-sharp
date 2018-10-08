@@ -59,7 +59,7 @@ namespace NeoSharp.Core.Test.Network
             var serverContextMock = this.AutoMockContainer.GetMock<IServerContext>();
             serverContextMock
                 .SetupGet(x => x.ConnectedPeers)
-                .Returns(new ConcurrentBag<IPeer>());
+                .Returns(new ConcurrentDictionary<EndPoint, IPeer>());
 
             var server = AutoMockContainer.Create<Server>();
 
@@ -121,7 +121,7 @@ namespace NeoSharp.Core.Test.Network
             var serverContextMock = this.AutoMockContainer.GetMock<IServerContext>();
             serverContextMock
                 .SetupGet(x => x.ConnectedPeers)
-                .Returns(new ConcurrentBag<IPeer>());
+                .Returns(new ConcurrentDictionary<EndPoint, IPeer>());
 
             // Act
             server.Start();
@@ -157,7 +157,7 @@ namespace NeoSharp.Core.Test.Network
             var serverContextMock = this.AutoMockContainer.GetMock<IServerContext>();
             serverContextMock
                 .SetupGet(x => x.ConnectedPeers)
-                .Returns(new ConcurrentBag<IPeer>());
+                .Returns(new ConcurrentDictionary<EndPoint, IPeer>());
 
             // Act
             server.Start();
@@ -179,10 +179,12 @@ namespace NeoSharp.Core.Test.Network
                 .SetupGet(x => x.EndPoint)
                 .Returns(_peerEndPoint);
 
+            var connectedPeers = new ConcurrentDictionary<EndPoint, IPeer>();
+            connectedPeers.TryAdd(peerMock.Object.EndPoint, peerMock.Object);
             this.AutoMockContainer
                 .GetMock<IServerContext>()
                 .SetupGet(x => x.ConnectedPeers)
-                .Returns(new ConcurrentBag<IPeer> {peerMock.Object});
+                .Returns(connectedPeers);
 
             var server = AutoMockContainer.Create<Server>();
             var message = new Message();
@@ -208,10 +210,13 @@ namespace NeoSharp.Core.Test.Network
                 .SetupGet(x => x.EndPoint)
                 .Returns(new EndPoint(Protocol.Tcp, new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8001)));
 
+            var connectedPeers = new ConcurrentDictionary<EndPoint, IPeer>();
+            connectedPeers.TryAdd(peerMockSource.Object.EndPoint, peerMockSource.Object);
+            connectedPeers.TryAdd(peerMockNotSource.Object.EndPoint, peerMockNotSource.Object);
             this.AutoMockContainer
                 .GetMock<IServerContext>()
                 .SetupGet(x => x.ConnectedPeers)
-                .Returns(new ConcurrentBag<IPeer> { peerMockSource.Object, peerMockNotSource.Object });
+                .Returns(connectedPeers);
 
             var server = AutoMockContainer.Create<Server>();
             var message = new Message();

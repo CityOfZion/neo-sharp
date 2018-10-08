@@ -126,7 +126,7 @@ namespace NeoSharp.Core.Network
         /// <inheritdoc />
         public void Broadcast(Message message, IPeer source = null)
         {
-            Parallel.ForEach(_serverContext.ConnectedPeers, peer =>
+            Parallel.ForEach(_serverContext.ConnectedPeers.Values, peer =>
             {
                 if (source == null)
                 {
@@ -162,12 +162,18 @@ namespace NeoSharp.Core.Network
         {
             try
             {
+                peer.OnDisconnect += (s, e) =>
+                {
+                    _serverContext.ConnectedPeers.TryRemove(peer.EndPoint, out _);
+                    ConnectToPeers(peer.EndPoint);
+                };
+
                 if (_acl.IsAllowed(peer.EndPoint) == false)
                 {
                     throw new UnauthorizedAccessException($"The endpoint \"{peer.EndPoint}\" is prohibited by ACL.");
                 }
 
-                _serverContext.ConnectedPeers.Add(peer);
+                _serverContext.ConnectedPeers.TryAdd(peer.EndPoint, peer);
                 _peerMessageListener.StartFor(peer, _messageListenerTokenSource.Token);
             }
             catch (Exception e)
@@ -182,12 +188,10 @@ namespace NeoSharp.Core.Network
         /// </summary>
         private void DisconnectPeers()
         {
-            foreach (var peer in _serverContext.ConnectedPeers)
+            foreach (var peer in _serverContext.ConnectedPeers.Values)
             {
                 peer.Disconnect();
             }
-
-            _serverContext.ConnectedPeers.Clear();
         }
         #endregion
     }

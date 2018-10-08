@@ -59,11 +59,10 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             if (_blockOperationsManager.Verify(block))
             {
-                _logger.LogInformation($"Broadcasting block {block.Hash} with Index {block.Index}.");
-                _broadcaster.Broadcast(message, sender);
+                //_logger.LogInformation($"Broadcasting block {block.Hash} with Index {block.Index}.");
+                //_broadcaster.Broadcast(message, sender);
 
                 await _blockProcessor.AddBlock(block);
-                _logger.LogInformation($"Adding block {block.Hash} to the BlockPool with Index {block.Index}.");
             }
             else
             {

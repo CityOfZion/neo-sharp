@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Reflection;
-using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Cryptography;
@@ -32,7 +31,7 @@ namespace NeoSharp.Core.Network
         }
 
         /// <inheritdoc />
-        public ConcurrentBag<IPeer> ConnectedPeers { get; }
+        public ConcurrentDictionary<EndPoint, IPeer> ConnectedPeers { get; }
         #endregion
 
         #region Constructor
@@ -58,7 +57,7 @@ namespace NeoSharp.Core.Network
                 Relay = true
             };
 
-            ConnectedPeers = new ConcurrentBag<IPeer>();
+            ConnectedPeers = new ConcurrentDictionary<EndPoint, IPeer>();
         }
         #endregion
     }

@@ -124,9 +124,12 @@ namespace NeoSharp.Core.Network.Tcp
         /// </summary>
         public void Disconnect()
         {
+            OnDisconnect?.Invoke(this, null);
             Dispose();
             _logger.LogInformation($"The peer {EndPoint.Host}:{EndPoint.Port} was disconnected");
         }
+
+        public event EventHandler OnDisconnect;
 
         /// <summary>
         /// Free resources

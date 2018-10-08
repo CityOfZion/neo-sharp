@@ -86,7 +86,6 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         public async Task<bool> IsBlockPersisted(Block block)
         {
-            _logger.LogDebug($"Verify if the {block.Hash} is already in the blockchain.");
             var blockHeader = await _blockRepository.GetBlockHeader(block.Hash);
 
             if (blockHeader?.Type == HeaderType.Extended)
@@ -101,7 +100,6 @@ namespace NeoSharp.Core.Blockchain.Processing
                 return true;
             }
 
-            _logger.LogDebug($"The block with the hash {block.Hash} is not int the blockchain.");
             return false;
         }
 

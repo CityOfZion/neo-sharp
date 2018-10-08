@@ -27,7 +27,7 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// <inheritdoc />
         public override async Task Handle(GetAddrMessage message, IPeer sender)
         {
-            var peers = this._serverContext.ConnectedPeers
+            var peers = this._serverContext.ConnectedPeers.Values
                 .OrderBy(p => BitConverter.ToUInt32(Crypto.Default.GenerateRandomBytes(4), 0))
                 .Take(MaxCountToSend)
                 .ToArray();

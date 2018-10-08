@@ -39,7 +39,6 @@ namespace NeoSharp.Core.Blockchain.Processing
                 throw new InvalidOperationException($"The block with height \"{block.Index}\" was already queued to be added.");
             }
 
-            _logger.LogInformation($"BlockPool count: {_blockPool.Count}");
             OnAdded?.Invoke(this, block);
 
             PrioritizeBlocks();
