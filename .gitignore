@@ -262,3 +262,6 @@ src/NeoSharp.Application/Properties/launchSettings.json
 
 # RocksDB files
 src/NeoSharp.Application/localhost
+
+# VSCode files
+.vscode
