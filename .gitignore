@@ -262,6 +262,8 @@ src/NeoSharp.Application/Properties/launchSettings.json
 
 # RocksDB files
 src/NeoSharp.Application/localhost
+src/NeoSharp.Application/ChainMainnet
+src/NeoSharp.Application/ChainTestnet
 
 # VSCode files
 .vscode

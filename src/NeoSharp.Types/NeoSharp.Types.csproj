@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
@@ -9,4 +9,22 @@
     <ProjectReference Include="..\NeoSharp.Cryptography\NeoSharp.Cryptography.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\ca.ruleset" Link="ca.ruleset" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="StyleCop.Analyzers" Version="1.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+	<PropertyGroup>
+		<CodeAnalysisRuleSet>ca.ruleset</CodeAnalysisRuleSet>
+	</PropertyGroup>
 </Project>
