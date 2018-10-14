@@ -1,4 +1,6 @@
-﻿using NeoSharp.Application.Attributes;
+﻿using System;
+using System.Linq;
+using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
 using NeoSharp.Core.Network;
 
@@ -30,16 +32,39 @@ namespace NeoSharp.Application.Controllers
         /// <summary>
         /// Nodes
         /// </summary>
+        /// <param name="output">Output format</param>
         [PromptCommand("nodes", Category = "Network", Help = "Get nodes information")]
-        public void NodesCommand()
+        public void NodesCommand(PromptOutputStyle output = PromptOutputStyle.json)
         {
             var peers = _serverContext.ConnectedPeers;
 
-            _consoleHandler.WriteLine("Connected: " + peers.Count);
-
-            foreach (var peer in peers)
+            switch (output)
             {
-                _consoleHandler.WriteLine(peer.ToString());
+                case PromptOutputStyle.json:
+                    {
+                        _consoleHandler.WriteObject(
+                            new
+                            {
+                                Count = peers.Count,
+                                Nodes = peers
+                                    .OrderBy(u => u.Value.ConnectionDate)
+                                    .Select(u => new { Address = u.Key, ConnectedTime = (DateTime.UtcNow - u.Value.ConnectionDate) })
+                                    .ToArray()
+                            }, PromptOutputStyle.json);
+                        break;
+                    }
+                default:
+                    {
+                        _consoleHandler.WriteLine("Connected: " + peers.Count);
+
+                        foreach (var peer in peers.OrderBy(u => u.Value.ConnectionDate))
+                        {
+                            _consoleHandler.WriteLine(peer.Key.ToString() + " - " +
+                                // Connected time
+                                (DateTime.UtcNow - peer.Value.ConnectionDate).ToString());
+                        }
+                        break;
+                    }
             }
         }
 

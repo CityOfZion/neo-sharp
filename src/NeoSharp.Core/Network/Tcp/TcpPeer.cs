@@ -57,6 +57,8 @@ namespace NeoSharp.Core.Network.Tcp
             set => _isReady = value;
         }
 
+        public DateTime ConnectionDate { get; }
+
         #endregion
 
         #region Variables
@@ -89,6 +91,7 @@ namespace NeoSharp.Core.Network.Tcp
 
             _stream = new NetworkStream(socket, true);
             _protocol = protocolSelector.DefaultProtocol;
+            ConnectionDate = DateTime.UtcNow;
 
             // Extract address
 

@@ -19,6 +19,8 @@ namespace NeoSharp.Core.Network
 
         bool IsReady { get; set; }
 
+        DateTime ConnectionDate { get; }
+
         bool ChangeProtocol(VersionPayload version);
 
         Task Send(Message message);
