@@ -1,24 +1,19 @@
 ﻿using NeoSharp.Core.DI;
 using NeoSharp.VM;
+using NeoSharp.VM.Interop;
 
 namespace NeoSharp.Application.DI
 {
     public class VMModule : IModule
     {
-        class NullVM : IVMFactory
-        {
-            public IExecutionEngine Create(ExecutionEngineArgs args)
-            {
-                throw new System.NotImplementedException();
-            }
-        }
-
         public void Register(IContainerBuilder containerBuilder)
         {
-            // TODO #406: Inject here HyperVM Nuget package
-
-            containerBuilder.RegisterSingleton<IVMFactory, NullVM>();
-            //containerBuilder.RegisterSingleton<IVMFactory, NeoVM>();
+            containerBuilder.RegisterSingleton<IVMFactory, NeoVM>();
+            
+            if (!NeoVM.TryLoadLibrary(out var error))
+            {
+                // TODO: Log error here
+            }
         }
     }
 }
