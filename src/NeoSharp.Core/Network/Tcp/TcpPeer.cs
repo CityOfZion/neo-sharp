@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -230,6 +231,9 @@ namespace NeoSharp.Core.Network.Tcp
                     var msg = await _protocol.ReceiveMessageAsync(_stream, tokenSource.Token);
                     _logger.LogDebug($"Message Received: {msg.Command}");
                     return msg;
+                }
+                catch (IOException)
+                {
                 }
                 catch (Exception err)
                 {

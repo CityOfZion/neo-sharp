@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,7 +7,6 @@ using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Types;
 
 namespace NeoSharp.Core.Network
 {
@@ -16,10 +14,10 @@ namespace NeoSharp.Core.Network
     {
         #region Private Fields
         private static readonly TimeSpan DefaultMessagePollingInterval = TimeSpan.FromMilliseconds(10);
-        private const int MaxBlocksCountToSync = 100;
-        private const int MaxParallelBlockRequestsForSync = 1;
+        private const int MaxBlocksCountToSync = 500;
+        private const int MaxParallelBlockRequestsForSync = 4;
         private static readonly TimeSpan DefaultBlockWaitingInterval = TimeSpan.FromMilliseconds(500);
-        private static readonly TimeSpan DefaultBlockSynchronizingInterval = TimeSpan.FromMilliseconds(5_000);
+        private static readonly TimeSpan DefaultBlockSynchronizingInterval = TimeSpan.FromMilliseconds(1_000);
 
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly IMessageHandlerProxy _messageHandlerProxy;
@@ -89,7 +87,7 @@ namespace NeoSharp.Core.Network
                         lastBlockHeader.Index < peer.Version.CurrentBlockIndex)
                     {
                         await SynchronizeBlocks(peer, currentBlock.Index + 1, lastBlockHeader.Index);
-                        await _asyncDelayer.Delay(DefaultBlockSynchronizingInterval, cancellationToken);
+                        await _asyncDelayer.Delay(DefaultBlockSynchronizingInterval * (new Random(Environment.TickCount)).Next(MaxParallelBlockRequestsForSync), cancellationToken);
                     }
                     else
                     {
