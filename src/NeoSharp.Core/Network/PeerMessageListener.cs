@@ -16,10 +16,10 @@ namespace NeoSharp.Core.Network
     {
         #region Private Fields
         private static readonly TimeSpan DefaultMessagePollingInterval = TimeSpan.FromMilliseconds(10);
-        private const int MaxBlocksCountToSync = 500;
-        private const int MaxParallelBlockRequestsForSync = 4;
+        private const int MaxBlocksCountToSync = 100;
+        private const int MaxParallelBlockRequestsForSync = 1;
         private static readonly TimeSpan DefaultBlockWaitingInterval = TimeSpan.FromMilliseconds(500);
-        private static readonly TimeSpan DefaultBlockSynchronizingInterval = TimeSpan.FromMilliseconds(5000);
+        private static readonly TimeSpan DefaultBlockSynchronizingInterval = TimeSpan.FromMilliseconds(5_000);
 
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly IMessageHandlerProxy _messageHandlerProxy;
@@ -103,7 +103,10 @@ namespace NeoSharp.Core.Network
 
         private async Task SynchronizeBlocks(IPeer source, uint fromHeight, uint toHeight)
         {
-            toHeight = Math.Min(fromHeight + MaxBlocksCountToSync * MaxParallelBlockRequestsForSync, toHeight);
+            if (fromHeight + MaxBlocksCountToSync * MaxParallelBlockRequestsForSync > toHeight)
+                return;
+
+            toHeight = fromHeight + MaxBlocksCountToSync * MaxParallelBlockRequestsForSync - 1;
 
             var blockHashes = await _blockRepository.GetBlockHashes(fromHeight, toHeight);
 

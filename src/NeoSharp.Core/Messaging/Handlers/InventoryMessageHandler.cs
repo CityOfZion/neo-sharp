@@ -56,7 +56,8 @@ namespace NeoSharp.Core.Messaging.Handlers
             }
 
 
-            return sender.Send(new GetDataMessage(inventoryType, hashes));
+            return Task.CompletedTask;
+            //return sender.Send(new GetDataMessage(inventoryType, hashes));
         }
         #endregion
     }
