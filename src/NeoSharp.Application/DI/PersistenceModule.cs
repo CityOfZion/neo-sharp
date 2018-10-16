@@ -1,5 +1,6 @@
 ﻿using System;
 using NeoSharp.Core.DI;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Persistence.RedisDB;
 using NeoSharp.Persistence.RocksDB;
@@ -41,7 +42,7 @@ namespace NeoSharp.Application.DI
                     }
 
                 default:
-                    throw new Exception($"The persistence configuration contains unknown provider \"{cfg.Provider}\"");
+                    throw new UnknownPersistentProvider($"The persistence configuration contains unknown provider \"{cfg.Provider}\"");
             }
         }
     }

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Messaging.Handlers;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
@@ -34,7 +35,7 @@ namespace NeoSharp.Core.Test.Messaging.Handlers
             Action a = () => messageHandler.Handle(versionMessage, peerMock.Object).Wait();
 
             // Assert
-            a.Should().Throw<InvalidOperationException>();
+            a.Should().Throw<InvalidMessageException>();
         }
 
         [TestMethod]

@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.Core.Blockchain.Genesis;
 using NeoSharp.Core.Blockchain.Processing;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Models;
 using NeoSharp.TestHelpers;
 using NeoSharp.Types;
@@ -51,7 +52,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedException(typeof(BlockAlreadyQueuedException))]
         public void Add_TwiceSameBlock_InvalidOperationExceptionThrown()
         {
             // Arrange

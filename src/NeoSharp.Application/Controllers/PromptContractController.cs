@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
+using NeoSharp.Application.Exceptions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -40,8 +41,8 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("build", Help = "Build a contract", Category = "Contracts")]
         public void BuildCommand(FileInfo inputPath, FileInfo outputPath)
         {
-            if (outputPath.Exists) throw (new Exception("Output file already exists"));
-            if (!inputPath.Exists) throw (new FileNotFoundException(inputPath.FullName));
+            if (outputPath.Exists) throw (new InvalidParameterException("Output file already exists"));
+            if (!inputPath.Exists) throw (new InvalidParameterException(inputPath.FullName));
 
             string[] dump;
             using (Process p = Process.Start(new ProcessStartInfo()
@@ -56,7 +57,7 @@ namespace NeoSharp.Application.Controllers
             {
                 if (!p.Start())
                 {
-                    throw (new Exception("Error starting neon"));
+                    throw (new Exception("Error starting neon. Make sure that neon is in your PATH variable"));
                 }
 
                 dump = p.StandardOutput.ReadToEnd().Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
@@ -91,7 +92,7 @@ namespace NeoSharp.Application.Controllers
             }
             else
             {
-                throw (new ArgumentException("Error compiling the contract"));
+                throw (new InvalidParameterException("Error compiling the contract"));
             }
         }
     }

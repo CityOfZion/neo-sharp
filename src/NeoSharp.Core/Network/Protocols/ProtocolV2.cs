@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Messaging;
 using NeoSharp.Types.ExtensionMethods;
 
@@ -96,14 +97,14 @@ namespace NeoSharp.Core.Network.Protocols
             // TODO #366: Remove this magic in V2, only for handshake
             if (buffer.ToInt32(0) != _magic)
             {
-                throw new FormatException();
+                throw new InvalidMessageException();
             }
 
             var command = (MessageCommand)buffer[4];
 
             if (!Cache.TryGetValue(command, out var type))
             {
-                throw (new ArgumentException("command"));
+                throw (new InvalidMessageException("Message command not found"));
             }
 
             var message = (Message)Activator.CreateInstance(type);
@@ -117,7 +118,7 @@ namespace NeoSharp.Core.Network.Protocols
                 var payloadLength = buffer.ToInt32(0);
                 if (payloadLength > Message.PayloadMaxSize)
                 {
-                    throw new FormatException();
+                    throw new InvalidMessageException();
                 }
 
                 var payloadBuffer = payloadLength > 0
@@ -128,7 +129,7 @@ namespace NeoSharp.Core.Network.Protocols
                 {
                     if (payloadLength == 0)
                     {
-                        throw new FormatException();
+                        throw new InvalidMessageException();
                     }
 
                     if (message.Flags.HasFlag(MessageFlags.Compressed))

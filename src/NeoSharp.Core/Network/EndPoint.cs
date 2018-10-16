@@ -4,6 +4,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
+using NeoSharp.Core.Exceptions;
 
 namespace NeoSharp.Core.Network
 {
@@ -72,7 +73,7 @@ namespace NeoSharp.Core.Network
             var match = EndPointPattern.Match(value);
             if (!match.Success)
             {
-                throw new FormatException("The enpoint has an invalid format.");
+                throw new InvalidEndpointException("The endpoint has an invalid format.");
             }
 
             return Parse(

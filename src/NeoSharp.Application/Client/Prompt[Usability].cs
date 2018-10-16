@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Application.Attributes;
+using NeoSharp.Application.Exceptions;
 using NeoSharp.Application.Extensions;
 using NeoSharp.Application.Providers;
 using NeoSharp.Core.Extensions;
@@ -145,8 +146,8 @@ namespace NeoSharp.Application.Client
         [PromptCommand("record start", Help = "Record all commands in a file", Category = "Usability")]
         private void RecordStartCommand(FileInfo outputFile)
         {
-            if (_record != null) throw (new Exception("Stop record first"));
-            if (outputFile.Exists) throw (new Exception("Output file already exists"));
+            if (_record != null) throw (new InvalidPromptCommandException("Stop record first"));
+            if (outputFile.Exists) throw (new InvalidParameterException("Output file already exists"));
 
             _record = new StreamWriter(outputFile.FullName, false, Encoding.UTF8);
             OnCommandRequested += Prompt_OnCommandRequested;
@@ -158,7 +159,7 @@ namespace NeoSharp.Application.Client
         [PromptCommand("record stop", Help = "Stop current record", Category = "Usability")]
         private void RecordStopCommand()
         {
-            if (_record == null) throw (new Exception("Empty record"));
+            if (_record == null) throw (new InvalidPromptCommandException("Empty record"));
 
             OnCommandRequested -= Prompt_OnCommandRequested;
 

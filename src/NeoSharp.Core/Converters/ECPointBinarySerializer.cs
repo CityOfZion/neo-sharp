@@ -3,6 +3,7 @@ using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Exceptions;
 
 namespace NeoSharp.Core.Converters
 {
@@ -36,7 +37,7 @@ namespace NeoSharp.Core.Converters
                         reader.Read(buffer, 1, expectedLength * 2);
                         return new ECPoint(buffer);
                     }
-                default: throw new FormatException("Invalid point encoding " + prefix);
+                default: throw new InvalidECPointException("Invalid point encoding " + prefix);
             }
         }
 

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Numerics;
-
+using NeoSharp.Core.Exceptions;
 
 namespace NeoSharp.Core.Extensions
 {
@@ -55,7 +55,7 @@ namespace NeoSharp.Core.Extensions
             for (var x = 0; x < 8; x++)
                 if ((b[w] & 1 << x) > 0)
                     return x + w * 8;
-            throw new Exception();
+            throw new InconsistentBitException();
         }
     }
 }

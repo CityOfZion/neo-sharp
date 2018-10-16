@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Types;
@@ -59,7 +60,7 @@ namespace NeoSharp.Core.Blockchain
         {
             var currentHeight = await GetHeight();
             if (block.Index != currentHeight + 1)
-                throw new ArgumentException(
+                throw new InvalidBlockOrderException(
                     $"Unable to index block: Requires next block to be {currentHeight + 1} but received block {block.Index}");
 
             // TODO #387: Index Spendable

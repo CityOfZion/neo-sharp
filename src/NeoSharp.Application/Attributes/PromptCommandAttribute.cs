@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Reflection;
+using NeoSharp.Application.Exceptions;
 using NeoSharp.Core.DI;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Types;
@@ -44,7 +45,7 @@ namespace NeoSharp.Application.Attributes
                 {
                     // Check dns
                     var hostEntry = Dns.GetHostEntry(ip);
-                    if (hostEntry.AddressList.Length == 0) throw (new ArgumentException(nameof(IPAddress)));
+                    if (hostEntry.AddressList.Length == 0) throw (new InvalidParameterException(nameof(IPAddress)));
                     ip = hostEntry.AddressList.FirstOrDefault().ToString();
                 }
 
@@ -54,14 +55,14 @@ namespace NeoSharp.Application.Attributes
             {
                 var split = token.Value.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
-                if (split.Length != 2) throw (new ArgumentException(nameof(IPEndPoint)));
+                if (split.Length != 2) throw (new InvalidParameterException(nameof(IPEndPoint)));
 
                 var uriType = Uri.CheckHostName(split[0]);
                 if (uriType == UriHostNameType.Dns)
                 {
                     // Check dns
                     var hostEntry = Dns.GetHostEntry(split[0]);
-                    if (hostEntry.AddressList.Length == 0) throw (new ArgumentException(nameof(IPAddress)));
+                    if (hostEntry.AddressList.Length == 0) throw (new InvalidParameterException(nameof(IPAddress)));
                     split[0] = hostEntry.AddressList.FirstOrDefault().ToString();
                 }
 
@@ -222,7 +223,7 @@ namespace NeoSharp.Application.Attributes
             {
                 if (!Parameters[x].HasDefaultValue && ret[x] == null)
                 {
-                    throw (new Exception($"Missing parameter value <{Parameters[x].Name}>"));
+                    throw (new InvalidParameterException($"Missing parameter value <{Parameters[x].Name}>"));
                 }
             }
 
@@ -322,7 +323,7 @@ namespace NeoSharp.Application.Attributes
                 }
             }
 
-            if (arrays.Count > 0) throw new ArgumentException();
+            if (arrays.Count > 0) throw new InvalidParameterException();
 
             return ret.Count == 1 ? ret[0] : ret.ToArray();
         }
@@ -465,7 +466,7 @@ namespace NeoSharp.Application.Attributes
                 return conv.ConvertFrom(token.Value);
             }
 
-            throw (new ArgumentException());
+            throw (new InvalidParameterException());
         }
 
         /// <summary>

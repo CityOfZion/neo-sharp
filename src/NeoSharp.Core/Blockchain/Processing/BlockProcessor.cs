@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
@@ -97,7 +98,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             var blockExists = _blockPool.Contains(blockHash);
             if (blockExists)
             {
-                throw new InvalidOperationException($"The block \"{blockHash.ToString(true)}\" was already queued to be added.");
+                throw new BlockAlreadyQueuedException($"The block \"{blockHash.ToString(true)}\" was already queued to be added.");
             }
 
             if (!await _blockPersister.IsBlockPersisted(block))

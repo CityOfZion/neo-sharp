@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 
@@ -46,7 +47,7 @@ namespace NeoSharp.Core.Converters
             }
             else
             {
-                throw new FormatException();
+                throw new InvalidTransactionException();
             }
 
             return new TransactionAttribute()

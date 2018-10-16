@@ -6,6 +6,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain.Processing;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
@@ -77,7 +78,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
         }
 
         [TestMethod]
-        [ExpectedException(typeof(InvalidOperationException))]
+        [ExpectedException(typeof(BlockAlreadyQueuedException))]
         public async Task AddBlock_ValidBlockButInBlockPool_ThrowInvalidOperationException()
         {
             var block = new Block

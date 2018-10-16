@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Network;
@@ -33,7 +34,7 @@ namespace NeoSharp.Core.Messaging.Handlers
             sender.Version = message.Payload;
             if (_serverContext.Version.Nonce == sender.Version.Nonce)
             {
-                throw new InvalidOperationException($"The handshake is failed due to \"{nameof(_serverContext.Version.Nonce)}\" value equality.");
+                throw new InvalidMessageException($"The handshake is failed due to \"{nameof(_serverContext.Version.Nonce)}\" value equality.");
             }
 
             // Change protocol?

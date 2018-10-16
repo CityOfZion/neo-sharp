@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
@@ -93,22 +94,22 @@ namespace NeoSharp.Core.Blockchain.Processing
 
             if (_unverifiedTransactionPool.ContainsKey(transaction.Hash))
             {
-                throw new InvalidOperationException($"The transaction  \"{transaction.Hash.ToString(true)}\" was already queued and still not verified to be added.");
+                throw new InvalidTransactionException($"The transaction  \"{transaction.Hash.ToString(true)}\" was already queued and still not verified to be added.");
             }
 
             if (_verifiedTransactionPool.Contains(transaction.Hash))
             {
-                throw new InvalidOperationException($"The transaction  \"{transaction.Hash.ToString(true)}\" was already queued and verified to be added.");
+                throw new InvalidTransactionException($"The transaction  \"{transaction.Hash.ToString(true)}\" was already queued and verified to be added.");
             }
 
             if (await _repository.GetTransaction(transaction.Hash) != null)
             {
-                throw new InvalidOperationException($"The transaction \"{transaction.Hash.ToString(true)}\" exists already on the blockchain.");
+                throw new InvalidTransactionException($"The transaction \"{transaction.Hash.ToString(true)}\" exists already on the blockchain.");
             }
 
             if (!_unverifiedTransactionPool.TryAdd(transaction.Hash, transaction))
             {
-                throw new InvalidOperationException($"The transaction  \"{transaction.Hash.ToString(true)}\" was already queued to be added.");
+                throw new InvalidTransactionException($"The transaction  \"{transaction.Hash.ToString(true)}\" was already queued to be added.");
             }
         }
 

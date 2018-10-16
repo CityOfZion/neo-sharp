@@ -3,6 +3,7 @@ using System.Linq;
 using System.Security;
 using System.Text;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Cryptography;
@@ -48,7 +49,7 @@ namespace NeoSharp.Core.Wallet.Helpers
             //16 bytes: An AES - encrypted key material record(encryptedhalf2)
             if (data.Length != 39)
             {
-                throw new FormatException();
+                throw new InvalidNEP2Exception();
             }
 
             // Object identifier prefix: 0x0142.
@@ -58,12 +59,12 @@ namespace NeoSharp.Core.Wallet.Helpers
             // https://github.com/neo-project/proposals/blob/master/nep-2.mediawiki#proposed-specification
             if (data[0] != 0x01 || data[1] != 0x42)
             {
-                throw new FormatException();
+                throw new InvalidNEP2Exception();
             }
             // Payload flagbyte, always 0xE0
             if (data[2] != 0xe0)
             {
-                throw new FormatException();
+                throw new InvalidNEP2Exception();
             }
 
             //4 bytes: SHA256(SHA256(expected_neo_address))[0...3], used both for typo checking and as salt
@@ -94,7 +95,7 @@ namespace NeoSharp.Core.Wallet.Helpers
 
             if (!check.SequenceEqual(addressHash))
             {
-                throw new FormatException();
+                throw new InvalidNEP2Exception();
             }
 
             return privateKey;

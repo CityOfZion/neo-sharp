@@ -2,6 +2,7 @@
 using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Types;
 
 namespace NeoSharp.Core.Models
@@ -39,7 +40,7 @@ namespace NeoSharp.Core.Models
 
         protected override void DeserializeExclusiveData(IBinarySerializer deserializer, BinaryReader reader, BinarySerializerSettings settings = null)
         {
-            if (Version > 1) throw new FormatException(nameof(Version));
+            if (Version > 1) throw new InvalidTransactionException(nameof(Version));
 
             Script = reader.ReadVarBytes(65536);
 
@@ -49,7 +50,7 @@ namespace NeoSharp.Core.Models
             {
                 Gas = deserializer.Deserialize<Fixed8>(reader, settings);
 
-                if (Gas < Fixed8.Zero) throw new FormatException();
+                if (Gas < Fixed8.Zero) throw new InvalidTransactionException();
             }
             else
             {

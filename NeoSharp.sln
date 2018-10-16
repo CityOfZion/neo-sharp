@@ -3,37 +3,37 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.26730.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Application", "src\NeoSharp.Application\NeoSharp.Application.csproj", "{6629F48A-D208-451F-94FB-5874F3217787}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Application", "src\NeoSharp.Application\NeoSharp.Application.csproj", "{6629F48A-D208-451F-94FB-5874F3217787}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Application.Test", "test\NeoSharp.Application.Test\NeoSharp.Application.Test.csproj", "{F63C7424-695D-45DB-9E9B-6D30EA7B2F79}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Application.Test", "test\NeoSharp.Application.Test\NeoSharp.Application.Test.csproj", "{F63C7424-695D-45DB-9E9B-6D30EA7B2F79}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Core", "src\NeoSharp.Core\NeoSharp.Core.csproj", "{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Core", "src\NeoSharp.Core\NeoSharp.Core.csproj", "{B0C9D858-B84B-40AC-8ABA-65C50E2D5B58}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Core.Benchmark", "test\NeoSharp.Core.Benchmark\NeoSharp.Core.Benchmark.csproj", "{6BD620E7-1321-4B85-8B0C-CA00A9076D39}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Core.Benchmark", "test\NeoSharp.Core.Benchmark\NeoSharp.Core.Benchmark.csproj", "{6BD620E7-1321-4B85-8B0C-CA00A9076D39}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Core.Test", "test\NeoSharp.Core.Test\NeoSharp.Core.Test.csproj", "{95F83280-0113-4E1F-8FFA-48B9749129CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Core.Test", "test\NeoSharp.Core.Test\NeoSharp.Core.Test.csproj", "{95F83280-0113-4E1F-8FFA-48B9749129CC}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Logging.NLog", "src\NeoSharp.Logging.NLog\NeoSharp.Logging.NLog.csproj", "{D68C8938-EFCA-4B6A-9D01-3FC3DE749EB7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Logging.NLog", "src\NeoSharp.Logging.NLog\NeoSharp.Logging.NLog.csproj", "{D68C8938-EFCA-4B6A-9D01-3FC3DE749EB7}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{049B9D65-5954-424B-8155-5726A60E24C5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1E81559D-7119-409A-9F67-9621D78081E3}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.TestHelpers", "test\NeoSharp.TestHelpers\NeoSharp.TestHelpers.csproj", "{D86BE80D-CD48-4F28-B003-567101952D27}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.TestHelpers", "test\NeoSharp.TestHelpers\NeoSharp.TestHelpers.csproj", "{D86BE80D-CD48-4F28-B003-567101952D27}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.DI.SimpleInjector", "src\NeoSharp.DI.SimpleInjector\NeoSharp.DI.SimpleInjector.csproj", "{D6817512-EE24-4121-B93F-C978A63FA49A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.DI.SimpleInjector", "src\NeoSharp.DI.SimpleInjector\NeoSharp.DI.SimpleInjector.csproj", "{D6817512-EE24-4121-B93F-C978A63FA49A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.RedisDB", "src\NeoSharp.Persistence.RedisDB\NeoSharp.Persistence.RedisDB.csproj", "{ED9A45F1-E717-4380-8F59-6F32873EEF69}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Persistence.RedisDB", "src\NeoSharp.Persistence.RedisDB\NeoSharp.Persistence.RedisDB.csproj", "{ED9A45F1-E717-4380-8F59-6F32873EEF69}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.VM", "src\NeoSharp.VM\NeoSharp.VM.csproj", "{32DD19F0-A1B7-4CEE-A26D-85E4DD7B57B5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.VM", "src\NeoSharp.VM\NeoSharp.VM.csproj", "{32DD19F0-A1B7-4CEE-A26D-85E4DD7B57B5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.BinarySerialization", "src\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj", "{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.BinarySerialization", "src\NeoSharp.BinarySerialization\NeoSharp.BinarySerialization.csproj", "{7CAA9605-FDDE-484D-BA7B-FC7823F2AA30}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.RocksDB", "src\NeoSharp.Persistence.RocksDB\NeoSharp.Persistence.RocksDB.csproj", "{24502C1E-AD52-4AC9-A83E-C7BAE373167C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Persistence.RocksDB", "src\NeoSharp.Persistence.RocksDB\NeoSharp.Persistence.RocksDB.csproj", "{24502C1E-AD52-4AC9-A83E-C7BAE373167C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.RocksDB.Tests", "test\NeoSharp.Persistence.RocksDB.Tests\NeoSharp.Persistence.RocksDB.Tests.csproj", "{19E9505C-027B-47ED-B206-1682D6D88E33}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Persistence.RocksDB.Tests", "test\NeoSharp.Persistence.RocksDB.Tests\NeoSharp.Persistence.RocksDB.Tests.csproj", "{19E9505C-027B-47ED-B206-1682D6D88E33}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoSharp.Persistence.Redis.Tests", "test\NeoSharp.Persistence.Redis.Tests\NeoSharp.Persistence.Redis.Tests.csproj", "{21B0BA1B-2F87-47BC-AC1C-03C23508771F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Persistence.Redis.Tests", "test\NeoSharp.Persistence.Redis.Tests\NeoSharp.Persistence.Redis.Tests.csproj", "{21B0BA1B-2F87-47BC-AC1C-03C23508771F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoSharp.Cryptography", "src\NeoSharp.Cryptography\NeoSharp.Cryptography.csproj", "{FEE4C79D-D3EE-45F5-8EFA-BA9CBEBFBCF5}"
 EndProject

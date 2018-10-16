@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
+using NeoSharp.Application.Exceptions;
 using NeoSharp.Application.Extensions;
 using NeoSharp.Application.Providers;
 using NeoSharp.Core.Blockchain;
@@ -191,10 +192,10 @@ namespace NeoSharp.Application.Client
                 {
                     if (cmds.Length > 0)
                     {
-                        throw new Exception($"Wrong parameters for <{cmds.FirstOrDefault().Command}>");
+                        throw new InvalidParameterException($"Wrong parameters for <{cmds.FirstOrDefault().Command}>");
                     }
 
-                    throw new Exception($"Command not found <{command}>");
+                    throw new InvalidPromptCommandException($"Command not found <{command}>");
                 }
 
                 // Get command

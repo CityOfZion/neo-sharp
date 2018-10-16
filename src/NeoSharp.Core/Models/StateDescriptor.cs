@@ -2,6 +2,7 @@
 using System.Linq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.BinarySerialization.SerializationHooks;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Types;
 
 namespace NeoSharp.Core.Models
@@ -43,7 +44,7 @@ namespace NeoSharp.Core.Models
                         else
                             return Fixed8.Zero;
                     }
-                default: throw new InvalidOperationException();
+                default: throw new InvalidStateDescriptorException();
             }
         }
 
@@ -53,15 +54,15 @@ namespace NeoSharp.Core.Models
             {
                 case StateType.Account:
                     {
-                        if (Key.Length != 20) throw new FormatException();
-                        if (Field != "Votes") throw new FormatException();
+                        if (Key.Length != 20) throw new InvalidStateDescriptorException();
+                        if (Field != "Votes") throw new InvalidStateDescriptorException();
 
                         return VerifyAccountState();
                     }
                 case StateType.Validator:
                     {
-                        if (Key.Length != 33) throw new FormatException();
-                        if (Field != "Registered") throw new FormatException();
+                        if (Key.Length != 33) throw new InvalidStateDescriptorException();
+                        if (Field != "Registered") throw new InvalidStateDescriptorException();
 
                         return VerifyValidatorState();
                     }

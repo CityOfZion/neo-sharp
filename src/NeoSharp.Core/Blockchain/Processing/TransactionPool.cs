@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Types;
@@ -40,7 +41,7 @@ namespace NeoSharp.Core.Blockchain.Processing
 
             if (!this._transactionOperationsManager.Verify(transaction))
             {
-                throw new InvalidOperationException($"The transaction with hash \"{transaction.Hash}\" was not passed verification.");
+                throw new InvalidTransactionException($"The transaction with hash \"{transaction.Hash}\" was not passed verification.");
             }
             
             if (this.Where(p => p != transaction)
@@ -48,12 +49,12 @@ namespace NeoSharp.Core.Blockchain.Processing
                 .Intersect(transaction.Inputs)
                 .Any())
             {
-                throw new InvalidOperationException($"The transaction with hash \"{transaction.Hash}\" was already queued to be added.");
+                throw new InvalidTransactionException($"The transaction with hash \"{transaction.Hash}\" was already queued to be added.");
             }
 
             if (!_transactionPool.TryAdd(transaction.Hash, new TimeStampedTransaction(transaction)))
             {
-                throw new InvalidOperationException($"The transaction with hash \"{transaction.Hash}\" was already queued to be added.");
+                throw new InvalidTransactionException($"The transaction with hash \"{transaction.Hash}\" was already queued to be added.");
             }
         }
 

@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.Extensions.Logging;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
+using NeoSharp.Application.Exceptions;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Models;
 using NeoSharp.Cryptography;
@@ -167,7 +168,7 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("virtual contract add", Help = "Add virtual contract to the script table", Category = "Debug")]
         public void VirtualContractAddCommand(FileInfo file)
         {
-            if (!file.Exists) throw new ArgumentException("File must exists");
+            if (!file.Exists) throw new InvalidParameterException("File must exists");
 
             VirtualContractAddCommand(File.ReadAllBytes(file.FullName));
         }
