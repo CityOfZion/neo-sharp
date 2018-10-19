@@ -65,7 +65,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             _blockPool.Keys
                 .AsParallel()
                 .OrderByDescending(_ => _)
-                .Take(Math.Max(Capacity - Size, 0))
+                .Take(Math.Max(Size - Capacity, 0))
                 .ToArray()
                 .ForEach(Remove);
         }

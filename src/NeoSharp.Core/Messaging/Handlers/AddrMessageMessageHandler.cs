@@ -10,15 +10,15 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Private Fields 
         private readonly IServer _server;
+        private readonly IServerContext _serverContext;
+
         #endregion
 
         #region Constructor
-        //public AddrMessageMessageHandler(IServer server)
-        //{
-        //    _server = server ?? throw new ArgumentNullException(nameof(server));
-        //}
-        public AddrMessageMessageHandler()
+        public AddrMessageMessageHandler(IServer server, IServerContext serverContext)
         {
+            _server = server ?? throw new ArgumentNullException(nameof(server));
+            _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
         }
         #endregion
 
@@ -26,16 +26,14 @@ namespace NeoSharp.Core.Messaging.Handlers
         /// <inheritdoc />
         public override Task Handle(AddrMessage message, IPeer sender)
         {
-            //var connectedEndPoints = _server.ConnectedPeers
-            //    .Select(p => p.EndPoint)
-            //    .ToArray();
+            var connectedEndPoints = _serverContext.ConnectedPeers.Keys.ToArray();
 
-            //var endPointsToConnect = message.Payload.Address
-            //    .Select(nat => new EndPoint(Protocol.Tcp, nat.EndPoint))
-            //    .Where(ep => !connectedEndPoints.Contains(ep))
-            //    .ToArray();
+            var endPointsToConnect = message.Payload.Address
+                .Select(nat => new EndPoint(Protocol.Tcp, nat.EndPoint))
+                .Where(ep => !connectedEndPoints.Contains(ep))
+                .ToArray();
 
-            //_server.ConnectToPeers(endPointsToConnect);
+            _server.ConnectToPeers(endPointsToConnect);
 
             return Task.CompletedTask;
         }

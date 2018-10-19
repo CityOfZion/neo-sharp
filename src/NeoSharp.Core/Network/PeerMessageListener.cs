@@ -18,6 +18,8 @@ namespace NeoSharp.Core.Network
         private const int MaxParallelBlockRequestsForSync = 4;
         private static readonly TimeSpan DefaultBlockWaitingInterval = TimeSpan.FromMilliseconds(500);
         private static readonly TimeSpan DefaultBlockSynchronizingInterval = TimeSpan.FromMilliseconds(1_000);
+        private static readonly TimeSpan DefaultPeerWaitingInterval = TimeSpan.FromMilliseconds(2_000);
+        private static readonly TimeSpan DefaultPeerConnectingInterval = TimeSpan.FromMilliseconds(5_000);
 
         private readonly IAsyncDelayer _asyncDelayer;
         private readonly IMessageHandlerProxy _messageHandlerProxy;
@@ -52,6 +54,7 @@ namespace NeoSharp.Core.Network
             // Initiate handshake
             peer.Send(new VersionMessage(_serverContext.Version));
 
+            // run main message listening loop
             Task.Factory.StartNew(async () =>
             {
                 while (peer.IsConnected)
@@ -70,13 +73,14 @@ namespace NeoSharp.Core.Network
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
 
+            // run block synchronization loop
             Task.Factory.StartNew(async () =>
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     if (!peer.IsReady)
                     {
-                        await _asyncDelayer.Delay(DefaultBlockWaitingInterval, cancellationToken);
+                        await _asyncDelayer.Delay(DefaultPeerWaitingInterval, cancellationToken);
                         continue;
                     }
 
@@ -93,6 +97,26 @@ namespace NeoSharp.Core.Network
                     {
                         await _asyncDelayer.Delay(DefaultBlockWaitingInterval, cancellationToken);
                     }
+                }
+            }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+
+            // run peer discovery loop
+            Task.Factory.StartNew(async () =>
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    if (!peer.IsReady)
+                    {
+                        await _asyncDelayer.Delay(DefaultPeerWaitingInterval, cancellationToken);
+                        continue;
+                    }
+
+                    if (_serverContext.ConnectedPeers.Count <= _serverContext.MaxConnectedPeers)
+                    {
+                        await peer.Send<GetAddrMessage>();
+                    }
+
+                    await _asyncDelayer.Delay(DefaultPeerConnectingInterval, cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }

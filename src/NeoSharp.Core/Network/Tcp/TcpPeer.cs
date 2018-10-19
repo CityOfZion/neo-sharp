@@ -128,9 +128,9 @@ namespace NeoSharp.Core.Network.Tcp
         /// </summary>
         public void Disconnect()
         {
-            OnDisconnect?.Invoke(this, null);
             Dispose();
             _logger.LogInformation($"The peer {EndPoint.Host}:{EndPoint.Port} was disconnected");
+            OnDisconnect?.Invoke(this, null);
         }
 
         public event EventHandler OnDisconnect;
@@ -232,13 +232,9 @@ namespace NeoSharp.Core.Network.Tcp
                     _logger.LogDebug($"Message Received: {msg.Command}");
                     return msg;
                 }
-                catch (IOException)
-                {
-                }
                 catch (Exception err)
                 {
                     _logger.LogError(err, "Error while receive");
-
                     Disconnect();
                 }
             }

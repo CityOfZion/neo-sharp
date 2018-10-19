@@ -32,6 +32,9 @@ namespace NeoSharp.Core.Network
 
         /// <inheritdoc />
         public ConcurrentDictionary<EndPoint, IPeer> ConnectedPeers { get; }
+
+        public ushort MaxConnectedPeers => 10;
+
         #endregion
 
         #region Constructor

@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Helpers;
-using NeoSharp.Core.Messaging.Messages;
+using NeoSharp.Core.Logging;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Network;
@@ -23,6 +22,7 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly IBlockPersister _blockPersister;
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBroadcaster _broadcaster;
+        private readonly ILogger<BlockProcessor> _logger;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         #endregion
@@ -35,7 +35,8 @@ namespace NeoSharp.Core.Blockchain.Processing
             ISigner<Block> blockSigner,
             IBlockPersister blockPersister,
             IBlockchainContext blockchainContext,
-            IBroadcaster broadcaster)
+            IBroadcaster broadcaster,
+            ILogger<BlockProcessor> logger)
         {
             _blockPool = blockPool ?? throw new ArgumentNullException(nameof(blockPool));
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
@@ -43,6 +44,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(blockPersister));
             _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
             _broadcaster = broadcaster ?? throw new ArgumentNullException(nameof(broadcaster));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         #endregion
@@ -86,6 +88,13 @@ namespace NeoSharp.Core.Blockchain.Processing
         {
             if (block == null) throw new ArgumentNullException(nameof(block));
 
+            var currentBlockHeight = _blockchainContext.CurrentBlock?.Index ?? 0U;
+
+            if (currentBlockHeight >= block.Index && block.Index > currentBlockHeight + _blockPool.Size)
+            {
+                return;
+            }
+
             if (block.Hash == null)
             {
                 _blockSigner.Sign(block);
@@ -98,7 +107,8 @@ namespace NeoSharp.Core.Blockchain.Processing
             var blockExists = _blockPool.Contains(blockHash);
             if (blockExists)
             {
-                throw new BlockAlreadyQueuedException($"The block \"{blockHash.ToString(true)}\" was already queued to be added.");
+                _logger.LogWarning($"The block \"{blockHash.ToString(true)}\" was already queued to be added.");
+                return;
             }
 
             if (!await _blockPersister.IsBlockPersisted(block))
