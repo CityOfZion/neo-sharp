@@ -26,10 +26,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
             var testee = this.AutoMockContainer.Create<BlockPool>();
 
             var onAddedFired = false;
-            testee.OnAdded += (sender, e) => { onAddedFired = true; };
 
-            // Act 
-            testee.Add(addedBlock);
+            // Act
+            testee.TryAdd(addedBlock);
 
             // Assert
             testee.Size
@@ -47,8 +46,8 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
             // Arrange
             var testee = this.AutoMockContainer.Create<BlockPool>();
 
-            // Act 
-            testee.Add(null);
+            // Act
+            testee.TryAdd(null);
         }
 
         [TestMethod]
@@ -63,9 +62,9 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
             var testee = this.AutoMockContainer.Create<BlockPool>();
 
-            // Act 
-            testee.Add(addedBlock);
-            testee.Add(addedBlock);
+            // Act
+            testee.TryAdd(addedBlock);
+            testee.TryAdd(addedBlock);
         }
 
         [TestMethod]
@@ -82,8 +81,8 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
             var testee = this.AutoMockContainer.Create<BlockPool>();
 
-            // Act 
-            testee.Add(genesisBlock);
+            // Act
+            testee.TryAdd(genesisBlock);
         }
     }
 }

@@ -56,19 +56,19 @@ namespace NeoSharp.Core.Messaging.Handlers
             {
                 _blockOperationsManager.Sign(block);
             }
-
-            if (_blockOperationsManager.Verify(block))
-            {
-                //_logger.LogInformation($"Broadcasting block {block.Hash} with Index {block.Index}.");
-                //_broadcaster.Broadcast(message, sender);
-
-                await _blockProcessor.AddBlock(block);
-            }
             else
             {
-                _logger.LogError($"Block {block.Hash} with Index {block.Index} verification fail.");
+                if (!_blockOperationsManager.Verify(block))
+                {
+                    _logger.LogWarning($"Block {block.Hash} with Index {block.Index} verification fail.");
+                    return;
+                }
             }
 
+            //_logger.LogInformation($"Broadcasting block {block.Hash} with Index {block.Index}.");
+            //_broadcaster.Broadcast(message, sender);
+
+            await _blockProcessor.AddBlock(block);
         }
 
         #endregion

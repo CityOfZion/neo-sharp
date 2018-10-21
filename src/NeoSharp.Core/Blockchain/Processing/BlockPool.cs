@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.Logging;
 using NeoSharp.Core.Models;
 using NeoSharp.Types;
 
@@ -12,24 +13,17 @@ namespace NeoSharp.Core.Blockchain.Processing
     public class BlockPool : IBlockPool
     {
         private const int DefaultCapacity = 10_000;
-        private readonly ILogger<BlockPool> _logger;
         private readonly ConcurrentDictionary<uint, Block> _blockPool = new ConcurrentDictionary<uint, Block>();
 
         public int Size => _blockPool.Count;
         public int Capacity => DefaultCapacity;
-        public event EventHandler<Block> OnAdded;
-
-        public BlockPool(ILogger<BlockPool> logger)
-        {
-            _logger = logger;
-        }
 
         public bool TryGet(uint height, out Block block)
         {
             return _blockPool.TryGetValue(height, out block);
         }
 
-        public void Add(Block block)
+        public bool TryAdd(Block block)
         {
             if (block == null) throw new ArgumentNullException(nameof(block));
             if (block.Hash == null) throw new ArgumentException(nameof(block.Hash));
@@ -37,25 +31,18 @@ namespace NeoSharp.Core.Blockchain.Processing
 
             if (!_blockPool.TryAdd(block.Index, block))
             {
-                throw new BlockAlreadyQueuedException($"The block with height \"{block.Index}\" was already queued to be added.");
+                return false;
             }
 
-            OnAdded?.Invoke(this, block);
-
             PrioritizeBlocks();
+
+
+            return _blockPool.ContainsKey(block.Index);
         }
 
-        public bool Contains(UInt256 hash)
+        public bool TryRemove(uint height)
         {
-            if (hash == null) throw new ArgumentNullException(nameof(hash));
-            if (hash == UInt256.Zero) throw new ArgumentException(nameof(hash));
-
-            return _blockPool.Values.Any(b => b.Hash == hash);
-        }
-
-        public void Remove(uint height)
-        {
-            _blockPool.TryRemove(height, out _);
+            return _blockPool.TryRemove(height, out _);
         }
 
         private void PrioritizeBlocks()
@@ -67,7 +54,17 @@ namespace NeoSharp.Core.Blockchain.Processing
                 .OrderByDescending(_ => _)
                 .Take(Math.Max(Size - Capacity, 0))
                 .ToArray()
-                .ForEach(Remove);
+                .ForEach(h => TryRemove(h));
+        }
+
+        public IEnumerator<Block> GetEnumerator()
+        {
+            return _blockPool.Values.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

@@ -97,8 +97,8 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
             blockPoolMock
-                .Setup(x => x.Contains(block.Hash))
-                .Returns(true);
+                .Setup(x => x.TryAdd(block))
+                .Returns(false);
 
             var testee = this.AutoMockContainer.Create<BlockProcessor>();
 
@@ -126,7 +126,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
             blockPoolMock
-                .Setup(x => x.Contains(block.Hash))
+                .Setup(x => x.TryAdd(block))
                 .Returns(false);
 
             var repositoryMock = this.AutoMockContainer.GetMock<IRepository>();
@@ -139,7 +139,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
             await testee.AddBlock(block);
 
             blockPoolMock
-                .Verify(x => x.Add(block));
+                .Verify(x => x.TryAdd(block));
         }
 
         [TestMethod]
@@ -161,7 +161,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
             var blockPoolMock = this.AutoMockContainer.GetMock<IBlockPool>();
             blockPoolMock
-                .Setup(x => x.Contains(block.Hash))
+                .Setup(x => x.TryAdd(block))
                 .Returns(false);
 
             var repositoryMock = this.AutoMockContainer.GetMock<IRepository>();
@@ -174,7 +174,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
             await testee.AddBlock(block);
 
             blockPoolMock
-                .Verify(x => x.Add(block));
+                .Verify(x => x.TryAdd(block));
         }
 
         [TestMethod]
@@ -201,7 +201,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
                 .Setup(x => x.TryGet(1, out newBlock))
                 .Returns(true);
             blockPoolMock
-                .Setup(x => x.Remove(1))
+                .Setup(x => x.TryRemove(1))
                 .Callback<uint>(x => { waitForBlockProcessedEvent.Set(); });
 
             var blockPersisterMock = this.AutoMockContainer.GetMock<IBlockPersister>();

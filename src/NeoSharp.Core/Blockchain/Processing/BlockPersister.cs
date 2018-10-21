@@ -1,7 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain.Repositories;
-using NeoSharp.Core.Logging;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Network;
 
@@ -15,8 +14,6 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBlockHeaderPersister _blockHeaderPersister;
         private readonly ITransactionPersister<Transaction> _transactionPersister;
-        private readonly ITransactionPool _transactionPool;
-        private readonly ILogger<BlockPersister> _logger;
         
         #endregion
 
@@ -26,16 +23,12 @@ namespace NeoSharp.Core.Blockchain.Processing
             IBlockRepository blockRepository,
             IBlockchainContext blockchainContext,
             IBlockHeaderPersister blockHeaderPersister,
-            ITransactionPersister<Transaction> transactionPersister,
-            ITransactionPool transactionPool,
-            ILogger<BlockPersister> logger)
+            ITransactionPersister<Transaction> transactionPersister)
         {
             _blockRepository = blockRepository;
             _blockchainContext = blockchainContext;
             _blockHeaderPersister = blockHeaderPersister;
             _transactionPersister = transactionPersister;
-            _transactionPool = transactionPool;
-            _logger = logger;
         }
 
         #endregion
@@ -44,63 +37,35 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         public async Task Persist(params Block[] blocks)
         {
-            var index = await _blockRepository.GetTotalBlockHeight();
+            var height = await _blockRepository.GetTotalBlockHeight();
 
             foreach (var block in blocks)
             {
                 var blockHeader = await _blockRepository.GetBlockHeader(block.Hash);
+                if (blockHeader != null && blockHeader.Type == HeaderType.Extended) continue;
 
-                if (blockHeader == null ||
-                    blockHeader.Type == HeaderType.Header && blockHeader.Hash.Equals(block.Hash))
+                if (block.Index > 0)
                 {
-                    if (block.GetBlockHeader().Type == HeaderType.Extended && block.Index > 0)
-                    {
-                        await _blockHeaderPersister.Update(block.GetBlockHeader());
-                    }
-                    else
-                    {
-                        await _blockHeaderPersister.Persist(block.GetBlockHeader());
-                    }
-
-                    if (index + 1 == block.Index)
-                    {
-                        await _blockRepository.SetTotalBlockHeight(block.Index);
-                        index = block.Index;
-                    }
-
-                    foreach (var transaction in block.Transactions)
-                    {
-                        await _transactionPersister.Persist(transaction);
-                        _transactionPool.Remove(transaction.Hash);
-                    }
-
-                    _blockchainContext.CurrentBlock = block;
+                    await _blockHeaderPersister.Update(block.GetBlockHeader());
                 }
+                else
+                {
+                    await _blockHeaderPersister.Persist(block.GetBlockHeader());
+                }
+
+                if (height + 1 == block.Index)
+                {
+                    await _blockRepository.SetTotalBlockHeight(block.Index);
+                    height = block.Index;
+                }
+
+                foreach (var transaction in block.Transactions)
+                {
+                    await _transactionPersister.Persist(transaction);
+                }
+
+                _blockchainContext.CurrentBlock = block;
             }
-        }
-
-        public async Task<IEnumerable<BlockHeader>> Persist(params BlockHeader[] blockHeaders)
-        {
-            return await _blockHeaderPersister.Persist(blockHeaders);
-        }
-
-        public async Task<bool> IsBlockPersisted(Block block)
-        {
-            var blockHeader = await _blockRepository.GetBlockHeader(block.Hash);
-
-            if (blockHeader?.Type == HeaderType.Extended)
-            {
-                _logger.LogDebug($"The block \"{block.Hash.ToString(true)}\" exists already on the blockchain.");
-                return true;
-            }
-
-            if (blockHeader != null && blockHeader.Hash != block.Hash)
-            {
-                _logger.LogDebug($"The block \"{block.Hash.ToString(true)}\" has an invalid hash.");       // <-- [AboimPinto] I'm not sure if this validation should be on this method.
-                return true;
-            }
-
-            return false;
         }
 
         #endregion

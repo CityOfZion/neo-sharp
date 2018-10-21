@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Helpers;
@@ -16,8 +17,8 @@ namespace NeoSharp.Core.Network
         private static readonly TimeSpan DefaultMessagePollingInterval = TimeSpan.FromMilliseconds(10);
         private const int MaxBlocksCountToSync = 500;
         private const int MaxParallelBlockRequestsForSync = 4;
-        private static readonly TimeSpan DefaultBlockWaitingInterval = TimeSpan.FromMilliseconds(500);
-        private static readonly TimeSpan DefaultBlockSynchronizingInterval = TimeSpan.FromMilliseconds(1_000);
+        private static readonly TimeSpan DefaultBlockWaitingInterval = TimeSpan.FromMilliseconds(1_000);
+        private static readonly TimeSpan DefaultBlockSynchronizingInterval = TimeSpan.FromMilliseconds(2_000);
         private static readonly TimeSpan DefaultPeerWaitingInterval = TimeSpan.FromMilliseconds(2_000);
         private static readonly TimeSpan DefaultPeerConnectingInterval = TimeSpan.FromMilliseconds(5_000);
 
@@ -26,6 +27,7 @@ namespace NeoSharp.Core.Network
         private readonly IServerContext _serverContext;
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBlockRepository _blockRepository;
+        private readonly IBlockPool _blockPool;
 
         #endregion
 
@@ -36,13 +38,15 @@ namespace NeoSharp.Core.Network
             IMessageHandlerProxy messageHandlerProxy,
             IServerContext serverContext,
             IBlockchainContext blockchainContext,
-            IBlockRepository blockRepository)
+            IBlockRepository blockRepository,
+            IBlockPool blockPool)
         {
             _asyncDelayer = asyncDelayer ?? throw new ArgumentNullException(nameof(asyncDelayer));
             _messageHandlerProxy = messageHandlerProxy ?? throw new ArgumentNullException(nameof(messageHandlerProxy));
             _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
             _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
             _blockRepository = blockRepository ?? throw new ArgumentNullException(nameof(blockRepository));
+            _blockPool = blockPool ?? throw new ArgumentNullException(nameof(blockPool));
         }
 
         #endregion
@@ -57,7 +61,7 @@ namespace NeoSharp.Core.Network
             // run main message listening loop
             Task.Factory.StartNew(async () =>
             {
-                while (peer.IsConnected)
+                while (peer.IsConnected && !cancellationToken.IsCancellationRequested)
                 {
                     var message = await peer.Receive();
                     if (message == null)
@@ -76,7 +80,7 @@ namespace NeoSharp.Core.Network
             // run block synchronization loop
             Task.Factory.StartNew(async () =>
             {
-                while (!cancellationToken.IsCancellationRequested)
+                while (peer.IsConnected && !cancellationToken.IsCancellationRequested)
                 {
                     if (!peer.IsReady)
                     {
@@ -87,11 +91,11 @@ namespace NeoSharp.Core.Network
                     var currentBlock = _blockchainContext.CurrentBlock;
                     var lastBlockHeader = _blockchainContext.LastBlockHeader;
 
-                    if (currentBlock.Index <= lastBlockHeader.Index &&
+                    if (currentBlock.Index < lastBlockHeader.Index &&
                         lastBlockHeader.Index < peer.Version.CurrentBlockIndex)
                     {
                         await SynchronizeBlocks(peer, currentBlock.Index + 1, lastBlockHeader.Index);
-                        await _asyncDelayer.Delay(DefaultBlockSynchronizingInterval * (new Random(Environment.TickCount)).Next(MaxParallelBlockRequestsForSync), cancellationToken);
+                        await _asyncDelayer.Delay(DefaultBlockSynchronizingInterval, cancellationToken);
                     }
                     else
                     {
@@ -103,7 +107,7 @@ namespace NeoSharp.Core.Network
             // run peer discovery loop
             Task.Factory.StartNew(async () =>
             {
-                while (!cancellationToken.IsCancellationRequested)
+                while (peer.IsConnected && !cancellationToken.IsCancellationRequested)
                 {
                     if (!peer.IsReady)
                     {
@@ -131,6 +135,10 @@ namespace NeoSharp.Core.Network
             toHeight = fromHeight + MaxBlocksCountToSync * MaxParallelBlockRequestsForSync - 1;
 
             var blockHashes = await _blockRepository.GetBlockHashes(fromHeight, toHeight);
+
+            blockHashes = blockHashes
+                .Except(_blockPool.Select(b => b.Hash).ToArray())
+                .ToArray();
 
             if (blockHashes.Any())
             {

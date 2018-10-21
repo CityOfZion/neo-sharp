@@ -14,7 +14,7 @@ namespace NeoSharp.Core.Blockchain.Processing
     {
         #region Private Fields 
 
-        private static readonly TimeSpan DefaultBlockPollingInterval = TimeSpan.FromMilliseconds(100);
+        private static readonly TimeSpan DefaultBlockPollingInterval = TimeSpan.FromMilliseconds(1_000);
 
         private readonly IBlockPool _blockPool;
         private readonly IAsyncDelayer _asyncDelayer;
@@ -64,12 +64,6 @@ namespace NeoSharp.Core.Blockchain.Processing
                     var block = _blockchainContext.CurrentBlock;
                     var nextBlockHeight = block?.Index + 1U ?? 0U;
 
-                    //if (block != null && _blockchainContext.IsPeerConnected && _blockchainContext.NeedPeerSync && !_blockchainContext.IsSyncing)
-                    //{
-                    //    _broadcaster.Broadcast(new GetBlocksMessage(block.Hash));
-                    //    _blockchainContext.IsSyncing = true;
-                    //}
-
                     if (!_blockPool.TryGet(nextBlockHeight, out block))
                     {
                         await _asyncDelayer.Delay(DefaultBlockPollingInterval, cancellationToken);
@@ -78,7 +72,7 @@ namespace NeoSharp.Core.Blockchain.Processing
 
                     await _blockPersister.Persist(block);
 
-                    _blockPool.Remove(nextBlockHeight);
+                    _blockPool.TryRemove(nextBlockHeight);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
@@ -88,9 +82,8 @@ namespace NeoSharp.Core.Blockchain.Processing
         {
             if (block == null) throw new ArgumentNullException(nameof(block));
 
-            var currentBlockHeight = _blockchainContext.CurrentBlock?.Index ?? 0U;
-
-            if (currentBlockHeight >= block.Index && block.Index > currentBlockHeight + _blockPool.Size)
+            var currentBlockHeight = _blockchainContext.CurrentBlock?.Index ?? -1U;
+            if (currentBlockHeight >= block.Index || block.Index > currentBlockHeight + _blockPool.Capacity)
             {
                 return;
             }
@@ -101,19 +94,11 @@ namespace NeoSharp.Core.Blockchain.Processing
             }
 
             var blockHash = block.Hash;
-
             if (blockHash == null || blockHash == UInt256.Zero) throw new ArgumentException(nameof(blockHash));
 
-            var blockExists = _blockPool.Contains(blockHash);
-            if (blockExists)
+            if (_blockPool.TryAdd(block))
             {
                 _logger.LogWarning($"The block \"{blockHash.ToString(true)}\" was already queued to be added.");
-                return;
-            }
-
-            if (!await _blockPersister.IsBlockPersisted(block))
-            {
-                _blockPool.Add(block);
             }
         }
 

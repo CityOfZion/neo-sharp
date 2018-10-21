@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Extensions;
@@ -14,7 +13,7 @@ namespace NeoSharp.Core.Messaging.Handlers
     {
         #region Private Fields 
         private readonly IBlockchainContext _blockchainContext;
-        private readonly IBlockPersister _blockPersister;
+        private readonly IBlockHeaderPersister _blockHeaderPersister;
         private readonly ILogger<BlockHeadersMessageHandler> _logger;
         #endregion
 
@@ -23,12 +22,12 @@ namespace NeoSharp.Core.Messaging.Handlers
         public BlockHeadersMessageHandler
             (
             IBlockchainContext blockchainContext,
-            IBlockPersister blockPersister,
+            IBlockHeaderPersister blockHeaderPersister,
             ILogger<BlockHeadersMessageHandler> logger
             )
         {
             _blockchainContext = blockchainContext ?? throw new ArgumentNullException(nameof(blockchainContext));
-            _blockPersister = blockPersister ?? throw new ArgumentNullException(nameof(blockPersister));
+            _blockHeaderPersister = blockHeaderPersister ?? throw new ArgumentNullException(nameof(blockHeaderPersister));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -40,7 +39,7 @@ namespace NeoSharp.Core.Messaging.Handlers
         {
             message.Payload.Headers.ForEach(a => a.Type = HeaderType.Header);
 
-            await _blockPersister.Persist(message.Payload.Headers ?? new BlockHeader[0]);
+            await _blockHeaderPersister.Persist(message.Payload.Headers ?? new BlockHeader[0]);
 
             if (_blockchainContext.LastBlockHeader.Index < sender.Version.CurrentBlockIndex)
             {

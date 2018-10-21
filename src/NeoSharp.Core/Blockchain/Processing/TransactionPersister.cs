@@ -25,6 +25,7 @@ namespace NeoSharp.Core.Blockchain.Processing
         private readonly ITransactionPersister<RegisterTransaction> _registerTransactionPersister;
         private readonly ITransactionPersister<StateTransaction> _stateTransactionPersister;
         private readonly ITransactionPersister<PublishTransaction> _publishTransactionPersister;
+        private readonly ITransactionPool _transactionPool;
 
         public TransactionPersister(
             IRepository repository,
@@ -35,7 +36,8 @@ namespace NeoSharp.Core.Blockchain.Processing
             ITransactionPersister<EnrollmentTransaction> enrollmentTransactionPersister,
             ITransactionPersister<RegisterTransaction> registerTransactionPersister,
             ITransactionPersister<StateTransaction> stateTransactionPersister,
-            ITransactionPersister<PublishTransaction> publishTransactionPersister
+            ITransactionPersister<PublishTransaction> publishTransactionPersister,
+            ITransactionPool transactionPool
         )
         {
             _repository = repository;
@@ -47,6 +49,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             _registerTransactionPersister = registerTransactionPersister;
             _stateTransactionPersister = stateTransactionPersister;
             _publishTransactionPersister = publishTransactionPersister;
+            _transactionPool = transactionPool;
         }
 
         public async Task Persist(Transaction transaction)
@@ -85,6 +88,7 @@ namespace NeoSharp.Core.Blockchain.Processing
             }
 
             await _repository.AddTransaction(transaction);
+            _transactionPool.Remove(transaction.Hash);
         }
 
         private async Task GainOutputs(UInt256 hash, TransactionOutput[] outputs)
