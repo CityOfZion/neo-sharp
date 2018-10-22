@@ -134,7 +134,7 @@ namespace NeoSharp.Core.Network
 
             toHeight = fromHeight + MaxBlocksCountToSync * MaxParallelBlockRequestsForSync - 1;
 
-            var blockHashes = await _blockRepository.GetBlockHashes(fromHeight, toHeight);
+            var blockHashes = await _blockRepository.GetBlockHashes(fromHeight, toHeight - fromHeight + 1);
 
             blockHashes = blockHashes
                 .Except(_blockPool.Select(b => b.Hash).ToArray())

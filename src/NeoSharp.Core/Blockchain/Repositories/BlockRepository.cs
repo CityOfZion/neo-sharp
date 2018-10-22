@@ -23,7 +23,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
         }
         #endregion
 
-        #region IBlockModel implementation 
+        #region IBlockRepository implementation 
         /// <inheritdoc />
         public async Task<uint> GetTotalBlockHeight()
         {
@@ -92,9 +92,9 @@ namespace NeoSharp.Core.Blockchain.Repositories
             return await _repository.GetBlockHashFromHeight(height);
         }
 
-        public Task<IEnumerable<UInt256>> GetBlockHashes(uint fromHeight, uint toHeight)
+        public Task<IEnumerable<UInt256>> GetBlockHashes(uint height, uint count)
         {
-            var heights = Enumerable.Range((int)fromHeight, (int)(toHeight - fromHeight + 1)).Select(Convert.ToUInt32);
+            var heights = Enumerable.Range((int)height, (int)count).Select(Convert.ToUInt32);
 
             return _repository.GetBlockHashesFromHeights(heights);
         }
