@@ -94,7 +94,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
 
         public Task<IEnumerable<UInt256>> GetBlockHashes(uint fromHeight, uint toHeight)
         {
-            var heights = Enumerable.Range((int)fromHeight, (int)toHeight).Select(Convert.ToUInt32);
+            var heights = Enumerable.Range((int)fromHeight, (int)(toHeight - fromHeight + 1)).Select(Convert.ToUInt32);
 
             return _repository.GetBlockHashesFromHeights(heights);
         }
