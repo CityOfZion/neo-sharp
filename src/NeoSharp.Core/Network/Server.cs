@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Core.Logging;
@@ -14,19 +13,17 @@ namespace NeoSharp.Core.Network
     {
         #region Private Fields
 
-        private bool _isRunning;
         private readonly ILogger<Server> _logger;
         private readonly IPeerMessageListener _peerMessageListener;
         private readonly IServerContext _serverContext;
+        private readonly IEnumerable<IServerProcess> _serverProcesses;
         private readonly IPeerFactory _peerFactory;
         private readonly IPeerListener _peerListener;
         private readonly NetworkAcl _acl;
 
-        // if we can't connect to a peer it is inserted into this list
-        // ReSharper disable once NotAccessedField.Local
-        private readonly IList<IPEndPoint> _failedPeers;
         private readonly EndPoint[] _peerEndPoints;
         private CancellationTokenSource _messageListenerTokenSource;
+        private bool _isRunning;
 
         #endregion
 
@@ -40,7 +37,8 @@ namespace NeoSharp.Core.Network
         /// <param name="peerFactory">Factory to create peers from endpoints</param>
         /// <param name="peerListener">Listener to accept peer connections</param>
         /// <param name="peerMessageListener">PeerMessageListener</param>
-        /// <param name="serverContext">Server context.</param>
+        /// <param name="serverContext">Server context</param>
+        /// <param name="serverProcesses">Server processes</param>
         /// <param name="logger">Logger</param>
         public Server(
             NetworkConfig config,
@@ -49,6 +47,7 @@ namespace NeoSharp.Core.Network
             IPeerListener peerListener,
             IPeerMessageListener peerMessageListener,
             IServerContext serverContext,
+            IEnumerable<IServerProcess> serverProcesses,
             ILogger<Server> logger)
         {
             if (config == null) throw new ArgumentNullException(nameof(config));
@@ -60,11 +59,10 @@ namespace NeoSharp.Core.Network
 
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _peerMessageListener = peerMessageListener ?? throw new ArgumentNullException(nameof(peerMessageListener));
-            _serverContext = serverContext;
+            _serverContext = serverContext ?? throw new ArgumentNullException(nameof(serverContext));
+            _serverProcesses = serverProcesses ?? throw new ArgumentNullException(nameof(serverProcesses));
 
             _peerListener.OnPeerConnected += PeerConnected;
-
-            _failedPeers = new List<IPEndPoint>();
 
             // TODO #364: Change after port forwarding implementation
             _peerEndPoints = config.PeerEndPoints;
@@ -91,11 +89,15 @@ namespace NeoSharp.Core.Network
             _peerListener.Start();
 
             _isRunning = true;
+
+            Parallel.ForEach(_serverProcesses, sp => sp.Start());
         }
 
         /// <inheritdoc />
         public void Stop()
         {
+            Parallel.ForEach(_serverProcesses, sp => sp.Stop());
+
             _peerListener.Stop();
 
             _messageListenerTokenSource?.Cancel();
@@ -142,20 +144,11 @@ namespace NeoSharp.Core.Network
         /// <inheritdoc />
         public void Broadcast(Message message, IPeer source = null)
         {
-            Parallel.ForEach(_serverContext.ConnectedPeers.Values, peer =>
-            {
-                if (source == null)
-                {
-                    peer.Send(message);
-                }
-                else
-                {
-                    if (!peer.EndPoint.Equals(source.EndPoint))
-                    {
-                        peer.Send(message);
-                    }
-                }
-            });
+            var peers = _serverContext.ConnectedPeers.Values
+                .Where(p => source == null || !p.EndPoint.Equals(source.EndPoint))
+                .ToArray();
+
+            Parallel.ForEach(peers, peer => peer.Send(message));
         }
         #endregion
 
@@ -183,7 +176,10 @@ namespace NeoSharp.Core.Network
                     throw new UnauthorizedAccessException($"The endpoint \"{peer.EndPoint}\" is prohibited by ACL.");
                 }
 
-                if (!_serverContext.ConnectedPeers.TryAdd(peer.EndPoint, peer)) return;
+                if (!_serverContext.ConnectedPeers.TryAdd(peer.EndPoint, peer))
+                {
+                    throw new InvalidOperationException($"The peer with endpoint \"{peer.EndPoint}\" is already connected.");
+                }
 
                 peer.OnDisconnect += (s, e) => _serverContext.ConnectedPeers.TryRemove(peer.EndPoint, out _);
                 _peerMessageListener.StartFor(peer, _messageListenerTokenSource.Token);
@@ -200,10 +196,7 @@ namespace NeoSharp.Core.Network
         /// </summary>
         private void DisconnectPeers()
         {
-            foreach (var peer in _serverContext.ConnectedPeers.Values)
-            {
-                peer.Disconnect();
-            }
+            Parallel.ForEach(_serverContext.ConnectedPeers.Values, peer => peer.Disconnect());
         }
         #endregion
     }

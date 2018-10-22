@@ -1,4 +1,6 @@
-﻿using NeoSharp.Core.Messaging;
+﻿using System.Linq;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Messaging;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Network.Protocols;
 using NeoSharp.Core.Network.Rpc;
@@ -27,8 +29,17 @@ namespace NeoSharp.Core.DI.Modules
             containerBuilder.RegisterSingleton<IPeerListener, TcpPeerListener>();
             containerBuilder.RegisterSingleton<ITcpPeerFactory, TcpPeerFactory>();
 
-            containerBuilder.RegisterCollectionOf<IMessageHandler>();
+            var exportedTypes = typeof(IMessageHandler).Assembly
+                .GetExportedTypes()
+                .Where(x => x.IsClass && !x.IsAbstract);
+
+            var messageHandlers = exportedTypes.Where(t => t.IsAssignableToGenericType(typeof(MessageHandler<>)));
+
+            containerBuilder.RegisterCollection(typeof(IMessageHandler), messageHandlers);
             containerBuilder.RegisterSingleton<IMessageHandlerProxy, MessageHandlerProxy>();
+
+            var serverProcesses = exportedTypes.Where(t => t.GetInterfaces().Contains(typeof(IServerProcess)));
+            containerBuilder.RegisterCollection(typeof(IServerProcess), serverProcesses);
         }
     }
 }

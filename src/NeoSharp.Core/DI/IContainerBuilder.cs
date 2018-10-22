@@ -44,8 +44,6 @@ namespace NeoSharp.Core.DI
         void RegisterInstanceCreator<TService>(Func<IContainer, TService> instanceCreator)
             where TService : class;
 
-        void RegisterCollectionOf<TService>();
-
         void RegisterModule<TModule>()
             where TModule : class, IModule, new();
 
