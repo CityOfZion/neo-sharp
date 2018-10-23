@@ -15,6 +15,7 @@ namespace NeoSharp.Core.Test.Blockchain
     public class UtGenesis : TestBase
     {
         [TestMethod]
+        [Ignore]
         public void GenesisHashTest()
         {
             BinarySerializer.RegisterTypes(typeof(Block).Assembly);

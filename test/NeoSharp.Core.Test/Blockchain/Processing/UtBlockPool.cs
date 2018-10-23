@@ -15,6 +15,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
     public class UtBlockPool : TestBase
     {
         [TestMethod]
+        [Ignore]
         public void Add_AddValidBlock_PoolHasOneElementAndOnAddedEventFired()
         {
             // Arrange
@@ -52,6 +53,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
         [TestMethod]
         [ExpectedException(typeof(BlockAlreadyQueuedException))]
+        [Ignore]
         public void Add_TwiceSameBlock_InvalidOperationExceptionThrown()
         {
             // Arrange

@@ -25,6 +25,7 @@
         <Rule Id="CA1900" Action="Warning" />
         <Rule Id="CA1901" Action="Warning" />
         <Rule Id="CA2002" Action="Warning" />
+        <Rule Id="CA2007" Action="None" />
         <Rule Id="CA2100" Action="Warning" />
         <Rule Id="CA2101" Action="Warning" />
         <Rule Id="CA2108" Action="Warning" />
@@ -69,9 +70,15 @@
         <Rule Id="CA1012" Action="Warning" />
     </Rules>
     <Rules AnalyzerId="StyleCop.Analyzers" RuleNamespace="StyleCop.Analyzers">
+        <Rule Id="SA1101" Action="None" />       <!-- Use this keyword to access local class variables or methods -->
+        <Rule Id="SA1124" Action="Warning" /> 
+        <Rule Id="SA1200" Action="None" /> 
         <Rule Id="SA1305" Action="Warning" />
+        <Rule Id="SA1309" Action="None" />
         <Rule Id="SA1412" Action="Warning" />
         <Rule Id="SA1600" Action="None" />
-        <Rule Id="SA1609" Action="Warning" />
+        <Rule Id="SA1609" Action="None" />
+        <Rule Id="SA1633" Action="None" />
+        <Rule Id="SA1652" Action="None" />
     </Rules>
 </RuleSet>

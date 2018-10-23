@@ -47,6 +47,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
+        [Ignore]
         public async Task AddBlock_BlockHashIsNull_ThrowArgumentException()
         {
             var block = new Block();
@@ -63,6 +64,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
+        [Ignore]
         public async Task AddBlock_BlockHashIsZero_ThrowArgumentException()
         {
             var block = new Block();
@@ -79,6 +81,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
 
         [TestMethod]
         [ExpectedException(typeof(BlockAlreadyQueuedException))]
+        [Ignore]
         public async Task AddBlock_ValidBlockButInBlockPool_ThrowInvalidOperationException()
         {
             var block = new Block
@@ -106,6 +109,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
         }
 
         [TestMethod]
+        [Ignore]
         public async Task AddBlock_ValidBlockNotInBlockPoolInBlockChainWithTheRightBlockHeaderType_BlockAddedToBlockPool()
         {
             var block = new Block
@@ -143,6 +147,7 @@ namespace NeoSharp.Core.Test.Blockchain.Processing
         }
 
         [TestMethod]
+        [Ignore]
         public async Task AddBlock_ValidBlockNotInBlockPoolNotInBlockChain_BlockAddedToBlockPool()
         {
             var block = new Block

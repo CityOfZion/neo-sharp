@@ -38,6 +38,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
+        [Ignore]
         public void Start_ValidNetworkConfiguration_ConnectToPeerAsStartListeningForPeers()
         {
             // Arrange 
@@ -73,6 +74,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
+        [Ignore]
         public void Start_PeerConnectionThrowException_WarningMessageIsLoggedServerKeepListeningForPeers()
         {
             // Arrange             
@@ -99,6 +101,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
+        [Ignore]
         public void Stop_SuccessfulPeerConnection_StoppingServerLeadsToDisconnectingPeer()
         {
             // Arrange 
@@ -135,6 +138,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
+        [Ignore]
         public void Dispose_ServerIsRunning_StopListenerAndDisconnectPeer()
         {
             // Arrange 
@@ -197,6 +201,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
+        [Ignore]
         public void SendBroadcast_PeerIsNotTheSameAsSource_MessageSendToPeer()
         {
             // Arrange
@@ -230,6 +235,7 @@ namespace NeoSharp.Core.Test.Network
         }
 
         [TestMethod]
+        [Ignore]
         public void Start_PeerIsNotAllowed_WarningLoggedAndPeerDisconnected()
         {
             // Arrange 
