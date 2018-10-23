@@ -130,6 +130,18 @@ namespace NeoSharp.Application.Client
         /// <inheritdoc />
         public void StartPrompt(string[] args)
         {
+            // Backup shell style
+
+            var cb = Console.BackgroundColor;
+            var cf = Console.ForegroundColor;
+
+            // Black background
+
+            _consoleHandler.ApplyStyle(ConsoleOutputStyle.Prompt);
+            _consoleHandler.Clear();
+
+            // Start prompt
+
             _logger.LogInformation("Starting Prompt");
             _consoleHandler.WriteLine("Neo-Sharp", ConsoleOutputStyle.Prompt);
 
@@ -172,6 +184,12 @@ namespace NeoSharp.Application.Client
             }
 
             _consoleHandler.WriteLine("Exiting", ConsoleOutputStyle.Information);
+
+            // Restore shell style
+
+            Console.BackgroundColor = cb;
+            Console.ForegroundColor = cf;
+            _consoleHandler.Clear();
         }
 
         /// <inheritdoc />
