@@ -10,14 +10,17 @@ namespace NeoSharp.Core.Network
     public class ServerContext : IServerContext
     {
         #region Private fields 
+
         private const uint ProtocolVersion = 0;
         private const ulong NodeNetwork = 1;
 
         private readonly IBlockchainContext _blockchainContext;
         private readonly VersionPayload _version;
+
         #endregion
 
         #region Public properties
+
         /// <inheritdoc />
         public VersionPayload Version
         {
@@ -33,11 +36,13 @@ namespace NeoSharp.Core.Network
         /// <inheritdoc />
         public ConcurrentDictionary<EndPoint, IPeer> ConnectedPeers { get; }
 
-        public ushort MaxConnectedPeers => 10;
+        /// <inheritdoc />
+        public ushort MaxConnectedPeers { get; private set; } = 10;
 
         #endregion
 
         #region Constructor
+
         /// <summary>
         /// Server context
         /// </summary>
@@ -60,8 +65,10 @@ namespace NeoSharp.Core.Network
                 Relay = true
             };
 
+            MaxConnectedPeers = config.MaxConnectedPeers;
             ConnectedPeers = new ConcurrentDictionary<EndPoint, IPeer>();
         }
+
         #endregion
     }
 }

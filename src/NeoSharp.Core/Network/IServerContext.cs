@@ -15,6 +15,9 @@ namespace NeoSharp.Core.Network
         /// </summary>
         ConcurrentDictionary<EndPoint, IPeer> ConnectedPeers { get; }
 
+        /// <summary>
+        /// Max number of connected peers
+        /// </summary>
         ushort MaxConnectedPeers { get; }
     }
 }

@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using Microsoft.Extensions.Configuration;
-using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.Network.Security;
-using NeoSharp.Core.Persistence;
 
 namespace NeoSharp.Core.Network
 {
@@ -19,6 +16,7 @@ namespace NeoSharp.Core.Network
             networkConfig.Magic = ParseUInt32(config, "magic", DefaultMagic);
             networkConfig.Port = ParseUInt16(config, "port");
             networkConfig.ForceIPv6 = ParseBool(config, "forceIPv6");
+            networkConfig.MaxConnectedPeers = ParseUInt16(config, "maxConnectedPeers");
             networkConfig.AclConfig = ParseAcl(config, "acl");
             networkConfig.PeerEndPoints = ParsePeerEndPoints(config);
             networkConfig.StandByValidator = ParseStandByValidators(config);
@@ -82,7 +80,7 @@ namespace NeoSharp.Core.Network
                 .ToArray();
         }
 
-        private static String[] ParseStandByValidators(this IConfiguration config)
+        private static string[] ParseStandByValidators(this IConfiguration config)
         {
             var standByValidators = config.GetSection("standByValidators")?.Get<string[]>().Distinct();
             if (standByValidators == null) return new string[0];
@@ -98,13 +96,12 @@ namespace NeoSharp.Core.Network
             var split = host.Split(',', StringSplitOptions.RemoveEmptyEntries);
             if (split.Length != 2) return null;
 
-            IPEndPoint ipEndPoint = null;
-            IPAddress ipAddress;
-            int port;
-            if (IPAddress.TryParse(split[0], out ipAddress) && Int32.TryParse(split[1], out port)) {
-                ipEndPoint = new IPEndPoint(ipAddress, port);
+            if (IPAddress.TryParse(split[0], out var ipAddress) && int.TryParse(split[1], out var port))
+            {
+                return new IPEndPoint(ipAddress, port);
             }
-            return ipEndPoint;
+
+            return null;
         }
 
         private static NetworkAclConfig ParseAcl(IConfiguration config, string section)

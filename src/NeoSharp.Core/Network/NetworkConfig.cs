@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using NeoSharp.Core.Network.Security;
 
 namespace NeoSharp.Core.Network
@@ -30,6 +29,10 @@ namespace NeoSharp.Core.Network
         /// StandByValidator config
         /// </summary>
         public string[] StandByValidator { get; internal set; }
+        /// <summary>
+        /// Max number of connected peers
+        /// </summary>
+        public ushort MaxConnectedPeers { get; internal set; } = 10;
 
         /// <summary>
         /// Constructor
