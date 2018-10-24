@@ -39,9 +39,6 @@
   <ItemGroup>
     <None Remove="SmartContract\ContractHelper.cs~HEAD" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\ca.ruleset" Link="ca.ruleset" />
-  </ItemGroup>
 	<PropertyGroup>
 		<CodeAnalysisRuleSet>ca.ruleset</CodeAnalysisRuleSet>
 	</PropertyGroup>

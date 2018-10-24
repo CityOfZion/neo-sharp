@@ -17,7 +17,7 @@ namespace NeoSharp.Core.Network
         private static readonly TimeSpan DefaultMessagePollingInterval = TimeSpan.FromMilliseconds(10);
         private const int MaxBlocksCountToSync = 500;
         private const int MaxParallelBlockRequestsForSync = 4;
-        private static readonly TimeSpan DefaultBlockWaitingInterval = TimeSpan.FromMilliseconds(1_000);
+        private static readonly TimeSpan DefaultBlockHeaderWaitingInterval = TimeSpan.FromMilliseconds(1_000);
         private static readonly TimeSpan DefaultBlockSynchronizingInterval = TimeSpan.FromMilliseconds(2_000);
         private static readonly TimeSpan DefaultPeerWaitingInterval = TimeSpan.FromMilliseconds(2_000);
 
@@ -87,19 +87,25 @@ namespace NeoSharp.Core.Network
                         continue;
                     }
 
-                    var currentBlock = _blockchainContext.CurrentBlock;
-                    var lastBlockHeader = _blockchainContext.LastBlockHeader;
+                    var currentBlockIndex = _blockchainContext.CurrentBlock.Index;
+                    var peerCurrentBlockIndex = peer.Version.CurrentBlockIndex;
+                    if (currentBlockIndex >= peerCurrentBlockIndex)
+                    {
+                        break;
+                    }
 
-                    if (currentBlock.Index < lastBlockHeader.Index &&
-                        lastBlockHeader.Index < peer.Version.CurrentBlockIndex)
+                    var lastBlockHeaderIndex = _blockchainContext.LastBlockHeader.Index;
+                    if (currentBlockIndex >= lastBlockHeaderIndex)
                     {
-                        await SynchronizeBlocks(peer, currentBlock.Index + 1, lastBlockHeader.Index);
-                        await _asyncDelayer.Delay(DefaultBlockSynchronizingInterval, cancellationToken);
+                        await _asyncDelayer.Delay(DefaultBlockHeaderWaitingInterval, cancellationToken);
+                        continue;
                     }
-                    else
-                    {
-                        await _asyncDelayer.Delay(DefaultBlockWaitingInterval, cancellationToken);
-                    }
+
+                    var fromBlockIndex = currentBlockIndex + 1;
+                    var toBlockIndex = Math.Min(peerCurrentBlockIndex, lastBlockHeaderIndex);
+
+                    await SynchronizeBlocks(peer, fromBlockIndex, toBlockIndex);
+                    await _asyncDelayer.Delay(DefaultBlockSynchronizingInterval, cancellationToken);
                 }
             }, cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);
         }
@@ -108,9 +114,6 @@ namespace NeoSharp.Core.Network
 
         private async Task SynchronizeBlocks(IPeer source, uint fromHeight, uint toHeight)
         {
-            if (fromHeight + MaxBlocksCountToSync * MaxParallelBlockRequestsForSync > toHeight)
-                return;
-
             toHeight = fromHeight + MaxBlocksCountToSync * MaxParallelBlockRequestsForSync - 1;
 
             var blockHashes = await _blockRepository.GetBlockHashes(fromHeight, toHeight - fromHeight + 1);
