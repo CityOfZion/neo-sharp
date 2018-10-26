@@ -9,6 +9,7 @@ using NeoSharp.Application.Client;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.SmartContract.ContractParameters;
 using NeoSharp.Types;
@@ -21,6 +22,8 @@ namespace NeoSharp.Application.Controllers
     public class PromptRpcController : IPromptController
     {
         private readonly IRpcServer _rpc;
+        private readonly ISigner<BlockHeader> _blockSigner;
+        private readonly ISigner<Transaction> _txSigner;
         private readonly IConsoleHandler _consoleHandler;
 
         // TODO #402: invoke and invokefunction => ContractParameter json serializable/deserializable acording to NEO
@@ -41,10 +44,14 @@ namespace NeoSharp.Application.Controllers
         /// Constructor
         /// </summary>
         /// <param name="rpc">Rpc</param>
+        /// <param name="blockSigner">Block signer</param>
+        /// <param name="txSigner">Tx signer</param>
         /// <param name="consoleHandler">Console handler</param>
-        public PromptRpcController(IRpcServer rpc, IConsoleHandler consoleHandler)
+        public PromptRpcController(IRpcServer rpc, ISigner<BlockHeader> blockSigner, ISigner<Transaction> txSigner, IConsoleHandler consoleHandler)
         {
             _rpc = rpc;
+            _blockSigner = blockSigner;
+            _txSigner = txSigner;
             _consoleHandler = consoleHandler;
         }
 
@@ -89,6 +96,26 @@ namespace NeoSharp.Application.Controllers
                 if (deserializeResult)
                 {
                     var obj = BinarySerializer.Default.Deserialize<T>(json["result"].Value<string>().HexToBytes());
+
+                    if (obj is BlockHeader bh)
+                    {
+                        _blockSigner.Sign(bh);
+
+                        if (bh is Block bb && bb.Transactions != null)
+                        {
+                            foreach (var tx in bb.Transactions)
+                            {
+                                _txSigner.Sign(tx);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (obj is Transaction tx)
+                        {
+                            _txSigner.Sign(tx);
+                        }
+                    }
 
                     _consoleHandler.WriteObject(obj, PromptOutputStyle.json);
                 }

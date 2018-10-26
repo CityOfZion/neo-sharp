@@ -6,6 +6,7 @@
 
 	<PropertyGroup>
 		<CodeAnalysisRuleSet>ca.ruleset</CodeAnalysisRuleSet>
+		<LangVersion>7.1</LangVersion>
 	</PropertyGroup>
 	
 	<ItemGroup>
