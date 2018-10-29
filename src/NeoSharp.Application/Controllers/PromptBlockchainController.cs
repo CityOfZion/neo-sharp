@@ -1,12 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using NeoSharp.Application.Attributes;
 using NeoSharp.Application.Client;
+using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManger;
 using NeoSharp.Core.Network;
 using NeoSharp.Types;
 
@@ -21,24 +28,29 @@ namespace NeoSharp.Application.Controllers
         private readonly ITransactionPool _transactionPool;
         private readonly IBlockchain _blockchain;
         private readonly IBlockRepository _blockRepository;
+        private readonly IBlockPersister _blockPersister;
         private readonly ITransactionRepository _transactionModel;
         private readonly IAssetRepository _assetModel;
         private readonly IBlockchainContext _blockchainContext;
         private readonly IConsoleHandler _consoleHandler;
+        private readonly ISigner<Block> _blockSigner;
 
         #endregion
 
         /// <summary>
         /// Constructor
         /// </summary>
+        /// <param name="serverContext">Server context</param>
         /// <param name="blockchain">Blockchain</param>
         /// <param name="blockRepository">The Block Model.</param>
         /// <param name="transactionModel"></param>
         /// <param name="assetModel"></param>
         /// <param name="blockchainContext">The block chain context class.</param>
         /// <param name="blockPool">Block pool</param>
+        /// <param name="blockSigner">Block signer</param>
+        /// <param name="blockPersister">Block persister</param>
         /// <param name="transactionPool">Transaction Pool</param>
-        /// <param name="consoleWriter">Console writter</param>
+        /// <param name="consoleHandler">Console handler</param>
         public PromptBlockchainController(
             IServerContext serverContext,
             IBlockchain blockchain,
@@ -47,12 +59,16 @@ namespace NeoSharp.Application.Controllers
             IAssetRepository assetModel,
             IBlockchainContext blockchainContext,
             IBlockPool blockPool,
+            IBlockPersister blockPersister,
+            ISigner<Block> blockSigner,
             ITransactionPool transactionPool,
             IConsoleHandler consoleHandler)
         {
             _serverContext = serverContext;
             _blockchain = blockchain;
             _blockRepository = blockRepository;
+            _blockSigner = blockSigner;
+            _blockPersister = blockPersister;
             _transactionModel = transactionModel;
             _assetModel = assetModel;
             _blockchainContext = blockchainContext;
@@ -117,6 +133,81 @@ namespace NeoSharp.Application.Controllers
             _consoleHandler.WriteLine("");
 
             WriteStatePercent("  Count", blNodes.PadLeft(numSpaces, ' '), _serverContext.ConnectedPeers.Count, _serverContext.MaxConnectedPeers);
+        }
+
+        /// <summary>
+        /// Get blocks from stream
+        /// </summary>
+        /// <param name="stream">Stream</param>
+        /// <param name="read_start">Read start index</param>
+        /// <returns>Get block</returns>
+        private IEnumerable<Block> GetBlocks(Stream stream, bool read_start = false)
+        {
+            using (var reader = new BinaryReader(stream))
+            {
+                var start = read_start ? reader.ReadUInt32() : 0;
+                var count = reader.ReadUInt32();
+                var end = start + count - 1;
+
+                if (end <= _blockchainContext.CurrentBlock.Index) yield break;
+
+                using (var progress = _consoleHandler.CreatePercent(count))
+                {
+                    for (var height = start; height <= end; height++)
+                    {
+                        var array = reader.ReadBytes(reader.ReadInt32());
+
+                        progress.Value++;
+
+                        if (height > _blockchainContext.CurrentBlock.Index)
+                        {
+                            var block = BinarySerializer.Default.Deserialize<Block>(array);
+                            _blockSigner.Sign(block);
+                            yield return block;
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Import blocks
+        /// </summary>
+        /// <param name="file">File</param>
+        [PromptCommand("import blocks", Category = "Blockchain", Help = "Import blocks from zip file")]
+        public async Task ImportBlocks(FileInfo file)
+        {
+            if (!file.Exists)
+            {
+                throw new ArgumentException($"file '{file.FullName}' must exist");
+            }
+
+            using (var fs = file.OpenRead())
+            {
+                if (file.FullName.EndsWith(".zip", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    using (var zip = new ZipArchive(fs, ZipArchiveMode.Read))
+                    {
+                        foreach (var entry in zip.Entries.Where(u => u.Length > 0).OrderBy(u => u.Name))
+                        {
+                            using (var zs = zip.GetEntry(entry.Name).Open())
+                            {
+                                foreach (var block in GetBlocks(zs, true))
+                                {
+                                    await _blockPersister.Persist(block);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var block in GetBlocks(fs, true))
+                    {
+                        await _blockPersister.Persist(block);
+                    }
+                }
+            }
         }
 
         /// <summary>

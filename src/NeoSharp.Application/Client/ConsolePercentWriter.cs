@@ -8,6 +8,7 @@ namespace NeoSharp.Application.Client
 
         private long _maxValue, _value;
         private decimal _lastFactor;
+        private string _lastPercent;
 
         private readonly IConsoleHandler _handler;
         private readonly int _x, _y;
@@ -88,12 +89,15 @@ namespace NeoSharp.Application.Client
         public void Invalidate()
         {
             var factor = Math.Round((Percent / 100M), 1);
+            var percent = Percent.ToString("0.0").PadLeft(5, ' ');
 
-            if (_lastFactor == factor)
+            if (_lastFactor == factor && _lastPercent == percent)
             {
-                _lastFactor = factor;
                 return;
             }
+
+            _lastFactor = factor;
+            _lastPercent = percent;
 
             var fill = string.Empty.PadLeft((int)(10 * factor), '■');
             var clean = string.Empty.PadLeft(10 - fill.Length, '■');
@@ -101,7 +105,7 @@ namespace NeoSharp.Application.Client
             _handler.SetCursorPosition(_x, _y);
             _handler.Write("[");
             _handler.Write(fill, ConsoleOutputStyle.Input);
-            _handler.Write(clean + "] (" + Percent.ToString("0.0").PadLeft(5, ' ') + "%)");
+            _handler.Write(clean + "] (" + percent + "%)");
         }
 
         /// <summary>

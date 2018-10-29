@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
@@ -35,7 +34,6 @@ namespace NeoSharp.Core.Blockchain.Processing
             }
 
             PrioritizeBlocks();
-
 
             return _blockPool.ContainsKey(block.Index);
         }
