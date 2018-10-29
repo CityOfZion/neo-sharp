@@ -67,8 +67,11 @@ namespace NeoSharp.Core.Network
 
         public void Stop()
         {
-            _tokenSource?.Cancel();
-            _tokenSource?.Dispose();
+            if (_tokenSource == null) return;
+
+            _tokenSource.Cancel();
+            _tokenSource.Dispose();
+            _tokenSource = null;
         }
 
         public void Dispose()
