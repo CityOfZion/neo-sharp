@@ -174,11 +174,7 @@ namespace NeoSharp.Core.Network.Tcp
                         }
                     }
 
-                    //TODO #422
-                    if (message.Command != MessageCommand.consensus)	
-                    {	
-                        await InternalSend(message);	
-                    }
+                    await InternalSend(message);
                 }
             },
             cancellationToken, TaskCreationOptions.LongRunning, TaskScheduler.Default);

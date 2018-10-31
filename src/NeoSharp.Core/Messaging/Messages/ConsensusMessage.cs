@@ -1,33 +1,17 @@
 ﻿using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Models;
-using NeoSharp.Cryptography;
 using NeoSharp.Types;
 
 namespace NeoSharp.Core.Messaging.Messages
 {
     public class ConsensusMessage : Message<ConsensusPayload>
     {
-        #region Variables 
-
-        UInt256 _hash;
-
-        #endregion
+        /// TODO: Create a ISigner<ConsensusMessage> for compute this hash
 
         /// <summary>
         /// Computed hash
         /// </summary>
-        public UInt256 Hash
-        {
-            get
-            {
-                if (_hash == null)
-                {
-                    _hash = new UInt256(Crypto.Default.Hash256(BinarySerializer.Default.Serialize(Payload.Unsigned)));
-                }
-
-                return _hash;
-            }
-        }
+        public UInt256 Hash { get; set; }
 
         /// <summary>
         /// Constructor
@@ -46,15 +30,6 @@ namespace NeoSharp.Core.Messaging.Messages
         {
             Command = MessageCommand.consensus;
             Payload = payload;
-        }
-
-        /// <summary>
-        /// Compute Hash
-        /// </summary>
-        public UInt256 ComputeHash()
-        {
-            _hash = null;
-            return Hash;
         }
     }
 
@@ -90,8 +65,8 @@ namespace NeoSharp.Core.Messaging.Messages
 
 #pragma warning disable CS0414
 
-        [BinaryProperty(1)]
-        private readonly byte ScriptPreffix = 1;
+        [BinaryProperty(1, ValueHandlerLogic = ValueHandlerLogicType.MustBeEqual)]
+        public readonly byte ScriptPrefix = 1;
 
 #pragma warning restore CS0414
 
