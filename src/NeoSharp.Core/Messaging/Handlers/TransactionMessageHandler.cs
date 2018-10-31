@@ -54,13 +54,12 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             if (transaction is MinerTransaction) return;
 
-            // TODO #373: check if the hash of the transaction is known already
             if (transaction.Hash == null)
             {
-                this._transactionSigner.Sign(transaction);
+                _transactionSigner.Sign(transaction);
             }
 
-            if (await this._transactionRepository.ContainsTransaction(transaction.Hash))
+            if (await _transactionRepository.ContainsTransaction(transaction.Hash))
             {
                 _logger.LogInformation($"The transaction \"{transaction.Hash?.ToString(true)}\" exists already on the blockchain.");
                 return;
