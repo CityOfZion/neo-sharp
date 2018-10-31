@@ -147,9 +147,26 @@ namespace NeoSharp.Application.Client
 
             if (args != null)
             {
+                var easyAccess = new Dictionary<string, string[]>()
+                {
+                    { "-i" ,new string[]{ "network start" } },
+                    { "-s" ,new string[]{ "network start" , "log off" } },
+                    { "-r" ,new string[]{ "rpc start" } },
+                };
+
                 // Append arguments as inputs
 
-                _consoleHandler.AppendInputs(args.Where(u => !u.StartsWith("#")).ToArray());
+                foreach (var arg in args.Where(u => !u.StartsWith("#")))
+                {
+                    if (easyAccess.TryGetValue(arg, out var newArgs))
+                    {
+                        _consoleHandler.AppendInputs(newArgs);
+                    }
+                    else
+                    {
+                        _consoleHandler.AppendInputs(arg);
+                    }
+                }
             }
 
             _blockchain.InitializeBlockchain().Wait();
