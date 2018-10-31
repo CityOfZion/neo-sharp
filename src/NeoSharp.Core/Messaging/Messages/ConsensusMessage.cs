@@ -39,6 +39,16 @@ namespace NeoSharp.Core.Messaging.Messages
         }
 
         /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="payload">Payload</param>
+        public ConsensusMessage(ConsensusPayload payload)
+        {
+            Command = MessageCommand.consensus;
+            Payload = payload;
+        }
+
+        /// <summary>
         /// Compute Hash
         /// </summary>
         public UInt256 ComputeHash()

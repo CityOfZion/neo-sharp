@@ -6,12 +6,31 @@ namespace NeoSharp.Core.Messaging.Messages
 {
     public class FilterLoadMessage : Message<FilterLoadPayload>
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public FilterLoadMessage()
         {
             Command = MessageCommand.filterload;
             Payload = new FilterLoadPayload();
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="payload">Payload</param>
+        public FilterLoadMessage(FilterLoadPayload payload)
+        {
+            Command = MessageCommand.filterload;
+            Payload = payload;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="filter">Filter</param>
+        /// <param name="k">k</param>
+        /// <param name="tweak">Tweak</param>
         public FilterLoadMessage(byte[] filter, byte k, uint tweak)
         {
             if (k > 50) throw new FormatException();

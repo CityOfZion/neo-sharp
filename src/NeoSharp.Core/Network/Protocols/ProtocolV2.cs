@@ -107,11 +107,10 @@ namespace NeoSharp.Core.Network.Protocols
                 throw (new InvalidMessageException("Message command not found"));
             }
 
-            var message = (Message)Activator.CreateInstance(type);
-            message.Command = command;
-            message.Flags = (MessageFlags)buffer[5];
+            Message message;
+            var flags = (MessageFlags)buffer[5];
 
-            if (message.Flags.HasFlag(MessageFlags.WithPayload))
+            if (flags.HasFlag(MessageFlags.WithPayload) && typeof(ICarryPayload).IsAssignableFrom(type))
             {
                 buffer = await FillBufferAsync(stream, 4, cancellationToken);
 
@@ -125,32 +124,34 @@ namespace NeoSharp.Core.Network.Protocols
                     ? await FillBufferAsync(stream, (int)payloadLength, cancellationToken)
                     : new byte[0];
 
-                if (message is ICarryPayload messageWithPayload)
+                if (payloadLength == 0)
                 {
-                    if (payloadLength == 0)
-                    {
-                        throw new InvalidMessageException();
-                    }
+                    throw new InvalidMessageException();
+                }
 
-                    if (message.Flags.HasFlag(MessageFlags.Compressed))
-                    {
-                        using (var ms = new MemoryStream(payloadBuffer))
-                        using (var gzip = new GZipStream(ms, CompressionMode.Decompress))
-                        {
-                            // TODO #365: Prevent create dummy object
+                var payloadType = type.BaseType.GenericTypeArguments[0];
 
-                            messageWithPayload.Payload = BinarySerializer.Default.Deserialize(gzip, messageWithPayload.Payload.GetType());
-                        }
-                    }
-                    else
+                if (flags.HasFlag(MessageFlags.Compressed))
+                {
+                    using (var ms = new MemoryStream(payloadBuffer))
+                    using (var gzip = new GZipStream(ms, CompressionMode.Decompress))
                     {
-                        // TODO #365: Prevent create dummy object
-
-                        messageWithPayload.Payload = BinarySerializer.Default.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
+                        var payload = BinarySerializer.Default.Deserialize(gzip, payloadType);
+                        message = (Message)Activator.CreateInstance(type, payload);
                     }
                 }
+                else
+                {
+                    var payload = BinarySerializer.Default.Deserialize(payloadBuffer, payloadType);
+                    message = (Message)Activator.CreateInstance(type, payload);
+                }
+            }
+            else
+            {
+                message = (Message)Activator.CreateInstance(type);
             }
 
+            message.Flags = flags;
             return message;
         }
     }

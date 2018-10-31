@@ -77,9 +77,6 @@ namespace NeoSharp.Core.Network.Protocols
                 if (!Cache.TryGetValue(command, out var type))
                     throw (new InvalidMessageException("Message command not found"));
 
-                var message = (Message)Activator.CreateInstance(type);
-                message.Command = command;
-
                 var payloadLength = reader.ReadUInt32();
                 if (payloadLength > Message.PayloadMaxSize)
                     throw new InvalidMessageException();
@@ -93,17 +90,21 @@ namespace NeoSharp.Core.Network.Protocols
                 if (CalculateChecksum(payloadBuffer) != checksum)
                     throw new InvalidMessageException();
 
-                if (message is ICarryPayload messageWithPayload)
+                if (typeof(ICarryPayload).IsAssignableFrom(type))
                 {
-                    if (payloadLength == 0)
-                        throw new InvalidMessageException();
+                    if (payloadLength == 0) throw new InvalidMessageException();
 
-                    // TODO #367: Prevent create the dummy object
+                    var payloadType = type.BaseType.GenericTypeArguments[0];
+                    var payload = BinarySerializer.Default.Deserialize(payloadBuffer, payloadType);
 
-                    messageWithPayload.Payload = BinarySerializer.Default.Deserialize(payloadBuffer, messageWithPayload.Payload.GetType());
+                    return (Message)Activator.CreateInstance(type, payload);
                 }
+                else
+                {
+                    if (payloadLength != 0) throw new InvalidMessageException();
 
-                return message;
+                    return (Message)Activator.CreateInstance(type);
+                }
             }
         }
 

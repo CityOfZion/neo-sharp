@@ -10,12 +10,29 @@ namespace NeoSharp.Core.Messaging.Messages
 {
     public class AddrMessage : Message<AddrPayload>
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public AddrMessage()
         {
             Command = MessageCommand.addr;
             Payload = new AddrPayload();
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="payload">Payload</param>
+        public AddrMessage(AddrPayload payload)
+        {
+            Command = MessageCommand.addr;
+            Payload = payload;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="address">Address</param>
         public AddrMessage(IEnumerable<NetworkAddressWithTime> address)
         {
             Command = MessageCommand.addr;

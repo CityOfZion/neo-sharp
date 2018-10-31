@@ -2,6 +2,9 @@
 {
     public class GetAddrMessage : Message
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public GetAddrMessage()
         {
             Command = MessageCommand.getaddr;

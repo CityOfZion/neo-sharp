@@ -4,16 +4,23 @@ namespace NeoSharp.Core.Messaging.Messages
 {
     public class BlockMessage : Message<Block>
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public BlockMessage()
         {
             Command = MessageCommand.block;
             Payload = new Block();
         }
 
-        public BlockMessage(Block block)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="payload">Payload</param>
+        public BlockMessage(Block payload)
         {
             Command = MessageCommand.block;
-            Payload = block;
+            Payload = payload;
         }
     }
 }

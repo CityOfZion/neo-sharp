@@ -7,6 +7,9 @@ namespace NeoSharp.Core.Messaging.Messages
 {
     public class GetBlocksMessage : Message<GetBlocksPayload>
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public GetBlocksMessage()
         {
             Command = MessageCommand.getblocks;
@@ -16,6 +19,20 @@ namespace NeoSharp.Core.Messaging.Messages
             };
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="payload">Payload</param>
+        public GetBlocksMessage(GetBlocksPayload payload)
+        {
+            Command = MessageCommand.getblocks;
+            Payload = payload;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="hashStart">Hash start</param>
         public GetBlocksMessage(UInt256 hashStart)
         {
             Command = MessageCommand.getblocks;

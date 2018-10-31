@@ -1,5 +1,4 @@
-﻿using System;
-using NeoSharp.Core.DI;
+﻿using NeoSharp.Core.DI;
 using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Persistence;
 using NeoSharp.Persistence.RedisDB;
@@ -18,20 +17,20 @@ namespace NeoSharp.Application.DI
             switch (cfg.Provider)
             {
                 case RedisDbJsonConfig.Provider:
-                {
-                    containerBuilder.RegisterSingleton<RedisDbJsonConfig>();
-                    containerBuilder.RegisterSingleton<IRepository, RedisDbJsonRepository>();
-                    containerBuilder.RegisterSingleton<IRedisDbJsonContext, RedisDbJsonContext>();
-                    break;
-                }
-                
+                    {
+                        containerBuilder.RegisterSingleton<RedisDbJsonConfig>();
+                        containerBuilder.RegisterSingleton<IRepository, RedisDbJsonRepository>();
+                        containerBuilder.RegisterSingleton<IRedisDbJsonContext, RedisDbJsonContext>();
+                        break;
+                    }
+
                 case RedisDbBinaryConfig.Provider:
-                {
-                    containerBuilder.RegisterSingleton<RedisDbBinaryConfig>();
-                    containerBuilder.RegisterSingleton<IRepository, RedisDbBinaryRepository>();
-                    containerBuilder.RegisterSingleton<IRedisDbContext, RedisDbContext>();
-                    break;
-                }
+                    {
+                        containerBuilder.RegisterSingleton<RedisDbBinaryConfig>();
+                        containerBuilder.RegisterSingleton<IRepository, RedisDbBinaryRepository>();
+                        containerBuilder.RegisterSingleton<IRedisDbContext, RedisDbContext>();
+                        break;
+                    }
 
                 case RocksDbConfig.Provider:
                     {

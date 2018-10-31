@@ -4,16 +4,23 @@ namespace NeoSharp.Core.Messaging.Messages
 {
     public class TransactionMessage : Message<Transaction>
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public TransactionMessage()
         {
             Command = MessageCommand.tx;
             Payload = new Transaction();
         }
 
-        public TransactionMessage(Transaction transaction)
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="payload">Payload</param>
+        public TransactionMessage(Transaction payload)
         {
             Command = MessageCommand.tx;
-            Payload = transaction;
+            Payload = payload;
         }
     }
 }

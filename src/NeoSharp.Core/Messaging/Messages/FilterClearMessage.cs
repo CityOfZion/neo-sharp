@@ -2,6 +2,9 @@
 {
     public class FilterClearMessage : Message
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public FilterClearMessage()
         {
             Command = MessageCommand.filterclear;

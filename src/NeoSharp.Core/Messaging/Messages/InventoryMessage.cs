@@ -8,12 +8,30 @@ namespace NeoSharp.Core.Messaging.Messages
 {
     public class InventoryMessage : Message<InventoryPayload>
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public InventoryMessage()
         {
             Command = MessageCommand.inv;
             Payload = new InventoryPayload();
         }
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="payload">Payload</param>
+        public InventoryMessage(InventoryPayload payload)
+        {
+            Command = MessageCommand.inv;
+            Payload = payload;
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="type">Type</param>
+        /// <param name="hashes">Hashes</param>
         public InventoryMessage(InventoryType type, IEnumerable<UInt256> hashes)
         {
             Command = MessageCommand.inv;
