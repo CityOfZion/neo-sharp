@@ -62,10 +62,10 @@ namespace NeoSharp.Core.Wallet.Test
                 .Setup(x => x.SerializeObject(It.Is<NEP6Wallet>(wallet => wallet.Name == expectedWalletName && wallet.Version == expetectedWalletVersion)))
                 .Returns(expectedNep6WalletSerialized);
 
-            var mockWalletManager = AutoMockContainer.Create<Nep6WalletManager>();
+            var testee = AutoMockContainer.Create<Nep6WalletManager>();
 
-            mockWalletManager.CreateWallet(expectedFileName);
-            Assert.IsNotNull(mockWalletManager.Wallet);
+            testee.CreateWallet(expectedFileName);
+            Assert.IsNotNull(testee.Wallet);
             fileWrapper.Verify(x => x.WriteToFile(expectedNep6WalletSerialized, expectedFileName));
         }
 
@@ -78,9 +78,9 @@ namespace NeoSharp.Core.Wallet.Test
             var fileWrapper = AutoMockContainer.GetMock<IFileWrapper>();
             fileWrapper.Setup(x => x.Exists(expectedFileName)).Returns(true);
 
-            var mockWalletManager = AutoMockContainer.Create<Nep6WalletManager>();
+            var testee = AutoMockContainer.Create<Nep6WalletManager>();
 
-            mockWalletManager.CreateWallet(expectedFileName);
+            testee.CreateWallet(expectedFileName);
         }
 
         [TestMethod]
@@ -98,9 +98,9 @@ namespace NeoSharp.Core.Wallet.Test
                 .Setup(x => x.SerializeObject(It.Is<NEP6Wallet>(wallet => wallet.Name == expectedWalletName && wallet.Version == expetectedWalletVersion)))
                 .Returns(String.Empty);
 
-            var mockWalletManager = AutoMockContainer.Create<Nep6WalletManager>();
+            var testee = AutoMockContainer.Create<Nep6WalletManager>();
 
-            mockWalletManager.CreateWallet(expectedFileName);
+            testee.CreateWallet(expectedFileName);
         }
 
         #endregion
@@ -212,14 +212,14 @@ namespace NeoSharp.Core.Wallet.Test
         [ExpectedException(typeof(WalletNotOpenException))]
         public void TestGetAccountPublicKeyWalletIsNotOpened()
         {
-            var mockWalletManager = GetAWalletManagerWithoutAnWallet();
+            var testee = GetAWalletManagerWithoutAnWallet();
             // Act
-            IWalletAccount walletAccount = mockWalletManager.ImportWif("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a", _defaultPassword);
+            IWalletAccount walletAccount = testee.ImportWif("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a", _defaultPassword);
             byte[] privateKey = GetPrivateKeyFromWIF("KxLNhtdXXqaYUW1DKBc1XYQLxhouxXPLgQhR8kk7SYG3ajjR8M8a");
             ECPoint publicKey = new ECPoint(Crypto.Default.ComputePublicKey(privateKey, true));
 
-            mockWalletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
-            IWalletAccount walletAccount2 = mockWalletManager.GetAccount(publicKey);
+            testee = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            IWalletAccount walletAccount2 = testee.GetAccount(publicKey);
         }
 
         [TestMethod]
@@ -235,8 +235,8 @@ namespace NeoSharp.Core.Wallet.Test
             IWalletAccount walletAccount2 = mockWalletManager.GetAccount(publicKey);
 
             Assert.IsNotNull(walletAccount);
-            //TODO #412: Improve address verification testing
-            //Assert.IsFalse(String.IsNullOrWhiteSpace(walletAccount.Address));
+
+            Assert.AreEqual("AdYJeaHepN3jmdUduBLWPESqwQ9QYQCFi7", walletAccount.Address);
         }
 
         #endregion
@@ -279,13 +279,13 @@ namespace NeoSharp.Core.Wallet.Test
         [ExpectedException(typeof(WalletNotOpenException))]
         public void TestDeleteAccountWalletIsNotOpened()
         {
-            var mockWalletManager = GetAWalletManagerWithoutAnWallet();
-            IWalletAccount walletAccount = mockWalletManager.CreateAndAddAccount(_defaultPassword);
+            var testee = GetAWalletManagerWithoutAnWallet();
+            IWalletAccount walletAccount = testee.CreateAndAddAccount(_defaultPassword);
 
-            Assert.IsTrue(mockWalletManager.Wallet.Accounts.ToList().Count == 1);
+            Assert.IsTrue(testee.Wallet.Accounts.ToList().Count == 1);
 
-            mockWalletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
-            mockWalletManager.DeleteAccount(walletAccount.Contract.ScriptHash);
+            testee = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            testee.DeleteAccount(walletAccount.Contract.ScriptHash);
         }
 
         [TestMethod]
@@ -315,9 +315,7 @@ namespace NeoSharp.Core.Wallet.Test
             // Assert
             Assert.IsNotNull(walletAccount2);
             Assert.AreEqual(walletAccount1.ScriptHash, walletAccount2.ScriptHash);
-
-            //TODO #412: Check & improve address verification testing
-            //Assert.IsFalse(String.IsNullOrEmpty(walletAccount2.Address));
+            Assert.AreEqual(walletAccount1.Address, walletAccount2.Address);
 
             Assert.IsTrue(mockWalletManager.Wallet.Accounts.Length == 1);
         }
@@ -346,12 +344,12 @@ namespace NeoSharp.Core.Wallet.Test
         [ExpectedException(typeof(WalletNotOpenException))]
         public void TestImportScriptHashWalletIsNotOpened()
         {
-            var mockWalletManager = GetAWalletManagerWithoutAnWallet();
+            var testee = GetAWalletManagerWithoutAnWallet();
             // Act
-            NEP6Account walletAccount1 = (NEP6Account)mockWalletManager.CreateAndAddAccount(_defaultPassword);
+            NEP6Account walletAccount1 = (NEP6Account)testee.CreateAndAddAccount(_defaultPassword);
 
-            mockWalletManager = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
-            NEP6Account walletAccount2 = (NEP6Account)mockWalletManager.ImportScriptHash(walletAccount1.ScriptHash);
+            testee = new Nep6WalletManager(new FileWrapper(), new JsonConverterWrapper());
+            NEP6Account walletAccount2 = (NEP6Account)testee.ImportScriptHash(walletAccount1.ScriptHash);
         }
 
         #endregion

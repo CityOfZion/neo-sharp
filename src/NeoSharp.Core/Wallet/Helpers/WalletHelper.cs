@@ -191,17 +191,15 @@ namespace NeoSharp.Core.Wallet.Helpers
 
             var privateKeyByteArray = Crypto.Default.Base58CheckDecode(internalWif);
 
-            if (privateKeyByteArray.IsValidPrivateKey())
-            {
-                var privateKey = new byte[32];
-                Buffer.BlockCopy(privateKeyByteArray, 1, privateKey, 0, privateKey.Length);
-                Array.Clear(privateKeyByteArray, 0, privateKeyByteArray.Length);
-                return privateKey;
-            }
-            else
+            if (!privateKeyByteArray.IsValidPrivateKey())
             {
                 throw new FormatException();
             }
+            
+            var privateKey = new byte[32];
+            Buffer.BlockCopy(privateKeyByteArray, 1, privateKey, 0, privateKey.Length);
+            Array.Clear(privateKeyByteArray, 0, privateKeyByteArray.Length);
+            return privateKey;
         }
 
         #region Private Methods

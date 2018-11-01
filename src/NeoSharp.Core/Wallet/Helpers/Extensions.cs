@@ -29,24 +29,23 @@ namespace NeoSharp.Core.Wallet.Helpers
         public static bool IsValidPrivateKey(this byte[] privateKey)
         {
             //if data.LengthIsCorrect AND data.FirstByteIsCorrect AND data.LastByteIsCorrect
-            var isValid = true;
 
             if (privateKey.Length != 34)
             {
-                isValid = false;
+                return false;
             }
 
             if (privateKey[0] != 0x80)
             {
-                isValid = false;
+                return false;
             }
 
             if (privateKey[33] != 0x01)
             {
-                isValid = false;
+                return false;
             }
 
-            return isValid;
+            return true;
         }
 
         public static void ValidateAccount(this IWalletAccount account)
