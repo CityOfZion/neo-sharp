@@ -65,14 +65,14 @@ namespace NeoSharp.Application.Controllers
             _walletManager.Close();
         }
 
-        [PromptCommand("import wif", Category = "Wallet", Help = "Close wallet")]
+        [PromptCommand("import wif", Category = "Wallet", Help = "Imports an account in WIF format to the open wallet")]
         public void ImportWif(string wif)
         {
             var secureString = _consoleHandler.ReadPassword();
             _walletManager.ImportWif(wif, secureString);
         }
 
-        [PromptCommand("import nep2", Category = "Wallet", Help = "Close wallet")]
+        [PromptCommand("import nep2", Category = "Wallet", Help = "Imports an account in NEP-2 format to the open wallet")]
         public void ImportNep2(string nep2key)
         {
             var secureString = _consoleHandler.ReadPassword();
@@ -154,7 +154,7 @@ namespace NeoSharp.Application.Controllers
 
         }
 
-        [PromptCommand("account export wif", Category = "Account", Help = "Exports an account in nep-2 format")]
+        [PromptCommand("account export wif", Category = "Account", Help = "Exports an account in WIF format")]
         public void AccountExportWif(string address)
         {
             var walletAccount = _walletManager.GetAccount(address.ToScriptHash());
