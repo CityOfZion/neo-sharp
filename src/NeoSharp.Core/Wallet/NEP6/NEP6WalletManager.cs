@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.SmartContract;
@@ -332,7 +333,7 @@ namespace NeoSharp.Core.Wallet.NEP6
                 {
                     _walletHelper.DecryptWif(Wallet.Accounts.First().Key, password);
                 }
-                catch (FormatException)
+                catch (InvalidNEP2Exception)
                 {
                     throw new AccountsPasswordMismatchException();
                 }

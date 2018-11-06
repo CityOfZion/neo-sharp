@@ -529,6 +529,22 @@ namespace NeoSharp.Core.Wallet.Test
         }
 
         [TestMethod]
+        [ExpectedException(typeof(AccountsPasswordMismatchException))]
+        public void TestVerifyPasswordFalseNoCache()
+        {
+            var mockWalletManager = GetAWalletManagerWithAnWallet();
+            mockWalletManager.CreateAndAddAccount(_defaultPassword);
+
+            string walletFileName = mockWalletManager.Wallet.Name;
+            mockWalletManager.Close();
+            mockWalletManager.Load(walletFileName);
+            // Act
+            SecureString fakeString = new SecureString();
+            fakeString.AppendChar('1');
+            mockWalletManager.CheckIfPasswordMatchesOpenWallet(fakeString);
+        }
+
+        [TestMethod]
         public void TestVerifyPassword()
         {
             var mockWalletManager = GetAWalletManagerWithAnWallet();
