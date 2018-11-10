@@ -1,4 +1,5 @@
 ﻿using NeoSharp.Core.DI;
+using NeoSharp.Core.SmartContract;
 using NeoSharp.VM;
 using NeoSharp.VM.Interop;
 
@@ -14,6 +15,11 @@ namespace NeoSharp.Application.DI
             {
                 // TODO: Log error here
             }
+
+            containerBuilder.RegisterSingleton<InteropService>();
+            containerBuilder.RegisterSingleton<IScriptTable, ScriptTable>();
+            containerBuilder.Register<IMessageContainer, MessageContainer>();
+            containerBuilder.RegisterInstance(new ExecutionEngineLogger(ELogVerbosity.None));
         }
     }
 }
