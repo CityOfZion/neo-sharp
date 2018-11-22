@@ -61,7 +61,6 @@ This project is not about adding new features to NEO, it is about establishing a
 
 <img src="https://trello-attachments.s3.amazonaws.com/5abf13a56a3d403651be77b1/5aca3cf96cd4c979a002adf7/a6e3922803a5dd7cf888fe8f43f5ffd5/Node-Usage-Diagram.PNG">
 
-<img src="https://trello-attachments.s3.amazonaws.com/5abf13a56a3d403651be77b1/5aca3d04b38bd3a13691eb14/4c583187ab49b7502c4a663cbdc61882/Client-Usage-Diagram.PNG">
 # Contributing
 
 Feel free to contribute to this project after reading the
