@@ -14,5 +14,15 @@ namespace NeoSharp.Core.Extensions
         {
             return JsonConvert.SerializeObject(obj, indented ? Formatting.Indented : Formatting.None);
         }
+
+        /// <summary>
+        /// Convert json to object
+        /// </summary>
+        /// <param name="json">Json</param>
+        /// <returns>Return object</returns>
+        public static T JsonToObject<T>(this string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json);
+        }
     }
 }

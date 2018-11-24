@@ -5,6 +5,7 @@ using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 using NeoSharp.Cryptography;
 using NeoSharp.Types.ExtensionMethods;
+using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Cryptography
 {
@@ -19,19 +20,23 @@ namespace NeoSharp.Core.Cryptography
         /// <summary>
         /// Encoded data
         /// </summary>
+        [JsonProperty("point")]
         public readonly byte[] EncodedData;
         /// <summary>
         /// Decoded data
         /// </summary>
+        [JsonIgnore]
         public readonly byte[] DecodedData;
         /// <summary>
         /// Is infinite
         /// </summary>
+        [JsonIgnore]
         public readonly bool IsInfinity;
 
         /// <summary>
         /// X,Y
         /// </summary>
+        [JsonIgnore]
         public readonly BigInteger X, Y;
 
         /// <summary>

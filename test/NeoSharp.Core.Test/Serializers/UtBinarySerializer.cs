@@ -6,6 +6,7 @@ using System.Net;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManger;
@@ -57,6 +58,41 @@ namespace NeoSharp.Core.Test.Serializers
             {
                 List = list;
             }
+        }
+
+        [TestMethod]
+        public void ChineseChars()
+        {
+            var original = new Asset()
+            {
+                Id = new UInt256(RandomByteArray(32)),
+                Admin = new UInt160(RandomByteArray(20)),
+                Amount = new Fixed8(RandomInt()),
+                AssetType = AssetType.Currency,
+                Available = new Fixed8(RandomInt()),
+                Name = "NEO 一种智能经济分布式网络",
+                Owner = new Core.Cryptography.ECPoint(Crypto.Default.ComputePublicKey(RandomByteArray(32), false)),
+                Precision = (byte)(RandomInt() % byte.MaxValue),
+            };
+
+            // Test binary
+
+            var data = _serializer.Serialize(original);
+            var copy = _serializer.Deserialize<Asset>(data);
+            var dataCopy = _serializer.Serialize(copy);
+
+            Assert.AreEqual(original.Name, copy.Name);
+            CollectionAssert.AreEqual(data, dataCopy);
+
+            // Test json
+
+            var json = original.ToJson();
+
+            copy = json.JsonToObject<Asset>();
+            dataCopy = _serializer.Serialize(copy);
+
+            Assert.AreEqual(original.Name, copy.Name);
+            CollectionAssert.AreEqual(data, dataCopy);
         }
 
         [TestMethod]
