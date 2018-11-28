@@ -1,6 +1,6 @@
 ﻿namespace NeoSharp.VM.NeoVM
 {
-    public class ExecutionContextWrapper : ExecutionContext
+    public class ExecutionContextWrapper : ExecutionContextBase
     {
         internal Neo.VM.ExecutionContext NativeContext { get; }
 

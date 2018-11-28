@@ -7,14 +7,14 @@ namespace NeoSharp.Core.Test.SmartContracts
     public class NullExecutionEngine : ExecutionEngineBase
     {
         public EVMState PublicState { get; set; }
-        public StackBase<ExecutionContext> PublicStack { get; set; }
+        public StackBase<ExecutionContextBase> PublicStack { get; set; }
         public Stack PublicStackItemsStack { get; set; }
         public bool PublicDisposed { get; set; }
         public uint PublicConsumedGas { get; set; }
 
         public override EVMState State { get { return PublicState; } }
 
-        public override StackBase<ExecutionContext> InvocationStack { get { return PublicStack; } }
+        public override StackBase<ExecutionContextBase> InvocationStack { get { return PublicStack; } }
 
         public override Stack ResultStack { get { return PublicStackItemsStack; } }
 

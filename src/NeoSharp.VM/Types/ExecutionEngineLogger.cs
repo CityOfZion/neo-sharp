@@ -6,7 +6,7 @@
         /// Delegate for receive operations
         /// </summary>
         /// <param name="context">Execution context</param>
-        public delegate void delOnStepInto(ExecutionContext context);
+        public delegate void delOnStepInto(ExecutionContextBase context);
 
         #region Properties
 
@@ -45,7 +45,7 @@
         /// Raise OnStepInto
         /// </summary>
         /// <param name="context">Context</param>
-        public virtual void RaiseOnStepInto(ExecutionContext context)
+        public virtual void RaiseOnStepInto(ExecutionContextBase context)
         {
             OnStepInto?.Invoke(context);
         }

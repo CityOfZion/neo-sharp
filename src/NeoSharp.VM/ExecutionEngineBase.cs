@@ -49,7 +49,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// InvocationStack
         /// </summary>
-        public abstract StackBase<ExecutionContext> InvocationStack { get; }
+        public abstract StackBase<ExecutionContextBase> InvocationStack { get; }
 
         /// <summary>
         /// ResultStack
@@ -68,22 +68,22 @@ namespace NeoSharp.VM
 
         #region Shortcuts
 
-        public ExecutionContext CurrentContext
+        public ExecutionContextBase CurrentContext
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return InvocationStack.TryPeek(0, out ExecutionContext i) ? i : null; }
+            get { return InvocationStack.TryPeek(0, out var i) ? i : null; }
         }
 
-        public ExecutionContext CallingContext
+        public ExecutionContextBase CallingContext
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return InvocationStack.TryPeek(1, out ExecutionContext i) ? i : null; }
+            get { return InvocationStack.TryPeek(1, out var i) ? i : null; }
         }
 
-        public ExecutionContext EntryContext
+        public ExecutionContextBase EntryContext
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return InvocationStack.TryPeek(-1, out ExecutionContext i) ? i : null; }
+            get { return InvocationStack.TryPeek(-1, out var i) ? i : null; }
         }
 
         #endregion

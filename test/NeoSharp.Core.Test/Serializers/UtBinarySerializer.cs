@@ -67,6 +67,7 @@ namespace NeoSharp.Core.Test.Serializers
             {
                 Id = new UInt256(RandomByteArray(32)),
                 Admin = new UInt160(RandomByteArray(20)),
+                Issuer = new UInt160(RandomByteArray(20)),
                 Amount = new Fixed8(RandomInt()),
                 AssetType = AssetType.Currency,
                 Available = new Fixed8(RandomInt()),

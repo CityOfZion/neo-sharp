@@ -4,11 +4,11 @@ using NeoSharp.VM.NeoVM.Extensions;
 
 namespace NeoSharp.VM.NeoVM
 {
-    public class StackExecutionContextWrapper : StackBase<ExecutionContext>
+    public class StackExecutionContextWrapper : StackBase<ExecutionContextBase>
     {
-        private readonly RandomAccessStack<Neo.VM.ExecutionContext> _stack;
+        private readonly RandomAccessStack<ExecutionContext> _stack;
 
-        public StackExecutionContextWrapper(RandomAccessStack<Neo.VM.ExecutionContext> invocationStack)
+        public StackExecutionContextWrapper(RandomAccessStack<ExecutionContext> invocationStack)
         {
             _stack = invocationStack;
         }
@@ -27,19 +27,19 @@ namespace NeoSharp.VM.NeoVM
             return count;
         }
 
-        public override ExecutionContext Pop()
+        public override ExecutionContextBase Pop()
         {
             return _stack.Pop().ConvertFromNative();
         }
 
-        public override void Push(ExecutionContext item)
+        public override void Push(ExecutionContextBase item)
         {
             if (!(item is ExecutionContextWrapper nitem)) throw new ArgumentException(nameof(item));
 
             _stack.Push(nitem.NativeContext);
         }
 
-        public override bool TryPeek(int index, out ExecutionContext obj)
+        public override bool TryPeek(int index, out ExecutionContextBase obj)
         {
             if (_stack.Count <= index)
             {

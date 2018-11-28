@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 using Neo.VM;
 using Neo.VM.Types;
-using NeoSharp.Core.Models;
 using NeoSharp.Types.ExtensionMethods;
 using NeoSharp.VM.NeoVM.StackItems;
 
@@ -34,7 +32,7 @@ namespace NeoSharp.VM.NeoVM
 
         public override uint ConsumedGas => (uint)_gasConsumed;
 
-        public override StackBase<ExecutionContext> InvocationStack => _invocationStack;
+        public override StackBase<ExecutionContextBase> InvocationStack => _invocationStack;
 
         public override Stack ResultStack => _resultStack;
 

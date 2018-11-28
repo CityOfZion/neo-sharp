@@ -1,9 +1,8 @@
-﻿using System;
-using NeoSharp.VM.Extensions;
+﻿using NeoSharp.VM.Extensions;
 
 namespace NeoSharp.VM
 {
-    public abstract class ExecutionContext
+    public abstract class ExecutionContextBase
     {
         /// <summary>
         /// ScriptHashLength
