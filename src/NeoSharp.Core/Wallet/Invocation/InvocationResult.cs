@@ -1,8 +1,6 @@
-﻿using System;
-using NeoSharp.Core.Types;
-using NeoSharp.VM;
+﻿using NeoSharp.VM;
 
-namespace NeoSharp.Core.SmartContract
+namespace NeoSharp.Core.Wallet.Invocation
 {
     public class InvocationResult
     {

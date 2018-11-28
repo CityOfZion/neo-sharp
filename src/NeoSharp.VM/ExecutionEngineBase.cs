@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace NeoSharp.VM
 {
-    public abstract class IExecutionEngine : IDisposable
+    public abstract class ExecutionEngineBase : IDisposable
     {
         #region Public fields from arguments
 
@@ -17,27 +17,27 @@ namespace NeoSharp.VM
         /// <summary>
         /// Trigger
         /// </summary>
-        public ETriggerType Trigger { get; private set; }
+        public ETriggerType Trigger { get; }
 
         /// <summary>
         /// Interop service
         /// </summary>
-        public InteropService InteropService { get; private set; }
+        public InteropService InteropService { get; }
 
         /// <summary>
         /// Script table
         /// </summary>
-        public IScriptTable ScriptTable { get; private set; }
+        public IScriptTable ScriptTable { get; }
 
         /// <summary>
         /// Logger
         /// </summary>
-        public ExecutionEngineLogger Logger { get; private set; }
+        public ExecutionEngineLogger Logger { get; }
 
         /// <summary>
         /// Message Provider
         /// </summary>
-        public IMessageProvider MessageProvider { get; private set; }
+        public IMessageProvider MessageProvider { get; }
 
         #endregion
 
@@ -49,12 +49,12 @@ namespace NeoSharp.VM
         /// <summary>
         /// InvocationStack
         /// </summary>
-        public abstract IStack<IExecutionContext> InvocationStack { get; }
+        public abstract StackBase<ExecutionContext> InvocationStack { get; }
 
         /// <summary>
         /// ResultStack
         /// </summary>
-        public abstract IStackItemsStack ResultStack { get; }
+        public abstract Stack ResultStack { get; }
 
         /// <summary>
         /// Is disposed
@@ -68,22 +68,22 @@ namespace NeoSharp.VM
 
         #region Shortcuts
 
-        public IExecutionContext CurrentContext
+        public ExecutionContext CurrentContext
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return InvocationStack.TryPeek(0, out IExecutionContext i) ? i : null; }
+            get { return InvocationStack.TryPeek(0, out ExecutionContext i) ? i : null; }
         }
 
-        public IExecutionContext CallingContext
+        public ExecutionContext CallingContext
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return InvocationStack.TryPeek(1, out IExecutionContext i) ? i : null; }
+            get { return InvocationStack.TryPeek(1, out ExecutionContext i) ? i : null; }
         }
 
-        public IExecutionContext EntryContext
+        public ExecutionContext EntryContext
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return InvocationStack.TryPeek(-1, out IExecutionContext i) ? i : null; }
+            get { return InvocationStack.TryPeek(-1, out ExecutionContext i) ? i : null; }
         }
 
         #endregion
@@ -91,13 +91,13 @@ namespace NeoSharp.VM
         /// <summary>
         /// For unit testing only
         /// </summary>
-        protected IExecutionEngine() { }
+        protected ExecutionEngineBase() { }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="e">Arguments</param>
-        protected IExecutionEngine(ExecutionEngineArgs e)
+        protected ExecutionEngineBase(ExecutionEngineArgs e)
         {
             if (e == null) return;
 
@@ -132,7 +132,7 @@ namespace NeoSharp.VM
         /// Increase gas
         /// </summary>
         /// <param name="gas">Gas</param>
-        public abstract bool IncreaseGas(uint gas);
+        public abstract bool IncreaseGas(long gas);
 
         /// <summary>
         /// Clean Execution engine state
@@ -169,61 +169,61 @@ namespace NeoSharp.VM
         /// <summary>
         /// Create Map StackItem
         /// </summary>
-        public abstract IMapStackItem CreateMap();
+        public abstract MapStackItemBase CreateMap();
 
         /// <summary>
         /// Create Array StackItem
         /// </summary>
         /// <param name="items">Items</param>
-        public abstract IArrayStackItem CreateArray(IEnumerable<IStackItem> items = null);
+        public abstract ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null);
 
         /// <summary>
         /// Create Struct StackItem
         /// </summary>
         /// <param name="items">Items</param>
-        public abstract IArrayStackItem CreateStruct(IEnumerable<IStackItem> items = null);
+        public abstract ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null);
 
         /// <summary>
         /// Create ByteArrayStackItem
         /// </summary>
         /// <param name="data">Buffer</param>
-        public abstract IByteArrayStackItem CreateByteArray(byte[] data);
+        public abstract ByteArrayStackItemBase CreateByteArray(byte[] data);
 
         /// <summary>
         /// Create InteropStackItem
         /// </summary>
         /// <param name="obj">Object</param>
-        public abstract IInteropStackItem CreateInterop(object obj);
+        public abstract InteropStackItemBase<T> CreateInterop<T>(T obj) where T : class;
 
         /// <summary>
         /// Create BooleanStackItem
         /// </summary>
         /// <param name="value">Value</param>
-        public abstract IBooleanStackItem CreateBool(bool value);
+        public abstract BooleanStackItemBase CreateBool(bool value);
 
         /// <summary>
         /// Create IntegerStackItem
         /// </summary>
         /// <param name="value">Value</param>
-        public abstract IIntegerStackItem CreateInteger(int value);
+        public abstract IntegerStackItemBase CreateInteger(int value);
 
         /// <summary>
         /// Create IntegerStackItem
         /// </summary>
         /// <param name="value">Value</param>
-        public abstract IIntegerStackItem CreateInteger(long value);
+        public abstract IntegerStackItemBase CreateInteger(long value);
 
         /// <summary>
         /// Create IntegerStackItem
         /// </summary>
         /// <param name="value">Value</param>
-        public abstract IIntegerStackItem CreateInteger(BigInteger value);
+        public abstract IntegerStackItemBase CreateInteger(BigInteger value);
 
         /// <summary>
         /// Create IntegerStackItem
         /// </summary>
         /// <param name="value">Value</param>
-        public abstract IIntegerStackItem CreateInteger(byte[] value);
+        public abstract IntegerStackItemBase CreateInteger(byte[] value);
 
         #endregion
 
@@ -238,7 +238,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Destructor
         /// </summary>
-        ~IExecutionEngine()
+        ~ExecutionEngineBase()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(false);

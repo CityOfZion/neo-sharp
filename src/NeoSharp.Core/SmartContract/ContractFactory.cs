@@ -18,24 +18,24 @@ namespace NeoSharp.Core.SmartContract
         public static Contract CreateSinglePublicKeyRedeemContract(ECPoint publicKey)
         {
             string contractHexCode;
-            using (ScriptBuilder sb = new ScriptBuilder())
+            using (var sb = new ScriptBuilder())
             {
                 sb.EmitPush(publicKey.EncodedData);
                 sb.Emit(EVMOpCode.CHECKSIG);
                 contractHexCode = sb.ToArray().ToHexString();
             }
 
-            ContractParameterType returnType = ContractParameterType.Void; 
+            var returnType = ContractParameterType.Void; 
             ContractParameterType[] parameters = { ContractParameterType.Signature };
 
-            Code contractCode = new Code {
+            var contractCode = new Code {
                 Script = contractHexCode.HexToBytes(),
                 ScriptHash = contractHexCode.HexToBytes().ToScriptHash(),
                 ReturnType = returnType,
                 Parameters = parameters
             };
 
-            Contract contract = new Contract
+            var contract = new Contract
             {
                 Code = contractCode
             };
@@ -58,10 +58,10 @@ namespace NeoSharp.Core.SmartContract
 
             byte[] contractHexCode;
 
-            using (ScriptBuilder sb = new ScriptBuilder())
+            using (var sb = new ScriptBuilder())
             {
                 sb.EmitPush(numberOfRequiredPublicKeys);
-                foreach (ECPoint publicKey in publicKeys.OrderBy(p => p))
+                foreach (var publicKey in publicKeys.OrderBy(p => p))
                 {
                     sb.EmitPush(publicKey.EncodedData);
                 }
@@ -70,10 +70,10 @@ namespace NeoSharp.Core.SmartContract
                 contractHexCode = sb.ToArray();
             }
 
-            ContractParameterType returnType = ContractParameterType.Void; 
-            ContractParameterType[] parameters = Enumerable.Repeat(ContractParameterType.Signature, numberOfRequiredPublicKeys).ToArray();
+            var returnType = ContractParameterType.Void; 
+            var parameters = Enumerable.Repeat(ContractParameterType.Signature, numberOfRequiredPublicKeys).ToArray();
 
-            Code contractCode = new Code
+            var contractCode = new Code
             {
                 Script = contractHexCode,
                 ScriptHash = contractHexCode.ToScriptHash(),
@@ -81,7 +81,7 @@ namespace NeoSharp.Core.SmartContract
                 Parameters = parameters
             };
 
-            Contract contract = new Contract
+            var contract = new Contract
             {
                 Code = contractCode
             };

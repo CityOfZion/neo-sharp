@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace NeoSharp.Core.Wallet.Wrappers
+namespace NeoSharp.Core.Helpers
 {
     public class FileWrapper : IFileWrapper
     {

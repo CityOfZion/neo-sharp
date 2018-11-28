@@ -28,7 +28,7 @@ namespace NeoSharp.Application.Client
         /// </summary>
         private readonly INetworkManager _networkManager;
         /// <summary>
-        /// Console Handler
+        /// Console handler
         /// </summary>
         private readonly IConsoleHandler _consoleHandler;
         /// <summary>

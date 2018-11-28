@@ -4,19 +4,19 @@ using NeoSharp.VM;
 
 namespace NeoSharp.Core.Test.SmartContracts
 {
-    public class NullExecutionEngine : IExecutionEngine
+    public class NullExecutionEngine : ExecutionEngineBase
     {
         public EVMState PublicState { get; set; }
-        public IStack<IExecutionContext> PublicStack { get; set; }
-        public IStackItemsStack PublicStackItemsStack { get; set; }
+        public StackBase<ExecutionContext> PublicStack { get; set; }
+        public Stack PublicStackItemsStack { get; set; }
         public bool PublicDisposed { get; set; }
         public uint PublicConsumedGas { get; set; }
 
         public override EVMState State { get { return PublicState; } }
 
-        public override IStack<IExecutionContext> InvocationStack { get { return PublicStack; } }
+        public override StackBase<ExecutionContext> InvocationStack { get { return PublicStack; } }
 
-        public override IStackItemsStack ResultStack { get { return PublicStackItemsStack; } }
+        public override Stack ResultStack { get { return PublicStackItemsStack; } }
 
         public override bool IsDisposed { get { return PublicDisposed; } }
 
@@ -26,57 +26,57 @@ namespace NeoSharp.Core.Test.SmartContracts
         {
         }
 
-        public override bool IncreaseGas(uint gas)
+        public override bool IncreaseGas(long gas)
         {
             return true;
         }
 
-        public override IArrayStackItem CreateArray(IEnumerable<IStackItem> items = null)
+        public override ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null)
         {
             return null;
         }
 
-        public override IBooleanStackItem CreateBool(bool value)
+        public override BooleanStackItemBase CreateBool(bool value)
         {
             return null;
         }
 
-        public override IByteArrayStackItem CreateByteArray(byte[] data)
+        public override ByteArrayStackItemBase CreateByteArray(byte[] data)
         {
             return null;
         }
 
-        public override IIntegerStackItem CreateInteger(int value)
+        public override IntegerStackItemBase CreateInteger(int value)
         {
             return null;
         }
 
-        public override IIntegerStackItem CreateInteger(long value)
+        public override IntegerStackItemBase CreateInteger(long value)
         {
             return null;
         }
 
-        public override IIntegerStackItem CreateInteger(BigInteger value)
+        public override IntegerStackItemBase CreateInteger(BigInteger value)
         {
             return null;
         }
 
-        public override IIntegerStackItem CreateInteger(byte[] value)
+        public override IntegerStackItemBase CreateInteger(byte[] value)
         {
             return null;
         }
 
-        public override IInteropStackItem CreateInterop(object obj)
+        public override InteropStackItemBase<T> CreateInterop<T>(T obj)
         {
             return null;
         }
 
-        public override IMapStackItem CreateMap()
+        public override MapStackItemBase CreateMap()
         {
             return null;
         }
 
-        public override IArrayStackItem CreateStruct(IEnumerable<IStackItem> items = null)
+        public override ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null)
         {
             return null;
         }
@@ -90,7 +90,7 @@ namespace NeoSharp.Core.Test.SmartContracts
         {
             return base.GetHashCode();
         }
-        
+
         public override int LoadScript(byte[] script)
         {
             return 0;

@@ -12,8 +12,6 @@ using NeoSharp.Cryptography;
 using NeoSharp.Types;
 using NeoSharp.Types.ExtensionMethods;
 using NeoSharp.VM;
-using NeoSharp.VM.Types;
-
 namespace NeoSharp.Application.Controllers
 {
     public class PromptDebugController : IPromptController
@@ -203,7 +201,7 @@ namespace NeoSharp.Application.Controllers
         {
             var script = _scriptTable.GetScript(contractHash.ToArray(), false);
 
-            if (script == null) throw (new ArgumentNullException("Contract not found"));
+            if (script == null) throw new ArgumentNullException("Contract not found");
 
             var parser = new InstructionParser();
             foreach (var i in parser.Parse(script))
@@ -230,9 +228,9 @@ namespace NeoSharp.Application.Controllers
         /// <param name="operation">Operation</param>
         /// <param name="parameters">Parameters</param>
         [PromptCommand("testinvoke", Help = "Test invoke contract", Category = "Debug")]
-        public void TestInvoke(UInt160 contractHash, ETriggerType trigger, string operation, [PromptCommandParameterBody] object[] parameters = null)
+        public void TestInvoke(UInt160 contractHash, ETriggerType trigger, string operation = null, [PromptCommandParameterBody] object[] parameters = null)
         {
-            if (_scriptTable.GetScript(contractHash.ToArray(), false) == null) throw (new ArgumentNullException("Contract not found"));
+            if (_scriptTable.GetScript(contractHash.ToArray(), false) == null) throw new ArgumentNullException("Contract not found");
 
             var args = new ExecutionEngineArgs()
             {

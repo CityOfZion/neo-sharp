@@ -1,41 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
-using NeoSharp.VM.Types;
+using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace NeoSharp.VM
 {
     public class InteropService
     {
         /// <summary>
+        /// Set Max Item Size
+        /// </summary>
+        public const uint MaxItemSize = 1024 * 1024;
+
+        /// <summary>
         /// Notify event
         /// </summary>
         public event EventHandler<NotifyEventArgs> OnNotify;
+
         /// <summary>
         /// Log event
         /// </summary>
         public event EventHandler<LogEventArgs> OnLog;
+
         /// <summary>
         /// Syscall event
         /// </summary>
         public event EventHandler<SysCallArgs> OnSysCall;
 
         /// <summary>
+        /// Method hashes cache
+        /// </summary>
+        private static readonly Dictionary<string, uint> MethodHashes = new Dictionary<string, uint>();
+
+        /// <summary>
         /// Cache dictionary
         /// </summary>
-        private readonly SortedDictionary<string, InteropServiceEntry> _entries = new SortedDictionary<string, InteropServiceEntry>();
+        private readonly IDictionary<uint, InteropServiceEntry> _entries = new SortedDictionary<uint, InteropServiceEntry>();
+
+        /// <summary>
+        /// Stack serializer
+        /// </summary>
+        private static readonly StackItemBinarySerializer Serializer = new StackItemBinarySerializer();
 
         /// <summary>
         /// Get method
         /// </summary>
-        /// <param name="method">Method</param>
-        public InteropServiceEntry this[string method]
-        {
-            get
-            {
-                if (!_entries.TryGetValue(method, out var func)) return null;
-                return func;
-            }
-        }
+        /// <param name="methodName">Method name</param>
+        public InteropServiceEntry this[string methodName] => _entries.TryGetValue(GetMethodHash(methodName), out var entry) ? entry : null;
+
+        /// <summary>
+        /// Get method
+        /// </summary>
+        /// <param name="methodHash">Method hash</param>
+        public InteropServiceEntry this[uint methodHash] => _entries.TryGetValue(methodHash, out var entry) ? entry : null;
 
         /// <summary>
         /// Constructor
@@ -43,12 +62,11 @@ namespace NeoSharp.VM
         public InteropService()
         {
             // TODO #391: GAS COST https://github.com/neo-project/neo/blob/b5926fe88d25c8aab2028c0ff7acad2c1d982bad/neo/SmartContract/ApplicationEngine.cs#L383
-
             Register("Neo.Runtime.GetTrigger", NeoRuntimeGetTrigger);
             Register("Neo.Runtime.Log", NeoRuntimeLog);
             Register("Neo.Runtime.Notify", NeoRuntimeNotify);
-            //Register("Neo.Runtime.Serialize", Runtime_Serialize);
-            //Register("Neo.Runtime.Deserialize", Runtime_Deserialize);
+            Register("Neo.Runtime.Serialize", "System.Runtime.Serialize", RuntimeSerialize);
+            Register("Neo.Runtime.Deserialize", "System.Runtime.Deserialize", RuntimeDeserialize);
 
             Register("System.ExecutionEngine.GetScriptContainer", GetScriptContainer);
             Register("System.ExecutionEngine.GetExecutingScriptHash", GetExecutingScriptHash);
@@ -59,179 +77,280 @@ namespace NeoSharp.VM
         /// <summary>
         /// Register method
         /// </summary>
-        /// <param name="method">Method name</param>
-        /// <param name="synonymous">Synonymous</param>
+        /// <param name="name">Method name</param>
         /// <param name="handler">Method delegate</param>
         /// <param name="gas">Gas</param>
-        protected void Register(string method, string synonymous, InteropServiceEntry.delHandler handler, uint gas = 1)
+        public void Register(string name, Func<ExecutionEngineBase, bool> handler, uint gas = 1)
         {
-            var entry = new InteropServiceEntry(handler, gas);
-
-            _entries[method] = entry;
-            _entries[synonymous] = entry;
+            Register(name, null, handler, gas);
         }
 
         /// <summary>
         /// Register method
         /// </summary>
-        /// <param name="method">Method name</param>
+        /// <param name="name">Method name</param>
+        /// <param name="alias">Alias</param>
         /// <param name="handler">Method delegate</param>
         /// <param name="gas">Gas</param>
-        protected void Register(string method, InteropServiceEntry.delHandler handler, uint gas = 1)
+        public void Register(string name, string alias, Func<ExecutionEngineBase, bool> handler, uint gas = 1)
         {
-            _entries[method] = new InteropServiceEntry(handler, gas);
+            var entry = new InteropServiceEntry(name, GetMethodHash(name), handler, gas);
+            _entries.Add(entry.MethodHash, entry);
+
+            if (string.IsNullOrEmpty(alias)) return;
+
+            entry = new InteropServiceEntry(alias, GetMethodHash(alias), handler, gas);
+            _entries.Add(entry.MethodHash, entry);
         }
 
         /// <summary>
-        /// Clear entries
+        /// Invoke method
         /// </summary>
-        public void Clear()
-        {
-            _entries.Clear();
-        }
-        /// <summary>
-        /// Invoke
-        /// </summary>
-        /// <param name="method">Method name</param>
+        /// <param name="method">Method</param>
         /// <param name="engine">Execution engine</param>
-        /// <returns>Return false if something wrong</returns>
-        public bool Invoke(string method, IExecutionEngine engine)
+        /// <returns>Return false if something is wrong</returns>
+        public bool Invoke(byte[] method, ExecutionEngineBase engine)
         {
-            if (!_entries.TryGetValue(method, out var entry))
+            var hash = method.Length == 4
+                ? BitConverter.ToUInt32(method, 0)
+                : GetMethodHash(Encoding.ASCII.GetString(method));
+
+            void InvokeOnSysCall(SysCallResult result) => OnSysCall?.Invoke(this, new SysCallArgs(engine, GetMethodName(hash), hash, result));
+
+            if (!_entries.TryGetValue(hash, out var entry))
             {
-                OnSysCall?.Invoke(this, new SysCallArgs(engine, method, SysCallArgs.EResult.NotFound));
+                InvokeOnSysCall(SysCallResult.NotFound);
 
                 return false;
             }
 
             if (!engine.IncreaseGas(entry.GasCost))
             {
-                OnSysCall?.Invoke(this, new SysCallArgs(engine, method, SysCallArgs.EResult.OutOfGas));
+                InvokeOnSysCall(SysCallResult.OutOfGas);
 
                 return false;
             }
 
-            var ret = entry.Handler(engine);
+            var ret = entry.MethodHandler(engine);
 
-            OnSysCall?.Invoke(this, new SysCallArgs(engine, method, ret ? SysCallArgs.EResult.True : SysCallArgs.EResult.False));
+            InvokeOnSysCall(ret ? SysCallResult.True : SysCallResult.False);
 
             return ret;
         }
 
         #region Delegates
 
-        static bool NeoRuntimeGetTrigger(IExecutionEngine engine)
+        private static bool RuntimeSerialize(ExecutionEngineBase engine)
         {
-            using (var ctx = engine.CurrentContext)
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
+
+            using (var ms = new MemoryStream())
+            using (var writer = new BinaryWriter(ms))
+            {
+                try
+                {
+                    using (var item = ctx.EvaluationStack.Pop())
+                    {
+                        Serializer.Serialize(engine, item, writer);
+                    }
+                }
+                catch
+                {
+                    return false;
+                }
+
+                writer.Flush();
+
+                if (ms.Length > MaxItemSize)
+                {
+                    return false;
+                }
+
+                using (var item = engine.CreateByteArray(ms.ToArray()))
+                {
+                    ctx.EvaluationStack.Push(item);
+                }
+            }
+
+            return true;
+        }
+
+        private static bool RuntimeDeserialize(ExecutionEngineBase engine)
+        {
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
+
+            byte[] data;
+
+            using (var item = ctx.EvaluationStack.Pop())
+            {
+                data = item.ToByteArray();
+
+                if (data == null) return false;
+            }
+
+            using (var ms = new MemoryStream(data, false))
+            using (var reader = new BinaryReader(ms))
+            {
+                StackItemBase item;
+
+                try
+                {
+                    item = Serializer.Deserialize(engine, reader);
+                }
+                catch
+                {
+                    return false;
+                }
+
+                ctx.EvaluationStack.Push(item);
+                item?.Dispose();
+            }
+
+            return true;
+        }
+
+        private static bool NeoRuntimeGetTrigger(ExecutionEngineBase engine)
+        {
+            var ctx = engine.CurrentContext;
+
+            if (ctx == null) return false;
+
             using (var item = engine.CreateInteger((int)engine.Trigger))
                 ctx.EvaluationStack.Push(item);
 
             return true;
         }
 
-        bool NeoRuntimeLog(IExecutionEngine engine)
+        private bool NeoRuntimeLog(ExecutionEngineBase engine)
         {
-            using (var ctx = engine.CurrentContext)
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
+
+            if (!ctx.EvaluationStack.TryPop(out StackItemBase it))
             {
-                if (ctx == null) return false;
+                return false;
+            }
 
-                if (!ctx.EvaluationStack.TryPop(out IStackItem it))
+            using (it)
+            {
+                if (OnLog == null)
                 {
-                    return false;
+                    return true;
                 }
 
-                using (it)
-                {
-                    if (OnLog == null)
-                    {
-                        return true;
-                    }
+                // Get string
 
-                    // Get string
-
-                    var message = it.ToString();
-                    OnLog.Invoke(this, new LogEventArgs(engine.MessageProvider, ctx?.ScriptHash, message ?? ""));
-                }
+                var message = it.ToString();
+                OnLog.Invoke(this, new LogEventArgs(engine.MessageProvider, ctx?.ScriptHash, message ?? ""));
             }
 
             return true;
         }
 
-        bool NeoRuntimeNotify(IExecutionEngine engine)
+        private bool NeoRuntimeNotify(ExecutionEngineBase engine)
         {
-            using (var ctx = engine.CurrentContext)
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
+
+            if (!ctx.EvaluationStack.TryPop(out StackItemBase it))
             {
-                if (ctx == null) return false;
+                return false;
+            }
 
-                if (!ctx.EvaluationStack.TryPop(out IStackItem it))
-                {
-                    return false;
-                }
-
-                using (it)
-                {
-                    OnNotify?.Invoke(this, new NotifyEventArgs(engine.MessageProvider, ctx?.ScriptHash, it));
-                }
+            using (it)
+            {
+                OnNotify?.Invoke(this, new NotifyEventArgs(engine.MessageProvider, ctx?.ScriptHash, it));
             }
 
             return true;
         }
 
-        static bool GetScriptContainer(IExecutionEngine engine)
+        private static bool GetScriptContainer(ExecutionEngineBase engine)
         {
             if (engine.MessageProvider == null)
             {
                 return false;
             }
 
-            using (var current = engine.CurrentContext)
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
+
             using (var item = engine.CreateInterop(engine.MessageProvider))
-                current.EvaluationStack.Push(item);
+                ctx.EvaluationStack.Push(item);
 
             return true;
         }
 
-        static bool GetExecutingScriptHash(IExecutionEngine engine)
+        private static bool GetExecutingScriptHash(ExecutionEngineBase engine)
         {
-            using (var ctx = engine.CurrentContext)
-            {
-                if (ctx == null) return false;
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
 
-                using (var item = engine.CreateByteArray(ctx.ScriptHash))
-                    ctx.EvaluationStack.Push(item);
-            }
+            using (var item = engine.CreateByteArray(ctx.ScriptHash))
+                ctx.EvaluationStack.Push(item);
 
             return true;
         }
 
-        static bool GetCallingScriptHash(IExecutionEngine engine)
+        private static bool GetCallingScriptHash(ExecutionEngineBase engine)
         {
-            using (var ctx = engine.CallingContext)
-            {
-                if (ctx == null) return false;
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
 
-                using (var current = engine.CurrentContext)
-                using (var item = engine.CreateByteArray(ctx.ScriptHash))
-                    current.EvaluationStack.Push(item);
-            }
+            using (var item = engine.CreateByteArray(ctx.ScriptHash))
+                ctx.EvaluationStack.Push(item);
 
             return true;
         }
 
-        static bool GetEntryScriptHash(IExecutionEngine engine)
+        private static bool GetEntryScriptHash(ExecutionEngineBase engine)
         {
-            using (var ctx = engine.EntryContext)
-            {
-                if (ctx == null) return false;
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
 
-                using (var current = engine.CurrentContext)
-                using (var item = engine.CreateByteArray(ctx.ScriptHash))
-                    current.EvaluationStack.Push(item);
-            }
+            using (var item = engine.CreateByteArray(ctx.ScriptHash))
+                ctx.EvaluationStack.Push(item);
 
             return true;
         }
 
         #endregion
+
+        /// <summary>
+        /// Convert method to hash
+        /// </summary>
+        /// <param name="methodName">Method</param>
+        /// <returns>Hash</returns>
+        private static uint GetMethodHash(string methodName)
+        {
+            if (MethodHashes.TryGetValue(methodName, out var methodHash))
+                return methodHash;
+
+            using (var sha = SHA256.Create())
+            {
+                methodHash = BitConverter.ToUInt32(sha.ComputeHash(Encoding.ASCII.GetBytes(methodName)), 0);
+            }
+
+            MethodHashes[methodName] = methodHash;
+
+            return methodHash;
+        }
+
+        /// <summary>
+        /// Convert method hash to name
+        /// </summary>
+        /// <param name="methodHash">Method name</param>
+        /// <returns>Method</returns>
+        private static string GetMethodName(uint methodHash)
+        {
+            var ret = MethodHashes
+                .Where(u => u.Value == methodHash)
+                .Select(u => u.Key)
+                .FirstOrDefault();
+
+            return !string.IsNullOrEmpty(ret) ? ret : "Unknown";
+        }
     }
 }

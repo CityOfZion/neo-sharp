@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.VM.Types
+﻿namespace NeoSharp.VM
 {
     public class InstructionLocation
     {

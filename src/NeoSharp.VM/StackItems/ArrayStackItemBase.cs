@@ -6,12 +6,8 @@ using System.Text;
 
 namespace NeoSharp.VM
 {
-    public abstract class IArrayStackItem : IStackItem, IList<IStackItem>, IEquatable<IArrayStackItem>
+    public abstract class ArrayStackItemBase : StackItemBase, IList<StackItemBase>, IEquatable<ArrayStackItemBase>
     {
-        public override bool CanConvertToByteArray => false;
-
-        public override byte[] ToByteArray() => throw new NotImplementedException();
-
         /// <summary>
         /// Count
         /// </summary>
@@ -22,7 +18,7 @@ namespace NeoSharp.VM
         /// </summary>
         /// <param name="index">Position</param>
         /// <returns>Returns the StackItem element</returns>
-        public abstract IStackItem this[int index] { get; set; }
+        public abstract StackItemBase this[int index] { get; set; }
 
         /// <summary>
         /// IsStruct
@@ -38,13 +34,13 @@ namespace NeoSharp.VM
         /// Constructor
         /// </summary>
         /// <param name="isStruct">Is struct</param>
-        protected IArrayStackItem(bool isStruct) : base(isStruct ? EStackItemType.Struct : EStackItemType.Array) { }
+        protected ArrayStackItemBase(bool isStruct) : base(isStruct ? EStackItemType.Struct : EStackItemType.Array) { }
 
         /// <summary>
         /// Get raw object
         /// </summary>
         /// <returns>Raw object</returns>
-        public override object GetRawObject()
+        public override object ToObject()
         {
             var size = Count;
             var ret = new object[size];
@@ -53,7 +49,7 @@ namespace NeoSharp.VM
             {
                 using (var item = this[x])
                 {
-                    ret[x] = item.GetRawObject();
+                    ret[x] = item.ToObject();
                 }
             }
 
@@ -65,7 +61,7 @@ namespace NeoSharp.VM
         /// </summary>
         /// <param name="other">Other</param>
         /// <returns>Return true if is equal</returns>
-        public bool Equals(IArrayStackItem other)
+        public bool Equals(ArrayStackItemBase other)
         {
             if (other == null) return false;
             if (other == this) return true;
@@ -79,9 +75,9 @@ namespace NeoSharp.VM
         /// </summary>
         /// <param name="other">Other</param>
         /// <returns>Return true if is equal</returns>
-        public override bool Equals(IStackItem other)
+        public override bool Equals(StackItemBase other)
         {
-            if (!(other is IArrayStackItem st)) return false;
+            if (!(other is ArrayStackItemBase st)) return false;
             if (st.Type != Type) return false;
 
             return this.SequenceEqual(st);
@@ -89,21 +85,21 @@ namespace NeoSharp.VM
 
         #region Write
 
-        public abstract void Add(IStackItem item);
+        public abstract void Add(StackItemBase item);
 
-        public abstract void Add(params IStackItem[] items);
+        public abstract void Add(params StackItemBase[] items);
 
-        public abstract void Add(IEnumerable<IStackItem> items);
+        public abstract void Add(IEnumerable<StackItemBase> items);
 
         public abstract void Clear();
 
-        public abstract void Insert(int index, IStackItem item);
+        public abstract void Insert(int index, StackItemBase item);
 
-        public abstract void Set(int index, IStackItem item);
+        public abstract void Set(int index, StackItemBase item);
 
         public abstract void RemoveAt(int index);
 
-        public bool Remove(IStackItem item)
+        public bool Remove(StackItemBase item)
         {
             var ix = IndexOf(item);
             if (ix < 0) return false;
@@ -116,9 +112,9 @@ namespace NeoSharp.VM
 
         #region Read
 
-        public abstract int IndexOf(IStackItem item);
+        public abstract int IndexOf(StackItemBase item);
 
-        public bool Contains(IStackItem item) => IndexOf(item) >= 0;
+        public bool Contains(StackItemBase item) => IndexOf(item) >= 0;
 
         #endregion
 
@@ -129,14 +125,14 @@ namespace NeoSharp.VM
             foreach (var item in this) array.SetValue(item, index++);
         }
 
-        public void CopyTo(IStackItem[] array, int index)
+        public void CopyTo(StackItemBase[] array, int index)
         {
             foreach (var item in this) array.SetValue(item, index++);
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        public IEnumerator<IStackItem> GetEnumerator()
+        public IEnumerator<StackItemBase> GetEnumerator()
         {
             for (int x = 0, m = Count; x < m; x++)
             {
@@ -168,6 +164,11 @@ namespace NeoSharp.VM
             sb.Append("]");
 
             return sb.ToString();
+        }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as ArrayStackItemBase);
         }
     }
 }

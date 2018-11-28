@@ -225,9 +225,15 @@ namespace NeoSharp.VM
 
         public ScriptBuilder EmitMainPush(string operation, object[] pars)
         {
-            if (pars != null) EmitPush(pars);
+            if (pars != null)
+            {
+                EmitPush(pars);
+            }
 
-            EmitPush(operation);
+            if (!string.IsNullOrEmpty(operation))
+            {
+                EmitPush(operation);
+            }
 
             return this;
         }

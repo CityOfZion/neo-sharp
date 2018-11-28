@@ -24,5 +24,9 @@ namespace NeoSharp.Core.Models
         [BinaryProperty(4)]
         [JsonProperty("parameters")]
         public ContractParameterType[] Parameters = new ContractParameterType[0];
+
+        [BinaryProperty(5)]
+        [JsonProperty("metadata")]
+        public ContractMetadata Metadata;
     }
 }

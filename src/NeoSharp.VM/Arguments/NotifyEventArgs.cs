@@ -17,7 +17,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// State
         /// </summary>
-        public IStackItem State { get; private set; }
+        public StackItemBase State { get; private set; }
 
         /// <summary>
         /// Constructor
@@ -25,7 +25,7 @@ namespace NeoSharp.VM
         /// <param name="messageProvider">Message Provider</param>
         /// <param name="scriptHash">Script hash</param>
         /// <param name="state">State</param>
-        public NotifyEventArgs(IMessageProvider messageProvider, byte[] scriptHash, IStackItem state)
+        public NotifyEventArgs(IMessageProvider messageProvider, byte[] scriptHash, StackItemBase state)
         {
             MessageProvider = messageProvider;
             ScriptHash = scriptHash;

@@ -1,4 +1,5 @@
 ﻿using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Wallet.JsonConverter;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 

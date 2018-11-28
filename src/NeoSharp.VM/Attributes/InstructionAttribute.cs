@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using NeoSharp.VM.Types;
 
 namespace NeoSharp.VM.Attributes
 {

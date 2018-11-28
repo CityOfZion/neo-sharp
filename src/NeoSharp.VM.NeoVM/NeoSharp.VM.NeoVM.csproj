@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Neo.VM" Version="2.3.3.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NeoSharp.Core\NeoSharp.Core.csproj" />
+    <ProjectReference Include="..\NeoSharp.Cryptography\NeoSharp.Cryptography.csproj" />
+    <ProjectReference Include="..\NeoSharp.Types\NeoSharp.Types.csproj" />
+  </ItemGroup>
+
+</Project>

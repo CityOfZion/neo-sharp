@@ -49,6 +49,5 @@
         /// Void
         /// </summary>
         Void = 0xff
-
     }
 }

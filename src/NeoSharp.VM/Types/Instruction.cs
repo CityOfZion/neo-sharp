@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.VM.Types
+﻿namespace NeoSharp.VM
 {
     public class Instruction
     {
@@ -17,7 +17,7 @@
         /// </summary>
         public override string ToString()
         {
-            return "[" + Location.ToString() + "] " + OpCode.ToString();
+            return $"[{Location}] {OpCode}";
         }
     }
 }

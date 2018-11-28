@@ -1,44 +1,54 @@
-﻿using System;
-using NeoSharp.VM.Extensions;
+using System;
+using Newtonsoft.Json;
 
 namespace NeoSharp.VM
 {
-    public abstract class IExecutionContext : IDisposable
+    public abstract class StackItemBase : IEquatable<StackItemBase>, IDisposable
     {
         /// <summary>
-        /// ScriptHashLength
+        /// Type
         /// </summary>
-        public const int ScriptHashLength = 20;
+        public EStackItemType Type { get; }
 
         /// <summary>
-        /// Is Disposed?
+        /// Is Disposed
         /// </summary>
+        [JsonIgnore]
         public abstract bool IsDisposed { get; }
-        
-        /// <summary>
-        /// Evaluation Stack
-        /// </summary>
-        public abstract IStackItemsStack EvaluationStack { get; }
-        
-        /// <summary>
-        /// Alt Stack
-        /// </summary>
-        public abstract IStackItemsStack AltStack { get; }
-        
-        /// <summary>
-        /// Script Hash
-        /// </summary>
-        public abstract byte[] ScriptHash { get; }
-        
-        /// <summary>
-        /// Next instruction
-        /// </summary>
-        public abstract EVMOpCode NextInstruction { get; }
 
         /// <summary>
-        /// Get Instruction pointer
+        /// Constructor
         /// </summary>
-        public abstract int InstructionPointer { get; }
+        /// <param name="type">Type</param>
+        protected StackItemBase(EStackItemType type)
+        {
+            Type = type;
+        }
+
+        /// <summary>
+        /// Convert to Byte array
+        /// </summary>
+        public abstract byte[] ToByteArray();
+
+        /// <summary>
+        /// Get Raw object
+        /// </summary>
+        /// <returns>Raw object</returns>
+        public abstract object ToObject();
+
+        /// <inheritdoc />
+        public virtual bool Equals(StackItemBase other)
+        {
+            if (other == null) return false;
+
+            return ReferenceEquals(this, other);
+        }
+
+        /// <inheritdoc />
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as StackItemBase);
+        }
 
         #region IDisposable Support
 
@@ -51,7 +61,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Destructor
         /// </summary>
-        ~IExecutionContext()
+        ~StackItemBase()
         {
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(false);
@@ -67,13 +77,5 @@ namespace NeoSharp.VM
         }
 
         #endregion
-
-        /// <summary>
-        /// String representation
-        /// </summary>
-        public override string ToString()
-        {
-            return "[" + ScriptHash.ToHexString() + "-" + InstructionPointer.ToString("x6") + "] " + NextInstruction.ToString();
-        }
     }
 }

@@ -16,7 +16,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
         #region Construtor 
         public TransactionRepository(IRepository repository)
         {
-            this._repository = repository;
+            _repository = repository;
         }
         #endregion
 
@@ -31,7 +31,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
         public async Task<bool> ContainsTransaction(UInt256 hash)
         {
             // TODO #389: Optimize this
-            return await this.GetTransaction(hash) != null;
+            return await GetTransaction(hash) != null;
         }
 
         public async Task<IEnumerable<Transaction>> GetTransactions(IReadOnlyCollection<UInt256> transactionHashes)
@@ -40,7 +40,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
 
             foreach (var hash in transactionHashes)
             {
-                var transaction = await this.GetTransaction(hash);
+                var transaction = await GetTransaction(hash);
 
                 if (transaction == null) continue;
                 transactions.Add(transaction);
@@ -59,7 +59,7 @@ namespace NeoSharp.Core.Blockchain.Repositories
 
             foreach (var group in transaction.Inputs.GroupBy(p => p.PrevHash))
             {
-                var states = this._repository.GetCoinStates(group.Key).Result;
+                var states = _repository.GetCoinStates(group.Key).Result;
 
                 if (states == null || group.Any(p => p.PrevIndex >= states.Length || states[p.PrevIndex].HasFlag(CoinState.Spent)))
                 {
@@ -73,25 +73,25 @@ namespace NeoSharp.Core.Blockchain.Repositories
         /// <inheritdoc />
         public TransactionOutput GetUnspent(UInt256 hash, ushort index)
         {
-            var states = this._repository.GetCoinStates(hash).Result;
+            var states = _repository.GetCoinStates(hash).Result;
 
             if (states == null || index >= states.Length || states[index].HasFlag(CoinState.Spent))
             {
                 return null;
             }
 
-            return this.GetTransaction(hash).Result.Outputs[index];
+            return GetTransaction(hash).Result.Outputs[index];
         }
 
         /// <inheritdoc />
-        public IEnumerable<TransactionOutput> GetUnspent(UInt256 hash)
+        public async Task<IEnumerable<TransactionOutput>> GetUnspent(UInt256 hash)
         {
             var outputs = new List<TransactionOutput>();
 
-            var states = this._repository.GetCoinStates(hash).Result;
+            var states = await _repository.GetCoinStates(hash);
             if (states != null)
             {
-                var tx = this.GetTransaction(hash).Result;
+                var tx = await GetTransaction(hash);
                 for (var i = 0; i < states.Length; i++)
                 {
                     if (!states[i].HasFlag(CoinState.Spent))
@@ -102,6 +102,29 @@ namespace NeoSharp.Core.Blockchain.Repositories
             }
             return outputs;
         }
+
+        public async Task<IReadOnlyDictionary<CoinReference, TransactionOutput>> GetReferences(Transaction transaction)
+        {
+            var references = new Dictionary<CoinReference, TransactionOutput>();
+
+            foreach (var group in transaction.Inputs.GroupBy(p => p.PrevHash))
+            {
+                var tx = await GetTransaction(group.Key);
+                if (tx == null) return null;
+
+                foreach (var reference in group.Select(p => new
+                {
+                    Input = p,
+                    Output = tx.Outputs[p.PrevIndex]
+                }))
+                {
+                    references.Add(reference.Input, reference.Output);
+                }
+            }
+
+            return references;
+        }
+
         #endregion
     }
 }

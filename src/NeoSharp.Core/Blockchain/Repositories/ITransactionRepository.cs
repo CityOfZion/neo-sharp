@@ -38,6 +38,8 @@ namespace NeoSharp.Core.Blockchain.Repositories
         /// <returns>The transaction output.</returns>
         TransactionOutput GetUnspent(UInt256 hash, ushort index);
 
-        IEnumerable<TransactionOutput> GetUnspent(UInt256 hash);
+        Task<IEnumerable<TransactionOutput>> GetUnspent(UInt256 hash);
+
+        Task<IReadOnlyDictionary<CoinReference, TransactionOutput>> GetReferences(Transaction transaction);
     }
 }

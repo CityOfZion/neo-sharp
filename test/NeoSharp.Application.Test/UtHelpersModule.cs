@@ -1,10 +1,10 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NeoSharp.Core.Converters;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.DI;
 using NeoSharp.Core.DI.Modules;
 using NeoSharp.Core.Helpers;
-using NeoSharp.Core.Wallet.Wrappers;
 using NeoSharp.Cryptography;
 using NeoSharp.TestHelpers;
 

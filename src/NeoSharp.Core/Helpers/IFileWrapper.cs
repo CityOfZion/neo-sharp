@@ -1,5 +1,4 @@
-﻿using System;
-namespace NeoSharp.Core.Wallet.Wrappers
+﻿namespace NeoSharp.Core.Helpers
 {
     public interface IFileWrapper
     {

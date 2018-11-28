@@ -3,22 +3,23 @@ using System.Numerics;
 
 namespace NeoSharp.VM
 {
-    public abstract class IStackItemsStack : IStack<IStackItem>
+    public abstract class Stack : StackBase<StackItemBase>
     {
         /// <summary>
         /// Obtain the element at `index` position, without consume them
         /// </summary>
         /// <param name="index">Index</param>
         /// <typeparam name="TStackItem">Object type</typeparam>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         /// <returns>Return object</returns>
-        public TStackItem Peek<TStackItem>(int index = 0) where TStackItem : IStackItem
+        public TStackItem Peek<TStackItem>(int index = 0) where TStackItem : StackItemBase
         {
-            if (!TryPeek(index, out IStackItem obj))
+            if (!TryPeek(index, out var obj))
             {
-                throw new ArgumentOutOfRangeException();
+                throw new ArgumentOutOfRangeException(nameof(index));
             }
 
-            if (obj is TStackItem ts) return ts;
+            if (obj is TStackItem stackItem) return stackItem;
 
             throw new FormatException();
         }
@@ -28,9 +29,9 @@ namespace NeoSharp.VM
         /// </summary>
         /// <typeparam name="TStackItem">Object type</typeparam>
         /// <returns>Return object</returns>
-        public TStackItem Pop<TStackItem>() where TStackItem : IStackItem
+        public TStackItem Pop<TStackItem>() where TStackItem : StackItemBase
         {
-            if (Pop() is TStackItem ts) return ts;
+            if (Pop() is TStackItem stackItem) return stackItem;
 
             throw new FormatException();
         }
@@ -41,7 +42,7 @@ namespace NeoSharp.VM
         /// <typeparam name="TStackItem">Object type</typeparam>
         /// <param name="item">Item</param>
         /// <returns>Return false if it is something wrong</returns>
-        public abstract bool TryPop<TStackItem>(out TStackItem item) where TStackItem : IStackItem;
+        public abstract bool TryPop<TStackItem>(out TStackItem item) where TStackItem : StackItemBase;
 
         /// <summary>
         /// Try pop byte array
@@ -50,20 +51,17 @@ namespace NeoSharp.VM
         /// <returns>Return false if is something wrong or is not convertible to ByteArray</returns>
         public bool TryPop(out byte[] value)
         {
-            if (TryPop<IStackItem>(out var item))
+            if (!TryPop<StackItemBase>(out var stackItem))
             {
-                using (item)
-                {
-                    if (item.CanConvertToByteArray)
-                    {
-                        value = item.ToByteArray();
-                        return true;
-                    }
-                }
+                value = null;
+                return false;
             }
 
-            value = null;
-            return false;
+            using (stackItem)
+            {
+                value = stackItem.ToByteArray();
+                return value != null;
+            }
         }
 
         /// <summary>
@@ -73,18 +71,20 @@ namespace NeoSharp.VM
         /// <returns>Return false if is something wrong or is not convertible to BigInteger</returns>
         public bool TryPop(out BigInteger value)
         {
-            if (TryPop<IStackItem>(out var item))
+            if (TryPop<StackItemBase>(out var item))
             {
                 using (item)
                 {
-                    if (item is IIntegerStackItem integer)
+                    if (item is IntegerStackItemBase integer)
                     {
                         value = integer.Value;
                         return true;
                     }
-                    else if (item.CanConvertToByteArray)
+
+                    var array = item.ToByteArray();
+                    if (array != null)
                     {
-                        value = new BigInteger(item.ToByteArray());
+                        value = new BigInteger(array);
                         return true;
                     }
                 }
@@ -101,27 +101,25 @@ namespace NeoSharp.VM
         /// <returns>Return false if is something wrong or is not convertible to bool</returns>
         public bool TryPop(out bool value)
         {
-            if (TryPop<IStackItem>(out var item))
+            if (!TryPop<StackItemBase>(out var item))
             {
-                using (item)
-                {
-                    if (item is IBooleanStackItem integer)
-                    {
-                        value = integer.Value;
-                        return true;
-                    }
-                    else if (item.CanConvertToByteArray)
-                    {
-                        var ret = item.ToByteArray();
-                        value = ret != null && ret.Length != 0;
-
-                        return true;
-                    }
-                }
+                value = false;
+                return false;
             }
 
-            value = false;
-            return false;
+            using (item)
+            {
+                if (item is BooleanStackItemBase integer)
+                {
+                    value = integer.Value;
+                    return true;
+                }
+
+                var array = item.ToByteArray();
+                value = array != null && array.Length != 0;
+
+                return true;
+            }
         }
     }
 }

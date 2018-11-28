@@ -1,4 +1,6 @@
-﻿namespace NeoSharp.VM
+﻿using NeoSharp.VM;
+
+namespace NeoSharp.VM
 {
     public class ExecutionEngineArgs
     {

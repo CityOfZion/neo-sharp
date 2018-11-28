@@ -1,27 +1,25 @@
 ﻿namespace NeoSharp.VM
 {
-    public abstract class IStackItem<T> : IStackItem
+    public abstract class StackItem<T> : StackItemBase
     {
         /// <summary>
         /// Value
         /// </summary>
-        public T Value { get; private set; }
+        public T Value { get; }
 
+        /// <inheritdoc />
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="data">Data</param>
         /// <param name="type">Type</param>
-        protected IStackItem(T data, EStackItemType type) : base(type)
+        protected StackItem(T data, EStackItemType type) : base(type)
         {
             Value = data;
         }
 
-        /// <summary>
-        /// Get raw object
-        /// </summary>
-        /// <returns>Raw object</returns>
-        public override object GetRawObject()
+        /// <inheritdoc />
+        public override object ToObject()
         {
             return Value;
         }

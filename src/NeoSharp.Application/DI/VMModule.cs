@@ -1,7 +1,7 @@
 ﻿using NeoSharp.Core.DI;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.VM;
-using NeoSharp.VM.Interop;
+using NeoSharp.VM.NeoVM;
 
 namespace NeoSharp.Application.DI
 {
@@ -9,13 +9,16 @@ namespace NeoSharp.Application.DI
     {
         public void Register(IContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterSingleton<IVMFactory, NeoVM>();
-            
-            if (!NeoVM.TryLoadLibrary(out var error))
-            {
-                // TODO: Log error here
-            }
+            // HyperVM
 
+            //containerBuilder.RegisterSingleton<IVMFactory, NeoVM>();
+            //if (!NeoVM.TryLoadLibrary(out var error))
+            //{
+            //    // TODO: Log error here
+            //}
+
+            containerBuilder.RegisterSingleton<IVMFactory, NeoVMFactory>();
+            
             containerBuilder.RegisterSingleton<InteropService>();
             containerBuilder.RegisterSingleton<IScriptTable, ScriptTable>();
             containerBuilder.Register<IMessageContainer, MessageContainer>();

@@ -4,54 +4,38 @@ namespace NeoSharp.VM
 {
     public class SysCallArgs : EventArgs
     {
-        public enum EResult : byte
-        {
-            /// <summary>
-            /// Wrong execution
-            /// </summary>
-            False = 0,
-
-            /// <summary>
-            /// Successful execution
-            /// </summary>
-            True = 1,
-
-            /// <summary>
-            /// The syscall is not found
-            /// </summary>
-            NotFound = 10,
-
-            /// <summary>
-            /// There is not enough gas for compute this syscall
-            /// </summary>
-            OutOfGas = 11,
-        }
+        /// <summary>
+        /// Engine
+        /// </summary>
+        public ExecutionEngineBase Engine { get; }
 
         /// <summary>
-        /// Result
+        /// Hash Method
         /// </summary>
-        public EResult Result { get; private set; }
+        public uint MethodHash { get; }
 
         /// <summary>
         /// Method
         /// </summary>
-        public string Method { get; private set; }
+        public string MethodName { get; }
 
         /// <summary>
-        /// Engine
+        /// Result
         /// </summary>
-        public IExecutionEngine Engine { get; private set; }
+        public SysCallResult Result { get; }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="engine">Engine</param>
-        /// <param name="method">Method</param>
+        /// <param name="methodName">Method name</param>
+        /// <param name="methodHash">Method hash</param>
         /// <param name="result">Result</param>
-        public SysCallArgs(IExecutionEngine engine, string method, EResult result)
+        public SysCallArgs(ExecutionEngineBase engine, string methodName, uint methodHash, SysCallResult result)
         {
             Engine = engine;
-            Method = method;
+            MethodName = methodName;
+            MethodHash = methodHash;
             Result = result;
         }
     }

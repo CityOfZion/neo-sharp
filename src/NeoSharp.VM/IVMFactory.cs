@@ -7,6 +7,6 @@
         /// </summary>
         /// <param name="args">Arguments</param>
         /// <returns>Return ExecutionEngine</returns>
-        IExecutionEngine Create(ExecutionEngineArgs args);
+        ExecutionEngineBase Create(ExecutionEngineArgs args);
     }
 }

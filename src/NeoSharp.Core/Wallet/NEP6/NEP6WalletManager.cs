@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security;
+using NeoSharp.Core.Converters;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Helpers;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Wallet.Exceptions;
 using NeoSharp.Core.Wallet.Helpers;
-using NeoSharp.Core.Wallet.Wrappers;
 using NeoSharp.Cryptography;
 using NeoSharp.Types;
 

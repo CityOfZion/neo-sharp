@@ -3,9 +3,9 @@ using NeoSharp.VM;
 
 namespace NeoSharp.Core.Test.SmartContracts
 {
-    public class NullStackItemsStack : IStackItemsStack
+    public class NullStack : Stack
     {
-        public NullStackItemsStack(IExecutionEngine executionEngine) : base()
+        public NullStack(ExecutionEngineBase executionEngine) : base()
         {
         }
 
@@ -16,17 +16,17 @@ namespace NeoSharp.Core.Test.SmartContracts
             throw new NotImplementedException();
         }
 
-        public override IStackItem Pop()
+        public override StackItemBase Pop()
         {
             throw new NotImplementedException();
         }
 
-        public override void Push(IStackItem item)
+        public override void Push(StackItemBase item)
         {
             throw new NotImplementedException();
         }
 
-        public override bool TryPeek(int index, out IStackItem obj)
+        public override bool TryPeek(int index, out StackItemBase obj)
         {
             throw new NotImplementedException();
         }

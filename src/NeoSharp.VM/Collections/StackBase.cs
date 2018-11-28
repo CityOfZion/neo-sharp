@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace NeoSharp.VM
 {
-    public abstract class IStack<T> : IEnumerable<T>, IDisposable
+    public abstract class StackBase<T> : IEnumerable<T>
     {
         /// <summary>
         /// Return the number of items in the stack
@@ -47,7 +47,9 @@ namespace NeoSharp.VM
         public T Peek(int index = 0)
         {
             if (!TryPeek(index, out T obj))
+            {
                 throw new ArgumentOutOfRangeException();
+            }
 
             return obj;
         }
@@ -65,41 +67,17 @@ namespace NeoSharp.VM
         public IEnumerator<T> GetEnumerator()
         {
             for (int x = 0, m = Count; x < m; x++)
+            {
                 yield return Peek(x);
+            }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
             for (int x = 0, m = Count; x < m; x++)
+            {
                 yield return Peek(x);
-        }
-
-        #endregion
-
-        #region IDisposable Support
-
-        /// <summary>
-        /// Dispose logic
-        /// </summary>
-        /// <param name="disposing">False for cleanup native objects</param>
-        protected virtual void Dispose(bool disposing) { }
-
-        /// <summary>
-        /// Destructor
-        /// </summary>
-        ~IStack()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(false);
-        }
-
-        // This code added to correctly implement the disposable pattern.
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-            Dispose(true);
-            // uncomment the following line if the finalizer is overridden above.
-            GC.SuppressFinalize(this);
+            }
         }
 
         #endregion

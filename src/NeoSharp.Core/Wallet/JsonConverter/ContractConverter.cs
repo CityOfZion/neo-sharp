@@ -2,9 +2,9 @@
 using NeoSharp.Core.Models;
 using Newtonsoft.Json;
 
-namespace NeoSharp.Core.Wallet
+namespace NeoSharp.Core.Wallet.JsonConverter
 {
-    public class ContractConverter : JsonConverter
+    public class ContractConverter : Newtonsoft.Json.JsonConverter
     {
         public override bool CanConvert(Type objectType)
         {

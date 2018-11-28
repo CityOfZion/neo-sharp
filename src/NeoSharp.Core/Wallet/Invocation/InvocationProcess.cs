@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using NeoSharp.Core.Extensions;
-using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.SmartContract.ContractParameters;
 using NeoSharp.Types;
 using NeoSharp.VM;
@@ -9,9 +8,9 @@ namespace NeoSharp.Core.Wallet.Invocation
 {
     public class InvocationProcess
     {
-        private readonly IExecutionEngine _executionEngine;
+        private readonly ExecutionEngineBase _executionEngine;
 
-        public InvocationProcess(IExecutionEngine executionEngine)
+        public InvocationProcess(ExecutionEngineBase executionEngine)
         {
             _executionEngine = executionEngine;
         }
@@ -44,7 +43,7 @@ namespace NeoSharp.Core.Wallet.Invocation
             {
                 using (stackItem)
                 {
-                    resultList.Add(stackItem.GetRawObject());
+                    resultList.Add(stackItem.ToObject());
                 }
             }
 
@@ -65,7 +64,7 @@ namespace NeoSharp.Core.Wallet.Invocation
 
             using (var sb = new ScriptBuilder())
             {
-                for (int i = parameters.Length - 1; i >= 0; i--)
+                for (var i = parameters.Length - 1; i >= 0; i--)
                 {
                     sb.PushContractParameter(parameters[i]);
                 }

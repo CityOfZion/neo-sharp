@@ -1,11 +1,12 @@
 ﻿using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
+using NeoSharp.Core.Types;
 using NeoSharp.Types;
 using Newtonsoft.Json;
 
 namespace NeoSharp.Core.Models
 {
-    public class Asset
+    public class Asset : ICloneable<Asset>
     {
         [BinaryProperty(1)]
         [JsonProperty("hash")]
@@ -39,5 +40,49 @@ namespace NeoSharp.Core.Models
         [JsonProperty("admin")]
         public UInt160 Admin;
 
+        [BinaryProperty(9)]
+        [JsonProperty("issuer")]
+        public UInt160 Issuer;
+
+        [BinaryProperty(10)]
+        [JsonProperty("expiration")]
+        public uint Expiration;
+
+        [BinaryProperty(11)]
+        [JsonProperty("isFrozen")]
+        public bool IsFrozen;
+
+        public Asset Clone()
+        {
+            return new Asset
+            {
+                Id = Id,
+                AssetType = AssetType,
+                Name = Name,
+                Amount = Amount,
+                Available = Available,
+                Precision = Precision,
+                Owner = Owner,
+                Admin = Admin,
+                Issuer = Issuer,
+                Expiration = Expiration,
+                IsFrozen = IsFrozen
+            };
+        }
+
+        public void FromReplica(Asset replica)
+        {
+            Id = replica.Id;
+            AssetType = replica.AssetType;
+            Name = replica.Name;
+            Amount = replica.Amount;
+            Available = replica.Available;
+            Precision = replica.Precision;
+            Owner = replica.Owner;
+            Admin = replica.Admin;
+            Issuer = replica.Issuer;
+            Expiration = replica.Expiration;
+            IsFrozen = replica.IsFrozen;
+        }
     }
 }

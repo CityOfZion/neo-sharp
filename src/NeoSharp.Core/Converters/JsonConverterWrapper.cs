@@ -1,7 +1,7 @@
 ﻿using System;
 using Newtonsoft.Json;
 
-namespace NeoSharp.Core.Wallet.Wrappers
+namespace NeoSharp.Core.Converters
 {
     public class JsonConverterWrapper : IJsonConverter
     {

@@ -4,14 +4,14 @@ using System.IO;
 using System.Linq;
 using NeoSharp.VM.Attributes;
 
-namespace NeoSharp.VM.Types
+namespace NeoSharp.VM
 {
     public class InstructionParser
     {
         /// <summary>
         /// Cache
         /// </summary>
-        static Dictionary<EVMOpCode, InstructionAttribute> _cache = new Dictionary<EVMOpCode, InstructionAttribute>();
+        private static readonly Dictionary<EVMOpCode, InstructionAttribute> Cache = new Dictionary<EVMOpCode, InstructionAttribute>();
 
         /// <summary>
         /// Cache attribute
@@ -23,7 +23,7 @@ namespace NeoSharp.VM.Types
             var enumType = typeof(EVMOpCode);
             foreach (var t in Enum.GetValues(enumType))
             {
-                // Get enumn member
+                // Get enum member
                 var memInfo = enumType.GetMember(t.ToString());
                 if (memInfo == null || memInfo.Length != 1)
                     throw (new FormatException());
@@ -38,7 +38,7 @@ namespace NeoSharp.VM.Types
                     continue;
 
                 // Append to cache
-                _cache.Add((EVMOpCode)t, attribute);
+                Cache.Add((EVMOpCode)t, attribute);
             }
         }
 
@@ -67,7 +67,7 @@ namespace NeoSharp.VM.Types
                     if (!Enum.IsDefined(opType, opRead)) yield break;
 
                     var opcode = (EVMOpCode)Enum.ToObject(opType, opRead);
-                    if (!_cache.TryGetValue(opcode, out var attr)) yield break;
+                    if (!Cache.TryGetValue(opcode, out var attr)) yield break;
 
                     var i = attr.New(location, opcode);
 
