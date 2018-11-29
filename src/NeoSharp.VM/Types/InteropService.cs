@@ -95,12 +95,12 @@ namespace NeoSharp.VM
         public void Register(string name, string alias, Func<ExecutionEngineBase, bool> handler, uint gas = 1)
         {
             var entry = new InteropServiceEntry(name, GetMethodHash(name), handler, gas);
-            _entries.Add(entry.MethodHash, entry);
+            _entries[entry.MethodHash] = entry;
 
             if (string.IsNullOrEmpty(alias)) return;
 
             entry = new InteropServiceEntry(alias, GetMethodHash(alias), handler, gas);
-            _entries.Add(entry.MethodHash, entry);
+            _entries[entry.MethodHash] = entry;
         }
 
         /// <summary>

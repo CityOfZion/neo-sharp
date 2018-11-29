@@ -5,6 +5,7 @@ namespace NeoSharp.VM
 {
     public abstract class IntegerStackItemBase : StackItem<BigInteger>, IEquatable<IntegerStackItemBase>
     {
+        /// <inheritdoc />
         public override byte[] ToByteArray() => Value.ToByteArray();
 
         /// <inheritdoc />

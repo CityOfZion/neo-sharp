@@ -22,6 +22,12 @@ namespace NeoSharp.VM
         }
 
         /// <summary>
+        /// Is not possible to convert to byte array
+        /// </summary>
+        /// <returns>NULL</returns>
+        public override byte[] ToByteArray() => null;
+
+        /// <summary>
         /// Converter
         /// </summary>
         /// <param name="item">Item</param>

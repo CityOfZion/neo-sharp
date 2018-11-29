@@ -11,8 +11,6 @@ namespace NeoSharp.VM.NeoVM.StackItems
 
         public override bool IsDisposed => false;
 
-        public override byte[] ToByteArray() => null;
-
         public override int Count => _item.Count;
 
         private readonly Neo.VM.Types.Map _item;

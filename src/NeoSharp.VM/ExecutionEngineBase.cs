@@ -64,7 +64,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Consumed Gas
         /// </summary>
-        public abstract uint ConsumedGas { get; }
+        public abstract ulong ConsumedGas { get; }
 
         #region Shortcuts
 
@@ -132,7 +132,7 @@ namespace NeoSharp.VM
         /// Increase gas
         /// </summary>
         /// <param name="gas">Gas</param>
-        public abstract bool IncreaseGas(long gas);
+        public abstract bool IncreaseGas(ulong gas);
 
         /// <summary>
         /// Clean Execution engine state
@@ -144,7 +144,7 @@ namespace NeoSharp.VM
         /// Execute (until x of Gas)
         /// </summary>
         /// <param name="gas">Gas</param>
-        public abstract bool Execute(uint gas = uint.MaxValue);
+        public abstract bool Execute(ulong gas = ulong.MaxValue);
 
         /// <summary>
         /// Step Into

@@ -13,8 +13,6 @@ namespace NeoSharp.VM.NeoVM.StackItems
 
         public override bool IsDisposed => false;
 
-        public override byte[] ToByteArray() => null;
-
         private readonly Neo.VM.Types.Struct _item;
         
         public override StackItemBase this[int index]

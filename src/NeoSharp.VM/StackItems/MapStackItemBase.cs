@@ -17,6 +17,12 @@ namespace NeoSharp.VM
             set => Set(key, value);
         }
 
+        /// <summary>
+        /// Is not possible to convert to byte array
+        /// </summary>
+        /// <returns>NULL</returns>
+        public override byte[] ToByteArray() => null;
+
         public abstract IEnumerable<StackItemBase> Keys { get; }
 
         public abstract IEnumerable<StackItemBase> Values { get; }

@@ -31,6 +31,12 @@ namespace NeoSharp.VM
         public bool IsReadOnly => false;
 
         /// <summary>
+        /// Is not possible to convert to byte array
+        /// </summary>
+        /// <returns>NULL</returns>
+        public override byte[] ToByteArray() => null;
+
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="isStruct">Is struct</param>

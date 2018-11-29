@@ -8,8 +8,6 @@ namespace NeoSharp.VM.NeoVM.StackItems
 
         public override bool IsDisposed => false;
 
-        public override byte[] ToByteArray() => null;
-
         private readonly Neo.VM.Types.InteropInterface _item;
 
         public InteropStackItem(Neo.VM.Types.InteropInterface<T> item) : base((T)item)

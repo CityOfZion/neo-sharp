@@ -20,13 +20,13 @@ namespace NeoSharp.Core.Test.SmartContracts
 
         public override bool IsDisposed { get { return PublicDisposed; } }
 
-        public override uint ConsumedGas { get { return PublicConsumedGas; } }
+        public override ulong ConsumedGas { get { return PublicConsumedGas; } }
 
         public override void Clean(uint iteration = 0)
         {
         }
 
-        public override bool IncreaseGas(long gas)
+        public override bool IncreaseGas(ulong gas)
         {
             return true;
         }
@@ -81,7 +81,7 @@ namespace NeoSharp.Core.Test.SmartContracts
             return null;
         }
 
-        public override bool Execute(uint gas = uint.MaxValue)
+        public override bool Execute(ulong gas = ulong.MaxValue)
         {
             return true;
         }

@@ -18,8 +18,8 @@ namespace NeoSharp.VM.NeoVM
         private readonly StackWrapper _resultStack;
 
         private const long Ratio = 100000;
-        private long _gasConsumed;
-        private long _gasAmount;
+        private ulong _gasConsumed;
+        private ulong _gasAmount;
         private bool _isDisposed;
         private ContractScriptTable _contractScriptTable;
 
@@ -30,7 +30,7 @@ namespace NeoSharp.VM.NeoVM
 
         private EVMState _state;
 
-        public override uint ConsumedGas => (uint)_gasConsumed;
+        public override ulong ConsumedGas => _gasConsumed;
 
         public override StackBase<ExecutionContextBase> InvocationStack => _invocationStack;
 
@@ -505,7 +505,7 @@ namespace NeoSharp.VM.NeoVM
 
         #region Execute
 
-        public override bool IncreaseGas(long gas)
+        public override bool IncreaseGas(ulong gas)
         {
             _gasConsumed = checked(_gasConsumed + gas);
 
@@ -530,7 +530,7 @@ namespace NeoSharp.VM.NeoVM
             }
         }
 
-        public override bool Execute(uint gas = uint.MaxValue)
+        public override bool Execute(ulong gas = ulong.MaxValue)
         {
             _gasAmount = gas;
 
@@ -611,7 +611,7 @@ namespace NeoSharp.VM.NeoVM
             return count;
         }
 
-        protected virtual long GetPrice(OpCode nextInstruction)
+        protected virtual ulong GetPrice(OpCode nextInstruction)
         {
             if (nextInstruction <= OpCode.PUSH16) return 0;
 
@@ -640,7 +640,7 @@ namespace NeoSharp.VM.NeoVM
                         var item = _engine.CurrentContext.EvaluationStack.Peek();
                         var n = item is Neo.VM.Types.Array array ? array.Count : (int)item.GetBigInteger();
 
-                        return n < 1 ? 1 : 100 * n;
+                        return n < 1 ? 1UL : (ulong)(100 * n);
                     }
                 default: return 1;
             }
