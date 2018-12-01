@@ -34,7 +34,7 @@ namespace NeoSharp.Application.Controllers
             public UInt256 Asset { get; set; }
 
             [JsonProperty("address")]
-            public UInt160 Address { get; set; }
+            public string Address { get; set; }
 
             [JsonProperty("value")]
             public BigInteger Value { get; set; }
@@ -164,19 +164,19 @@ namespace NeoSharp.Application.Controllers
         /// Make rpc call for `sendtoaddress` 
         /// </summary> 
         [PromptCommand("rpc sendtoaddress", Category = "Rpc", Help = "Make rpc calls for sendtoaddress")]
-        public Task RpcSendtoaddressCommand(IPEndPoint endPoint, UInt256 asset, UInt160 to, BigInteger value, ulong fee = 0, UInt160 changeAddress = null)
+        public Task RpcSendtoaddressCommand(IPEndPoint endPoint, UInt256 asset, string to, BigInteger value, ulong fee = 0, string changeAddress = null)
         {
             // Serialize acording to (https://github.com/neo-project/neo-cli/blob/master/neo-cli/Network/RPC/RpcServerWithWallet.cs#L105)
 
             var ls = new List<object>
                 {
                     asset.ToString(false),
-                    to.ToString(false),
+                    to,
                     value,
                     fee
                 };
 
-            if (changeAddress != null) ls.Add(changeAddress.ToString(false));
+            if (changeAddress != null) ls.Add(changeAddress);
 
             return RpcCallCommand(endPoint, "sendtoaddress", ls.ToArray().ToJson(false));
         }
@@ -185,20 +185,20 @@ namespace NeoSharp.Application.Controllers
         /// Make rpc call for `sendfrom` 
         /// </summary> 
         [PromptCommand("rpc sendfrom", Category = "Rpc", Help = "Make rpc calls for sendfrom")]
-        public Task RpcSendfromCommand(IPEndPoint endPoint, UInt256 asset, UInt160 from, UInt160 to, BigInteger value, ulong fee = 0, UInt160 changeAddress = null)
+        public Task RpcSendfromCommand(IPEndPoint endPoint, UInt256 asset, string from, string to, BigInteger value, ulong fee = 0, string changeAddress = null)
         {
             // Serialize acording to (https://github.com/neo-project/neo-cli/blob/master/neo-cli/Network/RPC/RpcServerWithWallet.cs#L69)
 
             var ls = new List<object>
                 {
                     asset.ToString(false),
-                    from.ToString(false),
-                    to.ToString(false),
+                    from,
+                    to,
                     value,
                     fee
                 };
 
-            if (changeAddress != null) ls.Add(changeAddress.ToString(false));
+            if (changeAddress != null) ls.Add(changeAddress);
 
             return RpcCallCommand(endPoint, "sendfrom", ls.ToArray().ToJson(false));
         }
@@ -234,9 +234,9 @@ namespace NeoSharp.Application.Controllers
         /// Make rpc call for `dumpprivkey` 
         /// </summary> 
         [PromptCommand("rpc dumpprivkey", Category = "Rpc", Help = "Make rpc calls for dumpprivkey")]
-        public Task RpcDumpprivkeyCommand(IPEndPoint endPoint, UInt160 hash)
+        public Task RpcDumpprivkeyCommand(IPEndPoint endPoint, string address)
         {
-            return RpcCallCommand(endPoint, "dumpprivkey", "[\"" + hash.ToString(false) + "\"]");
+            return RpcCallCommand(endPoint, "dumpprivkey", "[\"" + address + "\"]");
         }
 
         /// <summary> 
@@ -440,9 +440,9 @@ namespace NeoSharp.Application.Controllers
         /// Make rpc call for `getaccountstate` 
         /// </summary> 
         [PromptCommand("rpc getaccountstate", Category = "Rpc", Help = "Make rpc calls for getaccountstate")]
-        public Task RpcGetaccountstateCommand(IPEndPoint endPoint, UInt160 address)
+        public Task RpcGetaccountstateCommand(IPEndPoint endPoint, string address)
         {
-            return RpcCallCommand(endPoint, "getaccountstate", "[\"" + address.ToString(false) + "\"]");
+            return RpcCallCommand(endPoint, "getaccountstate", "[\"" + address + "\"]");
         }
 
         /// <summary> 
