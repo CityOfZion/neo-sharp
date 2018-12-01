@@ -1,0 +1,31 @@
+﻿{
+    "category": "ControlFlow",
+    "name": "RET",
+    "tests":
+    [
+        {
+            "script": "Zg==",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 100000,
+                        "resultStack":
+                        [
+                        ],
+                        "invocationStack":
+                        [
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
