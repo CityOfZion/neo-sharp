@@ -29,12 +29,12 @@ namespace NeoSharp.Application.Controllers
         /// Invoke contract
         /// </summary>
         /// <param name="contractHash">Contract</param>
-        /// <param name="body">Body</param>
+        /// <param name="args">Body</param>
         [PromptCommand("invoke", Help = "Invoke a contract", Category = "Invokes")]
         public void Invoke(UInt160 contractHash, [PromptCommandParameterBody] object[] args)
         {
             Contract contract = Contract.GetContract(contractHash);
-            if (contract == null) throw (new ArgumentNullException("Contract not found"));
+            if (contract == null) throw new ArgumentNullException("Contract not found");
 
             var tx = contract.CreateInvokeTransaction(args);
         }

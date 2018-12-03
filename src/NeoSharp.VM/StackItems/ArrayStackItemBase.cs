@@ -163,7 +163,7 @@ namespace NeoSharp.VM
                 if (first) first = false;
                 else sb.Append(",");
 
-                sb.Append(it.ToString());
+                sb.Append(it);
                 it.Dispose();
             }
 

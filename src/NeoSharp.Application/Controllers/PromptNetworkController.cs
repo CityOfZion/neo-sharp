@@ -21,7 +21,7 @@ namespace NeoSharp.Application.Controllers
         /// </summary>
         /// <param name="serverContext">Server context</param>
         /// <param name="networkManager">Network manages</param>
-        /// <param name="consoleHandler">Console writter</param>
+        /// <param name="consoleHandler">Console writer</param>
         public PromptNetworkController(IServerContext serverContext, INetworkManager networkManager, IConsoleHandler consoleHandler)
         {
             _serverContext = serverContext;

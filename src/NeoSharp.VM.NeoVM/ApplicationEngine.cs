@@ -168,7 +168,8 @@ namespace NeoSharp.VM.NeoVM
 
             _engine = new ExecutionEngine(
                 new ScriptContainerWrapper(args.MessageProvider),
-                _crypto, _contractScriptTable,
+                _crypto,
+                _contractScriptTable,
                 new InteropServiceAdapter(this, args.InteropService));
 
             _resultStack = new StackWrapper(_engine.ResultStack);

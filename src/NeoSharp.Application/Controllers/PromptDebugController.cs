@@ -42,7 +42,7 @@ namespace NeoSharp.Application.Controllers
             All = Trace | Debug | Information | Warning | Error | Critical
         }
 
-        private readonly Dictionary<LogLevel, LogVerbose> _logFlagProxy = new Dictionary<LogLevel, LogVerbose>()
+        private readonly Dictionary<LogLevel, LogVerbose> _logFlagProxy = new Dictionary<LogLevel, LogVerbose>
         {
             { LogLevel.Trace, LogVerbose.Trace},
             { LogLevel.Debug, LogVerbose.Debug},
@@ -110,7 +110,7 @@ namespace NeoSharp.Application.Controllers
             _consoleHandler = consoleHandler;
         }
 
-        class DebugScriptTable : IScriptTable
+        private class DebugScriptTable : IScriptTable
         {
             public readonly Dictionary<UInt160, byte[]> VirtualContracts = new Dictionary<UInt160, byte[]>();
 
@@ -129,7 +129,7 @@ namespace NeoSharp.Application.Controllers
                     return script;
                 }
 
-                Contract contract = Contract.GetContract(hash);
+                var contract = Contract.GetContract(hash);
 
                 if (contract == null /* TODO #400: || (isDynamicInvoke && !contract.AllowDynamicInvokes) */) return null;
 
@@ -137,7 +137,7 @@ namespace NeoSharp.Application.Controllers
             }
         }
 
-        DebugScriptTable _scriptTable = new DebugScriptTable();
+        private readonly DebugScriptTable _scriptTable = new DebugScriptTable();
 
         // TODO #401: Implement test invoke with asset attachment
         // testinvoke {contract hash} {params} (--attach-neo={amount}, --attach-gas={amount}) (--from-addr={addr})
@@ -206,12 +206,12 @@ namespace NeoSharp.Application.Controllers
             var parser = new InstructionParser();
             foreach (var i in parser.Parse(script))
             {
-                _consoleHandler.Write(i.Location.ToString() + " ", ConsoleOutputStyle.Information);
+                _consoleHandler.Write($"{i.Location} ", ConsoleOutputStyle.Information);
 
                 if (i is InstructionWithPayload ip)
                 {
-                    _consoleHandler.Write(i.OpCode.ToString() + " ");
-                    _consoleHandler.WriteLine("{" + ip.Payload.ToHexString(true) + "}", ConsoleOutputStyle.DarkGray);
+                    _consoleHandler.Write($"{i.OpCode} ");
+                    _consoleHandler.WriteLine($"{{{ip.Payload.ToHexString(true)}}}", ConsoleOutputStyle.DarkGray);
                 }
                 else
                 {
@@ -232,7 +232,7 @@ namespace NeoSharp.Application.Controllers
         {
             if (_scriptTable.GetScript(contractHash.ToArray(), false) == null) throw new ArgumentNullException("Contract not found");
 
-            var args = new ExecutionEngineArgs()
+            var args = new ExecutionEngineArgs
             {
                 ScriptTable = _scriptTable,
                 Logger = new ExecutionEngineLogger(ELogVerbosity.StepInto),
@@ -241,7 +241,7 @@ namespace NeoSharp.Application.Controllers
 
             var log = new StringBuilder();
 
-            args.Logger.OnStepInto += (context) =>
+            args.Logger.OnStepInto += context =>
             {
                 log.AppendLine(context.NextInstruction.ToString());
             };
@@ -250,7 +250,7 @@ namespace NeoSharp.Application.Controllers
             using (var vm = _vmFactory.Create(args))
             {
                 script.EmitMainPush(operation, parameters);
-                script.EmitAppCall(contractHash.ToArray(), false);
+                script.EmitAppCall(contractHash.ToArray());
 
                 vm.LoadScript(script);
 

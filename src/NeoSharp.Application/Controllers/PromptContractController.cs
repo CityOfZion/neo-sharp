@@ -41,14 +41,14 @@ namespace NeoSharp.Application.Controllers
         [PromptCommand("build", Help = "Build a contract", Category = "Contracts")]
         public void BuildCommand(FileInfo inputPath, FileInfo outputPath)
         {
-            if (outputPath.Exists) throw (new InvalidParameterException("Output file already exists"));
-            if (!inputPath.Exists) throw (new InvalidParameterException(inputPath.FullName));
+            if (outputPath.Exists) throw new InvalidParameterException("Output file already exists");
+            if (!inputPath.Exists) throw new InvalidParameterException(inputPath.FullName);
 
             string[] dump;
-            using (Process p = Process.Start(new ProcessStartInfo()
+            using (var p = Process.Start(new ProcessStartInfo()
             {
                 FileName = "neon",
-                Arguments = "\"" + inputPath.FullName + "\"",
+                Arguments = $"\"{inputPath.FullName}\"",
                 CreateNoWindow = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
@@ -57,10 +57,10 @@ namespace NeoSharp.Application.Controllers
             {
                 if (!p.Start())
                 {
-                    throw (new Exception("Error starting neon. Make sure that neon is in your PATH variable"));
+                    throw new Exception("Error starting neon. Make sure that neon is in your PATH variable");
                 }
 
-                dump = p.StandardOutput.ReadToEnd().Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                dump = p.StandardOutput.ReadToEnd().Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
                 p.WaitForExit();
             }
 
@@ -71,12 +71,12 @@ namespace NeoSharp.Application.Controllers
 
             // Looking for .abi.json
 
-            string tempFile = Path.ChangeExtension(inputPath.FullName, ".abi.json");
+            var tempFile = Path.ChangeExtension(inputPath.FullName, ".abi.json");
             if (File.Exists(tempFile))
             {
                 try
                 {
-                    JToken json = JToken.Parse(File.ReadAllText(tempFile));
+                    var json = JToken.Parse(File.ReadAllText(tempFile));
                     _consoleHandler.WriteLine(json.ToString(Formatting.Indented), ConsoleOutputStyle.Information);
                 }
                 catch { }
@@ -92,7 +92,7 @@ namespace NeoSharp.Application.Controllers
             }
             else
             {
-                throw (new InvalidParameterException("Error compiling the contract"));
+                throw new InvalidParameterException("Error compiling the contract");
             }
         }
     }

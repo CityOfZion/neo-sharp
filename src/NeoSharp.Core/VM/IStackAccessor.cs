@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace NeoSharp.Core.VM
 {
@@ -21,15 +20,16 @@ namespace NeoSharp.Core.VM
 
         void Push<T>(T[] items) where T : class;
 
+        byte[] PeekByteArray(int index = 0);
+
         T Peek<T>(int index = 0) where T : class;
 
-        BigInteger PopBigInteger();
+        BigInteger? PopBigInteger();
 
         byte[] PopByteArray();
 
-        IEnumerable PopArray();
-
         T Pop<T>() where T : class;
-        byte[] PeekByteArray(int index = 0);
+
+        T[] PopArray<T>() where T : class;
     }
 }

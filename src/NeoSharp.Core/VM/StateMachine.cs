@@ -29,7 +29,7 @@ namespace NeoSharp.Core.VM
             DataCache<UInt256, Asset> assets,
             DataCache<UInt160, Contract> contracts,
             DataCache<StorageKey, StorageValue> storages,
-            IInteropService interopService,
+            InteropService interopService,
             IBlockchainContext blockchainContext,
             IBlockRepository blockRepository,
             ITransactionRepository transactionRepository,
@@ -44,30 +44,30 @@ namespace NeoSharp.Core.VM
             _storages = storages.CreateSnapshot();
 
             //Standard Library
-            interopService.RegisterMethod("System.Contract.GetStorageContext", Contract_GetStorageContext);
-            interopService.RegisterMethod("System.Contract.Destroy", Contract_Destroy);
-            interopService.RegisterMethod("System.Storage.Put", Storage_Put);
-            interopService.RegisterMethod("System.Storage.Delete", Storage_Delete);
+            interopService.RegisterStackTransition("System.Contract.GetStorageContext", Contract_GetStorageContext);
+            interopService.RegisterStackTransition("System.Contract.Destroy", Contract_Destroy);
+            interopService.RegisterStackTransition("System.Storage.Put", Storage_Put);
+            interopService.RegisterStackTransition("System.Storage.Delete", Storage_Delete);
 
             //Neo Specified
-            interopService.RegisterMethod("Neo.Asset.Create", Asset_Create);
-            interopService.RegisterMethod("Neo.Asset.Renew", Asset_Renew);
-            interopService.RegisterMethod("Neo.Contract.Create", Contract_Create);
-            interopService.RegisterMethod("Neo.Contract.Migrate", Contract_Migrate);
+            interopService.RegisterStackTransition("Neo.Asset.Create", Asset_Create);
+            interopService.RegisterStackTransition("Neo.Asset.Renew", Asset_Renew);
+            interopService.RegisterStackTransition("Neo.Contract.Create", Contract_Create);
+            interopService.RegisterStackTransition("Neo.Contract.Migrate", Contract_Migrate);
 
             #region Old APIs
-            interopService.RegisterMethod("AntShares.Asset.Create", Asset_Create);
-            interopService.RegisterMethod("AntShares.Asset.Renew", Asset_Renew);
-            interopService.RegisterMethod("AntShares.Contract.Create", Contract_Create);
-            interopService.RegisterMethod("AntShares.Contract.Migrate", Contract_Migrate);
-            interopService.RegisterMethod("Neo.Contract.GetStorageContext", Contract_GetStorageContext);
-            interopService.RegisterMethod("AntShares.Contract.GetStorageContext", Contract_GetStorageContext);
-            interopService.RegisterMethod("Neo.Contract.Destroy", Contract_Destroy);
-            interopService.RegisterMethod("AntShares.Contract.Destroy", Contract_Destroy);
-            interopService.RegisterMethod("Neo.Storage.Put", Storage_Put);
-            interopService.RegisterMethod("AntShares.Storage.Put", Storage_Put);
-            interopService.RegisterMethod("Neo.Storage.Delete", Storage_Delete);
-            interopService.RegisterMethod("AntShares.Storage.Delete", Storage_Delete);
+            interopService.RegisterStackTransition("AntShares.Asset.Create", Asset_Create);
+            interopService.RegisterStackTransition("AntShares.Asset.Renew", Asset_Renew);
+            interopService.RegisterStackTransition("AntShares.Contract.Create", Contract_Create);
+            interopService.RegisterStackTransition("AntShares.Contract.Migrate", Contract_Migrate);
+            interopService.RegisterStackTransition("Neo.Contract.GetStorageContext", Contract_GetStorageContext);
+            interopService.RegisterStackTransition("AntShares.Contract.GetStorageContext", Contract_GetStorageContext);
+            interopService.RegisterStackTransition("Neo.Contract.Destroy", Contract_Destroy);
+            interopService.RegisterStackTransition("AntShares.Contract.Destroy", Contract_Destroy);
+            interopService.RegisterStackTransition("Neo.Storage.Put", Storage_Put);
+            interopService.RegisterStackTransition("AntShares.Storage.Put", Storage_Put);
+            interopService.RegisterStackTransition("Neo.Storage.Delete", Storage_Delete);
+            interopService.RegisterStackTransition("AntShares.Storage.Delete", Storage_Delete);
             #endregion
         }
 

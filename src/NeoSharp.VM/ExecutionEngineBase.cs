@@ -71,19 +71,19 @@ namespace NeoSharp.VM
         public ExecutionContextBase CurrentContext
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return InvocationStack.TryPeek(0, out var i) ? i : null; }
+            get => InvocationStack.TryPeek(0, out var i) ? i : null;
         }
 
         public ExecutionContextBase CallingContext
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return InvocationStack.TryPeek(1, out var i) ? i : null; }
+            get => InvocationStack.TryPeek(1, out var i) ? i : null;
         }
 
         public ExecutionContextBase EntryContext
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get { return InvocationStack.TryPeek(-1, out var i) ? i : null; }
+            get => InvocationStack.TryPeek(-1, out var i) ? i : null;
         }
 
         #endregion
