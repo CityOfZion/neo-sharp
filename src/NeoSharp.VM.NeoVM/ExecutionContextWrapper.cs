@@ -10,7 +10,19 @@
 
         public override byte[] ScriptHash => NativeContext.ScriptHash;
 
-        public override EVMOpCode NextInstruction => (EVMOpCode)NativeContext.NextInstruction;
+        public override EVMOpCode NextInstruction
+        {
+            get
+            {
+                try
+                {
+                    // TODO: Remove this try when NeoVM push a new version
+
+                    return (EVMOpCode)NativeContext.NextInstruction;
+                }
+                catch { return EVMOpCode.RET; }
+            }
+        }
 
         public override int InstructionPointer => NativeContext.InstructionPointer;
 

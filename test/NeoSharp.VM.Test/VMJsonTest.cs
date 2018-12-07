@@ -6,16 +6,15 @@ namespace NeoSharp.VM.Test
     [TestClass]
     public class VMJsonTest : VMJsonTestBase
     {
+        private readonly IVMFactory _factory = new NeoVM.NeoVMFactory();
+
         [TestMethod]
         public void TestJson()
         {
-            foreach(var file in new string[]
+            foreach (var file in Directory.GetFiles("./Tests/", "*.json"))
             {
-                "./Tests/sample1.json",
-                "./Tests/sample2.json",
-            })
-
-            ExecuteTest(File.ReadAllText(file));
+                ExecuteTest(_factory, File.ReadAllText(file));
+            }
         }
     }
 }

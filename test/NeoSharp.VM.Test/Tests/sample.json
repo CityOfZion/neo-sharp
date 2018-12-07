@@ -16,13 +16,7 @@
                     "state":
                     {
                         "state": "Halt",
-                        "consumedGas": 100000,
-                        "resultStack":
-                        [
-                        ],
-                        "invocationStack":
-                        [
-                        ]
+                        "consumedGas": 100000
                     }
                 }
             ]

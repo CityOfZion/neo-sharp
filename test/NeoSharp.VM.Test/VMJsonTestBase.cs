@@ -1,7 +1,18 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NeoSharp.Core.Extensions;
+using NeoSharp.Core.Models;
+using NeoSharp.Core.VM;
+using NeoSharp.Types.ExtensionMethods;
+using NeoSharp.VM.Extensions;
 using NeoSharp.VM.TestHelper;
 using NeoSharp.VM.TestHelper.Extensions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NeoSharp.VM.Test
 {
@@ -10,50 +21,123 @@ namespace NeoSharp.VM.Test
         /// <summary>
         /// Execute this test
         /// </summary>
+        /// <param name="factory">Factory</param>
         /// <param name="json">Json</param>
-        public void ExecuteTest(string json) => ExecuteTest(json.JsonToVMUT());
+        public void ExecuteTest(IVMFactory factory, string json) => ExecuteTest(factory, json.JsonToVMUT());
 
         /// <summary>
         /// Execute this test
         /// </summary>
+        /// <param name="factory">Factory</param>
         /// <param name="ut">Test</param>
-        public void ExecuteTest(VMUT ut)
+        public void ExecuteTest(IVMFactory factory, VMUT ut)
         {
             foreach (var test in ut.Tests)
             {
                 // Arguments
 
+                var storages = new ManualStorage();
+                var interopService = new InteropService();
+                var contracts = new ManualContracts();
+                var state = new StateMachine
+                (
+                    null, null, null, contracts,
+                    storages, interopService, null, null, null, test.Trigger
+                );
+
                 var args = new ExecutionEngineArgs()
                 {
-                    Trigger = (ETriggerType)test.Trigger,
+                    Trigger = test.Trigger,
+                    InteropService = interopService,
+                    Logger = new ExecutionEngineLogger(ELogVerbosity.StepInto),
+                    ScriptTable = contracts,
                 };
+
+                var log = new StringBuilder();
+                var logBag = new List<string>();
+                var notBag = new List<JToken>();
+
+                interopService.OnLog += (sender, e) =>
+                {
+                    logBag.Add(e.Message);
+                };
+                interopService.OnNotify += (sender, e) =>
+                {
+                    notBag.Add(ItemToJson(e.State));
+                };
+                args.Logger.OnStepInto += (context) =>
+                {
+                    log.AppendLine(context.InstructionPointer.ToString("x6") + " - " + context.NextInstruction);
+                };
+                interopService.OnSysCall += (o, e) =>
+                {
+                    // Remove last line
+                    log.Remove(log.Length - Environment.NewLine.Length, Environment.NewLine.Length);
+                    log.AppendLine($" [{e.MethodName}  -  {e.Result}]");
+                };
+
+                // Script table
+
+                if (test.ScriptTable != null)
+                {
+                    foreach (var script in test.ScriptTable)
+                    {
+                        var contract = new Contract()
+                        {
+                            Code = new Code()
+                            {
+                                Script = script.Script,
+                                ScriptHash = script.Script.ToScriptHash(),
+                                Metadata = ContractMetadata.NoProperty
+                            }
+                        };
+
+                        if (script.HasDynamicInvoke) contract.Code.Metadata |= ContractMetadata.HasDynamicInvoke;
+                        if (script.HasStorage) contract.Code.Metadata |= ContractMetadata.HasStorage;
+                        if (script.Payable) contract.Code.Metadata |= ContractMetadata.Payable;
+
+                        contracts.Add(contract.ScriptHash, contract);
+                    }
+
+                    contracts.Commit();
+                }
 
                 // Create engine
 
-                using (var engine = new NeoVM.NeoVMFactory().Create(args))
+                using (var engine = factory.Create(args))
                 {
                     engine.LoadScript(test.Script);
 
                     // Execute Steps
 
-                    foreach (var step in test.Steps)
+                    if (test.Steps != null)
                     {
-                        // Actions
-
-                        foreach (var run in step.Actions)
+                        foreach (var step in test.Steps)
                         {
-                            switch (run)
+                            // Actions
+
+                            log.Clear();
+                            logBag.Clear();
+                            notBag.Clear();
+
+                            foreach (var run in step.Actions)
                             {
-                                case VMUTActionType.Execute: engine.Execute(); break;
-                                case VMUTActionType.StepInto: engine.StepInto(); break;
-                                case VMUTActionType.StepOut: engine.StepOut(); break;
-                                case VMUTActionType.StepOver: engine.StepOver(); break;
+                                switch (run)
+                                {
+                                    case VMUTActionType.Execute: engine.Execute(); break;
+                                    case VMUTActionType.StepInto: engine.StepInto(); break;
+                                    case VMUTActionType.StepOut: engine.StepOut(); break;
+                                    case VMUTActionType.StepOver: engine.StepOver(); break;
+                                    case VMUTActionType.Clean: engine.Clean(); break;
+                                }
                             }
+
+                            // Review results
+
+                            var add = string.IsNullOrEmpty(step.Comment) ? "" : "-" + step.Comment;
+
+                            AssertResult(engine, step.State, logBag, notBag, $"{ut.Category}-{ut.Name}{add}: ");
                         }
-
-                        // Review results
-
-                        AssertResult(engine, step.State, $"{ut.Category}-{ut.Name}: ");
                     }
                 }
             }
@@ -64,14 +148,19 @@ namespace NeoSharp.VM.Test
         /// </summary>
         /// <param name="engine">Engine</param>
         /// <param name="result">Result</param>
+        /// <param name="logBag">Log bag</param>
+        /// <param name="notBag">Not bag</param>
         /// <param name="message">Message</param>
-        private void AssertResult(ExecutionEngineBase engine, VMUTExecutionEngineState result, string message)
+        private void AssertResult(ExecutionEngineBase engine, VMUTExecutionEngineState result, List<string> logBag, List<JToken> notBag, string message)
         {
-            AssertAreEqual(engine.ConsumedGas, result.ConsumedGas, message + "Consumed gas is different");
             AssertAreEqual(engine.State.ToString(), result.State.ToString(), message + "State is different");
+            AssertAreEqual(engine.ConsumedGas, result.ConsumedGas, message + "Consumed gas is different");
 
-            AssertResult(engine.ResultStack, result.ResultStack, message);
+            AssertAreEqual(logBag.ToArray(), result.Logs ?? new string[0], message + "Logs are different");
+            AssertAreEqual(notBag.ToArray(), result.Notifications == null ? new JToken[0] : result.Notifications.Select(u => PrepareJsonItem(u)).ToArray(), message + "Notifies are different");
+
             AssertResult(engine.InvocationStack, result.InvocationStack, message);
+            AssertResult(engine.ResultStack, result.ResultStack, message);
         }
 
         /// <summary>
@@ -89,7 +178,7 @@ namespace NeoSharp.VM.Test
                 var context = stack.Peek(x);
 
                 AssertAreEqual(context.ScriptHash, result[x].ScriptHash, message + "Script hash is different");
-                AssertAreEqual((byte)context.NextInstruction, result[x].NextInstruction, message + "Next instruction is different");
+                AssertAreEqual(context.NextInstruction, result[x].NextInstruction, message + "Next instruction is different");
                 AssertAreEqual(context.InstructionPointer, result[x].InstructionPointer, message + "Instruction pointer is different");
 
                 AssertResult(context.EvaluationStack, result[x].EvaluationStack, message);
@@ -109,10 +198,114 @@ namespace NeoSharp.VM.Test
 
             for (int x = 0, max = stack.Count; x < max; x++)
             {
-                var item = stack.Peek(x);
+                AssertAreEqual(ItemToJson(stack.Peek(x)).ToString(Formatting.None), PrepareJsonItem(result[x]).ToString(Formatting.None), message + "Stack item is different");
+            }
+        }
 
-                AssertAreEqual(item.Type.ToString(), result[x].Type.ToString(), message + "Stack item type is different");
-                AssertAreEqual(item.ToObject().ToString(), result[x].Value, message + "Stack item value is different");
+        private JObject PrepareJsonItem(VMUTStackItem item)
+        {
+            var ret = new JObject
+            {
+                ["type"] = item.Type.ToString(),
+                ["value"] = item.Value
+            };
+
+            switch (item.Type)
+            {
+                case VMUTStackItemType.String:
+                    {
+                        // Easy access
+
+                        ret["type"] = VMUTStackItemType.ByteArray.ToString();
+                        ret["value"] = Encoding.UTF8.GetBytes(item.Value.Value<string>());
+                        break;
+                    }
+                case VMUTStackItemType.Integer:
+                    {
+                        // Ensure format
+
+                        ret["value"] = ret["value"].Value<string>();
+                        break;
+                    }
+                case VMUTStackItemType.Struct:
+                case VMUTStackItemType.Array:
+                    {
+                        var array = (JArray)ret["value"];
+
+                        for (int x = 0, m = array.Count; x < m; x++)
+                        {
+                            array[x] = PrepareJsonItem(JsonConvert.DeserializeObject<VMUTStackItem>(array[x].ToString()));
+                        }
+
+                        ret["value"] = array;
+                        break;
+                    }
+                case VMUTStackItemType.Map:
+                    {
+                        var obj = (JObject)ret["value"];
+
+                        foreach (var prop in obj.Properties())
+                        {
+                            obj[prop.Name] = PrepareJsonItem(JsonConvert.DeserializeObject<VMUTStackItem>(prop.Value.ToString()));
+                        }
+
+                        ret["value"] = obj;
+                        break;
+                    }
+            }
+
+            return ret;
+        }
+
+        private JToken ItemToJson(StackItemBase item)
+        {
+            if (item == null) return null;
+
+            JToken value;
+
+            using (item)
+            {
+                switch (item.Type)
+                {
+                    case EStackItemType.Bool: value = new JValue((bool)item.ToObject()); break;
+                    case EStackItemType.Integer: value = new JValue(item.ToObject().ToString()); break;
+                    case EStackItemType.ByteArray: value = new JValue((byte[])item.ToObject()); break;
+                    case EStackItemType.Interop: value = new JValue(item.ToObject().ToString()); break;
+                    case EStackItemType.Struct:
+                    case EStackItemType.Array:
+                        {
+                            var array = (ArrayStackItemBase)item;
+                            var jarray = new JArray();
+
+                            foreach (var entry in array)
+                            {
+                                jarray.Add(ItemToJson(entry));
+                            }
+
+                            value = jarray;
+                            break;
+                        }
+                    case EStackItemType.Map:
+                        {
+                            var dic = (MapStackItemBase)item;
+                            var jdic = new JObject();
+
+                            foreach (var entry in dic)
+                            {
+                                jdic.Add(entry.Key.ToByteArray().ToHexString(true), ItemToJson(entry.Value));
+                            }
+
+                            value = jdic;
+                            break;
+                        }
+                    default: throw new NotImplementedException();
+                }
+
+                return new JObject
+                {
+                    ["type"] = item.Type.ToString(),
+                    ["value"] = value
+                };
             }
         }
 
@@ -126,8 +319,8 @@ namespace NeoSharp.VM.Test
         {
             if (a is IEnumerable ca && b is IEnumerable cb)
             {
-                a = string.Join(",", ca);
-                b = string.Join(",", cb);
+                a = a.ToJson();
+                b = b.ToJson();
             }
 
             Assert.AreEqual(a, b, message + $" [Expected: {a.ToString()} - Actual: {b.ToString()}]");

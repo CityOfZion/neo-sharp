@@ -12,6 +12,8 @@ using NeoSharp.Cryptography;
 using NeoSharp.Types;
 using NeoSharp.Types.ExtensionMethods;
 using NeoSharp.VM;
+using NeoSharp.VM.Extensions;
+
 namespace NeoSharp.Application.Controllers
 {
     public class PromptDebugController : IPromptController
@@ -203,8 +205,7 @@ namespace NeoSharp.Application.Controllers
 
             if (script == null) throw new ArgumentNullException("Contract not found");
 
-            var parser = new InstructionParser();
-            foreach (var i in parser.Parse(script))
+            foreach (var i in script.DecompileScript())
             {
                 _consoleHandler.Write($"{i.Location} ", ConsoleOutputStyle.Information);
 

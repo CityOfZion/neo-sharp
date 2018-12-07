@@ -429,6 +429,7 @@ namespace NeoSharp.VM.NeoVM
                     case OpCode.CALL_EDT:
                         _stackItemCount -= 1;
                         break;
+                    case OpCode.RET:
                     case OpCode.APPCALL:
                     case OpCode.TAILCALL:
                     case OpCode.NOT:
@@ -527,6 +528,11 @@ namespace NeoSharp.VM.NeoVM
         {
             for (int x = 0; x < steps; x++)
             {
+                if (Logger.Verbosity.HasFlag(ELogVerbosity.StepInto))
+                {
+                    Logger.RaiseOnStepInto(CurrentContext);
+                }
+
                 _engine.StepInto();
             }
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
@@ -20,6 +21,7 @@ namespace NeoSharp.Core.VM
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBlockRepository _blockRepository;
         private readonly ITransactionRepository _transactionRepository;
+        private readonly InteropService _interopService;
 
         private readonly ETriggerType _trigger;
         //public static event EventHandler<NotifyEventArgs> Notify;
@@ -57,6 +59,7 @@ namespace NeoSharp.Core.VM
             _blockRepository = blockRepository;
             _transactionRepository = transactionRepository;
             _trigger = trigger;
+            _interopService = interopService;
 
             //Standard Library
             interopService.RegisterStackTransition("System.Runtime.GetTrigger", Runtime_GetTrigger);
@@ -262,19 +265,19 @@ namespace NeoSharp.Core.VM
 
         protected virtual bool Runtime_Notify(IStackAccessor stack)
         {
-            // TODO:
-            //var state = stack.Pop();
-            //var notification = new NotifyEventArgs(engine.ScriptContainer, new UInt160(engine.CurrentContext.ScriptHash), state);
-            //Notify?.Invoke(this, notification);
-            //notifications.Add(notification);
+            var state = stack.Pop<StackItemBase>();
+
+            _interopService.RaiseOnNotify(new NotifyEventArgs(stack.ScriptHash.ToArray(), state));
+
             return true;
         }
 
         protected virtual bool Runtime_Log(IStackAccessor stack)
         {
-            // TODO:
-            //var message = Encoding.UTF8.GetString(stack.PopByteArray());
-            //Log?.Invoke(this, new LogEventArgs(engine.ScriptContainer, new UInt160(engine.CurrentContext.ScriptHash), message));
+            var message = Encoding.UTF8.GetString(stack.PopByteArray());
+
+            _interopService.RaiseOnLog(new LogEventArgs(stack.ScriptHash.ToArray(), message));
+
             return true;
         }
 
@@ -822,24 +825,22 @@ namespace NeoSharp.Core.VM
 
         protected virtual bool Storage_GetContext(IStackAccessor stack)
         {
-            // TODO: acquire script hash from engine
-            //stack.Push(new StorageContext
-            //{
-            //    ScriptHash = new UInt160(engine.CurrentContext.ScriptHash),
-            //    IsReadOnly = false
-            //});
+            stack.Push(new StorageContext
+            {
+                ScriptHash = stack.ScriptHash,
+                IsReadOnly = false
+            });
 
             return true;
         }
 
         protected virtual bool Storage_GetReadOnlyContext(IStackAccessor stack)
         {
-            // TODO: acquire script hash from engine
-            //stack.Push(new StorageContext
-            //{
-            //    ScriptHash = new UInt160(engine.CurrentContext.ScriptHash),
-            //    IsReadOnly = true
-            //});
+            stack.Push(new StorageContext
+            {
+                ScriptHash = stack.ScriptHash,
+                IsReadOnly = true
+            });
 
             return true;
         }

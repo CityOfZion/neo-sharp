@@ -1,0 +1,126 @@
+﻿{
+    "category": "REAL SMART CONTRACTS",
+    "name": "SmartVote https://github.com/belane/SmartVote/blob/master/smartvote.py",
+    "tests":
+    [
+        {
+            "name": "Without NEP8",
+            "scriptTable":
+            [
+                {
+                    "script": "WsVragBSesRqUVJ6xGoAwxFyZWdpc3Rlcl9wcm9wb3NhbJxkDABqUcNlIwRsdWZhagDDBHZvdGWcZAwAalHDZZQBbHVmYWoAwwVjb3VudJxkDABqUcNlCwBsdWZhAGx1ZgESxWtqAFJ6xGgWTmVvLlN0b3JhZ2UuR2V0Q29udGV4dGFqUVJ6xGoAw8BRnmQHAABsdWZhagDDAMNlaQVqUlJ6xGpRw2pSwwJpZMN8aA9OZW8uU3RvcmFnZS5HZXRhYysAElByb3Bvc2FsIG5vdCBmb3VuZGgPTmVvLlJ1bnRpbWUuTG9nAGx1ZmFqUcNqUsMEdGV4dMN8aA9OZW8uU3RvcmFnZS5HZXRhalNSesRqU8NoD05lby5SdW50aW1lLkxvZ2pRw2pSwwN5ZXPDfGgPTmVvLlN0b3JhZ2UuR2V0YWpUUnrEalHDalLDAm5vw3xoD05lby5TdG9yYWdlLkdldGFqVVJ6xGpUw2gPTmVvLlJ1bnRpbWUuTG9nalXDaA9OZW8uUnVudGltZS5Mb2dqAMMAw2pTw2pUw2pVw1N5UXlVcnVRcnVSeVJ5VHJ1UnJ1BWNvdW50VcFoEk5lby5SdW50aW1lLk5vdGlmeVFsdWYBHsVragBSesRoFk5lby5TdG9yYWdlLkdldENvbnRleHRhalFSesRqAMPAU55kBwAAbHVmYWoAwwDDZfcDalJSesRqUcNqUsMCaWTDfGgPTmVvLlN0b3JhZ2UuR2V0YWMrABJQcm9wb3NhbCBub3QgZm91bmRoD05lby5SdW50aW1lLkxvZwBsdWZhagDDUcNoGE5lby5SdW50aW1lLkNoZWNrV2l0bmVzc2FjMAAXWW91IGFyZSBub3Qgd2hvIHlvdSBzYXloD05lby5SdW50aW1lLkxvZwBsdWZhalHDalLDBGFkZHLDagDDUcN+fGgPTmVvLlN0b3JhZ2UuR2V0YWpTUnrEalPDYywAE05vdCBhbGxvd2VkIHRvIHZvdGVoD05lby5SdW50aW1lLkxvZwBsdWZhalPDUpxkJgANQWxyZWFkeSB2b3RlZGgPTmVvLlJ1bnRpbWUuTG9nAGx1ZmFqAMNSw1GcZGMABFllcyFoD05lby5SdW50aW1lLkxvZ2pRw2pSwwN5ZXPDfGgPTmVvLlN0b3JhZ2UuR2V0YWpUUnrEalHDalLDA3llc8NqVMNRk1JyaA9OZW8uU3RvcmFnZS5QdXRhYl4AYQNObyFoD05lby5SdW50aW1lLkxvZ2pRw2pSwwJub8N8aA9OZW8uU3RvcmFnZS5HZXRhalVSesRqUcNqUsMCbm/DalXDUZNScmgPTmVvLlN0b3JhZ2UuUHV0YWFqUcNqUsMEYWRkcsNqAMNRw35SUnJoD05lby5TdG9yYWdlLlB1dGFqAMNRw2oAw1LDfAR2b3RlU8FoEk5lby5SdW50aW1lLk5vdGlmeVFsdWYBF8VragBSesRoFk5lby5TdG9yYWdlLkdldENvbnRleHRhalFSesRqAMPAVJ9kBwAAbHVmYWoAwwDDZX4BalJSesRqUcNqUsMCaWTDfGgPTmVvLlN0b3JhZ2UuR2V0YWQrABJBbHJlYWR5IGEgUHJvcG9zYWxoD05lby5SdW50aW1lLkxvZwBsdWZhalHDalLDAmlkw1FScmgPTmVvLlN0b3JhZ2UuUHV0YWpRw2pSwwR0ZXh0w2oAw1HDUnJoD05lby5TdG9yYWdlLlB1dGFqUcNqUsMDeWVzwwBScmgPTmVvLlN0b3JhZ2UuUHV0YWpRw2pSwwJub8MAUnJoD05lby5TdG9yYWdlLlB1dGFSalNSesRhYWpTw2oAw8CfZGAAagDDalPDw2pUUnrEalTDwAEUnmQXABJiYWQgYWRkcmVzcyBmb3JtYXTwYWpRw2pSwwRhZGRyw2pUw35RUnJoD05lby5TdG9yYWdlLlB1dGFqU8NRk2pTUnrEYpr/YWFhagDDAMNqAMNRw3wRcmVnaXN0ZXJfcHJvcG9zYWxTwWgSTmVvLlJ1bnRpbWUuTm90aWZ5UWx1ZlbFa2oAUnrEAklEagDDfmpRUnrEx2pSUnrEalHDalLDAmlke8QBVGpRw35qUsMEdGV4dHvEAVlqUcN+alLDA3llc3vEAU5qUcN+alLDAm5ve8QBQWpRw35qUsMEYWRkcnvEalLDbHVmXsVragBSesRqUVJ6xGpRw2oAw5RqUlJ6xGpSw8VqU1J6xABqVFJ6xGoAw2pVUnrEYWFqAMNqUcOfZDMAalTDalXDk2pWUnrEalbDalPDalTDe8RqVMNRk2pUUnrEalXDalTDk2oAUnrEYsj/YWFhalPDbHVm",
+                    "hasDynamicInvoke": false,
+                    "hasStorage": true,
+                    "payable": false
+                }
+            ],
+            "script": "FAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAC015IHByb3Bvc2FsA3EwMVTBEXJlZ2lzdGVyX3Byb3Bvc2FsZ3gsRwlx0lnUpd5+TiM1D1YGr3vOURQAAAAAAAAAAAAAAAAAAAAAAAAAAANxMDFTwQR2b3RlZ3gsRwlx0lnUpd5+TiM1D1YGr3vOA3EwMVHBBWNvdW50Z3gsRwlx0lnUpd5+TiM1D1YGr3vO",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "comment": "Register, vote and count proposals [Without NEP8]",
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 46800015,
+                        "notifications":
+                        [
+                            {
+                                "type": "Struct",
+                                "value":
+                                [
+                                    {
+                                        "type": "String",
+                                        "value": "register_proposal"
+                                    },
+                                    {
+                                        "type": "String",
+                                        "value": "q01"
+                                    },
+                                    {
+                                        "type": "String",
+                                        "value": "My proposal"
+                                    }
+                                ]
+                            }
+                        ],
+                        "logs":
+                        [
+                            "Proposal not found",
+                            "Proposal not found"
+                        ],
+                        "resultStack":
+                        [
+                            {
+                                "type": "ByteArray",
+                                "value": ""
+                            },
+                            {
+                                "type": "ByteArray",
+                                "value": ""
+                            },
+                            {
+                                "type": "Integer",
+                                "value": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "With NEP8",
+            "scriptTable":
+            [
+                {
+                    "script": "WMVrbHZrAFJ6xGx2a1FSesRhYWgWTmVvLlJ1bnRpbWUuR2V0VHJpZ2dlcgCcbHZrUlJ6xGx2a1LDZA8AYVFsdmtTUnrEYtUAYWgWTmVvLlJ1bnRpbWUuR2V0VHJpZ2dlcmCcbHZrVFJ6xGx2a1TDZKAAYWx2awDDEXJlZ2lzdGVyX3Byb3Bvc2Fsh2x2a1VSesRsdmtVw2QYAGx2a1HDYeABAe8DbHZrU1J6xGJuAGx2awDDBHZvdGWHbHZrVlJ6xGx2a1bDZBgAbHZrUcNh4AEBUgBsdmtTUnrEYj8AbHZrAMMFY291bnSHbHZrV1J6xGx2a1fDZBgAbHZrUcNh4AEBcQVsdmtTUnrEYg8AYQBsdmtTUnrEYgMAbHZrU8NhbHVmARHFa2x2awBSesRhbHZrAMPAU5wAnGx2a1hSesRsdmtYw2QOAABsdmtZUnrEYjgDbHZrAMMAw2x2a1FSesRhaBZOZW8uU3RvcmFnZS5HZXRDb250ZXh0bHZrUlJ6xGx2a1LDbHZrUcNhfGgPTmVvLlN0b3JhZ2UuR2V0bHZrU1J6xGx2a1PDwACcbHZrWlJ6xGx2a1rDZDUAYRJQcm9wb3NhbCBub3QgZm91bmRhaA9OZW8uUnVudGltZS5Mb2dhAGx2a1lSesRinQJsdmtRw2x2awDDUcN+bHZrVFJ6xGx2a1LDbHZrVMNhfGgPTmVvLlN0b3JhZ2UuR2V0wACgbHZrW1J6xGx2a1vDZDAAYQ1BbHJlYWR5IHZvdGVkYWgPTmVvLlJ1bnRpbWUuTG9nYQBsdmtZUnrEYi0CbHZrU8NhaBdOZW8uUnVudGltZS5EZXNlcmlhbGl6ZWx2a1VSesRsdmsAw1HDYWgYTmVvLlJ1bnRpbWUuQ2hlY2tXaXRuZXNzAJxsdmtcUnrEbHZrXMNkOgBhF1lvdSBhcmUgbm90IHdobyB5b3Ugc2F5YWgPTmVvLlJ1bnRpbWUuTG9nYQBsdmtZUnrEYp0BAGx2a1ZSesQAbHZrV1J6xGJDAGFsdmtVw1PDbHZrVsPDbHZrAMNRw5xsdmtdUnrEbHZrXcNkDwBhUWx2a1dSesRiLwBsdmtWw1GTbHZrVlJ6xGFsdmtWw2x2a1XDU8PAn2x2a15SesRsdmtew2Om/2x2a1fDAJxsdmtfUnrEbHZrX8NkNgBhE05vdCBhbGxvd2VkIHRvIHZvdGVhaA9OZW8uUnVudGltZS5Mb2dhAGx2a1lSesRi5ABsdmsAw1LDUZxsdmtgUnrEbHZrYMNkMABhBFllcyFhaA9OZW8uUnVudGltZS5Mb2dhbHZrVcNRbHZrVcNRw1GTxGFiLABhA05vIWFoD05lby5SdW50aW1lLkxvZ2FsdmtVw1JsdmtVw1LDUZPEYWx2a1XDYWgVTmVvLlJ1bnRpbWUuU2VyaWFsaXplbHZrU1J6xGx2a1LDbHZrUcNsdmtTw2FScmgPTmVvLlN0b3JhZ2UuUHV0YWx2a1LDbHZrVMNRYVJyaA9OZW8uU3RvcmFnZS5QdXRhUWx2a1lSesRiAwBsdmtZw2FsdWZcxWtsdmsAUnrEYWx2awDDAMNsdmtRUnrEYWgWTmVvLlN0b3JhZ2UuR2V0Q29udGV4dGx2a1JSesRsdmtSw2x2a1HDYXxoD05lby5TdG9yYWdlLkdldMAAoGx2a1dSesRsdmtXw2Q1AGESQWxyZWFkeSBhIFByb3Bvc2FsYWgPTmVvLlJ1bnRpbWUuTG9nYQBsdmtYUnrEYkEBVMVsdmtTUnrEbHZrU8MAbHZrAMNRw8RsdmtTw1EBMMRsdmtTw1IBMMRSbHZrVFJ6xGx2awDDwFKUxWx2a1VSesRigwBhbHZrAMNsdmtUw8NsdmtZUnrEbHZrWcOCARScAJxsdmtaUnrEbHZrWsNkNQBhEmJhZCBhZGRyZXNzIGZvcm1hdGFoD05lby5SdW50aW1lLkxvZ2EAbHZrWFJ6xGKeAGx2a1XDbHZrVMNSlGx2a1nDxGx2a1TDUZNsdmtUUnrEYWx2a1TDbHZrAMPAn2x2a1tSesRsdmtbw2No/2x2a1PDU2x2a1XDxGx2a1PDYWgVTmVvLlJ1bnRpbWUuU2VyaWFsaXplbHZrVlJ6xGx2a1LDbHZrUcNsdmtWw2FScmgPTmVvLlN0b3JhZ2UuUHV0YVFsdmtYUnrEYgMAbHZrWMNhbHVmWMVrbHZrAFJ6xGFsdmsAw8BRnACcbHZrVVJ6xGx2a1XDZA4AAGx2a1ZSesRiKQFsdmsAwwDDbHZrUVJ6xGFoFk5lby5TdG9yYWdlLkdldENvbnRleHRsdmtSUnrEbHZrUsNsdmtRw2F8aA9OZW8uU3RvcmFnZS5HZXRsdmtTUnrEbHZrU8NkDgBsdmtTw8AAnGIEAFFsdmtXUnrEbHZrV8NkNQBhElByb3Bvc2FsIG5vdCBmb3VuZGFoD05lby5SdW50aW1lLkxvZ2EAbHZrVlJ6xGKCAGx2a1PDYWgXTmVvLlJ1bnRpbWUuRGVzZXJpYWxpemVsdmtUUnrEbHZrVMMAw2FoD05lby5SdW50aW1lLkxvZ2FsdmtUw1HDYWgPTmVvLlJ1bnRpbWUuTG9nYWx2a1TDUsNhaA9OZW8uUnVudGltZS5Mb2dhUWx2a1ZSesRiAwBsdmtWw2FsdWY=",
+                    "hasDynamicInvoke": false,
+                    "hasStorage": true,
+                    "payable": false
+                }
+            ],
+            "script": "FAAAAAAAAAAAAAAAAAAAAAAAAAAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAC015IHByb3Bvc2FsA3EwMVTBEXJlZ2lzdGVyX3Byb3Bvc2FsZ2Dxa27iFD+DX7AZSWflILxPaXYWURQAAAAAAAAAAAAAAAAAAAAAAAAAAANxMDFTwQR2b3RlZ2Dxa27iFD+DX7AZSWflILxPaXYWA3EwMVHBBWNvdW50Z2Dxa27iFD+DX7AZSWflILxPaXYW",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "comment": "Register, vote and count proposals [NEP8]",
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 74300016,
+                        "logs":
+                        [
+                            "Proposal not found",
+                            "Proposal not found"
+                        ],
+                        "resultStack":
+                        [
+                            {
+                                "type": "ByteArray",
+                                "value": ""
+                            },
+                            {
+                                "type": "ByteArray",
+                                "value": ""
+                            },
+                            {
+                                "type": "Integer",
+                                "value": 1
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

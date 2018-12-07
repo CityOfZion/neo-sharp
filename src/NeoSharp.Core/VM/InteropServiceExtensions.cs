@@ -15,7 +15,7 @@ namespace NeoSharp.Core.VM
                 var ctx = engine.CurrentContext;
                 if (ctx == null) return false;
 
-                return handler(new StackAccessor(engine, ctx.EvaluationStack));
+                return handler(new StackAccessor(engine, ctx));
             }
 
             interopService.Register(name, BaseHandler);

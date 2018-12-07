@@ -1,9 +1,12 @@
 ﻿using System.Numerics;
+using NeoSharp.Types;
 
 namespace NeoSharp.Core.VM
 {
     public interface IStackAccessor
     {
+        UInt160 ScriptHash { get; }
+
         void Push(bool value);
 
         void Push(int value);

@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
+using NeoSharp.Types;
 using NeoSharp.VM;
 using Stack = NeoSharp.VM.Stack;
 
@@ -8,12 +10,16 @@ namespace NeoSharp.Core.VM
     public class StackAccessor : IStackAccessor
     {
         private readonly ExecutionEngineBase _engine;
+        private readonly ExecutionContextBase _context;
         private readonly Stack _stack;
 
-        public StackAccessor(ExecutionEngineBase engine, Stack stack)
+        public UInt160 ScriptHash => new UInt160(_context.ScriptHash);
+
+        public StackAccessor(ExecutionEngineBase engine, ExecutionContextBase context)
         {
             _engine = engine;
-            _stack = stack;
+            _context = context;
+            _stack = context.EvaluationStack;
         }
 
         public void Push(bool value) => _stack.Push(_engine.CreateBool(value));
@@ -75,12 +81,26 @@ namespace NeoSharp.Core.VM
 
         public T Pop<T>() where T : class
         {
-            var stackItem = _stack.Pop() as InteropStackItemBase<T>;
+            var stackItem = _stack.Pop();
 
-            using (stackItem)
+            if (stackItem is InteropStackItemBase<T> interop)
             {
-                return stackItem?.Value;
+                using (stackItem)
+                {
+                    return interop?.Value;
+                }
             }
+            else
+            {
+                // Extract base type
+
+                if (typeof(T).IsAssignableFrom(stackItem.GetType()))
+                {
+                    return (T)(object)stackItem;
+                }
+            }
+
+            throw new ArgumentException(nameof(T));
         }
 
         public T[] PopArray<T>() where T : class

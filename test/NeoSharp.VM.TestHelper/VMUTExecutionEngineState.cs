@@ -11,6 +11,12 @@ namespace NeoSharp.VM.TestHelper
         public ulong ConsumedGas { get; set; }
 
         [JsonProperty]
+        public string[] Logs { get; set; }
+
+        [JsonProperty]
+        public VMUTStackItem[] Notifications { get; set; }
+
+        [JsonProperty]
         public VMUTStackItem[] ResultStack { get; set; }
 
         [JsonProperty]

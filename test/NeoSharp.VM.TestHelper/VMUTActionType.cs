@@ -3,6 +3,7 @@
     public enum VMUTActionType
     {
         Execute,
+        Clean,
 
         // Steps
 

@@ -4,9 +4,9 @@ using System.IO;
 using System.Linq;
 using NeoSharp.VM.Attributes;
 
-namespace NeoSharp.VM
+namespace NeoSharp.VM.Extensions
 {
-    public class InstructionParser
+    public static class InstructionParserExtensions
     {
         /// <summary>
         /// Cache
@@ -16,7 +16,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Cache attribute
         /// </summary>
-        static InstructionParser()
+        static InstructionParserExtensions()
         {
             // TODO #392: ReflectionCache?
 
@@ -26,7 +26,7 @@ namespace NeoSharp.VM
                 // Get enum member
                 var memInfo = enumType.GetMember(t.ToString());
                 if (memInfo == null || memInfo.Length != 1)
-                    throw (new FormatException());
+                    throw new FormatException();
 
                 // Get attribute
                 var attribute = memInfo[0].GetCustomAttributes(false)
@@ -43,10 +43,29 @@ namespace NeoSharp.VM
         }
 
         /// <summary>
+        /// Parse instruction into script
+        /// </summary>
+        /// <param name="instructions">Instruction</param>
+        /// <returns>Return byte array</returns>
+        public static byte[] ToScript(this IEnumerable<Instruction> instructions)
+        {
+            using (var ms = new MemoryStream())
+            using (var writer = new BinaryWriter(ms))
+            {
+                foreach (var instruction in instructions)
+                {
+                    ms.Write(instruction.ToByteArray());
+                }
+
+                return ms.ToArray();
+            }
+        }
+
+        /// <summary>
         /// Parse script to instructions
         /// </summary>
         /// <param name="script">Script</param>
-        public IEnumerable<Instruction> Parse(byte[] script)
+        public static IEnumerable<Instruction> DecompileScript(this byte[] script)
         {
             var index = 0;
             var offset = 0L;

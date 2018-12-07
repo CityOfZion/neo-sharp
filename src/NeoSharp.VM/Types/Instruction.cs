@@ -19,5 +19,13 @@
         {
             return $"[{Location}] {OpCode}";
         }
+
+        /// <summary>
+        /// To byte array
+        /// </summary>
+        public virtual byte[] ToByteArray()
+        {
+            return new byte[] { (byte)OpCode };
+        }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace NeoSharp.VM.TestHelper
 {
@@ -8,6 +9,6 @@ namespace NeoSharp.VM.TestHelper
         public VMUTStackItemType Type { get; set; }
 
         [JsonProperty]
-        public string Value { get; set; }
+        public JToken Value { get; set; }
     }
 }

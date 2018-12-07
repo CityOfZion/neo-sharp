@@ -61,17 +61,16 @@ namespace NeoSharp.VM
         /// </summary>
         public InteropService()
         {
-            // TODO #391: GAS COST https://github.com/neo-project/neo/blob/b5926fe88d25c8aab2028c0ff7acad2c1d982bad/neo/SmartContract/ApplicationEngine.cs#L383
-            Register("Neo.Runtime.GetTrigger", NeoRuntimeGetTrigger);
-            Register("Neo.Runtime.Log", NeoRuntimeLog);
-            Register("Neo.Runtime.Notify", NeoRuntimeNotify);
-            Register("Neo.Runtime.Serialize", "System.Runtime.Serialize", RuntimeSerialize);
-            Register("Neo.Runtime.Deserialize", "System.Runtime.Deserialize", RuntimeDeserialize);
+            Register("Neo.Runtime.GetTrigger", NeoRuntimeGetTrigger, 1);
+            Register("Neo.Runtime.Log", NeoRuntimeLog, 1);
+            Register("Neo.Runtime.Notify", NeoRuntimeNotify, 1);
+            Register("Neo.Runtime.Serialize", "System.Runtime.Serialize", RuntimeSerialize, 1);
+            Register("Neo.Runtime.Deserialize", "System.Runtime.Deserialize", RuntimeDeserialize, 1);
 
-            Register("System.ExecutionEngine.GetScriptContainer", GetScriptContainer);
-            Register("System.ExecutionEngine.GetExecutingScriptHash", GetExecutingScriptHash);
-            Register("System.ExecutionEngine.GetCallingScriptHash", GetCallingScriptHash);
-            Register("System.ExecutionEngine.GetEntryScriptHash", GetEntryScriptHash);
+            Register("System.ExecutionEngine.GetScriptContainer", GetScriptContainer, 1);
+            Register("System.ExecutionEngine.GetExecutingScriptHash", GetExecutingScriptHash, 1);
+            Register("System.ExecutionEngine.GetCallingScriptHash", GetCallingScriptHash, 1);
+            Register("System.ExecutionEngine.GetEntryScriptHash", GetEntryScriptHash, 1);
         }
 
         /// <summary>
@@ -223,6 +222,10 @@ namespace NeoSharp.VM
             return true;
         }
 
+        public void RaiseOnLog(LogEventArgs e) => OnLog?.Invoke(this, e);
+
+        public void RaiseOnNotify(NotifyEventArgs e) => OnNotify?.Invoke(this, e);
+
         private bool NeoRuntimeLog(ExecutionEngineBase engine)
         {
             var ctx = engine.CurrentContext;
@@ -243,7 +246,7 @@ namespace NeoSharp.VM
                 // Get string
 
                 var message = it.ToString();
-                OnLog.Invoke(this, new LogEventArgs(engine.MessageProvider, ctx?.ScriptHash, message ?? ""));
+                RaiseOnLog(new LogEventArgs(ctx.ScriptHash, message ?? ""));
             }
 
             return true;
@@ -261,7 +264,7 @@ namespace NeoSharp.VM
 
             using (it)
             {
-                OnNotify?.Invoke(this, new NotifyEventArgs(engine.MessageProvider, ctx?.ScriptHash, it));
+                RaiseOnNotify(new NotifyEventArgs(ctx.ScriptHash, it));
             }
 
             return true;

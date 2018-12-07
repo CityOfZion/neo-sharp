@@ -38,24 +38,27 @@ namespace NeoSharp.Core.VM
         {
             _persistingBlock = persistingBlock;
             _blockchainContext = blockchainContext;
-            _accounts = accounts.CreateSnapshot();
-            _assets = assets.CreateSnapshot();
-            _contracts = contracts.CreateSnapshot();
-            _storages = storages.CreateSnapshot();
+            _accounts = accounts?.CreateSnapshot();
+            _assets = assets?.CreateSnapshot();
+            _contracts = contracts?.CreateSnapshot();
+            _storages = storages?.CreateSnapshot();
 
-            //Standard Library
+            // Standard Library
+
             interopService.RegisterStackTransition("System.Contract.GetStorageContext", Contract_GetStorageContext);
             interopService.RegisterStackTransition("System.Contract.Destroy", Contract_Destroy);
             interopService.RegisterStackTransition("System.Storage.Put", Storage_Put);
             interopService.RegisterStackTransition("System.Storage.Delete", Storage_Delete);
 
-            //Neo Specified
+            // Neo Specified
+
             interopService.RegisterStackTransition("Neo.Asset.Create", Asset_Create);
             interopService.RegisterStackTransition("Neo.Asset.Renew", Asset_Renew);
             interopService.RegisterStackTransition("Neo.Contract.Create", Contract_Create);
             interopService.RegisterStackTransition("Neo.Contract.Migrate", Contract_Migrate);
 
             #region Old APIs
+
             interopService.RegisterStackTransition("AntShares.Asset.Create", Asset_Create);
             interopService.RegisterStackTransition("AntShares.Asset.Renew", Asset_Renew);
             interopService.RegisterStackTransition("AntShares.Contract.Create", Contract_Create);
@@ -68,6 +71,7 @@ namespace NeoSharp.Core.VM
             interopService.RegisterStackTransition("AntShares.Storage.Put", Storage_Put);
             interopService.RegisterStackTransition("Neo.Storage.Delete", Storage_Delete);
             interopService.RegisterStackTransition("AntShares.Storage.Delete", Storage_Delete);
+
             #endregion
         }
 

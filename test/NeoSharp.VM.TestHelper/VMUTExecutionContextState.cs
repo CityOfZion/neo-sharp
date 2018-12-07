@@ -8,7 +8,7 @@ namespace NeoSharp.VM.TestHelper
         public byte[] ScriptHash { get; set; }
 
         [JsonProperty]
-        public byte NextInstruction { get; set; }
+        public EVMOpCode NextInstruction { get; set; }
 
         [JsonProperty]
         public int InstructionPointer { get; set; }

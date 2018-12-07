@@ -30,10 +30,13 @@ namespace NeoSharp.Core.VM
                 }
                 else
                 {
+                    var item = TryGetInternal(key);
+                    if (item == null) throw new KeyNotFoundException();
+
                     trackable = new Trackable
                     {
                         Key = key,
-                        Item = GetInternal(key),
+                        Item = item,
                         State = TrackState.None
                     };
                     dictionary.Add(key, trackable);
@@ -124,8 +127,6 @@ namespace NeoSharp.Core.VM
         {
             return dictionary.Values.Where(p => p.State != TrackState.None);
         }
-
-        protected abstract TValue GetInternal(TKey key);
 
         public TValue GetAndChange(TKey key, Func<TValue> factory = null)
         {

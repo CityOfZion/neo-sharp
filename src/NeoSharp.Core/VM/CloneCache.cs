@@ -31,11 +31,6 @@ namespace NeoSharp.Core.VM
                 yield return new KeyValuePair<TKey, TValue>(pair.Key, pair.Value.Clone());
         }
 
-        protected override TValue GetInternal(TKey key)
-        {
-            return innerCache[key].Clone();
-        }
-
         protected override TValue TryGetInternal(TKey key)
         {
             return innerCache.TryGet(key)?.Clone();
