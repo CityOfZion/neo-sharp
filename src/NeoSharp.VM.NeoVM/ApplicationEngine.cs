@@ -19,7 +19,7 @@ namespace NeoSharp.VM.NeoVM
 
         private const long Ratio = 100000;
         private ulong _gasConsumed;
-        private ulong _gasAmount;
+        private ulong _gasAmount = ulong.MaxValue;
         private bool _isDisposed;
         private ContractScriptTable _contractScriptTable;
 
@@ -31,6 +31,12 @@ namespace NeoSharp.VM.NeoVM
         private EVMState _state;
 
         public override ulong ConsumedGas => _gasConsumed;
+
+        public override ulong GasAmount
+        {
+            get { return _gasAmount; }
+            set { _gasAmount = value; }
+        }
 
         public override StackBase<ExecutionContextBase> InvocationStack => _invocationStack;
 
@@ -470,53 +476,53 @@ namespace NeoSharp.VM.NeoVM
 
         public override void StepOver() => _engine.StepOver();
 
-        public override void StepInto(int steps = 1)
+        public override void StepInto()
         {
-            for (int x = 0; x < steps; x++)
+            try
             {
+                // Log
+
                 if (Logger.Verbosity.HasFlag(ELogVerbosity.StepInto))
                 {
                     Logger.RaiseOnStepInto(CurrentContext);
                 }
 
-                _engine.StepInto();
-            }
-        }
+                // Pre checks
 
-        public override bool Execute(ulong gas = ulong.MaxValue)
-        {
-            _gasAmount = gas;
+                var nextOpCode = _engine.CurrentContext.InstructionPointer >= _engine.CurrentContext.Script.Length ? OpCode.RET : _engine.CurrentContext.NextInstruction;
 
-            try
-            {
-                while (true)
+                if (!PreStepInto(nextOpCode))
                 {
-                    var nextOpCode = _engine.CurrentContext.InstructionPointer >= _engine.CurrentContext.Script.Length ? OpCode.RET : _engine.CurrentContext.NextInstruction;
-
-                    if (!PreStepInto(nextOpCode))
-                    {
-                        _state = EVMState.Fault;
-                        return false;
-                    }
-
-                    StepInto();
-
-                    if (_engine.State.HasFlag(VMState.HALT) || _engine.State.HasFlag(VMState.FAULT))
-                    {
-                        _state = (EVMState)(_engine.State & ~VMState.BREAK);
-                        break;
-                    }
-
-                    if (PostStepInto(nextOpCode)) continue;
-
                     _state = EVMState.Fault;
-                    return false;
+                    return;
+                }
+
+                // Execute
+
+                _engine.StepInto();
+                _state = (EVMState)(_engine.State & ~VMState.BREAK);
+
+                // Post check
+
+                if (_state != EVMState.None) return;
+                if (!PostStepInto(nextOpCode))
+                {
+                    _state = EVMState.Fault;
+                    return;
                 }
             }
             catch
             {
+                // Error
                 _state = EVMState.Fault;
-                return false;
+            }
+        }
+
+        public override bool Execute()
+        {
+            while (_state == EVMState.None)
+            {
+                StepInto();
             }
 
             return _state == EVMState.Halt;

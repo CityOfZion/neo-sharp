@@ -4,7 +4,7 @@
     "tests":
     [
         {
-            "script": "TwBRUlNUVVZXWFlaW1xdXl9gZg==",
+            "script": "0x4F005152535455565758595A5B5C5D5E5F6066",
             "trigger": "Application",
             "steps":
             [
@@ -37,7 +37,7 @@
                         "invocationStack":
                         [
                             {
-                                "scriptHash": "W2jhyKUs0WrgEZhOJr5tY35y7NU=",
+                                "scriptHash": "0x5B68E1C8A52CD16AE011984E26BE6D637E72ECD5",
                                 "instructionPointer": 18,
                                 "nextInstruction": "RET",
                                 "evaluationStack":

@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+﻿using NeoSharp.VM.TestHelper.Converters;
+using Newtonsoft.Json;
 
 namespace NeoSharp.VM.TestHelper
 {
     public class VMUTExecutionContextState
     {
-        [JsonProperty]
+        [JsonProperty, JsonConverter(typeof(ScriptConverter))]
         public byte[] ScriptHash { get; set; }
 
         [JsonProperty]

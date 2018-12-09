@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NeoSharp.VM.TestHelper.Converters;
 using Newtonsoft.Json;
 
 namespace NeoSharp.VM.TestHelper
@@ -7,7 +8,7 @@ namespace NeoSharp.VM.TestHelper
     {
         public class ScriptEntry
         {
-            [JsonProperty]
+            [JsonProperty, JsonConverter(typeof(ScriptConverter))]
             public byte[] Script { get; set; }
 
             [JsonProperty]
@@ -23,7 +24,7 @@ namespace NeoSharp.VM.TestHelper
         [JsonProperty]
         public IList<ScriptEntry> ScriptTable { get; set; }
 
-        [JsonProperty]
+        [JsonProperty, JsonConverter(typeof(ScriptConverter))]
         public byte[] Script { get; set; }
 
         [JsonProperty]

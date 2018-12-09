@@ -25,13 +25,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Tests\Exceptions\THROWIFNOT.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Exceptions\THROW.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Tests\sample.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\smartVote.json">
+    <None Update="Tests\Real SmartContracts\smartVote.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\PUSHM1_to_PUSH16.json">
+    <None Update="Tests\Push\PUSHM1_to_PUSH16.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

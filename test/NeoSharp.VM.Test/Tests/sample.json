@@ -4,7 +4,7 @@
     "tests":
     [
         {
-            "script": "Zg==",
+            "script": "0x66",
             "trigger": "Application",
             "steps":
             [

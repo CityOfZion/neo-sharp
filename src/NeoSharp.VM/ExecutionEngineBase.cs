@@ -66,6 +66,11 @@ namespace NeoSharp.VM
         /// </summary>
         public abstract ulong ConsumedGas { get; }
 
+        /// <summary>
+        /// Gas Amount (ulong.MaxValue by default)
+        /// </summary>
+        public abstract ulong GasAmount { get; set; }
+
         #region Shortcuts
 
         public ExecutionContextBase CurrentContext
@@ -141,16 +146,14 @@ namespace NeoSharp.VM
         public abstract void Clean(uint iteration = 0);
 
         /// <summary>
-        /// Execute (until x of Gas)
+        /// Execute
         /// </summary>
-        /// <param name="gas">Gas</param>
-        public abstract bool Execute(ulong gas = ulong.MaxValue);
+        public abstract bool Execute();
 
         /// <summary>
         /// Step Into
         /// </summary>
-        /// <param name="steps">Steps</param>
-        public abstract void StepInto(int steps = 1);
+        public abstract void StepInto();
 
         /// <summary>
         /// Step Out

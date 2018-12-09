@@ -106,6 +106,7 @@ namespace NeoSharp.VM.Test
 
                 using (var engine = factory.Create(args))
                 {
+                    engine.GasAmount = ulong.MaxValue;
                     engine.LoadScript(test.Script);
 
                     // Execute Steps
@@ -317,6 +318,9 @@ namespace NeoSharp.VM.Test
         /// <param name="message">Message</param>
         private void AssertAreEqual(object a, object b, string message)
         {
+            if (a is byte[] ba) a = ba.ToHexString().ToUpperInvariant();
+            if (b is byte[] bb) b = bb.ToHexString().ToUpperInvariant();
+
             if (a is IEnumerable ca && b is IEnumerable cb)
             {
                 a = a.ToJson();

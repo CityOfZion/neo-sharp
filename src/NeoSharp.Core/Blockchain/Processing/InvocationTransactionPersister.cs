@@ -8,7 +8,7 @@ using NeoSharp.VM;
 
 namespace NeoSharp.Core.Blockchain.Processing
 {
-    public class InvocationTransactionPersister: ITransactionPersister<InvocationTransaction>
+    public class InvocationTransactionPersister : ITransactionPersister<InvocationTransaction>
     {
         private readonly IVMFactory _vmFactory;
         private readonly IBinarySerializer _binarySerializer;
@@ -33,9 +33,10 @@ namespace NeoSharp.Core.Blockchain.Processing
 
             using (var engine = _vmFactory.Create(executionEngineArgs))
             {
+                engine.GasAmount = (ulong)transaction.Gas.Value;
                 engine.LoadScript(transaction.Script);
 
-                if (!engine.Execute((uint)transaction.Gas.Value))
+                if (!engine.Execute())
                 {
                     throw new InvalidOperationException($"The transaction {transaction.Hash} cannot be executed by VM.");
                 }

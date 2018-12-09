@@ -11,7 +11,7 @@ namespace NeoSharp.VM.Test
         [TestMethod]
         public void TestJson()
         {
-            foreach (var file in Directory.GetFiles("./Tests/", "*.json"))
+            foreach (var file in Directory.GetFiles("./Tests/", "*.json", SearchOption.AllDirectories))
             {
                 ExecuteTest(_factory, File.ReadAllText(file));
             }
