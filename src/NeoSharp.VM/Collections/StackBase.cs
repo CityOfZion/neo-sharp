@@ -12,72 +12,70 @@ namespace NeoSharp.VM
         public abstract int Count { get; }
 
         /// <summary>
-        /// Drop object from the stack
-        /// </summary>
-        /// <param name="count">Number of items to drop</param>
-        /// <returns>Return the first element of the stack</returns>
-        public abstract int Drop(int count = 0);
-
-        /// <summary>
-        /// Pop object from the stack
-        /// </summary>
-        /// <param name="free">True for free object</param>
-        /// <returns>Return the first element of the stack</returns>
-        public abstract T Pop();
-
-        /// <summary>
-        /// Push objet to the stack
+        /// Push the object to the stack
         /// </summary>
         /// <param name="item">Object</param>
         public abstract void Push(T item);
 
         /// <summary>
-        /// Try to obtain the element at `index` position, without consume them
+        /// Try peeking the object at `index` position from the stack
         /// </summary>
         /// <param name="index">Index</param>
-        /// <param name="obj">Object</param>
-        /// <returns>Return tru eif object exists</returns>
-        public abstract bool TryPeek(int index, out T obj);
+        /// <param name="item">Object</param>
+        /// <returns>Return false if something went wrong</returns>
+        public abstract bool TryPeek(int index, out T item);
 
         /// <summary>
-        /// Obtain the element at `index` position, without consume them
+        /// Peek the object at `index` position from the stack
         /// </summary>
         /// <param name="index">Index</param>
-        /// <returns>Return object</returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <returns>Return the peeked object from the stack</returns>
         public T Peek(int index = 0)
         {
-            if (!TryPeek(index, out T obj))
+            if (!TryPeek(index, out var item))
             {
-                throw new ArgumentOutOfRangeException();
+                throw new InvalidOperationException();
             }
 
-            return obj;
+            return item;
         }
-        
+
         /// <summary>
-        /// String representation
+        /// Try popping the object from the stack
         /// </summary>
-        public override string ToString()
+        /// <typeparam name="T">Object type</typeparam>
+        /// <param name="item">Object</param>
+        /// <returns>Return false if something went wrong</returns>
+        public abstract bool TryPop(out T item);
+
+        /// <summary>
+        /// Pop the object from the stack
+        /// </summary>
+        /// <returns>Return the popped object from the stack</returns>
+        public T Pop()
         {
-            return Count.ToString();
+            if (!TryPop(out var item))
+            {
+                throw new InvalidOperationException();
+            }
+
+            return item;
         }
 
         #region IEnumerable
 
         public IEnumerator<T> GetEnumerator()
         {
-            for (int x = 0, m = Count; x < m; x++)
+            for (int i = 0, c = Count; i < c; i++)
             {
-                yield return Peek(x);
+                yield return Peek(i);
             }
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            for (int x = 0, m = Count; x < m; x++)
-            {
-                yield return Peek(x);
-            }
+            return GetEnumerator();
         }
 
         #endregion

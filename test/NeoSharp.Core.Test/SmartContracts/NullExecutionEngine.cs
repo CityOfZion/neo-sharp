@@ -31,64 +31,9 @@ namespace NeoSharp.Core.Test.SmartContracts
             return true;
         }
 
-        public override ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null)
-        {
-            return null;
-        }
-
-        public override BooleanStackItemBase CreateBool(bool value)
-        {
-            return null;
-        }
-
-        public override ByteArrayStackItemBase CreateByteArray(byte[] data)
-        {
-            return null;
-        }
-
-        public override IntegerStackItemBase CreateInteger(int value)
-        {
-            return null;
-        }
-
-        public override IntegerStackItemBase CreateInteger(long value)
-        {
-            return null;
-        }
-
-        public override IntegerStackItemBase CreateInteger(BigInteger value)
-        {
-            return null;
-        }
-
-        public override IntegerStackItemBase CreateInteger(byte[] value)
-        {
-            return null;
-        }
-
-        public override InteropStackItemBase<T> CreateInterop<T>(T obj)
-        {
-            return null;
-        }
-
-        public override MapStackItemBase CreateMap()
-        {
-            return null;
-        }
-
-        public override ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null)
-        {
-            return null;
-        }
-
         public override bool Execute(ulong gas = ulong.MaxValue)
         {
             return true;
-        }
-
-        public override int GetHashCode()
-        {
-            return base.GetHashCode();
         }
 
         public override int LoadScript(byte[] script)

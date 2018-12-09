@@ -15,23 +15,6 @@ namespace NeoSharp.VM.NeoVM
 
         public override int Count => _stack.Count;
 
-        public override int Drop(int count = 0)
-        {
-            count = Math.Min(count, _stack.Count);
-
-            for (int x = 0; x < count; x++)
-            {
-                _stack.Pop();
-            }
-
-            return count;
-        }
-
-        public override ExecutionContextBase Pop()
-        {
-            return _stack.Pop().ConvertFromNative();
-        }
-
         public override void Push(ExecutionContextBase item)
         {
             if (!(item is ExecutionContextWrapper nitem)) throw new ArgumentException(nameof(item));
@@ -39,15 +22,28 @@ namespace NeoSharp.VM.NeoVM
             _stack.Push(nitem.NativeContext);
         }
 
-        public override bool TryPeek(int index, out ExecutionContextBase obj)
+        public override bool TryPeek(int index, out ExecutionContextBase item)
         {
             if (_stack.Count <= index)
             {
-                obj = null;
+                item = null;
                 return false;
             }
 
-            obj = _stack.Peek(index).ConvertFromNative();
+            item = _stack.Peek(index).ConvertFromNative();
+
+            return true;
+        }
+
+        public override bool TryPop(out ExecutionContextBase item)
+        {
+            if (_stack.Count < 1)
+            {
+                item = null;
+                return false;
+            }
+
+            item = _stack.Pop().ConvertFromNative();
 
             return true;
         }

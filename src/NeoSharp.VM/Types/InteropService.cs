@@ -144,14 +144,16 @@ namespace NeoSharp.VM
             var ctx = engine.CurrentContext;
             if (ctx == null) return false;
 
+            var stack = ctx.EvaluationStack;
+
             using (var ms = new MemoryStream())
             using (var writer = new BinaryWriter(ms))
             {
                 try
                 {
-                    using (var item = ctx.EvaluationStack.Pop())
+                    using (var stackItem = stack.Pop())
                     {
-                        Serializer.Serialize(engine, item, writer);
+                        Serializer.Serialize(stackItem, writer);
                     }
                 }
                 catch
@@ -166,10 +168,7 @@ namespace NeoSharp.VM
                     return false;
                 }
 
-                using (var item = engine.CreateByteArray(ms.ToArray()))
-                {
-                    ctx.EvaluationStack.Push(item);
-                }
+                stack.Push(ms.ToArray());
             }
 
             return true;
@@ -180,11 +179,12 @@ namespace NeoSharp.VM
             var ctx = engine.CurrentContext;
             if (ctx == null) return false;
 
+            var stack = ctx.EvaluationStack;
             byte[] data;
 
-            using (var item = ctx.EvaluationStack.Pop())
+            using (var stackItem = stack.Pop())
             {
-                data = item.ToByteArray();
+                data = stackItem.ToByteArray();
 
                 if (data == null) return false;
             }
@@ -196,15 +196,14 @@ namespace NeoSharp.VM
 
                 try
                 {
-                    item = Serializer.Deserialize(engine, reader);
+                    item = Serializer.Deserialize(stack, reader);
                 }
                 catch
                 {
                     return false;
                 }
 
-                ctx.EvaluationStack.Push(item);
-                item?.Dispose();
+                stack.Push(item);
             }
 
             return true;
@@ -213,11 +212,9 @@ namespace NeoSharp.VM
         private static bool NeoRuntimeGetTrigger(ExecutionEngineBase engine)
         {
             var ctx = engine.CurrentContext;
-
             if (ctx == null) return false;
 
-            using (var item = engine.CreateInteger((int)engine.Trigger))
-                ctx.EvaluationStack.Push(item);
+            ctx.EvaluationStack.Push((int)engine.Trigger);
 
             return true;
         }
@@ -280,8 +277,7 @@ namespace NeoSharp.VM
             var ctx = engine.CurrentContext;
             if (ctx == null) return false;
 
-            using (var item = engine.CreateInterop(engine.MessageProvider))
-                ctx.EvaluationStack.Push(item);
+            ctx.EvaluationStack.PushObject(engine.MessageProvider);
 
             return true;
         }
@@ -291,30 +287,27 @@ namespace NeoSharp.VM
             var ctx = engine.CurrentContext;
             if (ctx == null) return false;
 
-            using (var item = engine.CreateByteArray(ctx.ScriptHash))
-                ctx.EvaluationStack.Push(item);
+            ctx.EvaluationStack.Push(ctx.ScriptHash);
 
             return true;
         }
 
         private static bool GetCallingScriptHash(ExecutionEngineBase engine)
         {
-            var ctx = engine.CurrentContext;
+            var ctx = engine.CallingContext;
             if (ctx == null) return false;
 
-            using (var item = engine.CreateByteArray(ctx.ScriptHash))
-                ctx.EvaluationStack.Push(item);
+            ctx.EvaluationStack.Push(ctx.ScriptHash);
 
             return true;
         }
 
         private static bool GetEntryScriptHash(ExecutionEngineBase engine)
         {
-            var ctx = engine.CurrentContext;
+            var ctx = engine.EntryContext;
             if (ctx == null) return false;
 
-            using (var item = engine.CreateByteArray(ctx.ScriptHash))
-                ctx.EvaluationStack.Push(item);
+            ctx.EvaluationStack.Push(ctx.ScriptHash);
 
             return true;
         }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using Neo.VM;
 using NeoSharp.VM.NeoVM.Extensions;
 using NeoSharp.VM.NeoVM.StackItems;
@@ -16,22 +18,54 @@ namespace NeoSharp.VM.NeoVM
 
         public override int Count => _stack.Count;
 
-        public override int Drop(int count = 0)
+        #region Create items
+
+        protected override ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null)
         {
-            count = Math.Min(count, _stack.Count);
-
-            for (var x = 0; x < count; x++)
-            {
-                _stack.Pop();
-            }
-
-            return count;
+            return new ArrayStackItem(items);
         }
 
-        public override StackItemBase Pop()
+        protected override ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null)
         {
-            return _stack.Pop().ConvertFromNative();
+            return new StructStackItem(items);
         }
+
+        protected override BooleanStackItemBase CreateBool(bool value)
+        {
+            return new BooleanStackItem(value);
+        }
+
+        protected override ByteArrayStackItemBase CreateByteArray(byte[] data)
+        {
+            return new ByteArrayStackItem(data);
+        }
+
+        protected override IntegerStackItemBase CreateInteger(BigInteger value)
+        {
+            return new IntegerStackItem(value);
+        }
+
+        protected override IntegerStackItemBase CreateInteger(int value)
+        {
+            return new IntegerStackItem(value);
+        }
+
+        protected override IntegerStackItemBase CreateInteger(long value)
+        {
+            return new IntegerStackItem(value);
+        }
+
+        protected override InteropStackItemBase<T> CreateInterop<T>(T obj)
+        {
+            return new InteropStackItem<T>(obj);
+        }
+
+        protected override MapStackItemBase CreateMap()
+        {
+            return new MapStackItem();
+        }
+
+        #endregion
 
         public override void Push(StackItemBase item)
         {
@@ -40,20 +74,20 @@ namespace NeoSharp.VM.NeoVM
             _stack.Push(nitem.NativeStackItem);
         }
 
-        public override bool TryPeek(int index, out StackItemBase obj)
+        public override bool TryPeek(int index, out StackItemBase item)
         {
             if (_stack.Count <= index)
             {
-                obj = null;
+                item = null;
                 return false;
             }
 
-            obj = _stack.Peek(index)?.ConvertFromNative();
+            item = _stack.Peek(index)?.ConvertFromNative();
 
-            return obj != null;
+            return item != null;
         }
 
-        public override bool TryPop<TStackItem>(out TStackItem item)
+        public override bool TryPop(out StackItemBase item)
         {
             if (_stack.Count < 1)
             {
@@ -61,9 +95,7 @@ namespace NeoSharp.VM.NeoVM
                 return false;
             }
 
-            var ret = Pop();
-
-            item = ret is TStackItem stackItem ? stackItem : null;
+            item = _stack.Pop()?.ConvertFromNative();
 
             return item != null;
         }

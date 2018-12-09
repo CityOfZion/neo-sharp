@@ -164,69 +164,6 @@ namespace NeoSharp.VM
 
         #endregion
 
-        #region Creates
-
-        /// <summary>
-        /// Create Map StackItem
-        /// </summary>
-        public abstract MapStackItemBase CreateMap();
-
-        /// <summary>
-        /// Create Array StackItem
-        /// </summary>
-        /// <param name="items">Items</param>
-        public abstract ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null);
-
-        /// <summary>
-        /// Create Struct StackItem
-        /// </summary>
-        /// <param name="items">Items</param>
-        public abstract ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null);
-
-        /// <summary>
-        /// Create ByteArrayStackItem
-        /// </summary>
-        /// <param name="data">Buffer</param>
-        public abstract ByteArrayStackItemBase CreateByteArray(byte[] data);
-
-        /// <summary>
-        /// Create InteropStackItem
-        /// </summary>
-        /// <param name="obj">Object</param>
-        public abstract InteropStackItemBase<T> CreateInterop<T>(T obj) where T : class;
-
-        /// <summary>
-        /// Create BooleanStackItem
-        /// </summary>
-        /// <param name="value">Value</param>
-        public abstract BooleanStackItemBase CreateBool(bool value);
-
-        /// <summary>
-        /// Create IntegerStackItem
-        /// </summary>
-        /// <param name="value">Value</param>
-        public abstract IntegerStackItemBase CreateInteger(int value);
-
-        /// <summary>
-        /// Create IntegerStackItem
-        /// </summary>
-        /// <param name="value">Value</param>
-        public abstract IntegerStackItemBase CreateInteger(long value);
-
-        /// <summary>
-        /// Create IntegerStackItem
-        /// </summary>
-        /// <param name="value">Value</param>
-        public abstract IntegerStackItemBase CreateInteger(BigInteger value);
-
-        /// <summary>
-        /// Create IntegerStackItem
-        /// </summary>
-        /// <param name="value">Value</param>
-        public abstract IntegerStackItemBase CreateInteger(byte[] value);
-
-        #endregion
-
         #region IDisposable Support
 
         /// <summary>

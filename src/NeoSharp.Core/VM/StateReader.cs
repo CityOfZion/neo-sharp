@@ -62,153 +62,153 @@ namespace NeoSharp.Core.VM
             _interopService = interopService;
 
             //Standard Library
-            interopService.RegisterStackTransition("System.Runtime.GetTrigger", Runtime_GetTrigger);
-            interopService.RegisterStackTransition("System.Runtime.CheckWitness", Runtime_CheckWitness);
-            interopService.RegisterStackTransition("System.Runtime.Notify", Runtime_Notify);
-            interopService.RegisterStackTransition("System.Runtime.Log", Runtime_Log);
-            interopService.RegisterStackTransition("System.Runtime.GetTime", Runtime_GetTime);
-            interopService.RegisterStackTransition("System.Blockchain.GetHeight", Blockchain_GetHeight);
-            interopService.RegisterStackTransition("System.Blockchain.GetHeader", Blockchain_GetHeader);
-            interopService.RegisterStackTransition("System.Blockchain.GetBlock", Blockchain_GetBlock);
-            interopService.RegisterStackTransition("System.Blockchain.GetTransaction", Blockchain_GetTransaction);
-            interopService.RegisterStackTransition("System.Blockchain.GetTransactionHeight", Blockchain_GetTransactionHeight);
-            interopService.RegisterStackTransition("System.Blockchain.GetContract", Blockchain_GetContract);
-            interopService.RegisterStackTransition("System.Header.GetIndex", Header_GetIndex);
-            interopService.RegisterStackTransition("System.Header.GetHash", Header_GetHash);
-            interopService.RegisterStackTransition("System.Header.GetPrevHash", Header_GetPrevHash);
-            interopService.RegisterStackTransition("System.Header.GetTimestamp", Header_GetTimestamp);
-            interopService.RegisterStackTransition("System.Block.GetTransactionCount", Block_GetTransactionCount);
-            interopService.RegisterStackTransition("System.Block.GetTransactions", Block_GetTransactions);
-            interopService.RegisterStackTransition("System.Block.GetTransaction", Block_GetTransaction);
-            interopService.RegisterStackTransition("System.Transaction.GetHash", Transaction_GetHash);
-            interopService.RegisterStackTransition("System.Storage.GetContext", Storage_GetContext);
-            interopService.RegisterStackTransition("System.Storage.GetReadOnlyContext", Storage_GetReadOnlyContext);
-            interopService.RegisterStackTransition("System.Storage.Get", Storage_Get);
-            interopService.RegisterStackTransition("System.StorageContext.AsReadOnly", StorageContext_AsReadOnly);
+            interopService.RegisterStackMethod("System.Runtime.GetTrigger", Runtime_GetTrigger);
+            interopService.Register("System.Runtime.CheckWitness", Runtime_CheckWitness);
+            interopService.Register("System.Runtime.Notify", Runtime_Notify);
+            interopService.Register("System.Runtime.Log", Runtime_Log);
+            interopService.RegisterStackMethod("System.Runtime.GetTime", Runtime_GetTime);
+            interopService.RegisterStackMethod("System.Blockchain.GetHeight", Blockchain_GetHeight);
+            interopService.RegisterStackMethod("System.Blockchain.GetHeader", Blockchain_GetHeader);
+            interopService.RegisterStackMethod("System.Blockchain.GetBlock", Blockchain_GetBlock);
+            interopService.RegisterStackMethod("System.Blockchain.GetTransaction", Blockchain_GetTransaction);
+            interopService.RegisterStackMethod("System.Blockchain.GetTransactionHeight", Blockchain_GetTransactionHeight);
+            interopService.RegisterStackMethod("System.Blockchain.GetContract", Blockchain_GetContract);
+            interopService.RegisterStackMethod("System.Header.GetIndex", Header_GetIndex);
+            interopService.RegisterStackMethod("System.Header.GetHash", Header_GetHash);
+            interopService.RegisterStackMethod("System.Header.GetPrevHash", Header_GetPrevHash);
+            interopService.RegisterStackMethod("System.Header.GetTimestamp", Header_GetTimestamp);
+            interopService.RegisterStackMethod("System.Block.GetTransactionCount", Block_GetTransactionCount);
+            interopService.RegisterStackMethod("System.Block.GetTransactions", Block_GetTransactions);
+            interopService.RegisterStackMethod("System.Block.GetTransaction", Block_GetTransaction);
+            interopService.RegisterStackMethod("System.Transaction.GetHash", Transaction_GetHash);
+            interopService.Register("System.Storage.GetContext", Storage_GetContext);
+            interopService.Register("System.Storage.GetReadOnlyContext", Storage_GetReadOnlyContext);
+            interopService.RegisterStackMethod("System.Storage.Get", Storage_Get);
+            interopService.RegisterStackMethod("System.StorageContext.AsReadOnly", StorageContext_AsReadOnly);
 
             //Neo Specified
-            interopService.RegisterStackTransition("Neo.Blockchain.GetAccount", Blockchain_GetAccount);
-            interopService.RegisterStackTransition("Neo.Blockchain.GetValidators", Blockchain_GetValidators);
-            interopService.RegisterStackTransition("Neo.Blockchain.GetAsset", Blockchain_GetAsset);
-            interopService.RegisterStackTransition("Neo.Header.GetVersion", Header_GetVersion);
-            interopService.RegisterStackTransition("Neo.Header.GetMerkleRoot", Header_GetMerkleRoot);
-            interopService.RegisterStackTransition("Neo.Header.GetConsensusData", Header_GetConsensusData);
-            interopService.RegisterStackTransition("Neo.Header.GetNextConsensus", Header_GetNextConsensus);
-            interopService.RegisterStackTransition("Neo.Transaction.GetType", Transaction_GetType);
-            interopService.RegisterStackTransition("Neo.Transaction.GetAttributes", Transaction_GetAttributes);
-            interopService.RegisterStackTransition("Neo.Transaction.GetInputs", Transaction_GetInputs);
-            interopService.RegisterStackTransition("Neo.Transaction.GetOutputs", Transaction_GetOutputs);
-            interopService.RegisterStackTransition("Neo.Transaction.GetReferences", Transaction_GetReferences);
-            interopService.RegisterStackTransition("Neo.Transaction.GetUnspentCoins", Transaction_GetUnspentCoins);
-            interopService.RegisterStackTransition("Neo.InvocationTransaction.GetScript", InvocationTransaction_GetScript);
-            interopService.RegisterStackTransition("Neo.Attribute.GetUsage", Attribute_GetUsage);
-            interopService.RegisterStackTransition("Neo.Attribute.GetData", Attribute_GetData);
-            interopService.RegisterStackTransition("Neo.Input.GetHash", Input_GetHash);
-            interopService.RegisterStackTransition("Neo.Input.GetIndex", Input_GetIndex);
-            interopService.RegisterStackTransition("Neo.Output.GetAssetId", Output_GetAssetId);
-            interopService.RegisterStackTransition("Neo.Output.GetValue", Output_GetValue);
-            interopService.RegisterStackTransition("Neo.Output.GetScriptHash", Output_GetScriptHash);
-            interopService.RegisterStackTransition("Neo.Account.GetScriptHash", Account_GetScriptHash);
-            interopService.RegisterStackTransition("Neo.Account.GetVotes", Account_GetVotes);
-            interopService.RegisterStackTransition("Neo.Account.GetBalance", Account_GetBalance);
-            interopService.RegisterStackTransition("Neo.Asset.GetAssetId", Asset_GetAssetId);
-            interopService.RegisterStackTransition("Neo.Asset.GetAssetType", Asset_GetAssetType);
-            interopService.RegisterStackTransition("Neo.Asset.GetAmount", Asset_GetAmount);
-            interopService.RegisterStackTransition("Neo.Asset.GetAvailable", Asset_GetAvailable);
-            interopService.RegisterStackTransition("Neo.Asset.GetPrecision", Asset_GetPrecision);
-            interopService.RegisterStackTransition("Neo.Asset.GetOwner", Asset_GetOwner);
-            interopService.RegisterStackTransition("Neo.Asset.GetAdmin", Asset_GetAdmin);
-            interopService.RegisterStackTransition("Neo.Asset.GetIssuer", Asset_GetIssuer);
-            interopService.RegisterStackTransition("Neo.Contract.GetScript", Contract_GetScript);
-            interopService.RegisterStackTransition("Neo.Contract.IsPayable", Contract_IsPayable);
-            interopService.RegisterStackTransition("Neo.Storage.Find", Storage_Find);
+            interopService.RegisterStackMethod("Neo.Blockchain.GetAccount", Blockchain_GetAccount);
+            interopService.RegisterStackMethod("Neo.Blockchain.GetValidators", Blockchain_GetValidators);
+            interopService.RegisterStackMethod("Neo.Blockchain.GetAsset", Blockchain_GetAsset);
+            interopService.RegisterStackMethod("Neo.Header.GetVersion", Header_GetVersion);
+            interopService.RegisterStackMethod("Neo.Header.GetMerkleRoot", Header_GetMerkleRoot);
+            interopService.RegisterStackMethod("Neo.Header.GetConsensusData", Header_GetConsensusData);
+            interopService.RegisterStackMethod("Neo.Header.GetNextConsensus", Header_GetNextConsensus);
+            interopService.RegisterStackMethod("Neo.Transaction.GetType", Transaction_GetType);
+            interopService.RegisterStackMethod("Neo.Transaction.GetAttributes", Transaction_GetAttributes);
+            interopService.RegisterStackMethod("Neo.Transaction.GetInputs", Transaction_GetInputs);
+            interopService.RegisterStackMethod("Neo.Transaction.GetOutputs", Transaction_GetOutputs);
+            interopService.RegisterStackMethod("Neo.Transaction.GetReferences", Transaction_GetReferences);
+            interopService.RegisterStackMethod("Neo.Transaction.GetUnspentCoins", Transaction_GetUnspentCoins);
+            interopService.RegisterStackMethod("Neo.InvocationTransaction.GetScript", InvocationTransaction_GetScript);
+            interopService.RegisterStackMethod("Neo.Attribute.GetUsage", Attribute_GetUsage);
+            interopService.RegisterStackMethod("Neo.Attribute.GetData", Attribute_GetData);
+            interopService.RegisterStackMethod("Neo.Input.GetHash", Input_GetHash);
+            interopService.RegisterStackMethod("Neo.Input.GetIndex", Input_GetIndex);
+            interopService.RegisterStackMethod("Neo.Output.GetAssetId", Output_GetAssetId);
+            interopService.RegisterStackMethod("Neo.Output.GetValue", Output_GetValue);
+            interopService.RegisterStackMethod("Neo.Output.GetScriptHash", Output_GetScriptHash);
+            interopService.RegisterStackMethod("Neo.Account.GetScriptHash", Account_GetScriptHash);
+            interopService.RegisterStackMethod("Neo.Account.GetVotes", Account_GetVotes);
+            interopService.RegisterStackMethod("Neo.Account.GetBalance", Account_GetBalance);
+            interopService.RegisterStackMethod("Neo.Asset.GetAssetId", Asset_GetAssetId);
+            interopService.RegisterStackMethod("Neo.Asset.GetAssetType", Asset_GetAssetType);
+            interopService.RegisterStackMethod("Neo.Asset.GetAmount", Asset_GetAmount);
+            interopService.RegisterStackMethod("Neo.Asset.GetAvailable", Asset_GetAvailable);
+            interopService.RegisterStackMethod("Neo.Asset.GetPrecision", Asset_GetPrecision);
+            interopService.RegisterStackMethod("Neo.Asset.GetOwner", Asset_GetOwner);
+            interopService.RegisterStackMethod("Neo.Asset.GetAdmin", Asset_GetAdmin);
+            interopService.RegisterStackMethod("Neo.Asset.GetIssuer", Asset_GetIssuer);
+            interopService.RegisterStackMethod("Neo.Contract.GetScript", Contract_GetScript);
+            interopService.RegisterStackMethod("Neo.Contract.IsPayable", Contract_IsPayable);
+            interopService.RegisterStackMethod("Neo.Storage.Find", Storage_Find);
             // TODO: APIs for enumeration and iteration
-            //interopService.RegisterStackTransition("Neo.Enumerator.Create", Enumerator_Create);
-            //interopService.RegisterStackTransition("Neo.Enumerator.Next", Enumerator_Next);
-            //interopService.RegisterStackTransition("Neo.Enumerator.Value", Enumerator_Value);
-            //interopService.RegisterStackTransition("Neo.Enumerator.Concat", Enumerator_Concat);
-            //interopService.RegisterStackTransition("Neo.Iterator.Create", Iterator_Create);
-            //interopService.RegisterStackTransition("Neo.Iterator.Key", Iterator_Key);
-            //interopService.RegisterStackTransition("Neo.Iterator.Keys", Iterator_Keys);
-            //interopService.RegisterStackTransition("Neo.Iterator.Values", Iterator_Values);
+            //interopService.RegisterStackMethod("Neo.Enumerator.Create", Enumerator_Create);
+            //interopService.RegisterStackMethod("Neo.Enumerator.Next", Enumerator_Next);
+            //interopService.RegisterStackMethod("Neo.Enumerator.Value", Enumerator_Value);
+            //interopService.RegisterStackMethod("Neo.Enumerator.Concat", Enumerator_Concat);
+            //interopService.RegisterStackMethod("Neo.Iterator.Create", Iterator_Create);
+            //interopService.RegisterStackMethod("Neo.Iterator.Key", Iterator_Key);
+            //interopService.RegisterStackMethod("Neo.Iterator.Keys", Iterator_Keys);
+            //interopService.RegisterStackMethod("Neo.Iterator.Values", Iterator_Values);
 
             #region Aliases
-            //interopService.RegisterStackTransition("Neo.Iterator.Next", Enumerator_Next);
-            //interopService.RegisterStackTransition("Neo.Iterator.Value", Enumerator_Value);
+            //interopService.RegisterStackMethod("Neo.Iterator.Next", Enumerator_Next);
+            //interopService.RegisterStackMethod("Neo.Iterator.Value", Enumerator_Value);
             #endregion
 
             #region Old APIs
-            interopService.RegisterStackTransition("Neo.Runtime.GetTrigger", Runtime_GetTrigger);
-            interopService.RegisterStackTransition("Neo.Runtime.CheckWitness", Runtime_CheckWitness);
-            interopService.RegisterStackTransition("AntShares.Runtime.CheckWitness", Runtime_CheckWitness);
-            interopService.RegisterStackTransition("Neo.Runtime.Notify", Runtime_Notify);
-            interopService.RegisterStackTransition("AntShares.Runtime.Notify", Runtime_Notify);
-            interopService.RegisterStackTransition("Neo.Runtime.Log", Runtime_Log);
-            interopService.RegisterStackTransition("AntShares.Runtime.Log", Runtime_Log);
-            interopService.RegisterStackTransition("Neo.Runtime.GetTime", Runtime_GetTime);
-            interopService.RegisterStackTransition("Neo.Blockchain.GetHeight", Blockchain_GetHeight);
-            interopService.RegisterStackTransition("AntShares.Blockchain.GetHeight", Blockchain_GetHeight);
-            interopService.RegisterStackTransition("Neo.Blockchain.GetHeader", Blockchain_GetHeader);
-            interopService.RegisterStackTransition("AntShares.Blockchain.GetHeader", Blockchain_GetHeader);
-            interopService.RegisterStackTransition("Neo.Blockchain.GetBlock", Blockchain_GetBlock);
-            interopService.RegisterStackTransition("AntShares.Blockchain.GetBlock", Blockchain_GetBlock);
-            interopService.RegisterStackTransition("Neo.Blockchain.GetTransaction", Blockchain_GetTransaction);
-            interopService.RegisterStackTransition("AntShares.Blockchain.GetTransaction", Blockchain_GetTransaction);
-            interopService.RegisterStackTransition("Neo.Blockchain.GetTransactionHeight", Blockchain_GetTransactionHeight);
-            interopService.RegisterStackTransition("AntShares.Blockchain.GetAccount", Blockchain_GetAccount);
-            interopService.RegisterStackTransition("AntShares.Blockchain.GetValidators", Blockchain_GetValidators);
-            interopService.RegisterStackTransition("AntShares.Blockchain.GetAsset", Blockchain_GetAsset);
-            interopService.RegisterStackTransition("Neo.Blockchain.GetContract", Blockchain_GetContract);
-            interopService.RegisterStackTransition("AntShares.Blockchain.GetContract", Blockchain_GetContract);
-            interopService.RegisterStackTransition("Neo.Header.GetIndex", Header_GetIndex);
-            interopService.RegisterStackTransition("Neo.Header.GetHash", Header_GetHash);
-            interopService.RegisterStackTransition("AntShares.Header.GetHash", Header_GetHash);
-            interopService.RegisterStackTransition("AntShares.Header.GetVersion", Header_GetVersion);
-            interopService.RegisterStackTransition("Neo.Header.GetPrevHash", Header_GetPrevHash);
-            interopService.RegisterStackTransition("AntShares.Header.GetPrevHash", Header_GetPrevHash);
-            interopService.RegisterStackTransition("AntShares.Header.GetMerkleRoot", Header_GetMerkleRoot);
-            interopService.RegisterStackTransition("Neo.Header.GetTimestamp", Header_GetTimestamp);
-            interopService.RegisterStackTransition("AntShares.Header.GetTimestamp", Header_GetTimestamp);
-            interopService.RegisterStackTransition("AntShares.Header.GetConsensusData", Header_GetConsensusData);
-            interopService.RegisterStackTransition("AntShares.Header.GetNextConsensus", Header_GetNextConsensus);
-            interopService.RegisterStackTransition("Neo.Block.GetTransactionCount", Block_GetTransactionCount);
-            interopService.RegisterStackTransition("AntShares.Block.GetTransactionCount", Block_GetTransactionCount);
-            interopService.RegisterStackTransition("Neo.Block.GetTransactions", Block_GetTransactions);
-            interopService.RegisterStackTransition("AntShares.Block.GetTransactions", Block_GetTransactions);
-            interopService.RegisterStackTransition("Neo.Block.GetTransaction", Block_GetTransaction);
-            interopService.RegisterStackTransition("AntShares.Block.GetTransaction", Block_GetTransaction);
-            interopService.RegisterStackTransition("Neo.Transaction.GetHash", Transaction_GetHash);
-            interopService.RegisterStackTransition("AntShares.Transaction.GetHash", Transaction_GetHash);
-            interopService.RegisterStackTransition("AntShares.Transaction.GetType", Transaction_GetType);
-            interopService.RegisterStackTransition("AntShares.Transaction.GetAttributes", Transaction_GetAttributes);
-            interopService.RegisterStackTransition("AntShares.Transaction.GetInputs", Transaction_GetInputs);
-            interopService.RegisterStackTransition("AntShares.Transaction.GetOutputs", Transaction_GetOutputs);
-            interopService.RegisterStackTransition("AntShares.Transaction.GetReferences", Transaction_GetReferences);
-            interopService.RegisterStackTransition("AntShares.Attribute.GetUsage", Attribute_GetUsage);
-            interopService.RegisterStackTransition("AntShares.Attribute.GetData", Attribute_GetData);
-            interopService.RegisterStackTransition("AntShares.Input.GetHash", Input_GetHash);
-            interopService.RegisterStackTransition("AntShares.Input.GetIndex", Input_GetIndex);
-            interopService.RegisterStackTransition("AntShares.Output.GetAssetId", Output_GetAssetId);
-            interopService.RegisterStackTransition("AntShares.Output.GetValue", Output_GetValue);
-            interopService.RegisterStackTransition("AntShares.Output.GetScriptHash", Output_GetScriptHash);
-            interopService.RegisterStackTransition("AntShares.Account.GetScriptHash", Account_GetScriptHash);
-            interopService.RegisterStackTransition("AntShares.Account.GetVotes", Account_GetVotes);
-            interopService.RegisterStackTransition("AntShares.Account.GetBalance", Account_GetBalance);
-            interopService.RegisterStackTransition("AntShares.Asset.GetAssetId", Asset_GetAssetId);
-            interopService.RegisterStackTransition("AntShares.Asset.GetAssetType", Asset_GetAssetType);
-            interopService.RegisterStackTransition("AntShares.Asset.GetAmount", Asset_GetAmount);
-            interopService.RegisterStackTransition("AntShares.Asset.GetAvailable", Asset_GetAvailable);
-            interopService.RegisterStackTransition("AntShares.Asset.GetPrecision", Asset_GetPrecision);
-            interopService.RegisterStackTransition("AntShares.Asset.GetOwner", Asset_GetOwner);
-            interopService.RegisterStackTransition("AntShares.Asset.GetAdmin", Asset_GetAdmin);
-            interopService.RegisterStackTransition("AntShares.Asset.GetIssuer", Asset_GetIssuer);
-            interopService.RegisterStackTransition("AntShares.Contract.GetScript", Contract_GetScript);
-            interopService.RegisterStackTransition("Neo.Storage.GetContext", Storage_GetContext);
-            interopService.RegisterStackTransition("AntShares.Storage.GetContext", Storage_GetContext);
-            interopService.RegisterStackTransition("Neo.Storage.GetReadOnlyContext", Storage_GetReadOnlyContext);
-            interopService.RegisterStackTransition("Neo.Storage.Get", Storage_Get);
-            interopService.RegisterStackTransition("AntShares.Storage.Get", Storage_Get);
-            interopService.RegisterStackTransition("Neo.StorageContext.AsReadOnly", StorageContext_AsReadOnly);
+            interopService.RegisterStackMethod("Neo.Runtime.GetTrigger", Runtime_GetTrigger);
+            interopService.Register("Neo.Runtime.CheckWitness", Runtime_CheckWitness);
+            interopService.Register("AntShares.Runtime.CheckWitness", Runtime_CheckWitness);
+            interopService.Register("Neo.Runtime.Notify", Runtime_Notify);
+            interopService.Register("AntShares.Runtime.Notify", Runtime_Notify);
+            interopService.Register("Neo.Runtime.Log", Runtime_Log);
+            interopService.Register("AntShares.Runtime.Log", Runtime_Log);
+            interopService.RegisterStackMethod("Neo.Runtime.GetTime", Runtime_GetTime);
+            interopService.RegisterStackMethod("Neo.Blockchain.GetHeight", Blockchain_GetHeight);
+            interopService.RegisterStackMethod("AntShares.Blockchain.GetHeight", Blockchain_GetHeight);
+            interopService.RegisterStackMethod("Neo.Blockchain.GetHeader", Blockchain_GetHeader);
+            interopService.RegisterStackMethod("AntShares.Blockchain.GetHeader", Blockchain_GetHeader);
+            interopService.RegisterStackMethod("Neo.Blockchain.GetBlock", Blockchain_GetBlock);
+            interopService.RegisterStackMethod("AntShares.Blockchain.GetBlock", Blockchain_GetBlock);
+            interopService.RegisterStackMethod("Neo.Blockchain.GetTransaction", Blockchain_GetTransaction);
+            interopService.RegisterStackMethod("AntShares.Blockchain.GetTransaction", Blockchain_GetTransaction);
+            interopService.RegisterStackMethod("Neo.Blockchain.GetTransactionHeight", Blockchain_GetTransactionHeight);
+            interopService.RegisterStackMethod("AntShares.Blockchain.GetAccount", Blockchain_GetAccount);
+            interopService.RegisterStackMethod("AntShares.Blockchain.GetValidators", Blockchain_GetValidators);
+            interopService.RegisterStackMethod("AntShares.Blockchain.GetAsset", Blockchain_GetAsset);
+            interopService.RegisterStackMethod("Neo.Blockchain.GetContract", Blockchain_GetContract);
+            interopService.RegisterStackMethod("AntShares.Blockchain.GetContract", Blockchain_GetContract);
+            interopService.RegisterStackMethod("Neo.Header.GetIndex", Header_GetIndex);
+            interopService.RegisterStackMethod("Neo.Header.GetHash", Header_GetHash);
+            interopService.RegisterStackMethod("AntShares.Header.GetHash", Header_GetHash);
+            interopService.RegisterStackMethod("AntShares.Header.GetVersion", Header_GetVersion);
+            interopService.RegisterStackMethod("Neo.Header.GetPrevHash", Header_GetPrevHash);
+            interopService.RegisterStackMethod("AntShares.Header.GetPrevHash", Header_GetPrevHash);
+            interopService.RegisterStackMethod("AntShares.Header.GetMerkleRoot", Header_GetMerkleRoot);
+            interopService.RegisterStackMethod("Neo.Header.GetTimestamp", Header_GetTimestamp);
+            interopService.RegisterStackMethod("AntShares.Header.GetTimestamp", Header_GetTimestamp);
+            interopService.RegisterStackMethod("AntShares.Header.GetConsensusData", Header_GetConsensusData);
+            interopService.RegisterStackMethod("AntShares.Header.GetNextConsensus", Header_GetNextConsensus);
+            interopService.RegisterStackMethod("Neo.Block.GetTransactionCount", Block_GetTransactionCount);
+            interopService.RegisterStackMethod("AntShares.Block.GetTransactionCount", Block_GetTransactionCount);
+            interopService.RegisterStackMethod("Neo.Block.GetTransactions", Block_GetTransactions);
+            interopService.RegisterStackMethod("AntShares.Block.GetTransactions", Block_GetTransactions);
+            interopService.RegisterStackMethod("Neo.Block.GetTransaction", Block_GetTransaction);
+            interopService.RegisterStackMethod("AntShares.Block.GetTransaction", Block_GetTransaction);
+            interopService.RegisterStackMethod("Neo.Transaction.GetHash", Transaction_GetHash);
+            interopService.RegisterStackMethod("AntShares.Transaction.GetHash", Transaction_GetHash);
+            interopService.RegisterStackMethod("AntShares.Transaction.GetType", Transaction_GetType);
+            interopService.RegisterStackMethod("AntShares.Transaction.GetAttributes", Transaction_GetAttributes);
+            interopService.RegisterStackMethod("AntShares.Transaction.GetInputs", Transaction_GetInputs);
+            interopService.RegisterStackMethod("AntShares.Transaction.GetOutputs", Transaction_GetOutputs);
+            interopService.RegisterStackMethod("AntShares.Transaction.GetReferences", Transaction_GetReferences);
+            interopService.RegisterStackMethod("AntShares.Attribute.GetUsage", Attribute_GetUsage);
+            interopService.RegisterStackMethod("AntShares.Attribute.GetData", Attribute_GetData);
+            interopService.RegisterStackMethod("AntShares.Input.GetHash", Input_GetHash);
+            interopService.RegisterStackMethod("AntShares.Input.GetIndex", Input_GetIndex);
+            interopService.RegisterStackMethod("AntShares.Output.GetAssetId", Output_GetAssetId);
+            interopService.RegisterStackMethod("AntShares.Output.GetValue", Output_GetValue);
+            interopService.RegisterStackMethod("AntShares.Output.GetScriptHash", Output_GetScriptHash);
+            interopService.RegisterStackMethod("AntShares.Account.GetScriptHash", Account_GetScriptHash);
+            interopService.RegisterStackMethod("AntShares.Account.GetVotes", Account_GetVotes);
+            interopService.RegisterStackMethod("AntShares.Account.GetBalance", Account_GetBalance);
+            interopService.RegisterStackMethod("AntShares.Asset.GetAssetId", Asset_GetAssetId);
+            interopService.RegisterStackMethod("AntShares.Asset.GetAssetType", Asset_GetAssetType);
+            interopService.RegisterStackMethod("AntShares.Asset.GetAmount", Asset_GetAmount);
+            interopService.RegisterStackMethod("AntShares.Asset.GetAvailable", Asset_GetAvailable);
+            interopService.RegisterStackMethod("AntShares.Asset.GetPrecision", Asset_GetPrecision);
+            interopService.RegisterStackMethod("AntShares.Asset.GetOwner", Asset_GetOwner);
+            interopService.RegisterStackMethod("AntShares.Asset.GetAdmin", Asset_GetAdmin);
+            interopService.RegisterStackMethod("AntShares.Asset.GetIssuer", Asset_GetIssuer);
+            interopService.RegisterStackMethod("AntShares.Contract.GetScript", Contract_GetScript);
+            interopService.Register("Neo.Storage.GetContext", Storage_GetContext);
+            interopService.Register("AntShares.Storage.GetContext", Storage_GetContext);
+            interopService.Register("Neo.Storage.GetReadOnlyContext", Storage_GetReadOnlyContext);
+            interopService.RegisterStackMethod("Neo.Storage.Get", Storage_Get);
+            interopService.RegisterStackMethod("AntShares.Storage.Get", Storage_Get);
+            interopService.RegisterStackMethod("Neo.StorageContext.AsReadOnly", StorageContext_AsReadOnly);
             #endregion
         }
 
@@ -226,7 +226,7 @@ namespace NeoSharp.Core.VM
             _disposables.Clear();
         }
 
-        protected virtual bool Runtime_GetTrigger(IStackAccessor stack)
+        protected virtual bool Runtime_GetTrigger(Stack stack)
         {
             stack.Push((int)_trigger);
             return true;
@@ -234,7 +234,7 @@ namespace NeoSharp.Core.VM
 
         protected bool CheckWitness(ExecutionEngineBase engine, UInt160 hash)
         {
-            // TODO:
+            // TODO: IVerifiable?
             //IVerifiable container = (IVerifiable)engine.MessageProvider;
             //UInt160[] _hashes_for_verifying = container.GetScriptHashesForVerifying();
             //return _hashes_for_verifying.Contains(hash);
@@ -243,57 +243,68 @@ namespace NeoSharp.Core.VM
 
         protected bool CheckWitness(ExecutionEngineBase engine, ECPoint pubkey)
         {
-            // TODO:
+            // TODO: Contract.CreateSignatureRedeemScript?
             //return CheckWitness(engine, Contract.CreateSignatureRedeemScript(pubkey).ToScriptHash());
             return true;
         }
 
-        protected virtual bool Runtime_CheckWitness(IStackAccessor stack)
+        protected virtual bool Runtime_CheckWitness(ExecutionEngineBase engine)
         {
-            var hashOrPubkey = stack.PopByteArray();
-            // TODO:
-            //bool result;
-            //if (hashOrPubkey.Length == 20)
-            //    result = CheckWitness(engine, new UInt160(hashOrPubkey));
-            //else if (hashOrPubkey.Length == 33)
-            //    result = CheckWitness(engine, new ECPoint(hashOrPubkey));
-            //else
-            //    return false;
-            //stack.Push(result);
-            return true;
-        }
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
 
-        protected virtual bool Runtime_Notify(IStackAccessor stack)
-        {
-            var state = stack.Pop<StackItemBase>();
+            bool result;
+            var hashOrPubkey = ctx.EvaluationStack.PopByteArray();
 
-            _interopService.RaiseOnNotify(new NotifyEventArgs(stack.ScriptHash.ToArray(), state));
+            if (hashOrPubkey.Length == 20)
+                result = CheckWitness(engine, new UInt160(hashOrPubkey));
+            else if (hashOrPubkey.Length == 33)
+                result = CheckWitness(engine, new ECPoint(hashOrPubkey));
+            else
+                return false;
+
+            ctx.EvaluationStack.Push(result);
 
             return true;
         }
 
-        protected virtual bool Runtime_Log(IStackAccessor stack)
+        protected virtual bool Runtime_Notify(ExecutionEngineBase engine)
         {
-            var message = Encoding.UTF8.GetString(stack.PopByteArray());
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
 
-            _interopService.RaiseOnLog(new LogEventArgs(stack.ScriptHash.ToArray(), message));
+            var state = ctx.EvaluationStack.PopObject<StackItemBase>();
+
+            _interopService.RaiseOnNotify(new NotifyEventArgs(ctx.ScriptHash.ToArray(), state));
 
             return true;
         }
 
-        protected virtual bool Runtime_GetTime(IStackAccessor stack)
+        protected virtual bool Runtime_Log(ExecutionEngineBase engine)
+        {
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
+
+            var message = Encoding.UTF8.GetString(ctx.EvaluationStack.PopByteArray());
+
+            _interopService.RaiseOnLog(new LogEventArgs(ctx.ScriptHash.ToArray(), message));
+
+            return true;
+        }
+
+        protected virtual bool Runtime_GetTime(Stack stack)
         {
             stack.Push(_blockchainContext.LastBlockHeader.Timestamp + 15);
             return true;
         }
 
-        protected virtual bool Blockchain_GetHeight(IStackAccessor stack)
+        protected virtual bool Blockchain_GetHeight(Stack stack)
         {
             stack.Push(_blockchainContext.CurrentBlock.Index);
             return true;
         }
 
-        protected virtual bool Blockchain_GetHeader(IStackAccessor stack)
+        protected virtual bool Blockchain_GetHeader(Stack stack)
         {
             var data = stack.PopByteArray();
 
@@ -316,12 +327,12 @@ namespace NeoSharp.Core.VM
                 return false;
             }
 
-            stack.Push(blockHeader);
+            stack.PushObject(blockHeader);
 
             return true;
         }
 
-        protected virtual bool Blockchain_GetBlock(IStackAccessor stack)
+        protected virtual bool Blockchain_GetBlock(Stack stack)
         {
             var data = stack.PopByteArray();
 
@@ -344,22 +355,22 @@ namespace NeoSharp.Core.VM
                 return false;
             }
 
-            stack.Push(block);
+            stack.PushObject(block);
 
             return true;
         }
 
-        protected virtual bool Blockchain_GetTransaction(IStackAccessor stack)
+        protected virtual bool Blockchain_GetTransaction(Stack stack)
         {
             var hash = stack.PopByteArray();
             var transaction = _transactionRepository.GetTransaction(new UInt256(hash)).Result;
 
-            stack.Push(transaction);
+            stack.PushObject(transaction);
 
             return true;
         }
 
-        protected virtual bool Blockchain_GetTransactionHeight(IStackAccessor stack)
+        protected virtual bool Blockchain_GetTransactionHeight(Stack stack)
         {
             var hash = stack.PopByteArray();
             // TODO: looks like we need an index transaction in the block;
@@ -371,15 +382,17 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Blockchain_GetAccount(IStackAccessor stack)
+        protected virtual bool Blockchain_GetAccount(Stack stack)
         {
             var hash = new UInt160(stack.PopByteArray());
             var account = Accounts.GetOrAdd(hash, () => new Account(hash));
-            stack.Push(account);
+
+            stack.PushObject(account);
+
             return true;
         }
 
-        protected virtual bool Blockchain_GetValidators(IStackAccessor stack)
+        protected virtual bool Blockchain_GetValidators(Stack stack)
         {
             // TODO: looks like we need to get all validators
             //ECPoint[] validators = _blockchain.GetValidators();
@@ -387,29 +400,29 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Blockchain_GetAsset(IStackAccessor stack)
+        protected virtual bool Blockchain_GetAsset(Stack stack)
         {
             var hash = new UInt256(stack.PopByteArray());
             var asset = Assets.TryGet(hash);
             if (asset == null) return false;
-            stack.Push(asset);
+            stack.PushObject(asset);
             return true;
         }
 
-        protected virtual bool Blockchain_GetContract(IStackAccessor stack)
+        protected virtual bool Blockchain_GetContract(Stack stack)
         {
             var hash = new UInt160(stack.PopByteArray());
             var contract = Contracts.TryGet(hash);
             if (contract == null)
                 stack.Push(Array.Empty<byte>());
             else
-                stack.Push(contract);
+                stack.PushObject(contract);
             return true;
         }
 
-        protected virtual bool Header_GetIndex(IStackAccessor stack)
+        protected virtual bool Header_GetIndex(Stack stack)
         {
-            var blockBase = stack.Pop<BlockBase>();
+            var blockBase = stack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
             stack.Push(blockBase.Index);
@@ -417,9 +430,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Header_GetHash(IStackAccessor stack)
+        protected virtual bool Header_GetHash(Stack stack)
         {
-            var blockBase = stack.Pop<BlockBase>();
+            var blockBase = stack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
             stack.Push(blockBase.Hash.ToArray());
@@ -427,9 +440,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Header_GetVersion(IStackAccessor stack)
+        protected virtual bool Header_GetVersion(Stack stack)
         {
-            var blockBase = stack.Pop<BlockBase>();
+            var blockBase = stack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
             stack.Push(blockBase.Version);
@@ -437,9 +450,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Header_GetPrevHash(IStackAccessor stack)
+        protected virtual bool Header_GetPrevHash(Stack stack)
         {
-            var blockBase = stack.Pop<BlockBase>();
+            var blockBase = stack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
             stack.Push(blockBase.PreviousBlockHash.ToArray());
@@ -447,10 +460,10 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Header_GetMerkleRoot(IStackAccessor stack)
+        protected virtual bool Header_GetMerkleRoot(Stack stack)
         {
             // TODO: Should MerkleRoot be in BlockBase?
-            var blockBase = stack.Pop<BlockHeader>();
+            var blockBase = stack.PopObject<BlockHeader>();
             if (blockBase == null) return false;
 
             stack.Push(blockBase.MerkleRoot.ToArray());
@@ -458,9 +471,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Header_GetTimestamp(IStackAccessor stack)
+        protected virtual bool Header_GetTimestamp(Stack stack)
         {
-            var blockBase = stack.Pop<BlockBase>();
+            var blockBase = stack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
             stack.Push(blockBase.Timestamp);
@@ -468,9 +481,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Header_GetConsensusData(IStackAccessor stack)
+        protected virtual bool Header_GetConsensusData(Stack stack)
         {
-            var blockBase = stack.Pop<BlockBase>();
+            var blockBase = stack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
             stack.Push(blockBase.ConsensusData);
@@ -478,9 +491,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Header_GetNextConsensus(IStackAccessor stack)
+        protected virtual bool Header_GetNextConsensus(Stack stack)
         {
-            var blockBase = stack.Pop<BlockBase>();
+            var blockBase = stack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
             stack.Push(blockBase.NextConsensus.ToArray());
@@ -488,9 +501,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Block_GetTransactionCount(IStackAccessor stack)
+        protected virtual bool Block_GetTransactionCount(Stack stack)
         {
-            var block = stack.Pop<Block>();
+            var block = stack.PopObject<Block>();
             if (block == null) return false;
 
             stack.Push(block.Transactions.Length);
@@ -498,20 +511,20 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Block_GetTransactions(IStackAccessor stack)
+        protected virtual bool Block_GetTransactions(Stack stack)
         {
-            var block = stack.Pop<Block>();
+            var block = stack.PopObject<Block>();
             if (block == null) return false;
             if (block.Transactions.Length > EngineMaxArraySize) return false;
 
-            stack.Push(block.Transactions);
+            stack.PushArray(block.Transactions);
 
             return true;
         }
 
-        protected virtual bool Block_GetTransaction(IStackAccessor stack)
+        protected virtual bool Block_GetTransaction(Stack stack)
         {
-            var block = stack.Pop<Block>();
+            var block = stack.PopObject<Block>();
             if (block == null) return false;
 
             var index = (int)stack.PopBigInteger();
@@ -519,14 +532,14 @@ namespace NeoSharp.Core.VM
 
             var transaction = block.Transactions[index];
 
-            stack.Push(transaction);
+            stack.PushObject(transaction);
 
             return true;
         }
 
-        protected virtual bool Transaction_GetHash(IStackAccessor stack)
+        protected virtual bool Transaction_GetHash(Stack stack)
         {
-            var transaction = stack.Pop<Transaction>();
+            var transaction = stack.PopObject<Transaction>();
             if (transaction == null) return false;
 
             stack.Push(transaction.Hash.ToArray());
@@ -534,9 +547,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Transaction_GetType(IStackAccessor stack)
+        protected virtual bool Transaction_GetType(Stack stack)
         {
-            var transaction = stack.Pop<Transaction>();
+            var transaction = stack.PopObject<Transaction>();
             if (transaction == null) return false;
 
             stack.Push((int)transaction.Type);
@@ -544,73 +557,73 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Transaction_GetAttributes(IStackAccessor stack)
+        protected virtual bool Transaction_GetAttributes(Stack stack)
         {
-            var transaction = stack.Pop<Transaction>();
+            var transaction = stack.PopObject<Transaction>();
             if (transaction == null) return false;
             if (transaction.Attributes.Length > EngineMaxArraySize)
                 return false;
 
-            stack.Push(transaction.Attributes);
+            stack.PushArray(transaction.Attributes);
 
             return true;
         }
 
-        protected virtual bool Transaction_GetInputs(IStackAccessor stack)
+        protected virtual bool Transaction_GetInputs(Stack stack)
         {
-            var transaction = stack.Pop<Transaction>();
+            var transaction = stack.PopObject<Transaction>();
             if (transaction == null) return false;
             if (transaction.Inputs.Length > EngineMaxArraySize)
                 return false;
 
-            stack.Push(transaction.Inputs);
+            stack.PushArray(transaction.Inputs);
 
             return true;
         }
 
-        protected virtual bool Transaction_GetOutputs(IStackAccessor stack)
+        protected virtual bool Transaction_GetOutputs(Stack stack)
         {
-            var transaction = stack.Pop<Transaction>();
+            var transaction = stack.PopObject<Transaction>();
             if (transaction == null) return false;
             if (transaction.Outputs.Length > EngineMaxArraySize)
                 return false;
 
-            stack.Push(transaction.Outputs);
+            stack.PushArray(transaction.Outputs);
 
             return true;
         }
 
-        protected virtual bool Transaction_GetReferences(IStackAccessor stack)
+        protected virtual bool Transaction_GetReferences(Stack stack)
         {
-            var transaction = stack.Pop<Transaction>();
+            var transaction = stack.PopObject<Transaction>();
             if (transaction == null) return false;
             // TODO: Check refs length?
             if (transaction.Inputs.Length > EngineMaxArraySize)
                 return false;
 
             var references = _transactionRepository.GetReferences(transaction).Result;
-            stack.Push(transaction.Inputs.Select(i => references[i]).ToArray());
+            stack.PushArray(transaction.Inputs.Select(i => references[i]).ToArray());
 
             return true;
         }
 
-        protected virtual bool Transaction_GetUnspentCoins(IStackAccessor stack)
+        protected virtual bool Transaction_GetUnspentCoins(Stack stack)
         {
-            var transaction = stack.Pop<Transaction>();
+            var transaction = stack.PopObject<Transaction>();
             if (transaction == null) return false;
 
             var outputs = _transactionRepository.GetUnspent(transaction.Hash).Result;
             if (outputs.Count() > EngineMaxArraySize)
                 return false;
 
-            stack.Push(outputs.ToArray());
+            stack.PushArray(outputs.ToArray());
 
             return true;
         }
 
-        protected virtual bool InvocationTransaction_GetScript(IStackAccessor stack)
+        protected virtual bool InvocationTransaction_GetScript(Stack stack)
         {
-            var transaction = stack.Pop<InvocationTransaction>();
+            var transaction = stack.PopObject<InvocationTransaction>();
             if (transaction == null) return false;
 
             stack.Push(transaction.Script);
@@ -618,9 +631,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Attribute_GetUsage(IStackAccessor stack)
+        protected virtual bool Attribute_GetUsage(Stack stack)
         {
-            var transactionAttr = stack.Pop<TransactionAttribute>();
+            var transactionAttr = stack.PopObject<TransactionAttribute>();
             if (transactionAttr == null) return false;
 
             stack.Push((int)transactionAttr.Usage);
@@ -628,9 +641,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Attribute_GetData(IStackAccessor stack)
+        protected virtual bool Attribute_GetData(Stack stack)
         {
-            var transactionAttr = stack.Pop<TransactionAttribute>();
+            var transactionAttr = stack.PopObject<TransactionAttribute>();
             if (transactionAttr == null) return false;
 
             stack.Push(transactionAttr.Data);
@@ -638,9 +651,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Input_GetHash(IStackAccessor stack)
+        protected virtual bool Input_GetHash(Stack stack)
         {
-            var coinReference = stack.Pop<CoinReference>();
+            var coinReference = stack.PopObject<CoinReference>();
             if (coinReference == null) return false;
 
             stack.Push(coinReference.PrevHash.ToArray());
@@ -648,9 +661,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Input_GetIndex(IStackAccessor stack)
+        protected virtual bool Input_GetIndex(Stack stack)
         {
-            var coinReference = stack.Pop<CoinReference>();
+            var coinReference = stack.PopObject<CoinReference>();
             if (coinReference == null) return false;
 
             stack.Push((int)coinReference.PrevIndex);
@@ -658,9 +671,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Output_GetAssetId(IStackAccessor stack)
+        protected virtual bool Output_GetAssetId(Stack stack)
         {
-            var transactionOutput = stack.Pop<TransactionOutput>();
+            var transactionOutput = stack.PopObject<TransactionOutput>();
             if (transactionOutput == null) return false;
 
             stack.Push(transactionOutput.AssetId.ToArray());
@@ -668,9 +681,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Output_GetValue(IStackAccessor stack)
+        protected virtual bool Output_GetValue(Stack stack)
         {
-            var transactionOutput = stack.Pop<TransactionOutput>();
+            var transactionOutput = stack.PopObject<TransactionOutput>();
             if (transactionOutput == null) return false;
 
             stack.Push(transactionOutput.Value.Value);
@@ -678,9 +691,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Output_GetScriptHash(IStackAccessor stack)
+        protected virtual bool Output_GetScriptHash(Stack stack)
         {
-            var transactionOutput = stack.Pop<TransactionOutput>();
+            var transactionOutput = stack.PopObject<TransactionOutput>();
             if (transactionOutput == null) return false;
 
             stack.Push(transactionOutput.ScriptHash.ToArray());
@@ -688,9 +701,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Account_GetScriptHash(IStackAccessor stack)
+        protected virtual bool Account_GetScriptHash(Stack stack)
         {
-            var account = stack.Pop<Account>();
+            var account = stack.PopObject<Account>();
             if (account == null) return false;
 
             stack.Push(account.ScriptHash.ToArray());
@@ -698,9 +711,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Account_GetVotes(IStackAccessor stack)
+        protected virtual bool Account_GetVotes(Stack stack)
         {
-            var account = stack.Pop<Account>();
+            var account = stack.PopObject<Account>();
             if (account == null) return false;
 
             // TODO: it was EncodePoint before. Check with NEO
@@ -709,9 +722,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Account_GetBalance(IStackAccessor stack)
+        protected virtual bool Account_GetBalance(Stack stack)
         {
-            var account = stack.Pop<Account>();
+            var account = stack.PopObject<Account>();
             if (account == null) return false;
 
             var assetId = new UInt256(stack.PopByteArray());
@@ -722,9 +735,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Asset_GetAssetId(IStackAccessor stack)
+        protected virtual bool Asset_GetAssetId(Stack stack)
         {
-            var asset = stack.Pop<Asset>();
+            var asset = stack.PopObject<Asset>();
             if (asset == null) return false;
 
             stack.Push(asset.Id.ToArray());
@@ -732,9 +745,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Asset_GetAssetType(IStackAccessor stack)
+        protected virtual bool Asset_GetAssetType(Stack stack)
         {
-            var asset = stack.Pop<Asset>();
+            var asset = stack.PopObject<Asset>();
             if (asset == null) return false;
 
             stack.Push((int)asset.AssetType);
@@ -742,9 +755,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Asset_GetAmount(IStackAccessor stack)
+        protected virtual bool Asset_GetAmount(Stack stack)
         {
-            var asset = stack.Pop<Asset>();
+            var asset = stack.PopObject<Asset>();
             if (asset == null) return false;
 
             stack.Push(asset.Amount.Value);
@@ -752,9 +765,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Asset_GetAvailable(IStackAccessor stack)
+        protected virtual bool Asset_GetAvailable(Stack stack)
         {
-            var asset = stack.Pop<Asset>();
+            var asset = stack.PopObject<Asset>();
             if (asset == null) return false;
 
             stack.Push(asset.Available.Value);
@@ -762,9 +775,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Asset_GetPrecision(IStackAccessor stack)
+        protected virtual bool Asset_GetPrecision(Stack stack)
         {
-            var asset = stack.Pop<Asset>();
+            var asset = stack.PopObject<Asset>();
             if (asset == null) return false;
 
             stack.Push((int)asset.Precision);
@@ -772,9 +785,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Asset_GetOwner(IStackAccessor stack)
+        protected virtual bool Asset_GetOwner(Stack stack)
         {
-            var asset = stack.Pop<Asset>();
+            var asset = stack.PopObject<Asset>();
             if (asset == null) return false;
 
             // TODO: it was EncodePoint before. Check with NEO
@@ -783,9 +796,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Asset_GetAdmin(IStackAccessor stack)
+        protected virtual bool Asset_GetAdmin(Stack stack)
         {
-            var asset = stack.Pop<Asset>();
+            var asset = stack.PopObject<Asset>();
             if (asset == null) return false;
 
             stack.Push(asset.Admin.ToArray());
@@ -793,9 +806,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Asset_GetIssuer(IStackAccessor stack)
+        protected virtual bool Asset_GetIssuer(Stack stack)
         {
-            var asset = stack.Pop<Asset>();
+            var asset = stack.PopObject<Asset>();
             if (asset == null) return false;
 
             stack.Push(asset.Issuer.ToArray());
@@ -803,9 +816,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Contract_GetScript(IStackAccessor stack)
+        protected virtual bool Contract_GetScript(Stack stack)
         {
-            var contract = stack.Pop<Contract>();
+            var contract = stack.PopObject<Contract>();
             if (contract == null) return false;
 
             stack.Push(contract.Script);
@@ -813,9 +826,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Contract_IsPayable(IStackAccessor stack)
+        protected virtual bool Contract_IsPayable(Stack stack)
         {
-            var contract = stack.Pop<Contract>();
+            var contract = stack.PopObject<Contract>();
             if (contract == null) return false;
 
             stack.Push(contract.Payable);
@@ -823,31 +836,37 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Storage_GetContext(IStackAccessor stack)
+        protected virtual bool Storage_GetContext(ExecutionEngineBase engine)
         {
-            stack.Push(new StorageContext
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
+
+            ctx.EvaluationStack.PushObject(new StorageContext
             {
-                ScriptHash = stack.ScriptHash,
+                ScriptHash = new UInt160(ctx.ScriptHash),
                 IsReadOnly = false
             });
 
             return true;
         }
 
-        protected virtual bool Storage_GetReadOnlyContext(IStackAccessor stack)
+        protected virtual bool Storage_GetReadOnlyContext(ExecutionEngineBase engine)
         {
-            stack.Push(new StorageContext
+            var ctx = engine.CurrentContext;
+            if (ctx == null) return false;
+
+            ctx.EvaluationStack.PushObject(new StorageContext
             {
-                ScriptHash = stack.ScriptHash,
+                ScriptHash = new UInt160(ctx.ScriptHash),
                 IsReadOnly = true
             });
 
             return true;
         }
 
-        protected virtual bool Storage_Get(IStackAccessor stack)
+        protected virtual bool Storage_Get(Stack stack)
         {
-            var storageContext = stack.Pop<StorageContext>();
+            var storageContext = stack.PopObject<StorageContext>();
             if (storageContext == null) return false;
             if (!CheckStorageContext(storageContext)) return false;
 
@@ -863,9 +882,9 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected virtual bool Storage_Find(IStackAccessor stack)
+        protected virtual bool Storage_Find(Stack stack)
         {
-            var storageContext = stack.Pop<StorageContext>();
+            var storageContext = stack.PopObject<StorageContext>();
             if (storageContext == null) return false;
             if (!CheckStorageContext(storageContext)) return false;
 
@@ -895,15 +914,15 @@ namespace NeoSharp.Core.VM
                 .Where(p => p.Key.Key.Take(prefix.Length).SequenceEqual(prefix))
                 .GetEnumerator();
 
-            stack.Push(iterator);
+            stack.PushObject(iterator);
             _disposables.Add(iterator);
 
             return true;
         }
 
-        protected virtual bool StorageContext_AsReadOnly(IStackAccessor stack)
+        protected virtual bool StorageContext_AsReadOnly(Stack stack)
         {
-            var storageContext = stack.Pop<StorageContext>();
+            var storageContext = stack.PopObject<StorageContext>();
             if (storageContext == null) return false;
             if (!storageContext.IsReadOnly)
                 storageContext = new StorageContext
@@ -912,12 +931,12 @@ namespace NeoSharp.Core.VM
                     IsReadOnly = true
                 };
 
-            stack.Push(storageContext);
+            stack.PushObject(storageContext);
 
             return true;
         }
 
-        //protected virtual bool Enumerator_Create(IStackAccessor stack)
+        //protected virtual bool Enumerator_Create(Stack stack)
         //{
         //    var array = stack.PopArray();
         //    if (array == null) return false;
@@ -927,7 +946,7 @@ namespace NeoSharp.Core.VM
         //    return true;
         //}
 
-        //protected virtual bool Enumerator_Next(IStackAccessor stack)
+        //protected virtual bool Enumerator_Next(Stack stack)
         //{
         //    var enumerator = stack.Pop<IEnumerator>();
         //    if (enumerator == null) return false;
@@ -939,7 +958,7 @@ namespace NeoSharp.Core.VM
         //    return true;
         //}
 
-        //protected virtual bool Enumerator_Value(IStackAccessor stack)
+        //protected virtual bool Enumerator_Value(Stack stack)
         //{
         //    var enumerator = stack.Pop<IEnumerator>();
         //    if (enumerator == null) return false;
@@ -949,7 +968,7 @@ namespace NeoSharp.Core.VM
         //    return true;
         //}
 
-        //protected virtual bool Enumerator_Concat(IStackAccessor stack)
+        //protected virtual bool Enumerator_Concat(Stack stack)
         //{
         //    var enumerator1 = stack.Pop<IEnumerator>();
         //    if (enumerator1 == null) return false;
@@ -962,7 +981,7 @@ namespace NeoSharp.Core.VM
         //    return true;
         //}
 
-        //protected virtual bool Iterator_Create(IStackAccessor stack)
+        //protected virtual bool Iterator_Create(Stack stack)
         //{
         //    if (stack.Pop() is Map map)
         //    {
@@ -973,7 +992,7 @@ namespace NeoSharp.Core.VM
         //    return false;
         //}
 
-        //protected virtual bool Iterator_Key(IStackAccessor stack)
+        //protected virtual bool Iterator_Key(Stack stack)
         //{
         //    if (stack.Pop() is InteropInterface _interface)
         //    {
@@ -984,7 +1003,7 @@ namespace NeoSharp.Core.VM
         //    return false;
         //}
 
-        //protected virtual bool Iterator_Keys(IStackAccessor stack)
+        //protected virtual bool Iterator_Keys(Stack stack)
         //{
         //    if (stack.Pop() is InteropInterface _interface)
         //    {
@@ -995,7 +1014,7 @@ namespace NeoSharp.Core.VM
         //    return false;
         //}
 
-        //protected virtual bool Iterator_Values(IStackAccessor stack)
+        //protected virtual bool Iterator_Values(Stack stack)
         //{
         //    if (stack.Pop() is InteropInterface _interface)
         //    {

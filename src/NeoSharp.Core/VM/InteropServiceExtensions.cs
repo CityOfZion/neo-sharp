@@ -5,20 +5,17 @@ namespace NeoSharp.Core.VM
 {
     public static class InteropServiceExtensions
     {
-        public static void RegisterStackTransition(
+        public static void RegisterStackMethod(
             this InteropService interopService,
             string name,
-            Func<IStackAccessor, bool> handler)
+            Func<Stack, bool> handler)
         {
-            bool BaseHandler(ExecutionEngineBase engine)
+            bool InvokeHandler(ExecutionEngineBase engine)
             {
-                var ctx = engine.CurrentContext;
-                if (ctx == null) return false;
-
-                return handler(new StackAccessor(engine, ctx));
+                return engine.CurrentContext != null && handler(engine.CurrentContext.EvaluationStack);
             }
 
-            interopService.Register(name, BaseHandler);
+            interopService.Register(name, InvokeHandler);
         }
     }
 }

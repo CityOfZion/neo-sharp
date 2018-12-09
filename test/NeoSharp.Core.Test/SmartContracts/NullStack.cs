@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
 using NeoSharp.VM;
 
 namespace NeoSharp.Core.Test.SmartContracts
@@ -9,29 +11,64 @@ namespace NeoSharp.Core.Test.SmartContracts
         {
         }
 
+        protected override ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null)
+        {
+            return null;
+        }
+
+        protected override BooleanStackItemBase CreateBool(bool value)
+        {
+            return null;
+        }
+
+        protected override ByteArrayStackItemBase CreateByteArray(byte[] data)
+        {
+            return null;
+        }
+
+        protected override IntegerStackItemBase CreateInteger(int value)
+        {
+            return null;
+        }
+
+        protected override IntegerStackItemBase CreateInteger(long value)
+        {
+            return null;
+        }
+
+        protected override IntegerStackItemBase CreateInteger(BigInteger value)
+        {
+            return null;
+        }
+
+        protected override InteropStackItemBase<T> CreateInterop<T>(T obj)
+        {
+            return null;
+        }
+
+        protected override MapStackItemBase CreateMap()
+        {
+            return null;
+        }
+
+        protected override ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null)
+        {
+            return null;
+        }
+
         public override int Count => 0;
-
-        public override int Drop(int count = 0)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override StackItemBase Pop()
-        {
-            throw new NotImplementedException();
-        }
 
         public override void Push(StackItemBase item)
         {
             throw new NotImplementedException();
         }
 
-        public override bool TryPeek(int index, out StackItemBase obj)
+        public override bool TryPeek(int index, out StackItemBase item)
         {
             throw new NotImplementedException();
         }
 
-        public override bool TryPop<TStackItem>(out TStackItem item)
+        public override bool TryPop(out StackItemBase item)
         {
             throw new NotImplementedException();
         }

@@ -20,23 +20,23 @@ namespace NeoSharp.VM
             public int ElementCount;
         }
 
-        public void Serialize(ExecutionEngineBase engine, StackItemBase item, BinaryWriter writer)
+        public void Serialize(StackItemBase stackItem, BinaryWriter writer)
         {
             var serialized = new List<StackItemBase>();
             var unserialized = new Stack<StackItemBase>();
 
-            unserialized.Push(item);
+            unserialized.Push(stackItem);
 
             while (unserialized.Count > 0)
             {
-                item = unserialized.Pop();
+                stackItem = unserialized.Pop();
 
-                switch (item)
+                switch (stackItem)
                 {
                     case ByteArrayStackItemBase _:
                         {
                             writer.Write((byte)EStackItemType.ByteArray);
-                            writer.WriteVarBytes(item.ToByteArray());
+                            writer.WriteVarBytes(stackItem.ToByteArray());
                             break;
                         }
                     case BooleanStackItemBase b:
@@ -48,7 +48,7 @@ namespace NeoSharp.VM
                     case IntegerStackItemBase _:
                         {
                             writer.Write((byte)EStackItemType.Integer);
-                            writer.WriteVarBytes(item.ToByteArray());
+                            writer.WriteVarBytes(stackItem.ToByteArray());
                             break;
                         }
                     case ArrayStackItemBase array:
@@ -91,7 +91,7 @@ namespace NeoSharp.VM
             }
         }
 
-        public StackItemBase Deserialize(ExecutionEngineBase engine, BinaryReader reader)
+        public StackItemBase Deserialize(Stack stack, BinaryReader reader)
         {
             var deserialized = new Stack<StackItemBase>();
             var undeserialized = 1;
@@ -103,17 +103,17 @@ namespace NeoSharp.VM
                 {
                     case EStackItemType.ByteArray:
                         {
-                            deserialized.Push(engine.CreateByteArray(reader.ReadVarBytes()));
+                            deserialized.Push(stack.CreateByteArray(reader.ReadVarBytes()));
                             break;
                         }
                     case EStackItemType.Bool:
                         {
-                            deserialized.Push(engine.CreateBool(reader.ReadBoolean()));
+                            deserialized.Push(stack.CreateBool(reader.ReadBoolean()));
                             break;
                         }
                     case EStackItemType.Integer:
                         {
-                            deserialized.Push(engine.CreateInteger(new BigInteger(reader.ReadVarBytes())));
+                            deserialized.Push(stack.CreateInteger(new BigInteger(reader.ReadVarBytes())));
                             break;
                         }
                     case EStackItemType.Array:
@@ -121,7 +121,7 @@ namespace NeoSharp.VM
                         {
                             var count = (int)reader.ReadVarInt(MaxArraySize);
 
-                            deserialized.Push(engine.CreateInterop(new ContainerPlaceholder
+                            deserialized.Push(stack.CreateInterop(new ContainerPlaceholder
                             {
                                 Type = type,
                                 ElementCount = count
@@ -134,7 +134,7 @@ namespace NeoSharp.VM
                         {
                             var count = (int)reader.ReadVarInt(MaxArraySize);
 
-                            deserialized.Push(engine.CreateInterop(new ContainerPlaceholder
+                            deserialized.Push(stack.CreateInterop(new ContainerPlaceholder
                             {
                                 Type = type,
                                 ElementCount = count
@@ -162,7 +162,7 @@ namespace NeoSharp.VM
                     {
                         case EStackItemType.Array:
                             {
-                                var array = engine.CreateArray();
+                                var array = stack.CreateArray();
 
                                 for (var i = 0; i < placeholder.ElementCount; i++)
                                 {
@@ -177,7 +177,7 @@ namespace NeoSharp.VM
                             }
                         case EStackItemType.Struct:
                             {
-                                var @struct = engine.CreateStruct();
+                                var @struct = stack.CreateStruct();
 
                                 for (var i = 0; i < placeholder.ElementCount; i++)
                                 {
@@ -192,7 +192,7 @@ namespace NeoSharp.VM
                             }
                         case EStackItemType.Map:
                             {
-                                var map = engine.CreateMap();
+                                var map = stack.CreateMap();
 
                                 for (var i = 0; i < placeholder.ElementCount; i++)
                                 {
@@ -212,14 +212,7 @@ namespace NeoSharp.VM
                 stackTemp.Push(item);
             }
 
-            var ret = stackTemp.Pop();
-
-            foreach (var it in stackTemp)
-            {
-                it.Dispose();
-            }
-
-            return ret;
+            return stackTemp.Pop();
         }
     }
 }
