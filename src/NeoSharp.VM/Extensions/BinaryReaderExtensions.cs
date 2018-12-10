@@ -6,7 +6,7 @@ namespace NeoSharp.VM.Extensions
 {
     public static class BinaryReaderExtensions
     {
-        public static byte[] ReadVarBytes(this BinaryReader reader, int max = 0X7fffffc7)
+        public static byte[] ReadVarBytes(this BinaryReader reader, int max = 0x1000000)
         {
             return reader.ReadBytes((int)reader.ReadVarInt((ulong)max));
         }
@@ -30,7 +30,7 @@ namespace NeoSharp.VM.Extensions
             return value;
         }
 
-        public static string ReadVarString(this BinaryReader reader, int max = 0X7fffffc7)
+        public static string ReadVarString(this BinaryReader reader, int max = 0x1000000)
         {
             return Encoding.UTF8.GetString(reader.ReadVarBytes(max));
         }
