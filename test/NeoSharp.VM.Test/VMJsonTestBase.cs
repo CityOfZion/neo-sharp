@@ -135,7 +135,7 @@ namespace NeoSharp.VM.Test
 
                             // Review results
 
-                            var add = string.IsNullOrEmpty(step.Comment) ? "" : "-" + step.Comment;
+                            var add = string.IsNullOrEmpty(step.Name) ? "" : "-" + step.Name;
 
                             AssertResult(engine, step.State, logBag, notBag, $"{ut.Category}-{ut.Name}{add}: ");
                         }
@@ -219,6 +219,21 @@ namespace NeoSharp.VM.Test
 
                         ret["type"] = VMUTStackItemType.ByteArray.ToString();
                         ret["value"] = Encoding.UTF8.GetBytes(item.Value.Value<string>());
+                        break;
+                    }
+                case VMUTStackItemType.ByteArray:
+                    {
+                        var value = ret["value"].Value<string>();
+
+                        if (value.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            ret["value"] = value.FromHexString();
+                        }
+                        else
+                        {
+                            ret["value"] = Convert.FromBase64String(value);
+                        }
+
                         break;
                     }
                 case VMUTStackItemType.Integer:

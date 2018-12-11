@@ -1,0 +1,60 @@
+﻿{
+    "category": "Push",
+    "name": "PUSHDATA1",
+    "tests":
+    [
+        {
+            "name": "Good definition",
+            "script": "0x4C0401020304",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 0,
+                        "resultStack":
+                        [
+                            {
+                                "type": "ByteArray",
+                                "value": "0x01020304"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Without enough length",
+            "script": "0x4C0501020304",
+            "trigger": "Application",
+            "#steps":
+            [
+                {
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x6F3F3E648B48C56174B72A768DBBA3928F2A9363",
+                                "instructionPointer": 6,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

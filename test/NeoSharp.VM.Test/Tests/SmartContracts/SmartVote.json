@@ -19,7 +19,7 @@
             "steps":
             [
                 {
-                    "comment": "Register, vote and count proposals [Without NEP8]",
+                    "name": "Register, vote and count proposals [Without NEP8]",
                     "actions":
                     [
                         "Execute"
@@ -89,7 +89,7 @@
             "steps":
             [
                 {
-                    "comment": "Register, vote and count proposals [NEP8]",
+                    "name": "Register, vote and count proposals [NEP8]",
                     "actions":
                     [
                         "Execute"

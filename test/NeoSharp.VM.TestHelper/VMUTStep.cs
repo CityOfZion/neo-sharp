@@ -5,7 +5,7 @@ namespace NeoSharp.VM.TestHelper
     public class VMUTStep
     {
         [JsonProperty]
-        public string Comment { get; set; }
+        public string Name { get; set; }
 
         [JsonProperty]
         public VMUTActionType[] Actions { get; set; }

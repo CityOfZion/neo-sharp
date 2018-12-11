@@ -25,19 +25,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Tests\Exceptions\THROWIFNOT.json">
+    <None Update="Tests\OpCodes\Exceptions\THROWIFNOT.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\Exceptions\THROW.json">
+    <None Update="Tests\OpCodes\Exceptions\THROW.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\Limits\Stack_Limits.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\OpCodes\Push\PUSHDATA4.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\OpCodes\Push\PUSHDATA2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Tests\OpCodes\Push\PUSHDATA1.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Tests\sample.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\Real SmartContracts\smartVote.json">
+    <None Update="Tests\SmartContracts\SmartVote.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Tests\Push\PUSHM1_to_PUSH16.json">
+    <None Update="Tests\OpCodes\Push\PUSHM1_to_PUSH16.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

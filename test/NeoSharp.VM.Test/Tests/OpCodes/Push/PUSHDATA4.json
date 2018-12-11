@@ -1,0 +1,87 @@
+﻿{
+    "category": "Push",
+    "name": "PUSHDATA4",
+    "tests":
+    [
+        {
+            "name": "Good definition",
+            "script": "0x4E0400000001020304",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 0,
+                        "resultStack":
+                        [
+                            {
+                                "type": "ByteArray",
+                                "value": "0x01020304"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Check limit (MaxItemSize = 1024 * 1024)",
+            "script": "0x4E0010000101020304",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x3F2007756ADA6E9A013D34D0CF5F3253EAC15060",
+                                "instructionPointer": 0,
+                                "nextInstruction": "PUSHDATA4"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Without enough length",
+            "script": "0x4E0500000001020304",
+            "trigger": "Application",
+            "#steps":
+            [
+                {
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x7437F66E9C9EC44FE92AEB5CE8813439FD8464AF",
+                                "instructionPointer": 9,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
