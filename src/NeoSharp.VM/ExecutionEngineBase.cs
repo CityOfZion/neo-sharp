@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace NeoSharp.VM
@@ -154,6 +152,18 @@ namespace NeoSharp.VM
         /// Step Into
         /// </summary>
         public abstract void StepInto();
+
+        /// <summary>
+        /// Step Into
+        /// </summary>
+        /// <param name="steps">Steps</param>
+        public void StepInto(int steps)
+        {
+            while (steps-- > 0 && State == EVMState.None)
+            {
+                StepInto();
+            }
+        }
 
         /// <summary>
         /// Step Out
