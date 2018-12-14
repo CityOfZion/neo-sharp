@@ -21,10 +21,7 @@ namespace NeoSharp.VM
             return false;
         }
 
-        /// <summary>
-        /// Is not possible to convert to byte array
-        /// </summary>
-        /// <returns>NULL</returns>
+        /// <inheritdoc />
         public override byte[] ToByteArray() => null;
 
         /// <summary>
@@ -39,6 +36,11 @@ namespace NeoSharp.VM
         public override bool Equals(object obj)
         {
             return Equals(obj as InteropStackItemBase<T>);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

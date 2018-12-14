@@ -1,14 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="RocksDbNative" Version="5.4.6.10" />
     <PackageReference Include="RocksDbSharp" Version="5.4.6.11" />
   </ItemGroup>
@@ -16,9 +12,4 @@
   <ItemGroup>
     <ProjectReference Include="..\NeoSharp.Core\NeoSharp.Core.csproj" />
   </ItemGroup>
-
-	<PropertyGroup>
-		<CodeAnalysisRuleSet>ca.ruleset</CodeAnalysisRuleSet>
-		<LangVersion>7.1</LangVersion>
-	</PropertyGroup>
 </Project>

@@ -176,5 +176,10 @@ namespace NeoSharp.VM
         {
             return Equals(obj as ArrayStackItemBase);
         }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Count, IsStruct, IsReadOnly);
+        }
     }
 }

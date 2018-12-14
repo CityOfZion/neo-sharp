@@ -10,6 +10,7 @@ namespace NeoSharp.VM
 {
     public abstract class ByteArrayStackItemBase : StackItem<byte[]>, IEquatable<ByteArrayStackItemBase>
     {
+        /// <inheritdoc />
         public override byte[] ToByteArray() => Value;
 
         /// <summary>
@@ -51,6 +52,11 @@ namespace NeoSharp.VM
         public override bool Equals(object obj)
         {
             return Equals(obj as ByteArrayStackItemBase);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

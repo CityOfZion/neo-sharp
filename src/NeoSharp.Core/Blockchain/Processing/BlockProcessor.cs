@@ -78,14 +78,14 @@ namespace NeoSharp.Core.Blockchain.Processing
         }
 
         /// <inheritdoc />
-        public async Task AddBlock(Block block)
+        public Task AddBlock(Block block)
         {
             if (block == null) throw new ArgumentNullException(nameof(block));
 
             var currentBlockHeight = _blockchainContext.CurrentBlock?.Index ?? -1U;
             if (currentBlockHeight >= block.Index || block.Index > currentBlockHeight + _blockPool.Capacity)
             {
-                return;
+                return Task.CompletedTask;
             }
 
             if (block.Hash == null)
@@ -100,6 +100,8 @@ namespace NeoSharp.Core.Blockchain.Processing
             {
                 _logger.LogWarning($"The block \"{blockHash.ToString(true)}\" was already queued to be added.");
             }
+
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc />

@@ -9,7 +9,6 @@ using NeoSharp.Types;
 
 namespace NeoSharp.Core.Models
 {
-    [Obsolete]
     [BinaryTypeSerializer(typeof(TransactionSerializer))]
     public class PublishTransaction : Transaction
     {

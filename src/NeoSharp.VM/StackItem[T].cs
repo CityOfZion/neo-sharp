@@ -1,4 +1,6 @@
-﻿namespace NeoSharp.VM
+﻿using System;
+
+namespace NeoSharp.VM
 {
     public abstract class StackItem<T> : StackItemBase
     {
@@ -30,6 +32,11 @@
         public override string ToString()
         {
             return Value?.ToString();
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(base.GetHashCode(), Value);
         }
     }
 }

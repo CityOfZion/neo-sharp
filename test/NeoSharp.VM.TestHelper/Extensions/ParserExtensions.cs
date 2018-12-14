@@ -19,9 +19,9 @@ namespace NeoSharp.VM.TestHelper.Extensions
                 Formatting = Formatting.Indented
             };
 
-            _settings.Converters.Add(new StringEnumConverter()
+            _settings.Converters.Add(new StringEnumConverter
             {
-                CamelCaseText = true,
+                NamingStrategy = new CamelCaseNamingStrategy()
             });
         }
 

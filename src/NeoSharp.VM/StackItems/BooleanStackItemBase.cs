@@ -7,6 +7,7 @@ namespace NeoSharp.VM
         protected static readonly byte[] True = { 1 };
         protected static readonly byte[] False = Array.Empty<byte>();
 
+        /// <inheritdoc />
         public override byte[] ToByteArray() => Value ? True : False;
 
         /// <inheritdoc />
@@ -29,6 +30,11 @@ namespace NeoSharp.VM
         public override bool Equals(object obj)
         {
             return Equals(obj as BooleanStackItemBase);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

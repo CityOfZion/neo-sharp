@@ -29,5 +29,10 @@ namespace NeoSharp.VM
         {
             return Equals(obj as IntegerStackItemBase);
         }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }

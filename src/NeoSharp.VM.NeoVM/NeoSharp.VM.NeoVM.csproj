@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,5 +13,4 @@
     <ProjectReference Include="..\NeoSharp.Cryptography\NeoSharp.Cryptography.csproj" />
     <ProjectReference Include="..\NeoSharp.Types\NeoSharp.Types.csproj" />
   </ItemGroup>
-
 </Project>

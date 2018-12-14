@@ -50,6 +50,11 @@ namespace NeoSharp.VM
             return Equals(obj as StackItemBase);
         }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Type, IsDisposed);
+        }
+
         #region IDisposable Support
 
         /// <summary>

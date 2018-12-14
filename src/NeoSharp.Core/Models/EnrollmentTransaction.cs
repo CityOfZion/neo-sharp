@@ -6,7 +6,6 @@ using NeoSharp.Core.Cryptography;
 
 namespace NeoSharp.Core.Models
 {
-    [Obsolete]
     [BinaryTypeSerializer(typeof(TransactionSerializer))]
     public class EnrollmentTransaction : Transaction
     {

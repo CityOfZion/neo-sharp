@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Converters;
 using NeoSharp.Core.Cryptography;
@@ -7,7 +6,6 @@ using NeoSharp.Types;
 
 namespace NeoSharp.Core.Models
 {
-    [Obsolete]
     [BinaryTypeSerializer(typeof(TransactionSerializer))]
     public class RegisterTransaction : Transaction
     {

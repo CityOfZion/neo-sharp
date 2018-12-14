@@ -1,17 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-
     <IsPackable>false</IsPackable>
+    <LangVersion>7.1</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="5.5.3" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.4.0" />
     <PackageReference Include="MSTest.TestFramework" Version="1.4.0" />
@@ -29,9 +24,4 @@
     <ProjectReference Include="..\..\src\NeoSharp.Core\NeoSharp.Core.csproj" />
     <ProjectReference Include="..\..\src\NeoSharp.Persistence.RedisDB\NeoSharp.Persistence.RedisDB.csproj" />
   </ItemGroup>
-
-  <PropertyGroup>
-		<CodeAnalysisRuleSet>ca.ruleset</CodeAnalysisRuleSet>
-		<LangVersion>7.1</LangVersion>
-	</PropertyGroup>
 </Project>
