@@ -122,20 +122,6 @@ namespace NeoSharp.Core.VM
             interopService.RegisterStackMethod("Neo.Contract.GetScript", Contract_GetScript);
             interopService.RegisterStackMethod("Neo.Contract.IsPayable", Contract_IsPayable);
             interopService.RegisterStackMethod("Neo.Storage.Find", Storage_Find);
-            // TODO: APIs for enumeration and iteration
-            //interopService.RegisterStackMethod("Neo.Enumerator.Create", Enumerator_Create);
-            //interopService.RegisterStackMethod("Neo.Enumerator.Next", Enumerator_Next);
-            //interopService.RegisterStackMethod("Neo.Enumerator.Value", Enumerator_Value);
-            //interopService.RegisterStackMethod("Neo.Enumerator.Concat", Enumerator_Concat);
-            //interopService.RegisterStackMethod("Neo.Iterator.Create", Iterator_Create);
-            //interopService.RegisterStackMethod("Neo.Iterator.Key", Iterator_Key);
-            //interopService.RegisterStackMethod("Neo.Iterator.Keys", Iterator_Keys);
-            //interopService.RegisterStackMethod("Neo.Iterator.Values", Iterator_Values);
-
-            #region Aliases
-            //interopService.RegisterStackMethod("Neo.Iterator.Next", Enumerator_Next);
-            //interopService.RegisterStackMethod("Neo.Iterator.Value", Enumerator_Value);
-            #endregion
 
             #region Old APIs
             interopService.RegisterStackMethod("Neo.Runtime.GetTrigger", Runtime_GetTrigger);
@@ -910,12 +896,15 @@ namespace NeoSharp.Core.VM
                 prefixKey = storageContext.ScriptHash.ToArray().Concat(ms.ToArray()).ToArray();
             }
 
-            var iterator = Storages.Find(prefixKey)
+            // TODO: Find a better way not to expose StackItem types or Create* methods
+            var enumerator = Storages.Find(prefixKey)
                 .Where(p => p.Key.Key.Take(prefix.Length).SequenceEqual(prefix))
+                .Select(p => new KeyValuePair<StackItemBase, StackItemBase>(stack.CreateByteArray(p.Key.Key), stack.CreateByteArray(p.Value.Value)))
                 .GetEnumerator();
+            var keyEnumerator = new KeyEnumerator(enumerator);
 
-            stack.PushObject(iterator);
-            _disposables.Add(iterator);
+            stack.PushObject(keyEnumerator);
+            _disposables.Add(keyEnumerator);
 
             return true;
         }
@@ -935,94 +924,5 @@ namespace NeoSharp.Core.VM
 
             return true;
         }
-
-        //protected virtual bool Enumerator_Create(Stack stack)
-        //{
-        //    var array = stack.PopArray();
-        //    if (array == null) return false;
-
-        //    stack.Push(array.GetEnumerator());
-
-        //    return true;
-        //}
-
-        //protected virtual bool Enumerator_Next(Stack stack)
-        //{
-        //    var enumerator = stack.Pop<IEnumerator>();
-        //    if (enumerator == null) return false;
-
-        //    enumerator.MoveNext();
-
-        //    stack.Push(enumerator);
-
-        //    return true;
-        //}
-
-        //protected virtual bool Enumerator_Value(Stack stack)
-        //{
-        //    var enumerator = stack.Pop<IEnumerator>();
-        //    if (enumerator == null) return false;
-
-        //    stack.Push(enumerator.Current);
-
-        //    return true;
-        //}
-
-        //protected virtual bool Enumerator_Concat(Stack stack)
-        //{
-        //    var enumerator1 = stack.Pop<IEnumerator>();
-        //    if (enumerator1 == null) return false;
-
-        //    var enumerator2 = stack.Pop<IEnumerator>();
-        //    if (enumerator2 == null) return false;
-
-        //    IEnumerator result = new ConcatEnumerator(first, second);
-        //    stack.Push(StackItem.FromInterface(result));
-        //    return true;
-        //}
-
-        //protected virtual bool Iterator_Create(Stack stack)
-        //{
-        //    if (stack.Pop() is Map map)
-        //    {
-        //        IIterator iterator = new MapWrapper(map);
-        //        stack.Push(StackItem.FromInterface(iterator));
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
-        //protected virtual bool Iterator_Key(Stack stack)
-        //{
-        //    if (stack.Pop() is InteropInterface _interface)
-        //    {
-        //        IIterator iterator = _interface.GetInterface<IIterator>();
-        //        stack.Push(iterator.Key());
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
-        //protected virtual bool Iterator_Keys(Stack stack)
-        //{
-        //    if (stack.Pop() is InteropInterface _interface)
-        //    {
-        //        IIterator iterator = _interface.GetInterface<IIterator>();
-        //        stack.Push(StackItem.FromInterface(new IteratorKeysWrapper(iterator)));
-        //        return true;
-        //    }
-        //    return false;
-        //}
-
-        //protected virtual bool Iterator_Values(Stack stack)
-        //{
-        //    if (stack.Pop() is InteropInterface _interface)
-        //    {
-        //        IIterator iterator = _interface.GetInterface<IIterator>();
-        //        stack.Push(StackItem.FromInterface(new IteratorValuesWrapper(iterator)));
-        //        return true;
-        //    }
-        //    return false;
-        //}
     }
 }

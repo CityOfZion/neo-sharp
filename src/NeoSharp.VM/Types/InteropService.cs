@@ -61,16 +61,28 @@ namespace NeoSharp.VM
         /// </summary>
         public InteropService()
         {
-            Register("Neo.Runtime.GetTrigger", NeoRuntimeGetTrigger, 1);
-            Register("Neo.Runtime.Log", NeoRuntimeLog, 1);
-            Register("Neo.Runtime.Notify", NeoRuntimeNotify, 1);
-            Register("Neo.Runtime.Serialize", "System.Runtime.Serialize", RuntimeSerialize, 1);
-            Register("Neo.Runtime.Deserialize", "System.Runtime.Deserialize", RuntimeDeserialize, 1);
+            Register("Neo.Runtime.GetTrigger", NeoRuntimeGetTrigger);
+            Register("Neo.Runtime.Log", NeoRuntimeLog);
+            Register("Neo.Runtime.Notify", NeoRuntimeNotify);
+            Register("Neo.Runtime.Serialize", "System.Runtime.Serialize", RuntimeSerialize);
+            Register("Neo.Runtime.Deserialize", "System.Runtime.Deserialize", RuntimeDeserialize);
 
-            Register("System.ExecutionEngine.GetScriptContainer", GetScriptContainer, 1);
-            Register("System.ExecutionEngine.GetExecutingScriptHash", GetExecutingScriptHash, 1);
-            Register("System.ExecutionEngine.GetCallingScriptHash", GetCallingScriptHash, 1);
-            Register("System.ExecutionEngine.GetEntryScriptHash", GetEntryScriptHash, 1);
+            Register("System.ExecutionEngine.GetScriptContainer", GetScriptContainer);
+            Register("System.ExecutionEngine.GetExecutingScriptHash", GetExecutingScriptHash);
+            Register("System.ExecutionEngine.GetCallingScriptHash", GetCallingScriptHash);
+            Register("System.ExecutionEngine.GetEntryScriptHash", GetEntryScriptHash);
+
+            Register("Neo.Enumerator.Create", GetEnumerator);
+            Register("Neo.Enumerator.Next", MoveNextEnumerator);
+            Register("Neo.Enumerator.Value", GetEnumeratorValue);
+            Register("Neo.Enumerator.Concat", ConcatEnumerators);
+            Register("Neo.Iterator.Create", GetMapEnumerator);
+            Register("Neo.Iterator.Key", GetMapEnumeratorKey);
+            Register("Neo.Iterator.Keys", GetKeyEnumerator);
+            Register("Neo.Iterator.Values", GetValueEnumerator);
+
+            Register("Neo.Iterator.Next", MoveNextEnumerator);
+            Register("Neo.Iterator.Value", GetEnumeratorValue);
         }
 
         /// <summary>
@@ -228,22 +240,19 @@ namespace NeoSharp.VM
             var ctx = engine.CurrentContext;
             if (ctx == null) return false;
 
-            if (!ctx.EvaluationStack.TryPop(out StackItemBase it))
+            if (!ctx.EvaluationStack.TryPop(out var stackItem))
             {
                 return false;
             }
 
-            using (it)
+            using (stackItem)
             {
                 if (OnLog == null)
                 {
                     return true;
                 }
 
-                // Get string
-
-                var message = it.ToString();
-                RaiseOnLog(new LogEventArgs(ctx.ScriptHash, message ?? ""));
+                RaiseOnLog(new LogEventArgs(ctx.ScriptHash, stackItem.ToString() ?? ""));
             }
 
             return true;
@@ -254,14 +263,14 @@ namespace NeoSharp.VM
             var ctx = engine.CurrentContext;
             if (ctx == null) return false;
 
-            if (!ctx.EvaluationStack.TryPop(out StackItemBase it))
+            if (!ctx.EvaluationStack.TryPop(out var stackItem))
             {
                 return false;
             }
 
-            using (it)
+            using (stackItem)
             {
-                RaiseOnNotify(new NotifyEventArgs(ctx.ScriptHash, it));
+                RaiseOnNotify(new NotifyEventArgs(ctx.ScriptHash, stackItem));
             }
 
             return true;
@@ -308,6 +317,112 @@ namespace NeoSharp.VM
             if (ctx == null) return false;
 
             ctx.EvaluationStack.Push(ctx.ScriptHash);
+
+            return true;
+        }
+
+        private static bool GetEnumerator(ExecutionEngineBase engine)
+        {
+            var stack = engine.CallingContext?.EvaluationStack;
+            if (stack == null) return false;
+            if (!stack.TryPop(out var stackItem)) return false;
+
+            using (stackItem)
+            {
+                if (!(stackItem is ArrayStackItemBase array)) return false;
+
+                stack.Push(stack.CreateInterop(array.GetEnumerator()));
+            }
+
+            return true;
+        }
+
+        private static bool MoveNextEnumerator(ExecutionEngineBase engine)
+        {
+            var stack = engine.CallingContext?.EvaluationStack;
+            var enumerator = stack?.PopObject<IEnumerator<StackItemBase>>();
+            if (enumerator == null) return false;
+
+            stack.Push(enumerator.MoveNext());
+
+            return true;
+        }
+
+        private static bool GetEnumeratorValue(ExecutionEngineBase engine)
+        {
+            var stack = engine.CallingContext?.EvaluationStack;
+            var enumerator = stack?.PopObject<IEnumerator<StackItemBase>>();
+            if (enumerator == null) return false;
+
+            stack.Push(enumerator.Current);
+
+            return true;
+        }
+
+        private static bool ConcatEnumerators(ExecutionEngineBase engine)
+        {
+            var stack = engine.CallingContext?.EvaluationStack;
+            var enumerator1 = stack?.PopObject<IEnumerator<StackItemBase>>();
+            if (enumerator1 == null) return false;
+            var enumerator2 = stack.PopObject<IEnumerator<StackItemBase>>();
+            if (enumerator2 == null) return false;
+
+            var concatenatedEnumerator = new ConcatenatedEnumerator(enumerator1, enumerator2);
+
+            stack.Push(stack.CreateInterop(concatenatedEnumerator));
+
+            return true;
+        }
+
+        private static bool GetMapEnumerator(ExecutionEngineBase engine)
+        {
+            var stack = engine.CallingContext?.EvaluationStack;
+            if (stack == null) return false;
+            if (!stack.TryPop(out var stackItem)) return false;
+
+            using (stackItem)
+            {
+                if (!(stackItem is MapStackItemBase map)) return false;
+
+                stack.Push(stack.CreateInterop(new KeyEnumerator(map.GetEnumerator())));
+            }
+
+            return true;
+        }
+
+        private static bool GetMapEnumeratorKey(ExecutionEngineBase engine)
+        {
+            var stack = engine.CallingContext?.EvaluationStack;
+            var keyEnumerator = stack?.PopObject<KeyEnumerator>();
+            if (keyEnumerator == null) return false;
+
+            stack.Push(keyEnumerator.CurrentKey);
+
+            return false;
+        }
+
+        private static bool GetKeyEnumerator(ExecutionEngineBase engine)
+        {
+            var stack = engine.CallingContext?.EvaluationStack;
+            var keyEnumerator = stack?.PopObject<KeyEnumerator>();
+            if (keyEnumerator == null) return false;
+
+            var projectingEnumerator = new ProjectingEnumerator<KeyEnumerator>(keyEnumerator, ke => ke.CurrentKey);
+
+            stack.Push(stack.CreateInterop(projectingEnumerator));
+
+            return true;
+        }
+
+        private static bool GetValueEnumerator(ExecutionEngineBase engine)
+        {
+            var stack = engine.CallingContext?.EvaluationStack;
+            var keyEnumerator = stack?.PopObject<KeyEnumerator>();
+            if (keyEnumerator == null) return false;
+
+            var projectingEnumerator = new ProjectingEnumerator<KeyEnumerator>(keyEnumerator, ke => ke.Current);
+
+            stack.Push(stack.CreateInterop(projectingEnumerator));
 
             return true;
         }

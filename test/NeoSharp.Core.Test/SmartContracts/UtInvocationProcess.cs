@@ -14,10 +14,8 @@ namespace NeoSharp.Core.Test.SmartContracts
         public void TestInvoke()
         {
             var scriptHash = new UInt160();
-
             var nullExecutionEngine = new NullExecutionEngine();
-
-            var stackItemStackMock = new NullStack(nullExecutionEngine);
+            var stackItemStackMock = new NullStack();
 
             nullExecutionEngine.PublicStackItemsStack = stackItemStackMock;
 
@@ -34,8 +32,7 @@ namespace NeoSharp.Core.Test.SmartContracts
         public void TestInvokeScriptNull()
         {
             var nullExecutionEngine = new NullExecutionEngine();
-
-            var stackItemStackMock = new NullStack(nullExecutionEngine);
+            var stackItemStackMock = new NullStack();
 
             nullExecutionEngine.PublicStackItemsStack = stackItemStackMock;
 
@@ -52,10 +49,8 @@ namespace NeoSharp.Core.Test.SmartContracts
         public void TestInvokeContractNull()
         {
             var scriptHash = new UInt160();
-
             var nullExecutionEngine = new NullExecutionEngine();
-
-            var stackItemStackMock = new NullStack(nullExecutionEngine);
+            var stackItemStackMock = new NullStack();
 
             nullExecutionEngine.PublicStackItemsStack = stackItemStackMock;
 

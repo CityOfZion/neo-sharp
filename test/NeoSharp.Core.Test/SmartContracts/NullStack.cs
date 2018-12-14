@@ -7,51 +7,47 @@ namespace NeoSharp.Core.Test.SmartContracts
 {
     public class NullStack : Stack
     {
-        public NullStack(ExecutionEngineBase executionEngine) : base()
-        {
-        }
-
-        protected override ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null)
+        public override ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null)
         {
             return null;
         }
 
-        protected override BooleanStackItemBase CreateBool(bool value)
+        public override BooleanStackItemBase CreateBool(bool value)
         {
             return null;
         }
 
-        protected override ByteArrayStackItemBase CreateByteArray(byte[] data)
+        public override ByteArrayStackItemBase CreateByteArray(byte[] data)
         {
             return null;
         }
 
-        protected override IntegerStackItemBase CreateInteger(int value)
+        public override IntegerStackItemBase CreateInteger(int value)
         {
             return null;
         }
 
-        protected override IntegerStackItemBase CreateInteger(long value)
+        public override IntegerStackItemBase CreateInteger(long value)
         {
             return null;
         }
 
-        protected override IntegerStackItemBase CreateInteger(BigInteger value)
+        public override IntegerStackItemBase CreateInteger(BigInteger value)
         {
             return null;
         }
 
-        protected override InteropStackItemBase<T> CreateInterop<T>(T obj)
+        public override InteropStackItemBase<T> CreateInterop<T>(T obj)
         {
             return null;
         }
 
-        protected override MapStackItemBase CreateMap()
+        public override MapStackItemBase CreateMap()
         {
             return null;
         }
 
-        protected override ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null)
+        public override ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null)
         {
             return null;
         }

@@ -20,47 +20,47 @@ namespace NeoSharp.VM.NeoVM
 
         #region Create items
 
-        protected override ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null)
+        public override ArrayStackItemBase CreateArray(IEnumerable<StackItemBase> items = null)
         {
             return new ArrayStackItem(items);
         }
 
-        protected override ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null)
+        public override ArrayStackItemBase CreateStruct(IEnumerable<StackItemBase> items = null)
         {
             return new StructStackItem(items);
         }
 
-        protected override BooleanStackItemBase CreateBool(bool value)
+        public override BooleanStackItemBase CreateBool(bool value)
         {
             return new BooleanStackItem(value);
         }
 
-        protected override ByteArrayStackItemBase CreateByteArray(byte[] data)
+        public override ByteArrayStackItemBase CreateByteArray(byte[] data)
         {
             return new ByteArrayStackItem(data);
         }
 
-        protected override IntegerStackItemBase CreateInteger(BigInteger value)
+        public override IntegerStackItemBase CreateInteger(BigInteger value)
         {
             return new IntegerStackItem(value);
         }
 
-        protected override IntegerStackItemBase CreateInteger(int value)
+        public override IntegerStackItemBase CreateInteger(int value)
         {
             return new IntegerStackItem(value);
         }
 
-        protected override IntegerStackItemBase CreateInteger(long value)
+        public override IntegerStackItemBase CreateInteger(long value)
         {
             return new IntegerStackItem(value);
         }
 
-        protected override InteropStackItemBase<T> CreateInterop<T>(T obj)
+        public override InteropStackItemBase<T> CreateInterop<T>(T obj)
         {
             return new InteropStackItem<T>(obj);
         }
 
-        protected override MapStackItemBase CreateMap()
+        public override MapStackItemBase CreateMap()
         {
             return new MapStackItem();
         }
