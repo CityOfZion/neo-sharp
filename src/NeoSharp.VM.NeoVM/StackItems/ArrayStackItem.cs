@@ -26,7 +26,7 @@ namespace NeoSharp.VM.NeoVM.StackItems
             }
         }
 
-        public ArrayStackItem(Neo.VM.Types.Array item) : base(true)
+        public ArrayStackItem(Neo.VM.Types.Array item) : base(false)
         {
             _item = item;
         }

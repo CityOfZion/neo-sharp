@@ -9,15 +9,11 @@ namespace NeoSharp.VM.Test
     {
         private readonly IDictionary<StorageKey, StorageValue> _storage = new Dictionary<StorageKey, StorageValue>();
 
-        public override void DeleteInternal(StorageKey key)
-        {
-            _storage.Remove(key);
-        }
+        public override void DeleteInternal(StorageKey key) => _storage.Remove(key);
 
-        protected override void AddInternal(StorageKey key, StorageValue value)
-        {
-            _storage.Add(key, value);
-        }
+        protected override void AddInternal(StorageKey key, StorageValue value) => _storage.Add(key, value);
+
+        protected override void UpdateInternal(StorageKey key, StorageValue value) => _storage[key] = value;
 
         protected override IEnumerable<KeyValuePair<StorageKey, StorageValue>> FindInternal(byte[] key_prefix)
         {
@@ -39,11 +35,6 @@ namespace NeoSharp.VM.Test
             }
 
             return null;
-        }
-
-        protected override void UpdateInternal(StorageKey key, StorageValue value)
-        {
-            _storage[key] = value;
         }
     }
 }

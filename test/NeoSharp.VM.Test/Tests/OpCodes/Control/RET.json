@@ -1,9 +1,10 @@
 ﻿{
-    "category": "ControlFlow",
+    "category": "Control",
     "name": "RET",
     "tests":
     [
         {
+            "name": "Real test",
             "script": "0x66",
             "trigger": "Application",
             "steps":
@@ -11,7 +12,7 @@
                 {
                     "actions":
                     [
-                        "Execute"
+                        "StepInto"
                     ],
                     "state":
                     {

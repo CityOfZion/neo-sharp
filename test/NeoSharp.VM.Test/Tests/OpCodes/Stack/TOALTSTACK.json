@@ -1,0 +1,80 @@
+﻿{
+    "category": "Stack",
+    "name": "TOALTSTACK",
+    "tests":
+    [
+        {
+            "name": "Without push",
+            "script": "0x6B",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xFFE12A1A4B38AA3A0F147BF4E57E41FC82A17206",
+                                "instructionPointer": 1,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Real test",
+            "script": "0x556B",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xF1B26DF541F9D4D406F78B2824E2F80DA54D96A5",
+                                "instructionPointer": 2,
+                                "nextInstruction": "RET",
+                                "altStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 5
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 100000
+                    }
+                }
+            ]
+        }
+    ]
+}

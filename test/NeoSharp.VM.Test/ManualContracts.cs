@@ -10,10 +10,11 @@ namespace NeoSharp.VM.Test
     {
         private readonly IDictionary<UInt160, Contract> _entries = new Dictionary<UInt160, Contract>();
 
-        public override void DeleteInternal(UInt160 key)
-        {
-            _entries.Remove(key);
-        }
+        public override void DeleteInternal(UInt160 key) => _entries.Remove(key);
+
+        protected override void UpdateInternal(UInt160 key, Contract value) => _entries[key] = value;
+
+        protected override void AddInternal(UInt160 key, Contract value) => _entries[key] = value;
 
         public byte[] GetScript(byte[] scriptHash, bool isDynamicInvoke)
         {
@@ -25,11 +26,6 @@ namespace NeoSharp.VM.Test
             }
 
             return null;
-        }
-
-        protected override void AddInternal(UInt160 key, Contract value)
-        {
-            _entries[key] = value;
         }
 
         protected override IEnumerable<KeyValuePair<UInt160, Contract>> FindInternal(byte[] key_prefix)
@@ -47,11 +43,6 @@ namespace NeoSharp.VM.Test
             if (!_entries.TryGetValue(key, out var value)) return null;
 
             return value;
-        }
-
-        protected override void UpdateInternal(UInt160 key, Contract value)
-        {
-            _entries[key] = value;
         }
     }
 }

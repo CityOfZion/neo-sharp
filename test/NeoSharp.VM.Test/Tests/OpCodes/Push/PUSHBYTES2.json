@@ -1,0 +1,86 @@
+﻿{
+    "category": "Push",
+    "name": "PUSHBYTES2",
+    "tests":
+    [
+        {
+            "name": "Good definition",
+            "script": "0x020001",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x70514ECE2861C1FA30325ACA43C139FEDBCF6D4E",
+                                "instructionPointer": 3,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "ByteArray",
+                                        "value": "0x0001"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 0,
+                        "resultStack":
+                        [
+                            {
+                                "type": "ByteArray",
+                                "value": "0x0001"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Wrong definition (without enough length)",
+            "script": "0x0200",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x2DFFE6985B066C4A37DA765149E3F5A06E1626C6",
+                                "instructionPointer": 2,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

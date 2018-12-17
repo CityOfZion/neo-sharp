@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using NeoSharp.BinarySerialization;
+using NeoSharp.Cryptography;
 using NeoSharp.Types;
 using Newtonsoft.Json;
 
@@ -21,6 +22,7 @@ namespace NeoSharp.Core.Models
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
+
             return Equals(ScriptHash, other.ScriptHash) && Key.SequenceEqual(other.Key);
         }
 
@@ -28,17 +30,14 @@ namespace NeoSharp.Core.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((StorageKey) obj);
+            if (obj.GetType() != GetType()) return false;
+
+            return Equals((StorageKey)obj);
         }
 
         public override int GetHashCode()
         {
-            // TODO: return ScriptHash.GetHashCode() + (int)Key.Murmur32(0); in NEO
-            unchecked
-            {
-                return ((ScriptHash != null ? ScriptHash.GetHashCode() : 0) * 397) ^ (Key != null ? Key.GetHashCode() : 0);
-            }
+            return ScriptHash.GetHashCode() + (int)Crypto.Default.Murmur32(Key, 0);
         }
     }
 }

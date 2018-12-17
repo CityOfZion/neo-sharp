@@ -25,6 +25,9 @@ namespace NeoSharp.VM.TestHelper
         public IList<ScriptEntry> ScriptTable { get; set; }
 
         [JsonProperty, JsonConverter(typeof(ScriptConverter))]
+        public byte[] Message { get; set; }
+
+        [JsonProperty, JsonConverter(typeof(ScriptConverter))]
         public byte[] Script { get; set; }
 
         [JsonProperty]

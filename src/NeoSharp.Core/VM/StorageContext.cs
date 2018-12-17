@@ -2,14 +2,29 @@
 
 namespace NeoSharp.Core.VM
 {
-    internal class StorageContext
+    public class StorageContext
     {
-        public UInt160 ScriptHash;
-        public bool IsReadOnly;
+        /// <summary>
+        /// Script hash
+        /// </summary>
+        public readonly UInt160 ScriptHash;
 
-        public byte[] ToArray()
+        /// <summary>
+        /// Is readonly?
+        /// </summary>
+        public readonly bool IsReadOnly;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="scriptHash">Script hash</param>
+        /// <param name="isReadOnly">Is read only</param>
+        public StorageContext(UInt160 scriptHash,bool isReadOnly)
         {
-            return ScriptHash.ToArray();
+            ScriptHash = scriptHash;
+            IsReadOnly = isReadOnly;
         }
+
+        public byte[] ToArray() => ScriptHash.ToArray();
     }
 }

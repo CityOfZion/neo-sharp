@@ -1,0 +1,49 @@
+﻿{
+    "category": "Others",
+    "name": "Init",
+    "tests":
+    [
+        {
+            "name": "Init script",
+            "script": "0x66",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x9B4A30911C6BCD2921CD153A2956DA397B5793A4",
+                                "instructionPointer": 0,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Init script",
+            "script": "0x66",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 100000
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,86 @@
+﻿{
+    "category": "Push",
+    "name": "PUSHBYTES47",
+    "tests":
+    [
+        {
+            "name": "Good definition",
+            "script": "0x2F000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F202122232425262728292A2B2C2D2E",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x36F5FE169DD886FE39D493587951A27F5C9D025E",
+                                "instructionPointer": 48,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "ByteArray",
+                                        "value": "0x000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F202122232425262728292A2B2C2D2E"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 0,
+                        "resultStack":
+                        [
+                            {
+                                "type": "ByteArray",
+                                "value": "0x000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F202122232425262728292A2B2C2D2E"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Wrong definition (without enough length)",
+            "script": "0x2F000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F202122232425262728292A2B2C2D",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xA63E514ACA5A35D7979DB97BC77F927E92F58FFF",
+                                "instructionPointer": 47,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

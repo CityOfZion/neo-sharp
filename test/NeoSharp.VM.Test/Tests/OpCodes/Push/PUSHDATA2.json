@@ -33,7 +33,7 @@
             "name": "Without enough length",
             "script": "0x4D050001020304",
             "trigger": "Application",
-            "#steps":
+            "steps":
             [
                 {
                     "actions":

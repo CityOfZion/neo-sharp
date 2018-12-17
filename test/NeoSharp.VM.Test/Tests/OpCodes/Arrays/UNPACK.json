@@ -1,0 +1,169 @@
+﻿{
+    "category": "Arrays",
+    "name": "UNPACK",
+    "tests":
+    [
+        {
+            "name": "Without array",
+            "script": "0x5AC2",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x643EA61C43F5FFAD9FF3C258C1CFFA924AB66A76",
+                                "instructionPointer": 2,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Without push",
+            "script": "0xC2",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xE197D6CD1E7B5D6C34D3864AF09F12884EAC9318",
+                                "instructionPointer": 1,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Without push",
+            "script": "0x555652C1C2",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x748A572F379EC32FEB20CC5B042DD904FFEEC582",
+                                "instructionPointer": 4,
+                                "nextInstruction": "UNPACK",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": 6
+                                            },
+                                            {
+                                                "type": "Integer",
+                                                "value": 5
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 200000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x748A572F379EC32FEB20CC5B042DD904FFEEC582",
+                                "instructionPointer": 5,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 2
+                                    },
+                                    {
+                                        "type": "Integer",
+                                        "value": 6
+                                    },
+                                    {
+                                        "type": "Integer",
+                                        "value": 5
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 200000,
+                        "resultStack":
+                        [
+                            {
+                                "type": "Integer",
+                                "value": 2
+                            },
+                            {
+                                "type": "Integer",
+                                "value": 6
+                            },
+                            {
+                                "type": "Integer",
+                                "value": 5
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

@@ -828,10 +828,10 @@ namespace NeoSharp.Core.VM
             if (ctx == null) return false;
 
             ctx.EvaluationStack.PushObject(new StorageContext
-            {
-                ScriptHash = new UInt160(ctx.ScriptHash),
-                IsReadOnly = false
-            });
+            (
+                new UInt160(ctx.ScriptHash),
+                false
+            ));
 
             return true;
         }
@@ -842,10 +842,10 @@ namespace NeoSharp.Core.VM
             if (ctx == null) return false;
 
             ctx.EvaluationStack.PushObject(new StorageContext
-            {
-                ScriptHash = new UInt160(ctx.ScriptHash),
-                IsReadOnly = true
-            });
+            (
+                new UInt160(ctx.ScriptHash),
+                true
+            ));
 
             return true;
         }
@@ -915,10 +915,10 @@ namespace NeoSharp.Core.VM
             if (storageContext == null) return false;
             if (!storageContext.IsReadOnly)
                 storageContext = new StorageContext
-                {
-                    ScriptHash = storageContext.ScriptHash,
-                    IsReadOnly = true
-                };
+                (
+                    storageContext.ScriptHash,
+                    true
+                );
 
             stack.PushObject(storageContext);
 

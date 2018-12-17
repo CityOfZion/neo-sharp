@@ -1,0 +1,775 @@
+﻿{
+    "category": "Arrays",
+    "name": "APPEND",
+    "tests":
+    [
+        {
+            "name": "Without push",
+            "script": "0x51C8",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x8D30AA74E444A0E3C0C5867F4F087A31D7AB7834",
+                                "instructionPointer": 1,
+                                "nextInstruction": "APPEND",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Without array",
+            "script": "0x5152C8",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "Execute"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x2622C347766417C6BE04A1138B870B2B01182419",
+                                "instructionPointer": 2,
+                                "nextInstruction": "APPEND",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 2
+                                    },
+                                    {
+                                        "type": "Integer",
+                                        "value": 1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Clone test [Array]",
+            "script": "0x00C57655C86B00C5766AC86A56C86C",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 400000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xF2A9CAEA0B67521A8A0684314E50EE9B3F247942",
+                                "instructionPointer": 6,
+                                "nextInstruction": "PUSH0",
+                                "altStack":
+                                [
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": 5
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 500000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xF2A9CAEA0B67521A8A0684314E50EE9B3F247942",
+                                "instructionPointer": 8,
+                                "nextInstruction": "DUP",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                        ]
+                                    }
+                                ],
+                                "altStack":
+                                [
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": 5
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 800000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xF2A9CAEA0B67521A8A0684314E50EE9B3F247942",
+                                "instructionPointer": 11,
+                                "nextInstruction": "DUPFROMALTSTACK",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Array",
+                                                "value":
+                                                [
+                                                    {
+                                                        "type": "Integer",
+                                                        "value": "5"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "altStack":
+                                [
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": "5"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 1100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xF2A9CAEA0B67521A8A0684314E50EE9B3F247942",
+                                "instructionPointer": 15,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": "5"
+                                            },
+                                            {
+                                                "type": "Integer",
+                                                "value": "6"
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Array",
+                                                "value":
+                                                [
+                                                    {
+                                                        "type": "Integer",
+                                                        "value": "5"
+                                                    },
+                                                    {
+                                                        "type": "Integer",
+                                                        "value": "6"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 1100000,
+                        "resultStack":
+                        [
+                            {
+                                "type": "Array",
+                                "value":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": "5"
+                                    },
+                                    {
+                                        "type": "Integer",
+                                        "value": "6"
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Array",
+                                "value":
+                                [
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": "5"
+                                            },
+                                            {
+                                                "type": "Integer",
+                                                "value": "6"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Clone test [Struct]",
+            "script": "0x00C67655C86B00C6766AC86A56C86C",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 400000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x74676C51EAF11A174A8D2A11E2F6BDC0D23517F5",
+                                "instructionPointer": 6,
+                                "nextInstruction": "PUSH0",
+                                "altStack":
+                                [
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": 5
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 500000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x74676C51EAF11A174A8D2A11E2F6BDC0D23517F5",
+                                "instructionPointer": 8,
+                                "nextInstruction": "DUP",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                        ]
+                                    }
+                                ],
+                                "altStack":
+                                [
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": 5
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 800000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x74676C51EAF11A174A8D2A11E2F6BDC0D23517F5",
+                                "instructionPointer": 11,
+                                "nextInstruction": "DUPFROMALTSTACK",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Struct",
+                                                "value":
+                                                [
+                                                    {
+                                                        "type": "Integer",
+                                                        "value": 5
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "altStack":
+                                [
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": 5
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 1100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x74676C51EAF11A174A8D2A11E2F6BDC0D23517F5",
+                                "instructionPointer": 15,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": 5
+                                            },
+                                            {
+                                                "type": "Integer",
+                                                "value": 6
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Struct",
+                                                "value":
+                                                [
+                                                    {
+                                                        "type": "Integer",
+                                                        "value": 5
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 1100000,
+                        "resultStack":
+                        [
+                            {
+                                "type": "Struct",
+                                "value":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 5
+                                    },
+                                    {
+                                        "type": "Integer",
+                                        "value": 6
+                                    }
+                                ]
+                            },
+                            {
+                                "type": "Struct",
+                                "value":
+                                [
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": 5
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Real test [Array]",
+            "script": "0x00C57655C8",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 200000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x08372BDD4827783FA6BA5233C49E79BECA9E4E23",
+                                "instructionPointer": 4,
+                                "nextInstruction": "APPEND",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 5
+                                    },
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                        ]
+                                    },
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 300000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x08372BDD4827783FA6BA5233C49E79BECA9E4E23",
+                                "instructionPointer": 5,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Array",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": "5"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 300000,
+                        "resultStack":
+                        [
+                            {
+                                "type": "Array",
+                                "value":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": "5"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Real test [Struct]",
+            "script": "0x00C67655C8",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 200000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xEEC10A5D07AEDB487750D845B6D009D6DE28C276",
+                                "instructionPointer": 4,
+                                "nextInstruction": "APPEND",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 5
+                                    },
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                        ]
+                                    },
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 300000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xEEC10A5D07AEDB487750D845B6D009D6DE28C276",
+                                "instructionPointer": 5,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Struct",
+                                        "value":
+                                        [
+                                            {
+                                                "type": "Integer",
+                                                "value": "5"
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 300000,
+                        "resultStack":
+                        [
+                            {
+                                "type": "Struct",
+                                "value":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": "5"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}

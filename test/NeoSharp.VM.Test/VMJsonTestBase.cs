@@ -57,24 +57,23 @@ namespace NeoSharp.VM.Test
                 var logBag = new List<string>();
                 var notBag = new List<JToken>();
 
-                interopService.OnLog += (sender, e) =>
-                {
-                    logBag.Add(e.Message);
-                };
-                interopService.OnNotify += (sender, e) =>
-                {
-                    notBag.Add(ItemToJson(e.State));
-                };
-                args.Logger.OnStepInto += (context) =>
-                {
-                    log.AppendLine(context.InstructionPointer.ToString("x6") + " - " + context.NextInstruction);
-                };
+                interopService.OnLog += (sender, e) => logBag.Add(e.Message);
+                interopService.OnNotify += (sender, e) => notBag.Add(ItemToJson(e.State));
+                args.Logger.OnStepInto += (ctx) => log.AppendLine(ctx.InstructionPointer.ToString("x6") + " - " + ctx.NextInstruction);
                 interopService.OnSysCall += (o, e) =>
                 {
                     // Remove last line
                     log.Remove(log.Length - Environment.NewLine.Length, Environment.NewLine.Length);
                     log.AppendLine($" [{e.MethodName}  -  {e.Result}]");
                 };
+
+                // Message provider
+
+                if (test.Message != null)
+                {
+                    args.MessageProvider = new ManualMessageProvider(test.Message);
+                }
+
 
                 // Script table
 
@@ -121,17 +120,17 @@ namespace NeoSharp.VM.Test
                             logBag.Clear();
                             notBag.Clear();
 
-                            foreach (var run in step.Actions)
-                            {
-                                switch (run)
+                            if (step.Actions != null) foreach (var run in step.Actions)
                                 {
-                                    case VMUTActionType.Execute: engine.Execute(); break;
-                                    case VMUTActionType.StepInto: engine.StepInto(); break;
-                                    case VMUTActionType.StepOut: engine.StepOut(); break;
-                                    case VMUTActionType.StepOver: engine.StepOver(); break;
-                                    case VMUTActionType.Clean: engine.Clean(); break;
+                                    switch (run)
+                                    {
+                                        case VMUTActionType.Execute: engine.Execute(); break;
+                                        case VMUTActionType.StepInto: engine.StepInto(); break;
+                                        case VMUTActionType.StepOut: engine.StepOut(); break;
+                                        case VMUTActionType.StepOver: engine.StepOver(); break;
+                                        case VMUTActionType.Clean: engine.Clean(); break;
+                                    }
                                 }
-                            }
 
                             // Review results
 
@@ -160,8 +159,8 @@ namespace NeoSharp.VM.Test
             AssertAreEqual(logBag.ToArray(), result.Logs ?? new string[0], message + "Logs are different");
             AssertAreEqual(notBag.ToArray(), result.Notifications == null ? new JToken[0] : result.Notifications.Select(u => PrepareJsonItem(u)).ToArray(), message + "Notifies are different");
 
-            AssertResult(engine.InvocationStack, result.InvocationStack, message);
-            AssertResult(engine.ResultStack, result.ResultStack, message);
+            AssertResult(engine.InvocationStack, result.InvocationStack, message + " [Invocation stack]");
+            AssertResult(engine.ResultStack, result.ResultStack, message + " [Result stack] ");
         }
 
         /// <summary>
@@ -178,12 +177,12 @@ namespace NeoSharp.VM.Test
             {
                 var context = stack.Peek(x);
 
-                AssertAreEqual(context.ScriptHash, result[x].ScriptHash, message + "Script hash is different");
+                AssertAreEqual("0x" + context.ScriptHash.ToHexString(false).ToUpper(), "0x" + result[x].ScriptHash.ToHexString(false).ToUpper(), message + "Script hash is different");
                 AssertAreEqual(context.NextInstruction, result[x].NextInstruction, message + "Next instruction is different");
                 AssertAreEqual(context.InstructionPointer, result[x].InstructionPointer, message + "Instruction pointer is different");
 
-                AssertResult(context.EvaluationStack, result[x].EvaluationStack, message);
-                AssertResult(context.AltStack, result[x].AltStack, message);
+                AssertResult(context.EvaluationStack, result[x].EvaluationStack, message + " [EvaluationStack]");
+                AssertResult(context.AltStack, result[x].AltStack, message + " [AltStack]");
             }
         }
 
@@ -286,7 +285,6 @@ namespace NeoSharp.VM.Test
                     case EStackItemType.Bool: value = new JValue((bool)item.ToObject()); break;
                     case EStackItemType.Integer: value = new JValue(item.ToObject().ToString()); break;
                     case EStackItemType.ByteArray: value = new JValue((byte[])item.ToObject()); break;
-                    case EStackItemType.Interop: value = new JValue(item.ToObject().ToString()); break;
                     case EStackItemType.Struct:
                     case EStackItemType.Array:
                         {
@@ -314,6 +312,16 @@ namespace NeoSharp.VM.Test
                             value = jdic;
                             break;
                         }
+                    case EStackItemType.Interop:
+                        {
+                            var obj = item.ToObject();
+
+                            if (obj is IMessageProvider) value = "IMessageProvider";
+                            else if (obj is StorageContext) value = "StorageContext";
+                            else throw new NotImplementedException();
+
+                            break;
+                        }
                     default: throw new NotImplementedException();
                 }
 
@@ -336,13 +344,14 @@ namespace NeoSharp.VM.Test
             if (a is byte[] ba) a = ba.ToHexString().ToUpperInvariant();
             if (b is byte[] bb) b = bb.ToHexString().ToUpperInvariant();
 
-            if (a is IEnumerable ca && b is IEnumerable cb)
+            if (a is IList ca && b is IList cb)
             {
                 a = a.ToJson();
                 b = b.ToJson();
             }
 
-            Assert.AreEqual(a, b, message + $" [Expected: {a.ToString()} - Actual: {b.ToString()}]");
+            Assert.AreEqual(a, b, message +
+                $"{Environment.NewLine}Expected:{Environment.NewLine + a.ToString() + Environment.NewLine}Actual:{Environment.NewLine + b.ToString()}");
         }
     }
 }

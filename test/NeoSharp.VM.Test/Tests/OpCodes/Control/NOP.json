@@ -1,0 +1,121 @@
+﻿{
+    "category": "Control",
+    "name": "NOP",
+    "tests":
+    [
+        {
+            "name": "Real test",
+            "script": "0x6161616161",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x348151EF5AED313C4987C01B0A74771BEB7F1BB3",
+                                "instructionPointer": 1,
+                                "nextInstruction": "NOP"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x348151EF5AED313C4987C01B0A74771BEB7F1BB3",
+                                "instructionPointer": 2,
+                                "nextInstruction": "NOP"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x348151EF5AED313C4987C01B0A74771BEB7F1BB3",
+                                "instructionPointer": 3,
+                                "nextInstruction": "NOP"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x348151EF5AED313C4987C01B0A74771BEB7F1BB3",
+                                "instructionPointer": 4,
+                                "nextInstruction": "NOP"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x348151EF5AED313C4987C01B0A74771BEB7F1BB3",
+                                "instructionPointer": 5,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 0
+                    }
+                }
+            ]
+        }
+    ]
+}

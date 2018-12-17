@@ -1,6 +1,6 @@
 ﻿{
     "category": "REAL SMART CONTRACTS",
-    "name": "SmartVote https://github.com/belane/SmartVote/blob/master/smartvote.py",
+    "name": "SmartVote https://github.com/Red4Sec/NEO-SmartVote/blob/master/CSharp/SmartVote.cs",
     "tests":
     [
         {
@@ -8,61 +8,116 @@
             "scriptTable":
             [
                 {
-                    "script": "WsVragBSesRqUVJ6xGoAwxFyZWdpc3Rlcl9wcm9wb3NhbJxkDABqUcNlIwRsdWZhagDDBHZvdGWcZAwAalHDZZQBbHVmYWoAwwVjb3VudJxkDABqUcNlCwBsdWZhAGx1ZgESxWtqAFJ6xGgWTmVvLlN0b3JhZ2UuR2V0Q29udGV4dGFqUVJ6xGoAw8BRnmQHAABsdWZhagDDAMNlaQVqUlJ6xGpRw2pSwwJpZMN8aA9OZW8uU3RvcmFnZS5HZXRhYysAElByb3Bvc2FsIG5vdCBmb3VuZGgPTmVvLlJ1bnRpbWUuTG9nAGx1ZmFqUcNqUsMEdGV4dMN8aA9OZW8uU3RvcmFnZS5HZXRhalNSesRqU8NoD05lby5SdW50aW1lLkxvZ2pRw2pSwwN5ZXPDfGgPTmVvLlN0b3JhZ2UuR2V0YWpUUnrEalHDalLDAm5vw3xoD05lby5TdG9yYWdlLkdldGFqVVJ6xGpUw2gPTmVvLlJ1bnRpbWUuTG9nalXDaA9OZW8uUnVudGltZS5Mb2dqAMMAw2pTw2pUw2pVw1N5UXlVcnVRcnVSeVJ5VHJ1UnJ1BWNvdW50VcFoEk5lby5SdW50aW1lLk5vdGlmeVFsdWYBHsVragBSesRoFk5lby5TdG9yYWdlLkdldENvbnRleHRhalFSesRqAMPAU55kBwAAbHVmYWoAwwDDZfcDalJSesRqUcNqUsMCaWTDfGgPTmVvLlN0b3JhZ2UuR2V0YWMrABJQcm9wb3NhbCBub3QgZm91bmRoD05lby5SdW50aW1lLkxvZwBsdWZhagDDUcNoGE5lby5SdW50aW1lLkNoZWNrV2l0bmVzc2FjMAAXWW91IGFyZSBub3Qgd2hvIHlvdSBzYXloD05lby5SdW50aW1lLkxvZwBsdWZhalHDalLDBGFkZHLDagDDUcN+fGgPTmVvLlN0b3JhZ2UuR2V0YWpTUnrEalPDYywAE05vdCBhbGxvd2VkIHRvIHZvdGVoD05lby5SdW50aW1lLkxvZwBsdWZhalPDUpxkJgANQWxyZWFkeSB2b3RlZGgPTmVvLlJ1bnRpbWUuTG9nAGx1ZmFqAMNSw1GcZGMABFllcyFoD05lby5SdW50aW1lLkxvZ2pRw2pSwwN5ZXPDfGgPTmVvLlN0b3JhZ2UuR2V0YWpUUnrEalHDalLDA3llc8NqVMNRk1JyaA9OZW8uU3RvcmFnZS5QdXRhYl4AYQNObyFoD05lby5SdW50aW1lLkxvZ2pRw2pSwwJub8N8aA9OZW8uU3RvcmFnZS5HZXRhalVSesRqUcNqUsMCbm/DalXDUZNScmgPTmVvLlN0b3JhZ2UuUHV0YWFqUcNqUsMEYWRkcsNqAMNRw35SUnJoD05lby5TdG9yYWdlLlB1dGFqAMNRw2oAw1LDfAR2b3RlU8FoEk5lby5SdW50aW1lLk5vdGlmeVFsdWYBF8VragBSesRoFk5lby5TdG9yYWdlLkdldENvbnRleHRhalFSesRqAMPAVJ9kBwAAbHVmYWoAwwDDZX4BalJSesRqUcNqUsMCaWTDfGgPTmVvLlN0b3JhZ2UuR2V0YWQrABJBbHJlYWR5IGEgUHJvcG9zYWxoD05lby5SdW50aW1lLkxvZwBsdWZhalHDalLDAmlkw1FScmgPTmVvLlN0b3JhZ2UuUHV0YWpRw2pSwwR0ZXh0w2oAw1HDUnJoD05lby5TdG9yYWdlLlB1dGFqUcNqUsMDeWVzwwBScmgPTmVvLlN0b3JhZ2UuUHV0YWpRw2pSwwJub8MAUnJoD05lby5TdG9yYWdlLlB1dGFSalNSesRhYWpTw2oAw8CfZGAAagDDalPDw2pUUnrEalTDwAEUnmQXABJiYWQgYWRkcmVzcyBmb3JtYXTwYWpRw2pSwwRhZGRyw2pUw35RUnJoD05lby5TdG9yYWdlLlB1dGFqU8NRk2pTUnrEYpr/YWFhagDDAMNqAMNRw3wRcmVnaXN0ZXJfcHJvcG9zYWxTwWgSTmVvLlJ1bnRpbWUuTm90aWZ5UWx1ZlbFa2oAUnrEAklEagDDfmpRUnrEx2pSUnrEalHDalLDAmlke8QBVGpRw35qUsMEdGV4dHvEAVlqUcN+alLDA3llc3vEAU5qUcN+alLDAm5ve8QBQWpRw35qUsMEYWRkcnvEalLDbHVmXsVragBSesRqUVJ6xGpRw2oAw5RqUlJ6xGpSw8VqU1J6xABqVFJ6xGoAw2pVUnrEYWFqAMNqUcOfZDMAalTDalXDk2pWUnrEalbDalPDalTDe8RqVMNRk2pUUnrEalXDalTDk2oAUnrEYsj/YWFhalPDbHVm",
+                    "script": "UsVrbHZrAFJ6xGx2a1FSesRhaBZOZW8uUnVudGltZS5HZXRUcmlnZ2VyYwgAUWFsdWZhaBZOZW8uUnVudGltZS5HZXRUcmlnZ2VyYJB8kHyeY2IAbHZrAMMRcmVnaXN0ZXJfcHJvcG9zYWyHZBAAbHZrUcNhZQ0DYWx1Zmx2awDDBHZvdGWHZBAAbHZrUcNhZSgAYWx1Zmx2awDDBWNvdW50h2QQAGx2a1HDYWVsBGFsdWYAYWx1ZljFa2x2awBSesRsdmsAw8BTnGMIAABhbHVmbHZrAMMAw2x2a1FSesRhaBZOZW8uU3RvcmFnZS5HZXRDb250ZXh0bHZrUlJ6xGx2a1LDbHZrUcNhfGgPTmVvLlN0b3JhZ2UuR2V0bHZrU1J6xGx2a1PDwGMtABJQcm9wb3NhbCBub3QgZm91bmRhaA9OZW8uUnVudGltZS5Mb2cAYWx1Zmx2a1HDbHZrAMNRw35sdmtUUnrEbHZrUsNsdmtUw2F8aA9OZW8uU3RvcmFnZS5HZXTAZCgADUFscmVhZHkgdm90ZWRhaA9OZW8uUnVudGltZS5Mb2cAYWx1Zmx2a1PDYWgXTmVvLlJ1bnRpbWUuRGVzZXJpYWxpemVsdmtVUnrEbHZrAMNRw2FoGE5lby5SdW50aW1lLkNoZWNrV2l0bmVzc2MyABdZb3UgYXJlIG5vdCB3aG8geW91IHNheWFoD05lby5SdW50aW1lLkxvZwBhbHVmAGx2a1ZSesQAbHZrV1J6xGI4AGx2a1XDU8NsdmtWw8NsdmsAw1HDkHyQfJ5jDgBRbHZrV1J6xGIiAGx2a1bDUZNsdmtWUnrEbHZrVsNsdmtVw1PDwJ9jvf9sdmtXw2MuABNOb3QgYWxsb3dlZCB0byB2b3RlYWgPTmVvLlJ1bnRpbWUuTG9nAGFsdWZsdmsAw1LDUZB8kHyeYy0ABFllcyFhaA9OZW8uUnVudGltZS5Mb2dsdmtVw1FsdmtVw1HDUZPEYikAA05vIWFoD05lby5SdW50aW1lLkxvZ2x2a1XDUmx2a1XDUsNRk8RsdmtVw2FoFU5lby5SdW50aW1lLlNlcmlhbGl6ZWx2a1NSesRsdmtSw2x2a1HDbHZrU8NhUnJoD05lby5TdG9yYWdlLlB1dGx2a1LDbHZrVMNRYVJyaA9OZW8uU3RvcmFnZS5QdXRRYWx1ZljFa2x2awBSesRsdmsAwwDDbHZrUVJ6xGFoFk5lby5TdG9yYWdlLkdldENvbnRleHRsdmtSUnrEbHZrUsNsdmtRw2F8aA9OZW8uU3RvcmFnZS5HZXTAZC0AEkFscmVhZHkgYSBQcm9wb3NhbGFoD05lby5SdW50aW1lLkxvZwBhbHVmVMVsdmtTUnrEbHZrU8MAbHZrAMNRw8RsdmtTw1EBMMRsdmtTw1IBMMRSbHZrVFJ6xGx2awDDwFKUxWx2a1VSesRiawBsdmsAw2x2a1TDw2x2a1dSesRsdmtXw4IBFJxjLQASYmFkIGFkZHJlc3MgZm9ybWF0YWgPTmVvLlJ1bnRpbWUuTG9nAGFsdWZsdmtVw2x2a1TDUpRsdmtXw8RsdmtUw1GTbHZrVFJ6xGx2a1TDbHZrAMPAn2OM/2x2a1PDU2x2a1XDxGx2a1PDYWgVTmVvLlJ1bnRpbWUuU2VyaWFsaXplbHZrVlJ6xGx2a1LDbHZrUcNsdmtWw2FScmgPTmVvLlN0b3JhZ2UuUHV0UWFsdWZTxWtsdmsAUnrEbHZrAMPAUZxjCAAAYWx1Zmx2awDDAMNsdmtRUnrEYWgWTmVvLlN0b3JhZ2UuR2V0Q29udGV4dGx2a1HDYXxoD05lby5TdG9yYWdlLkdldGx2a1JSesRsdmtSw2QMAGx2a1LDwGMtABJQcm9wb3NhbCBub3QgZm91bmRhaA9OZW8uUnVudGltZS5Mb2cAYWx1Zmx2a1LDYWgXTmVvLlJ1bnRpbWUuRGVzZXJpYWxpemV2AMNhaA9OZW8uUnVudGltZS5Mb2d2UcNhaA9OZW8uUnVudGltZS5Mb2dSw2FoD05lby5SdW50aW1lLkxvZ1FhbHVm",
                     "hasDynamicInvoke": false,
                     "hasStorage": true,
                     "payable": false
                 }
             ],
-            "script": "0x1400000000000000000000000000000000000000001400000000000000000000000000000000000000000B4D792070726F706F73616C0371303154C11172656769737465725F70726F706F73616C67782C470971D259D4A5DE7E4E23350F5606AF7BCE511400000000000000000000000000000000000000000371303153C104766F746567782C470971D259D4A5DE7E4E23350F5606AF7BCE0371303151C105636F756E7467782C470971D259D4A5DE7E4E23350F5606AF7BCE",
+            "script": "0x1400000000000000000000000000000000000000001400000000000000000000000000000000000000000B4D792070726F706F73616C0371303154C11172656769737465725F70726F706F73616C670A14823CD36C52716DD335F1A8BBA651ABB5DF41511400000000000000000000000000000000000000000371303153C104766F7465670A14823CD36C52716DD335F1A8BBA651ABB5DF410371303151C105636F756E74670A14823CD36C52716DD335F1A8BBA651ABB5DF41",
             "trigger": "Application",
             "steps":
             [
                 {
-                    "name": "Register, vote and count proposals [Without NEP8]",
+                    "name": "Register [Without NEP8]",
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepOver"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 700000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x63FA0200D3526FC845726E419A3AEBF177B8C08D",
+                                "instructionPointer": 99,
+                                "nextInstruction": "PUSH1",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Vote [Without NEP8]",
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepOver"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 1900000,
+                        "logs":
+                        [
+                            "Yes!"
+                        ],
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x63FA0200D3526FC845726E419A3AEBF177B8C08D",
+                                "instructionPointer": 153,
+                                "nextInstruction": "PUSHBYTES3",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 1
+                                    },
+                                    {
+                                        "type": "Integer",
+                                        "value": 1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Count [Without NEP8]",
                     "actions":
                     [
                         "Execute"
                     ],
                     "state":
                     {
-                        "state": "Halt",
-                        "consumedGas": 46800015,
-                        "notifications":
-                        [
-                            {
-                                "type": "Struct",
-                                "value":
-                                [
-                                    {
-                                        "type": "String",
-                                        "value": "register_proposal"
-                                    },
-                                    {
-                                        "type": "String",
-                                        "value": "q01"
-                                    },
-                                    {
-                                        "type": "String",
-                                        "value": "My proposal"
-                                    }
-                                ]
-                            }
-                        ],
                         "logs":
                         [
-                            "Proposal not found",
-                            "Proposal not found"
+                            "My proposal",
+                            "1",
+                            "0"
                         ],
+                        "state": "Halt",
+                        "consumedGas": 14000000,
                         "resultStack":
                         [
                             {
-                                "type": "ByteArray",
-                                "value": ""
+                                "type": "Integer",
+                                "value": 1
                             },
                             {
-                                "type": "ByteArray",
-                                "value": ""
+                                "type": "Integer",
+                                "value": 1
                             },
                             {
                                 "type": "Integer",
@@ -78,40 +133,116 @@
             "scriptTable":
             [
                 {
-                    "script": "WMVrbHZrAFJ6xGx2a1FSesRhYWgWTmVvLlJ1bnRpbWUuR2V0VHJpZ2dlcgCcbHZrUlJ6xGx2a1LDZA8AYVFsdmtTUnrEYtUAYWgWTmVvLlJ1bnRpbWUuR2V0VHJpZ2dlcmCcbHZrVFJ6xGx2a1TDZKAAYWx2awDDEXJlZ2lzdGVyX3Byb3Bvc2Fsh2x2a1VSesRsdmtVw2QYAGx2a1HDYeABAe8DbHZrU1J6xGJuAGx2awDDBHZvdGWHbHZrVlJ6xGx2a1bDZBgAbHZrUcNh4AEBUgBsdmtTUnrEYj8AbHZrAMMFY291bnSHbHZrV1J6xGx2a1fDZBgAbHZrUcNh4AEBcQVsdmtTUnrEYg8AYQBsdmtTUnrEYgMAbHZrU8NhbHVmARHFa2x2awBSesRhbHZrAMPAU5wAnGx2a1hSesRsdmtYw2QOAABsdmtZUnrEYjgDbHZrAMMAw2x2a1FSesRhaBZOZW8uU3RvcmFnZS5HZXRDb250ZXh0bHZrUlJ6xGx2a1LDbHZrUcNhfGgPTmVvLlN0b3JhZ2UuR2V0bHZrU1J6xGx2a1PDwACcbHZrWlJ6xGx2a1rDZDUAYRJQcm9wb3NhbCBub3QgZm91bmRhaA9OZW8uUnVudGltZS5Mb2dhAGx2a1lSesRinQJsdmtRw2x2awDDUcN+bHZrVFJ6xGx2a1LDbHZrVMNhfGgPTmVvLlN0b3JhZ2UuR2V0wACgbHZrW1J6xGx2a1vDZDAAYQ1BbHJlYWR5IHZvdGVkYWgPTmVvLlJ1bnRpbWUuTG9nYQBsdmtZUnrEYi0CbHZrU8NhaBdOZW8uUnVudGltZS5EZXNlcmlhbGl6ZWx2a1VSesRsdmsAw1HDYWgYTmVvLlJ1bnRpbWUuQ2hlY2tXaXRuZXNzAJxsdmtcUnrEbHZrXMNkOgBhF1lvdSBhcmUgbm90IHdobyB5b3Ugc2F5YWgPTmVvLlJ1bnRpbWUuTG9nYQBsdmtZUnrEYp0BAGx2a1ZSesQAbHZrV1J6xGJDAGFsdmtVw1PDbHZrVsPDbHZrAMNRw5xsdmtdUnrEbHZrXcNkDwBhUWx2a1dSesRiLwBsdmtWw1GTbHZrVlJ6xGFsdmtWw2x2a1XDU8PAn2x2a15SesRsdmtew2Om/2x2a1fDAJxsdmtfUnrEbHZrX8NkNgBhE05vdCBhbGxvd2VkIHRvIHZvdGVhaA9OZW8uUnVudGltZS5Mb2dhAGx2a1lSesRi5ABsdmsAw1LDUZxsdmtgUnrEbHZrYMNkMABhBFllcyFhaA9OZW8uUnVudGltZS5Mb2dhbHZrVcNRbHZrVcNRw1GTxGFiLABhA05vIWFoD05lby5SdW50aW1lLkxvZ2FsdmtVw1JsdmtVw1LDUZPEYWx2a1XDYWgVTmVvLlJ1bnRpbWUuU2VyaWFsaXplbHZrU1J6xGx2a1LDbHZrUcNsdmtTw2FScmgPTmVvLlN0b3JhZ2UuUHV0YWx2a1LDbHZrVMNRYVJyaA9OZW8uU3RvcmFnZS5QdXRhUWx2a1lSesRiAwBsdmtZw2FsdWZcxWtsdmsAUnrEYWx2awDDAMNsdmtRUnrEYWgWTmVvLlN0b3JhZ2UuR2V0Q29udGV4dGx2a1JSesRsdmtSw2x2a1HDYXxoD05lby5TdG9yYWdlLkdldMAAoGx2a1dSesRsdmtXw2Q1AGESQWxyZWFkeSBhIFByb3Bvc2FsYWgPTmVvLlJ1bnRpbWUuTG9nYQBsdmtYUnrEYkEBVMVsdmtTUnrEbHZrU8MAbHZrAMNRw8RsdmtTw1EBMMRsdmtTw1IBMMRSbHZrVFJ6xGx2awDDwFKUxWx2a1VSesRigwBhbHZrAMNsdmtUw8NsdmtZUnrEbHZrWcOCARScAJxsdmtaUnrEbHZrWsNkNQBhEmJhZCBhZGRyZXNzIGZvcm1hdGFoD05lby5SdW50aW1lLkxvZ2EAbHZrWFJ6xGKeAGx2a1XDbHZrVMNSlGx2a1nDxGx2a1TDUZNsdmtUUnrEYWx2a1TDbHZrAMPAn2x2a1tSesRsdmtbw2No/2x2a1PDU2x2a1XDxGx2a1PDYWgVTmVvLlJ1bnRpbWUuU2VyaWFsaXplbHZrVlJ6xGx2a1LDbHZrUcNsdmtWw2FScmgPTmVvLlN0b3JhZ2UuUHV0YVFsdmtYUnrEYgMAbHZrWMNhbHVmWMVrbHZrAFJ6xGFsdmsAw8BRnACcbHZrVVJ6xGx2a1XDZA4AAGx2a1ZSesRiKQFsdmsAwwDDbHZrUVJ6xGFoFk5lby5TdG9yYWdlLkdldENvbnRleHRsdmtSUnrEbHZrUsNsdmtRw2F8aA9OZW8uU3RvcmFnZS5HZXRsdmtTUnrEbHZrU8NkDgBsdmtTw8AAnGIEAFFsdmtXUnrEbHZrV8NkNQBhElByb3Bvc2FsIG5vdCBmb3VuZGFoD05lby5SdW50aW1lLkxvZ2EAbHZrVlJ6xGKCAGx2a1PDYWgXTmVvLlJ1bnRpbWUuRGVzZXJpYWxpemVsdmtUUnrEbHZrVMMAw2FoD05lby5SdW50aW1lLkxvZ2FsdmtUw1HDYWgPTmVvLlJ1bnRpbWUuTG9nYWx2a1TDUsNhaA9OZW8uUnVudGltZS5Mb2dhUWx2a1ZSesRiAwBsdmtWw2FsdWY=",
+                    "script": "UsVrbHZrAFJ6xGx2a1FSesRhaAR1yJPjYwgAUWFsdWZhaAR1yJPjYJB8kHyeY2gAbHZrAMMRcmVnaXN0ZXJfcHJvcG9zYWyHZBIAbHZrUcNh4AEBWQJhbHVmbHZrAMMEdm90ZYdkEgBsdmtRw2HgAQEqAGFsdWZsdmsAwwVjb3VudIdkEgBsdmtRw2HgAQFlA2FsdWYAYWx1ZljFa2x2awBSesRsdmsAw8BTnGMIAABhbHVmbHZrAMMAw2x2a1FSesRhaASEGNYNbHZrUlJ6xGx2a1LDbHZrUcNhfGgEHy57B2x2a1NSesRsdmtTw8BjIgASUHJvcG9zYWwgbm90IGZvdW5kYWgENtNSBgBhbHVmbHZrUcNsdmsAw1HDfmx2a1RSesRsdmtSw2x2a1TDYXxoBB8uewfAZB0ADUFscmVhZHkgdm90ZWRhaAQ201IGAGFsdWZsdmtTw2FoBFnpw+5sdmtVUnrEbHZrAMNRw2FoBO/f5pRjJwAXWW91IGFyZSBub3Qgd2hvIHlvdSBzYXlhaAQ201IGAGFsdWYAbHZrVlJ6xABsdmtXUnrEYjgAbHZrVcNTw2x2a1bDw2x2awDDUcOQfJB8nmMOAFFsdmtXUnrEYiIAbHZrVsNRk2x2a1ZSesRsdmtWw2x2a1XDU8PAn2O9/2x2a1fDYyMAE05vdCBhbGxvd2VkIHRvIHZvdGVhaAQ201IGAGFsdWZsdmsAw1LDUZB8kHyeYyIABFllcyFhaAQ201IGbHZrVcNRbHZrVcNRw1GTxGIeAANObyFhaAQ201IGbHZrVcNSbHZrVcNSw1GTxGx2a1XDYWgEw7BEYWx2a1NSesRsdmtSw2x2a1HDbHZrU8NhUnJoBFKhQfVsdmtSw2x2a1TDUWFScmgEUqFB9VFhbHVmWMVrbHZrAFJ6xGx2awDDAMNsdmtRUnrEYWgEhBjWDWx2a1JSesRsdmtSw2x2a1HDYXxoBB8uewfAZCIAEkFscmVhZHkgYSBQcm9wb3NhbGFoBDbTUgYAYWx1ZlTFbHZrU1J6xGx2a1PDAGx2awDDUcPEbHZrU8NRATDEbHZrU8NSATDEUmx2a1RSesRsdmsAw8BSlMVsdmtVUnrEYmAAbHZrAMNsdmtUw8NsdmtXUnrEbHZrV8OCARScYyIAEmJhZCBhZGRyZXNzIGZvcm1hdGFoBDbTUgYAYWx1Zmx2a1XDbHZrVMNSlGx2a1fDxGx2a1TDUZNsdmtUUnrEbHZrVMNsdmsAw8CfY5f/bHZrU8NTbHZrVcPEbHZrU8NhaATDsERhbHZrVlJ6xGx2a1LDbHZrUcNsdmtWw2FScmgEUqFB9VFhbHVmU8VrbHZrAFJ6xGx2awDDwFGcYwgAAGFsdWZsdmsAwwDDbHZrUVJ6xGFoBIQY1g1sdmtRw2F8aAQfLnsHbHZrUlJ6xGx2a1LDZAwAbHZrUsPAYyIAElByb3Bvc2FsIG5vdCBmb3VuZGFoBDbTUgYAYWx1Zmx2a1LDYWgEWenD7nYAw2FoBDbTUgZ2UcNhaAQ201IGUsNhaAQ201IGUWFsdWY=",
                     "hasDynamicInvoke": false,
                     "hasStorage": true,
                     "payable": false
                 }
             ],
-            "script": "0x1400000000000000000000000000000000000000001400000000000000000000000000000000000000000B4D792070726F706F73616C0371303154C11172656769737465725F70726F706F73616C6760F16B6EE2143F835FB0194967E520BC4F697616511400000000000000000000000000000000000000000371303153C104766F74656760F16B6EE2143F835FB0194967E520BC4F6976160371303151C105636F756E746760F16B6EE2143F835FB0194967E520BC4F697616",
+            "script": "0x1400000000000000000000000000000000000000001400000000000000000000000000000000000000000B4D792070726F706F73616C0371303154C11172656769737465725F70726F706F73616C675803D6B3AC18F4964D45E0A11465831F8B2659CC511400000000000000000000000000000000000000000371303153C104766F7465675803D6B3AC18F4964D45E0A11465831F8B2659CC0371303151C105636F756E74675803D6B3AC18F4964D45E0A11465831F8B2659CC",
             "trigger": "Application",
             "steps":
             [
                 {
-                    "name": "Register, vote and count proposals [NEP8]",
+                    "name": "Register [With NEP8]",
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepOver"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 700000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x49E584E7B27C657CD9B29E3142AC295A677E1C30",
+                                "instructionPointer": 99,
+                                "nextInstruction": "PUSH1",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Vote [With NEP8]",
+                    "actions":
+                    [
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepInto",
+                        "StepOver"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 1900000,
+                        "logs":
+                        [
+                            "Yes!"
+                        ],
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x49E584E7B27C657CD9B29E3142AC295A677E1C30",
+                                "instructionPointer": 153,
+                                "nextInstruction": "PUSHBYTES3",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 1
+                                    },
+                                    {
+                                        "type": "Integer",
+                                        "value": 1
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "name": "Count [With NEP8]",
                     "actions":
                     [
                         "Execute"
                     ],
                     "state":
                     {
-                        "state": "Halt",
-                        "consumedGas": 74300016,
                         "logs":
                         [
-                            "Proposal not found",
-                            "Proposal not found"
+                            "My proposal",
+                            "1",
+                            "0"
                         ],
+                        "state": "Halt",
+                        "consumedGas": 14000000,
                         "resultStack":
                         [
                             {
-                                "type": "ByteArray",
-                                "value": ""
+                                "type": "Integer",
+                                "value": 1
                             },
                             {
-                                "type": "ByteArray",
-                                "value": ""
+                                "type": "Integer",
+                                "value": 1
                             },
                             {
                                 "type": "Integer",

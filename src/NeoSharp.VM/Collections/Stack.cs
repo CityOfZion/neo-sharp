@@ -113,11 +113,11 @@ namespace NeoSharp.VM
 
         public byte[] PopByteArray()
         {
-            var stackItem = Pop() as ByteArrayStackItemBase;
+            var stackItem = Pop();
 
             using (stackItem)
             {
-                return stackItem?.Value;
+                return stackItem?.ToByteArray();
             }
         }
 

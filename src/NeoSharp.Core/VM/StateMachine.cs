@@ -16,10 +16,6 @@ namespace NeoSharp.Core.VM
     {
         private readonly Block _persistingBlock;
         private readonly IBlockchainContext _blockchainContext;
-        private readonly DataCache<UInt160, Account> _accounts;
-        private readonly DataCache<UInt256, Asset> _assets;
-        private readonly DataCache<UInt160, Contract> _contracts;
-        private readonly DataCache<StorageKey, StorageValue> _storages;
 
         private readonly Dictionary<UInt160, UInt160> _contractsCreated = new Dictionary<UInt160, UInt160>();
 
@@ -34,14 +30,17 @@ namespace NeoSharp.Core.VM
             IBlockRepository blockRepository,
             ITransactionRepository transactionRepository,
             ETriggerType trigger)
-        : base(accounts, assets, contracts, storages, interopService, blockchainContext, blockRepository, transactionRepository, trigger)
+        : base
+            (
+            accounts?.CreateSnapshot(),
+            assets?.CreateSnapshot(),
+            contracts?.CreateSnapshot(),
+            storages?.CreateSnapshot(),
+            interopService, blockchainContext, blockRepository, transactionRepository, trigger
+            )
         {
             _persistingBlock = persistingBlock;
             _blockchainContext = blockchainContext;
-            _accounts = accounts?.CreateSnapshot();
-            _assets = assets?.CreateSnapshot();
-            _contracts = contracts?.CreateSnapshot();
-            _storages = storages?.CreateSnapshot();
 
             // Standard Library
 
@@ -77,10 +76,10 @@ namespace NeoSharp.Core.VM
 
         public void Commit()
         {
-            _accounts.Commit();
-            _assets.Commit();
-            _contracts.Commit();
-            _storages.Commit();
+            Accounts.Commit();
+            Assets.Commit();
+            Contracts.Commit();
+            Storages.Commit();
         }
 
         protected override bool Runtime_GetTime(Stack stack)
@@ -146,7 +145,7 @@ namespace NeoSharp.Core.VM
             // TODO: PopBigInteger to byte? 
             var years = (byte)stack.PopBigInteger();
 
-            asset = _assets.GetAndChange(asset.Id);
+            asset = Assets.GetAndChange(asset.Id);
 
             if (asset.Expiration < _blockchainContext.CurrentBlock.Index + 1)
                 asset.Expiration = _blockchainContext.CurrentBlock.Index + 1;
@@ -198,7 +197,7 @@ namespace NeoSharp.Core.VM
             var description = Encoding.UTF8.GetString(stack.PopByteArray());
 
             var scriptHash = script.ToScriptHash();
-            var contract = _contracts.TryGet(scriptHash);
+            var contract = Contracts.TryGet(scriptHash);
             if (contract == null)
             {
                 contract = new Contract
@@ -218,7 +217,7 @@ namespace NeoSharp.Core.VM
                     Description = description
                 };
 
-                _contracts.Add(scriptHash, contract);
+                Contracts.Add(scriptHash, contract);
                 _contractsCreated.Add(scriptHash, new UInt160(engine.CurrentContext.ScriptHash));
             }
 
@@ -259,7 +258,7 @@ namespace NeoSharp.Core.VM
             var description = Encoding.UTF8.GetString(stack.PopByteArray());
 
             var scriptHash = script.ToScriptHash();
-            var contract = _contracts.TryGet(scriptHash);
+            var contract = Contracts.TryGet(scriptHash);
             if (contract == null)
             {
                 contract = new Contract
@@ -279,13 +278,13 @@ namespace NeoSharp.Core.VM
                     Description = description
                 };
 
-                _contracts.Add(scriptHash, contract);
+                Contracts.Add(scriptHash, contract);
                 _contractsCreated.Add(scriptHash, new UInt160(engine.CurrentContext.ScriptHash));
                 if (contract.HasStorage)
                 {
-                    foreach (var pair in _storages.Find(engine.CurrentContext.ScriptHash).ToArray())
+                    foreach (var pair in Storages.Find(engine.CurrentContext.ScriptHash).ToArray())
                     {
-                        _storages.Add(new StorageKey
+                        Storages.Add(new StorageKey
                         {
                             ScriptHash = scriptHash,
                             Key = pair.Key.Key
@@ -314,10 +313,10 @@ namespace NeoSharp.Core.VM
             if (!created.Equals(new UInt160(engine.CurrentContext.ScriptHash))) return false;
 
             stack.PushObject(new StorageContext
-            {
-                ScriptHash = contract.ScriptHash,
-                IsReadOnly = false
-            });
+            (
+                contract.ScriptHash,
+                false
+            ));
 
             return true;
         }
@@ -330,14 +329,14 @@ namespace NeoSharp.Core.VM
             var stack = ctx.EvaluationStack;
 
             var hash = new UInt160(engine.CurrentContext.ScriptHash);
-            var contract = _contracts.TryGet(hash);
+            var contract = Contracts.TryGet(hash);
             if (contract == null) return true;
 
-            _contracts.Delete(hash);
+            Contracts.Delete(hash);
 
             if (contract.HasStorage)
-                foreach (var pair in _storages.Find(hash.ToArray()))
-                    _storages.Delete(pair.Key);
+                foreach (var pair in Storages.Find(hash.ToArray()))
+                    Storages.Delete(pair.Key);
 
             return true;
         }
@@ -354,7 +353,7 @@ namespace NeoSharp.Core.VM
 
             var value = stack.PopByteArray();
 
-            _storages.GetAndChange(new StorageKey
+            Storages.GetAndChange(new StorageKey
             {
                 ScriptHash = context.ScriptHash,
                 Key = key
@@ -372,7 +371,7 @@ namespace NeoSharp.Core.VM
 
             var key = stack.PopByteArray();
 
-            _storages.Delete(new StorageKey
+            Storages.Delete(new StorageKey
             {
                 ScriptHash = context.ScriptHash,
                 Key = key

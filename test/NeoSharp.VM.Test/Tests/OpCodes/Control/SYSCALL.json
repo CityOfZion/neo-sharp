@@ -1,0 +1,324 @@
+﻿{
+    "category": "Control",
+    "name": "SYSCALL",
+    "tests":
+    [
+        {
+            "name": "Real test [IMessageProvider]",
+            "script": "0x682953797374656D2E457865637574696F6E456E67696E652E476574536372697074436F6E7461696E6572",
+            "trigger": "Application",
+            "message": "0x00",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x62C5FB499B47073AB58EE819E2609D25D9762266",
+                                "instructionPointer": 43,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Interop",
+                                        "value": "IMessageProvider"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 100000,
+                        "resultStack":
+                        [
+                            {
+                                "type": "Interop",
+                                "value": "IMessageProvider"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Real test [StorageContext]",
+            "script": "0x681953797374656D2E53746F726167652E476574436F6E74657874",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xB5F7F5B553C4C113574819C0011F54B8AAEAB451",
+                                "instructionPointer": 27,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Interop",
+                                        "value": "StorageContext"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 100000,
+                        "resultStack":
+                        [
+                            {
+                                "type": "Interop",
+                                "value": "StorageContext"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Real test [System.Runtime.GetTrigger.Verification]",
+            "script": "0x681953797374656D2E52756E74696D652E47657454726967676572",
+            "trigger": "Verification",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x313DA7C8D2AC0577F17A61A6049CC5ABBFC7A7B8",
+                                "instructionPointer": 27,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 100000,
+                        "resultStack":
+                        [
+                            {
+                                "type": "Integer",
+                                "value": 0
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Real test [System.Runtime.GetTrigger.Application]",
+            "script": "0x681953797374656D2E52756E74696D652E47657454726967676572",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "None",
+                        "consumedGas": 100000,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x313DA7C8D2AC0577F17A61A6049CC5ABBFC7A7B8",
+                                "instructionPointer": 27,
+                                "nextInstruction": "RET",
+                                "evaluationStack":
+                                [
+                                    {
+                                        "type": "Integer",
+                                        "value": 16
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Halt",
+                        "consumedGas": 100000,
+                        "resultStack":
+                        [
+                            {
+                                "type": "Integer",
+                                "value": 16
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Wrong script",
+            "script": "0x682A53797374656D2E457865637574696F6E456E67696E652E476574536372697074436F6E7461696E6572",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x5B8661F73D3828ECB71D343FF49BF883EF02428D",
+                                "instructionPointer": 43,
+                                "nextInstruction": "RET"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Wrong script",
+            "script": "0x68FDFFFF00",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0xD990D17A9E649D836D78DCF8ADDB3B3BCC4C00AC",
+                                "instructionPointer": 4,
+                                "nextInstruction": "PUSH0"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Wrong script",
+            "script": "0x68FEFFFFFFFF00",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x50F8F9FEC057277A6826B993401FB0807CC60609",
+                                "instructionPointer": 6,
+                                "nextInstruction": "PUSH0"
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Wrong script",
+            "script": "0x68FFFFFFFFFFFFFFFFFF00",
+            "trigger": "Application",
+            "steps":
+            [
+                {
+                    "actions":
+                    [
+                        "StepInto"
+                    ],
+                    "state":
+                    {
+                        "state": "Fault",
+                        "consumedGas": 0,
+                        "invocationStack":
+                        [
+                            {
+                                "scriptHash": "0x6FD417DDF3451019516D933222FB3BC8EAE5F4E6",
+                                "instructionPointer": 10,
+                                "nextInstruction": "PUSH0"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    ]
+}
