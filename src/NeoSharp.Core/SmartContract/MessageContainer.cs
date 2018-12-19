@@ -8,10 +8,7 @@ namespace NeoSharp.Core.SmartContract
     {
         private byte[] _message = Array.Empty<byte>();
 
-        public byte[] GetMessage(uint iteration)
-        {
-            return _message;
-        }
+        public byte[] GetMessage(uint iteration) => _message;
 
         public void RegisterMessage(byte[] message)
         {

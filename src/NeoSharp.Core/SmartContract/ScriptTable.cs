@@ -16,9 +16,13 @@ namespace NeoSharp.Core.SmartContract
         public byte[] GetScript(byte[] scriptHash, bool isDynamicInvoke)
         {
             var contractHash = new UInt160(scriptHash);
-            var contract = _repository.GetContract(contractHash).Result;
+            var contractTask = _repository.GetContract(contractHash);
 
-            return contract.Script;
+            if (contractTask == null) return null;
+
+            contractTask.Wait();
+
+            return contractTask.Result?.Script;
         }
     }
 }
