@@ -17,7 +17,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// MethodHandler
         /// </summary>
-        public Func<ExecutionEngineBase, bool> MethodHandler { get; }
+        public Func<IExecutionEngine, bool> MethodHandler { get; }
 
         /// <summary>
         /// Gas cost
@@ -34,7 +34,7 @@ namespace NeoSharp.VM
         public InteropServiceEntry(
             string methodName,
             uint methodHash,
-            Func<ExecutionEngineBase, bool> methodHandler,
+            Func<IExecutionEngine, bool> methodHandler,
             uint gasCost)
         {
             MethodName = methodName;

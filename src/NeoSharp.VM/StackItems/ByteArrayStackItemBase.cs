@@ -17,7 +17,7 @@ namespace NeoSharp.VM
         /// Ascii representation
         /// </summary>
         [DefaultValue(null), JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string ValueString => Value != null && Value.IsASCIIPrintable() ? Encoding.ASCII.GetString(Value) : null;
+        public string ValueString => Value != null && Value.IsAsciiPrintable() ? Encoding.ASCII.GetString(Value) : null;
 
         /// <summary>
         /// Ascii representation
@@ -39,14 +39,6 @@ namespace NeoSharp.VM
             }
 
             return false;
-        }
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            if (Value == null) return "NULL";
-
-            return Value.IsASCIIPrintable() ? $"\'{Encoding.ASCII.GetString(Value)}\'" : Value.ToHexString();
         }
 
         public override bool Equals(object obj)

@@ -7,7 +7,7 @@ namespace NeoSharp.VM
         /// <summary>
         /// Engine
         /// </summary>
-        public ExecutionEngineBase Engine { get; }
+        public IExecutionEngine Engine { get; }
 
         /// <summary>
         /// Hash Method
@@ -31,7 +31,7 @@ namespace NeoSharp.VM
         /// <param name="methodName">Method name</param>
         /// <param name="methodHash">Method hash</param>
         /// <param name="result">Result</param>
-        public SysCallArgs(ExecutionEngineBase engine, string methodName, uint methodHash, SysCallResult result)
+        public SysCallArgs(IExecutionEngine engine, string methodName, uint methodHash, SysCallResult result)
         {
             Engine = engine;
             MethodName = methodName;

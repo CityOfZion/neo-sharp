@@ -66,11 +66,12 @@ namespace NeoSharp.VM
         /// </summary>
         public InteropService()
         {
-            Register("Neo.Runtime.GetTrigger", NeoRuntimeGetTrigger);
-            Register("Neo.Runtime.Log", NeoRuntimeLog);
-            Register("Neo.Runtime.Notify", NeoRuntimeNotify);
-            Register("Neo.Runtime.Serialize", "System.Runtime.Serialize", RuntimeSerialize);
-            Register("Neo.Runtime.Deserialize", "System.Runtime.Deserialize", RuntimeDeserialize);
+            Register("System.Runtime.Platform", GetPlatform);
+            Register("System.Runtime.GetTrigger", "Neo.Runtime.GetTrigger", GetTrigger);
+            Register("System.Runtime.Log", "Neo.Runtime.Log", "AntShares.Runtime.Log", Log);
+            Register("System.Runtime.Notify", "Neo.Runtime.Notify", "AntShares.Runtime.Notify", Notify);
+            Register("System.Runtime.Serialize", "Neo.Runtime.Serialize", Serialize);
+            Register("System.Runtime.Deserialize", "Neo.Runtime.Deserialize", Deserialize);
 
             Register("System.ExecutionEngine.GetScriptContainer", GetScriptContainer);
             Register("System.ExecutionEngine.GetExecutingScriptHash", GetExecutingScriptHash);
@@ -96,9 +97,9 @@ namespace NeoSharp.VM
         /// <param name="name">Method name</param>
         /// <param name="handler">Method delegate</param>
         /// <param name="gas">Gas</param>
-        public void Register(string name, Func<ExecutionEngineBase, bool> handler, uint gas = 1)
+        public void Register(string name, Func<IExecutionEngine, bool> handler, uint gas = 1)
         {
-            Register(name, null, handler, gas);
+            Register(name, null, null, handler, gas);
         }
 
         /// <summary>
@@ -108,15 +109,26 @@ namespace NeoSharp.VM
         /// <param name="alias">Alias</param>
         /// <param name="handler">Method delegate</param>
         /// <param name="gas">Gas</param>
-        public void Register(string name, string alias, Func<ExecutionEngineBase, bool> handler, uint gas = 1)
+        public void Register(string name, string alias, Func<IExecutionEngine, bool> handler, uint gas = 1)
+        {
+            Register(name, alias, null, handler, gas);
+        }
+
+        public void Register(string name, string alias1, string alias2, Func<IExecutionEngine, bool> handler, uint gas = 1)
         {
             var entry = new InteropServiceEntry(name, GetMethodHash(name), handler, checked(gas * GasRatio));
             _entries[entry.MethodHash] = entry;
 
-            if (string.IsNullOrEmpty(alias)) return;
+            if (string.IsNullOrEmpty(alias1)) return;
 
-            entry = new InteropServiceEntry(alias, GetMethodHash(alias), handler, checked(gas * GasRatio));
+            entry = new InteropServiceEntry(alias1, GetMethodHash(alias1), handler, checked(gas * GasRatio));
             _entries[entry.MethodHash] = entry;
+
+            if (string.IsNullOrEmpty(alias2)) return;
+
+            entry = new InteropServiceEntry(alias2, GetMethodHash(alias2), handler, checked(gas * GasRatio));
+            _entries[entry.MethodHash] = entry;
+
         }
 
         /// <summary>
@@ -125,7 +137,7 @@ namespace NeoSharp.VM
         /// <param name="method">Method</param>
         /// <param name="engine">Execution engine</param>
         /// <returns>Return false if something is wrong</returns>
-        public bool Invoke(byte[] method, ExecutionEngineBase engine)
+        public bool Invoke(byte[] method, IExecutionEngine engine)
         {
             var hash = method.Length == 4
                 ? BitConverter.ToUInt32(method, 0)
@@ -156,12 +168,46 @@ namespace NeoSharp.VM
 
         #region Delegates
 
-        private static bool RuntimeSerialize(ExecutionEngineBase engine)
+        private static bool GetPlatform(IExecutionEngine engine)
         {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
+            engine.CurrentContext.EvaluationStack.Push(Encoding.ASCII.GetBytes("NEO"));
+            return true;
+        }
 
-            var stack = ctx.EvaluationStack;
+        private static bool GetTrigger(IExecutionEngine engine)
+        {
+            engine.CurrentContext.EvaluationStack.Push((int)engine.Trigger);
+
+            return true;
+        }
+
+        private bool Log(IExecutionEngine engine)
+        {
+            var message = Encoding.UTF8.GetString(engine.CurrentContext.EvaluationStack.PopByteArray());
+
+            OnLog?.Invoke(this, new LogEventArgs(engine.CurrentContext.ScriptHash, message));
+
+            return true;
+        }
+
+        private bool Notify(IExecutionEngine engine)
+        {
+            if (!engine.CurrentContext.EvaluationStack.TryPop(out var stackItem))
+            {
+                return false;
+            }
+
+            using (stackItem)
+            {
+                OnNotify?.Invoke(this, new NotifyEventArgs(engine.CurrentContext.ScriptHash, stackItem));
+            }
+
+            return true;
+        }
+
+        private static bool Serialize(IExecutionEngine engine)
+        {
+            var stack = engine.CurrentContext.EvaluationStack;
 
             using (var ms = new MemoryStream())
             using (var writer = new BinaryWriter(ms))
@@ -191,12 +237,9 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool RuntimeDeserialize(ExecutionEngineBase engine)
+        private static bool Deserialize(IExecutionEngine engine)
         {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
-
-            var stack = ctx.EvaluationStack;
+            var stack = engine.CurrentContext.EvaluationStack;
             byte[] data;
 
             using (var stackItem = stack.Pop())
@@ -226,62 +269,8 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool NeoRuntimeGetTrigger(ExecutionEngineBase engine)
-        {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
 
-            ctx.EvaluationStack.Push((int)engine.Trigger);
-
-            return true;
-        }
-
-        public void RaiseOnLog(LogEventArgs e) => OnLog?.Invoke(this, e);
-
-        public void RaiseOnNotify(NotifyEventArgs e) => OnNotify?.Invoke(this, e);
-
-        private bool NeoRuntimeLog(ExecutionEngineBase engine)
-        {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
-
-            if (!ctx.EvaluationStack.TryPop(out var stackItem))
-            {
-                return false;
-            }
-
-            using (stackItem)
-            {
-                if (OnLog == null)
-                {
-                    return true;
-                }
-
-                RaiseOnLog(new LogEventArgs(ctx.ScriptHash, stackItem.ToString() ?? ""));
-            }
-
-            return true;
-        }
-
-        private bool NeoRuntimeNotify(ExecutionEngineBase engine)
-        {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
-
-            if (!ctx.EvaluationStack.TryPop(out var stackItem))
-            {
-                return false;
-            }
-
-            using (stackItem)
-            {
-                RaiseOnNotify(new NotifyEventArgs(ctx.ScriptHash, stackItem));
-            }
-
-            return true;
-        }
-
-        private static bool GetScriptContainer(ExecutionEngineBase engine)
+        private static bool GetScriptContainer(IExecutionEngine engine)
         {
             if (engine.MessageProvider == null)
             {
@@ -296,7 +285,7 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool GetExecutingScriptHash(ExecutionEngineBase engine)
+        private static bool GetExecutingScriptHash(IExecutionEngine engine)
         {
             var ctx = engine.CurrentContext;
             if (ctx == null) return false;
@@ -306,7 +295,7 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool GetCallingScriptHash(ExecutionEngineBase engine)
+        private static bool GetCallingScriptHash(IExecutionEngine engine)
         {
             var ctx = engine.CallingContext;
             if (ctx == null) return false;
@@ -316,7 +305,7 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool GetEntryScriptHash(ExecutionEngineBase engine)
+        private static bool GetEntryScriptHash(IExecutionEngine engine)
         {
             var ctx = engine.EntryContext;
             if (ctx == null) return false;
@@ -326,10 +315,9 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool GetEnumerator(ExecutionEngineBase engine)
+        private static bool GetEnumerator(IExecutionEngine engine)
         {
-            var stack = engine.CallingContext?.EvaluationStack;
-            if (stack == null) return false;
+            var stack = engine.CurrentContext.EvaluationStack;
             if (!stack.TryPop(out var stackItem)) return false;
 
             using (stackItem)
@@ -342,10 +330,10 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool MoveNextEnumerator(ExecutionEngineBase engine)
+        private static bool MoveNextEnumerator(IExecutionEngine engine)
         {
-            var stack = engine.CallingContext?.EvaluationStack;
-            var enumerator = stack?.PopObject<IEnumerator<StackItemBase>>();
+            var stack = engine.CurrentContext.EvaluationStack;
+            var enumerator = stack.PopObject<IEnumerator<StackItemBase>>();
             if (enumerator == null) return false;
 
             stack.Push(enumerator.MoveNext());
@@ -353,10 +341,10 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool GetEnumeratorValue(ExecutionEngineBase engine)
+        private static bool GetEnumeratorValue(IExecutionEngine engine)
         {
-            var stack = engine.CallingContext?.EvaluationStack;
-            var enumerator = stack?.PopObject<IEnumerator<StackItemBase>>();
+            var stack = engine.CurrentContext.EvaluationStack;
+            var enumerator = stack.PopObject<IEnumerator<StackItemBase>>();
             if (enumerator == null) return false;
 
             stack.Push(enumerator.Current);
@@ -364,10 +352,10 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool ConcatEnumerators(ExecutionEngineBase engine)
+        private static bool ConcatEnumerators(IExecutionEngine engine)
         {
-            var stack = engine.CallingContext?.EvaluationStack;
-            var enumerator1 = stack?.PopObject<IEnumerator<StackItemBase>>();
+            var stack = engine.CurrentContext.EvaluationStack;
+            var enumerator1 = stack.PopObject<IEnumerator<StackItemBase>>();
             if (enumerator1 == null) return false;
             var enumerator2 = stack.PopObject<IEnumerator<StackItemBase>>();
             if (enumerator2 == null) return false;
@@ -379,10 +367,9 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool GetMapEnumerator(ExecutionEngineBase engine)
+        private static bool GetMapEnumerator(IExecutionEngine engine)
         {
-            var stack = engine.CallingContext?.EvaluationStack;
-            if (stack == null) return false;
+            var stack = engine.CurrentContext.EvaluationStack;
             if (!stack.TryPop(out var stackItem)) return false;
 
             using (stackItem)
@@ -395,10 +382,10 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool GetMapEnumeratorKey(ExecutionEngineBase engine)
+        private static bool GetMapEnumeratorKey(IExecutionEngine engine)
         {
-            var stack = engine.CallingContext?.EvaluationStack;
-            var keyEnumerator = stack?.PopObject<KeyEnumerator>();
+            var stack = engine.CurrentContext.EvaluationStack;
+            var keyEnumerator = stack.PopObject<KeyEnumerator>();
             if (keyEnumerator == null) return false;
 
             stack.Push(keyEnumerator.CurrentKey);
@@ -406,10 +393,10 @@ namespace NeoSharp.VM
             return false;
         }
 
-        private static bool GetKeyEnumerator(ExecutionEngineBase engine)
+        private static bool GetKeyEnumerator(IExecutionEngine engine)
         {
-            var stack = engine.CallingContext?.EvaluationStack;
-            var keyEnumerator = stack?.PopObject<KeyEnumerator>();
+            var stack = engine.CurrentContext.EvaluationStack;
+            var keyEnumerator = stack.PopObject<KeyEnumerator>();
             if (keyEnumerator == null) return false;
 
             var projectingEnumerator = new ProjectingEnumerator<KeyEnumerator>(keyEnumerator, ke => ke.CurrentKey);
@@ -419,10 +406,10 @@ namespace NeoSharp.VM
             return true;
         }
 
-        private static bool GetValueEnumerator(ExecutionEngineBase engine)
+        private static bool GetValueEnumerator(IExecutionEngine engine)
         {
-            var stack = engine.CallingContext?.EvaluationStack;
-            var keyEnumerator = stack?.PopObject<KeyEnumerator>();
+            var stack = engine.CurrentContext.EvaluationStack;
+            var keyEnumerator = stack.PopObject<KeyEnumerator>();
             if (keyEnumerator == null) return false;
 
             var projectingEnumerator = new ProjectingEnumerator<KeyEnumerator>(keyEnumerator, ke => ke.Current);

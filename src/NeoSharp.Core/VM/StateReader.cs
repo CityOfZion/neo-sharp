@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
@@ -21,16 +20,8 @@ namespace NeoSharp.Core.VM
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBlockRepository _blockRepository;
         private readonly ITransactionRepository _transactionRepository;
-        private readonly InteropService _interopService;
 
-        private readonly ETriggerType _trigger;
-        //public static event EventHandler<NotifyEventArgs> Notify;
-        //public static event EventHandler<LogEventArgs> Log;
-
-        //private readonly List<NotifyEventArgs> _notifications = new List<NotifyEventArgs>();
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
-
-        //public IReadOnlyList<NotifyEventArgs> Notifications => _notifications;
 
         protected DataCache<UInt160, Account> Accounts { get; }
 
@@ -48,8 +39,7 @@ namespace NeoSharp.Core.VM
             InteropService interopService,
             IBlockchainContext blockchainContext,
             IBlockRepository blockRepository,
-            ITransactionRepository transactionRepository,
-            ETriggerType trigger)
+            ITransactionRepository transactionRepository)
         {
             Accounts = accounts;
             Assets = assets;
@@ -58,143 +48,133 @@ namespace NeoSharp.Core.VM
             _blockchainContext = blockchainContext;
             _blockRepository = blockRepository;
             _transactionRepository = transactionRepository;
-            _trigger = trigger;
-            _interopService = interopService;
 
             //Standard Library
-            interopService.RegisterStackMethod("System.Runtime.GetTrigger", Runtime_GetTrigger);
             interopService.Register("System.Runtime.CheckWitness", Runtime_CheckWitness);
-            interopService.Register("System.Runtime.Notify", Runtime_Notify);
-            interopService.Register("System.Runtime.Log", Runtime_Log);
-            interopService.RegisterStackMethod("System.Runtime.GetTime", Runtime_GetTime);
-            interopService.RegisterStackMethod("System.Blockchain.GetHeight", Blockchain_GetHeight);
-            interopService.RegisterStackMethod("System.Blockchain.GetHeader", Blockchain_GetHeader);
-            interopService.RegisterStackMethod("System.Blockchain.GetBlock", Blockchain_GetBlock);
-            interopService.RegisterStackMethod("System.Blockchain.GetTransaction", Blockchain_GetTransaction);
-            interopService.RegisterStackMethod("System.Blockchain.GetTransactionHeight", Blockchain_GetTransactionHeight);
-            interopService.RegisterStackMethod("System.Blockchain.GetContract", Blockchain_GetContract);
-            interopService.RegisterStackMethod("System.Header.GetIndex", Header_GetIndex);
-            interopService.RegisterStackMethod("System.Header.GetHash", Header_GetHash);
-            interopService.RegisterStackMethod("System.Header.GetPrevHash", Header_GetPrevHash);
-            interopService.RegisterStackMethod("System.Header.GetTimestamp", Header_GetTimestamp);
-            interopService.RegisterStackMethod("System.Block.GetTransactionCount", Block_GetTransactionCount);
-            interopService.RegisterStackMethod("System.Block.GetTransactions", Block_GetTransactions);
-            interopService.RegisterStackMethod("System.Block.GetTransaction", Block_GetTransaction);
-            interopService.RegisterStackMethod("System.Transaction.GetHash", Transaction_GetHash);
+            interopService.Register("System.Runtime.GetTime", Runtime_GetTime);
+            interopService.Register("System.Blockchain.GetHeight", Blockchain_GetHeight);
+            interopService.Register("System.Blockchain.GetHeader", Blockchain_GetHeader);
+            interopService.Register("System.Blockchain.GetBlock", Blockchain_GetBlock);
+            interopService.Register("System.Blockchain.GetTransaction", Blockchain_GetTransaction);
+            interopService.Register("System.Blockchain.GetTransactionHeight", Blockchain_GetTransactionHeight);
+            interopService.Register("System.Blockchain.GetContract", Blockchain_GetContract);
+            interopService.Register("System.Header.GetIndex", Header_GetIndex);
+            interopService.Register("System.Header.GetHash", Header_GetHash);
+            interopService.Register("System.Header.GetPrevHash", Header_GetPrevHash);
+            interopService.Register("System.Header.GetTimestamp", Header_GetTimestamp);
+            interopService.Register("System.Block.GetTransactionCount", Block_GetTransactionCount);
+            interopService.Register("System.Block.GetTransactions", Block_GetTransactions);
+            interopService.Register("System.Block.GetTransaction", Block_GetTransaction);
+            interopService.Register("System.Transaction.GetHash", Transaction_GetHash);
             interopService.Register("System.Storage.GetContext", Storage_GetContext);
             interopService.Register("System.Storage.GetReadOnlyContext", Storage_GetReadOnlyContext);
-            interopService.RegisterStackMethod("System.Storage.Get", Storage_Get);
-            interopService.RegisterStackMethod("System.StorageContext.AsReadOnly", StorageContext_AsReadOnly);
+            interopService.Register("System.Storage.Get", Storage_Get);
+            interopService.Register("System.StorageContext.AsReadOnly", StorageContext_AsReadOnly);
 
             //Neo Specified
-            interopService.RegisterStackMethod("Neo.Blockchain.GetAccount", Blockchain_GetAccount);
-            interopService.RegisterStackMethod("Neo.Blockchain.GetValidators", Blockchain_GetValidators);
-            interopService.RegisterStackMethod("Neo.Blockchain.GetAsset", Blockchain_GetAsset);
-            interopService.RegisterStackMethod("Neo.Header.GetVersion", Header_GetVersion);
-            interopService.RegisterStackMethod("Neo.Header.GetMerkleRoot", Header_GetMerkleRoot);
-            interopService.RegisterStackMethod("Neo.Header.GetConsensusData", Header_GetConsensusData);
-            interopService.RegisterStackMethod("Neo.Header.GetNextConsensus", Header_GetNextConsensus);
-            interopService.RegisterStackMethod("Neo.Transaction.GetType", Transaction_GetType);
-            interopService.RegisterStackMethod("Neo.Transaction.GetAttributes", Transaction_GetAttributes);
-            interopService.RegisterStackMethod("Neo.Transaction.GetInputs", Transaction_GetInputs);
-            interopService.RegisterStackMethod("Neo.Transaction.GetOutputs", Transaction_GetOutputs);
-            interopService.RegisterStackMethod("Neo.Transaction.GetReferences", Transaction_GetReferences);
-            interopService.RegisterStackMethod("Neo.Transaction.GetUnspentCoins", Transaction_GetUnspentCoins);
-            interopService.RegisterStackMethod("Neo.InvocationTransaction.GetScript", InvocationTransaction_GetScript);
-            interopService.RegisterStackMethod("Neo.Attribute.GetUsage", Attribute_GetUsage);
-            interopService.RegisterStackMethod("Neo.Attribute.GetData", Attribute_GetData);
-            interopService.RegisterStackMethod("Neo.Input.GetHash", Input_GetHash);
-            interopService.RegisterStackMethod("Neo.Input.GetIndex", Input_GetIndex);
-            interopService.RegisterStackMethod("Neo.Output.GetAssetId", Output_GetAssetId);
-            interopService.RegisterStackMethod("Neo.Output.GetValue", Output_GetValue);
-            interopService.RegisterStackMethod("Neo.Output.GetScriptHash", Output_GetScriptHash);
-            interopService.RegisterStackMethod("Neo.Account.GetScriptHash", Account_GetScriptHash);
-            interopService.RegisterStackMethod("Neo.Account.GetVotes", Account_GetVotes);
-            interopService.RegisterStackMethod("Neo.Account.GetBalance", Account_GetBalance);
-            interopService.RegisterStackMethod("Neo.Asset.GetAssetId", Asset_GetAssetId);
-            interopService.RegisterStackMethod("Neo.Asset.GetAssetType", Asset_GetAssetType);
-            interopService.RegisterStackMethod("Neo.Asset.GetAmount", Asset_GetAmount);
-            interopService.RegisterStackMethod("Neo.Asset.GetAvailable", Asset_GetAvailable);
-            interopService.RegisterStackMethod("Neo.Asset.GetPrecision", Asset_GetPrecision);
-            interopService.RegisterStackMethod("Neo.Asset.GetOwner", Asset_GetOwner);
-            interopService.RegisterStackMethod("Neo.Asset.GetAdmin", Asset_GetAdmin);
-            interopService.RegisterStackMethod("Neo.Asset.GetIssuer", Asset_GetIssuer);
-            interopService.RegisterStackMethod("Neo.Contract.GetScript", Contract_GetScript);
-            interopService.RegisterStackMethod("Neo.Contract.IsPayable", Contract_IsPayable);
-            interopService.RegisterStackMethod("Neo.Storage.Find", Storage_Find);
+            interopService.Register("Neo.Blockchain.GetAccount", Blockchain_GetAccount);
+            interopService.Register("Neo.Blockchain.GetValidators", Blockchain_GetValidators);
+            interopService.Register("Neo.Blockchain.GetAsset", Blockchain_GetAsset);
+            interopService.Register("Neo.Header.GetVersion", Header_GetVersion);
+            interopService.Register("Neo.Header.GetMerkleRoot", Header_GetMerkleRoot);
+            interopService.Register("Neo.Header.GetConsensusData", Header_GetConsensusData);
+            interopService.Register("Neo.Header.GetNextConsensus", Header_GetNextConsensus);
+            interopService.Register("Neo.Transaction.GetType", Transaction_GetType);
+            interopService.Register("Neo.Transaction.GetAttributes", Transaction_GetAttributes);
+            interopService.Register("Neo.Transaction.GetInputs", Transaction_GetInputs);
+            interopService.Register("Neo.Transaction.GetOutputs", Transaction_GetOutputs);
+            interopService.Register("Neo.Transaction.GetReferences", Transaction_GetReferences);
+            interopService.Register("Neo.Transaction.GetUnspentCoins", Transaction_GetUnspentCoins);
+            interopService.Register("Neo.InvocationTransaction.GetScript", InvocationTransaction_GetScript);
+            interopService.Register("Neo.Attribute.GetUsage", Attribute_GetUsage);
+            interopService.Register("Neo.Attribute.GetData", Attribute_GetData);
+            interopService.Register("Neo.Input.GetHash", Input_GetHash);
+            interopService.Register("Neo.Input.GetIndex", Input_GetIndex);
+            interopService.Register("Neo.Output.GetAssetId", Output_GetAssetId);
+            interopService.Register("Neo.Output.GetValue", Output_GetValue);
+            interopService.Register("Neo.Output.GetScriptHash", Output_GetScriptHash);
+            interopService.Register("Neo.Account.GetScriptHash", Account_GetScriptHash);
+            interopService.Register("Neo.Account.GetVotes", Account_GetVotes);
+            interopService.Register("Neo.Account.GetBalance", Account_GetBalance);
+            interopService.Register("Neo.Asset.GetAssetId", Asset_GetAssetId);
+            interopService.Register("Neo.Asset.GetAssetType", Asset_GetAssetType);
+            interopService.Register("Neo.Asset.GetAmount", Asset_GetAmount);
+            interopService.Register("Neo.Asset.GetAvailable", Asset_GetAvailable);
+            interopService.Register("Neo.Asset.GetPrecision", Asset_GetPrecision);
+            interopService.Register("Neo.Asset.GetOwner", Asset_GetOwner);
+            interopService.Register("Neo.Asset.GetAdmin", Asset_GetAdmin);
+            interopService.Register("Neo.Asset.GetIssuer", Asset_GetIssuer);
+            interopService.Register("Neo.Contract.GetScript", Contract_GetScript);
+            interopService.Register("Neo.Contract.IsPayable", Contract_IsPayable);
+            interopService.Register("Neo.Storage.Find", Storage_Find);
 
             #region Old APIs
-            interopService.RegisterStackMethod("Neo.Runtime.GetTrigger", Runtime_GetTrigger);
             interopService.Register("Neo.Runtime.CheckWitness", Runtime_CheckWitness);
             interopService.Register("AntShares.Runtime.CheckWitness", Runtime_CheckWitness);
-            interopService.Register("Neo.Runtime.Notify", Runtime_Notify);
-            interopService.Register("AntShares.Runtime.Notify", Runtime_Notify);
-            interopService.Register("Neo.Runtime.Log", Runtime_Log);
-            interopService.Register("AntShares.Runtime.Log", Runtime_Log);
-            interopService.RegisterStackMethod("Neo.Runtime.GetTime", Runtime_GetTime);
-            interopService.RegisterStackMethod("Neo.Blockchain.GetHeight", Blockchain_GetHeight);
-            interopService.RegisterStackMethod("AntShares.Blockchain.GetHeight", Blockchain_GetHeight);
-            interopService.RegisterStackMethod("Neo.Blockchain.GetHeader", Blockchain_GetHeader);
-            interopService.RegisterStackMethod("AntShares.Blockchain.GetHeader", Blockchain_GetHeader);
-            interopService.RegisterStackMethod("Neo.Blockchain.GetBlock", Blockchain_GetBlock);
-            interopService.RegisterStackMethod("AntShares.Blockchain.GetBlock", Blockchain_GetBlock);
-            interopService.RegisterStackMethod("Neo.Blockchain.GetTransaction", Blockchain_GetTransaction);
-            interopService.RegisterStackMethod("AntShares.Blockchain.GetTransaction", Blockchain_GetTransaction);
-            interopService.RegisterStackMethod("Neo.Blockchain.GetTransactionHeight", Blockchain_GetTransactionHeight);
-            interopService.RegisterStackMethod("AntShares.Blockchain.GetAccount", Blockchain_GetAccount);
-            interopService.RegisterStackMethod("AntShares.Blockchain.GetValidators", Blockchain_GetValidators);
-            interopService.RegisterStackMethod("AntShares.Blockchain.GetAsset", Blockchain_GetAsset);
-            interopService.RegisterStackMethod("Neo.Blockchain.GetContract", Blockchain_GetContract);
-            interopService.RegisterStackMethod("AntShares.Blockchain.GetContract", Blockchain_GetContract);
-            interopService.RegisterStackMethod("Neo.Header.GetIndex", Header_GetIndex);
-            interopService.RegisterStackMethod("Neo.Header.GetHash", Header_GetHash);
-            interopService.RegisterStackMethod("AntShares.Header.GetHash", Header_GetHash);
-            interopService.RegisterStackMethod("AntShares.Header.GetVersion", Header_GetVersion);
-            interopService.RegisterStackMethod("Neo.Header.GetPrevHash", Header_GetPrevHash);
-            interopService.RegisterStackMethod("AntShares.Header.GetPrevHash", Header_GetPrevHash);
-            interopService.RegisterStackMethod("AntShares.Header.GetMerkleRoot", Header_GetMerkleRoot);
-            interopService.RegisterStackMethod("Neo.Header.GetTimestamp", Header_GetTimestamp);
-            interopService.RegisterStackMethod("AntShares.Header.GetTimestamp", Header_GetTimestamp);
-            interopService.RegisterStackMethod("AntShares.Header.GetConsensusData", Header_GetConsensusData);
-            interopService.RegisterStackMethod("AntShares.Header.GetNextConsensus", Header_GetNextConsensus);
-            interopService.RegisterStackMethod("Neo.Block.GetTransactionCount", Block_GetTransactionCount);
-            interopService.RegisterStackMethod("AntShares.Block.GetTransactionCount", Block_GetTransactionCount);
-            interopService.RegisterStackMethod("Neo.Block.GetTransactions", Block_GetTransactions);
-            interopService.RegisterStackMethod("AntShares.Block.GetTransactions", Block_GetTransactions);
-            interopService.RegisterStackMethod("Neo.Block.GetTransaction", Block_GetTransaction);
-            interopService.RegisterStackMethod("AntShares.Block.GetTransaction", Block_GetTransaction);
-            interopService.RegisterStackMethod("Neo.Transaction.GetHash", Transaction_GetHash);
-            interopService.RegisterStackMethod("AntShares.Transaction.GetHash", Transaction_GetHash);
-            interopService.RegisterStackMethod("AntShares.Transaction.GetType", Transaction_GetType);
-            interopService.RegisterStackMethod("AntShares.Transaction.GetAttributes", Transaction_GetAttributes);
-            interopService.RegisterStackMethod("AntShares.Transaction.GetInputs", Transaction_GetInputs);
-            interopService.RegisterStackMethod("AntShares.Transaction.GetOutputs", Transaction_GetOutputs);
-            interopService.RegisterStackMethod("AntShares.Transaction.GetReferences", Transaction_GetReferences);
-            interopService.RegisterStackMethod("AntShares.Attribute.GetUsage", Attribute_GetUsage);
-            interopService.RegisterStackMethod("AntShares.Attribute.GetData", Attribute_GetData);
-            interopService.RegisterStackMethod("AntShares.Input.GetHash", Input_GetHash);
-            interopService.RegisterStackMethod("AntShares.Input.GetIndex", Input_GetIndex);
-            interopService.RegisterStackMethod("AntShares.Output.GetAssetId", Output_GetAssetId);
-            interopService.RegisterStackMethod("AntShares.Output.GetValue", Output_GetValue);
-            interopService.RegisterStackMethod("AntShares.Output.GetScriptHash", Output_GetScriptHash);
-            interopService.RegisterStackMethod("AntShares.Account.GetScriptHash", Account_GetScriptHash);
-            interopService.RegisterStackMethod("AntShares.Account.GetVotes", Account_GetVotes);
-            interopService.RegisterStackMethod("AntShares.Account.GetBalance", Account_GetBalance);
-            interopService.RegisterStackMethod("AntShares.Asset.GetAssetId", Asset_GetAssetId);
-            interopService.RegisterStackMethod("AntShares.Asset.GetAssetType", Asset_GetAssetType);
-            interopService.RegisterStackMethod("AntShares.Asset.GetAmount", Asset_GetAmount);
-            interopService.RegisterStackMethod("AntShares.Asset.GetAvailable", Asset_GetAvailable);
-            interopService.RegisterStackMethod("AntShares.Asset.GetPrecision", Asset_GetPrecision);
-            interopService.RegisterStackMethod("AntShares.Asset.GetOwner", Asset_GetOwner);
-            interopService.RegisterStackMethod("AntShares.Asset.GetAdmin", Asset_GetAdmin);
-            interopService.RegisterStackMethod("AntShares.Asset.GetIssuer", Asset_GetIssuer);
-            interopService.RegisterStackMethod("AntShares.Contract.GetScript", Contract_GetScript);
+            interopService.Register("Neo.Runtime.GetTime", Runtime_GetTime);
+            interopService.Register("Neo.Blockchain.GetHeight", Blockchain_GetHeight);
+            interopService.Register("AntShares.Blockchain.GetHeight", Blockchain_GetHeight);
+            interopService.Register("Neo.Blockchain.GetHeader", Blockchain_GetHeader);
+            interopService.Register("AntShares.Blockchain.GetHeader", Blockchain_GetHeader);
+            interopService.Register("Neo.Blockchain.GetBlock", Blockchain_GetBlock);
+            interopService.Register("AntShares.Blockchain.GetBlock", Blockchain_GetBlock);
+            interopService.Register("Neo.Blockchain.GetTransaction", Blockchain_GetTransaction);
+            interopService.Register("AntShares.Blockchain.GetTransaction", Blockchain_GetTransaction);
+            interopService.Register("Neo.Blockchain.GetTransactionHeight", Blockchain_GetTransactionHeight);
+            interopService.Register("AntShares.Blockchain.GetAccount", Blockchain_GetAccount);
+            interopService.Register("AntShares.Blockchain.GetValidators", Blockchain_GetValidators);
+            interopService.Register("AntShares.Blockchain.GetAsset", Blockchain_GetAsset);
+            interopService.Register("Neo.Blockchain.GetContract", Blockchain_GetContract);
+            interopService.Register("AntShares.Blockchain.GetContract", Blockchain_GetContract);
+            interopService.Register("Neo.Header.GetIndex", Header_GetIndex);
+            interopService.Register("Neo.Header.GetHash", Header_GetHash);
+            interopService.Register("AntShares.Header.GetHash", Header_GetHash);
+            interopService.Register("AntShares.Header.GetVersion", Header_GetVersion);
+            interopService.Register("Neo.Header.GetPrevHash", Header_GetPrevHash);
+            interopService.Register("AntShares.Header.GetPrevHash", Header_GetPrevHash);
+            interopService.Register("AntShares.Header.GetMerkleRoot", Header_GetMerkleRoot);
+            interopService.Register("Neo.Header.GetTimestamp", Header_GetTimestamp);
+            interopService.Register("AntShares.Header.GetTimestamp", Header_GetTimestamp);
+            interopService.Register("AntShares.Header.GetConsensusData", Header_GetConsensusData);
+            interopService.Register("AntShares.Header.GetNextConsensus", Header_GetNextConsensus);
+            interopService.Register("Neo.Block.GetTransactionCount", Block_GetTransactionCount);
+            interopService.Register("AntShares.Block.GetTransactionCount", Block_GetTransactionCount);
+            interopService.Register("Neo.Block.GetTransactions", Block_GetTransactions);
+            interopService.Register("AntShares.Block.GetTransactions", Block_GetTransactions);
+            interopService.Register("Neo.Block.GetTransaction", Block_GetTransaction);
+            interopService.Register("AntShares.Block.GetTransaction", Block_GetTransaction);
+            interopService.Register("Neo.Transaction.GetHash", Transaction_GetHash);
+            interopService.Register("AntShares.Transaction.GetHash", Transaction_GetHash);
+            interopService.Register("AntShares.Transaction.GetType", Transaction_GetType);
+            interopService.Register("AntShares.Transaction.GetAttributes", Transaction_GetAttributes);
+            interopService.Register("AntShares.Transaction.GetInputs", Transaction_GetInputs);
+            interopService.Register("AntShares.Transaction.GetOutputs", Transaction_GetOutputs);
+            interopService.Register("AntShares.Transaction.GetReferences", Transaction_GetReferences);
+            interopService.Register("AntShares.Attribute.GetUsage", Attribute_GetUsage);
+            interopService.Register("AntShares.Attribute.GetData", Attribute_GetData);
+            interopService.Register("AntShares.Input.GetHash", Input_GetHash);
+            interopService.Register("AntShares.Input.GetIndex", Input_GetIndex);
+            interopService.Register("AntShares.Output.GetAssetId", Output_GetAssetId);
+            interopService.Register("AntShares.Output.GetValue", Output_GetValue);
+            interopService.Register("AntShares.Output.GetScriptHash", Output_GetScriptHash);
+            interopService.Register("AntShares.Account.GetScriptHash", Account_GetScriptHash);
+            interopService.Register("AntShares.Account.GetVotes", Account_GetVotes);
+            interopService.Register("AntShares.Account.GetBalance", Account_GetBalance);
+            interopService.Register("AntShares.Asset.GetAssetId", Asset_GetAssetId);
+            interopService.Register("AntShares.Asset.GetAssetType", Asset_GetAssetType);
+            interopService.Register("AntShares.Asset.GetAmount", Asset_GetAmount);
+            interopService.Register("AntShares.Asset.GetAvailable", Asset_GetAvailable);
+            interopService.Register("AntShares.Asset.GetPrecision", Asset_GetPrecision);
+            interopService.Register("AntShares.Asset.GetOwner", Asset_GetOwner);
+            interopService.Register("AntShares.Asset.GetAdmin", Asset_GetAdmin);
+            interopService.Register("AntShares.Asset.GetIssuer", Asset_GetIssuer);
+            interopService.Register("AntShares.Contract.GetScript", Contract_GetScript);
             interopService.Register("Neo.Storage.GetContext", Storage_GetContext);
             interopService.Register("AntShares.Storage.GetContext", Storage_GetContext);
             interopService.Register("Neo.Storage.GetReadOnlyContext", Storage_GetReadOnlyContext);
-            interopService.RegisterStackMethod("Neo.Storage.Get", Storage_Get);
-            interopService.RegisterStackMethod("AntShares.Storage.Get", Storage_Get);
-            interopService.RegisterStackMethod("Neo.StorageContext.AsReadOnly", StorageContext_AsReadOnly);
+            interopService.Register("Neo.Storage.Get", Storage_Get);
+            interopService.Register("AntShares.Storage.Get", Storage_Get);
+            interopService.Register("Neo.StorageContext.AsReadOnly", StorageContext_AsReadOnly);
             #endregion
         }
 
@@ -212,13 +192,7 @@ namespace NeoSharp.Core.VM
             _disposables.Clear();
         }
 
-        protected virtual bool Runtime_GetTrigger(Stack stack)
-        {
-            stack.Push((int)_trigger);
-            return true;
-        }
-
-        protected bool CheckWitness(ExecutionEngineBase engine, UInt160 hash)
+        protected bool CheckWitness(IExecutionEngine engine, UInt160 hash)
         {
             // TODO: IVerifiable?
             //IVerifiable container = (IVerifiable)engine.MessageProvider;
@@ -227,72 +201,45 @@ namespace NeoSharp.Core.VM
             return true;
         }
 
-        protected bool CheckWitness(ExecutionEngineBase engine, ECPoint pubkey)
+        protected bool CheckWitness(IExecutionEngine engine, ECPoint pubKey)
         {
             // TODO: Contract.CreateSignatureRedeemScript?
             //return CheckWitness(engine, Contract.CreateSignatureRedeemScript(pubkey).ToScriptHash());
             return true;
         }
 
-        protected virtual bool Runtime_CheckWitness(ExecutionEngineBase engine)
+        protected virtual bool Runtime_CheckWitness(IExecutionEngine engine)
         {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
-
             bool result;
-            var hashOrPubkey = ctx.EvaluationStack.PopByteArray();
+            var hashOrPubKey = engine.CurrentContext.EvaluationStack.PopByteArray();
 
-            if (hashOrPubkey.Length == 20)
-                result = CheckWitness(engine, new UInt160(hashOrPubkey));
-            else if (hashOrPubkey.Length == 33)
-                result = CheckWitness(engine, new ECPoint(hashOrPubkey));
+            if (hashOrPubKey.Length == 20)
+                result = CheckWitness(engine, new UInt160(hashOrPubKey));
+            else if (hashOrPubKey.Length == 33)
+                result = CheckWitness(engine, new ECPoint(hashOrPubKey));
             else
                 return false;
 
-            ctx.EvaluationStack.Push(result);
+            engine.CurrentContext.EvaluationStack.Push(result);
 
             return true;
         }
 
-        protected virtual bool Runtime_Notify(ExecutionEngineBase engine)
+        protected virtual bool Runtime_GetTime(IExecutionEngine engine)
         {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
-
-            var state = ctx.EvaluationStack.PopObject<StackItemBase>();
-
-            _interopService.RaiseOnNotify(new NotifyEventArgs(ctx.ScriptHash.ToArray(), state));
-
+            engine.CurrentContext.EvaluationStack.Push(_blockchainContext.LastBlockHeader.Timestamp + 15);
             return true;
         }
 
-        protected virtual bool Runtime_Log(ExecutionEngineBase engine)
+        protected virtual bool Blockchain_GetHeight(IExecutionEngine engine)
         {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
-
-            var message = Encoding.UTF8.GetString(ctx.EvaluationStack.PopByteArray());
-
-            _interopService.RaiseOnLog(new LogEventArgs(ctx.ScriptHash.ToArray(), message));
-
+            engine.CurrentContext.EvaluationStack.Push(_blockchainContext.CurrentBlock.Index);
             return true;
         }
 
-        protected virtual bool Runtime_GetTime(Stack stack)
+        protected virtual bool Blockchain_GetHeader(IExecutionEngine engine)
         {
-            stack.Push(_blockchainContext.LastBlockHeader.Timestamp + 15);
-            return true;
-        }
-
-        protected virtual bool Blockchain_GetHeight(Stack stack)
-        {
-            stack.Push(_blockchainContext.CurrentBlock.Index);
-            return true;
-        }
-
-        protected virtual bool Blockchain_GetHeader(Stack stack)
-        {
-            var data = stack.PopByteArray();
+            var data = engine.CurrentContext.EvaluationStack.PopByteArray();
 
             BlockHeader blockHeader;
 
@@ -313,14 +260,14 @@ namespace NeoSharp.Core.VM
                 return false;
             }
 
-            stack.PushObject(blockHeader);
+            engine.CurrentContext.EvaluationStack.PushObject(blockHeader);
 
             return true;
         }
 
-        protected virtual bool Blockchain_GetBlock(Stack stack)
+        protected virtual bool Blockchain_GetBlock(IExecutionEngine engine)
         {
-            var data = stack.PopByteArray();
+            var data = engine.CurrentContext.EvaluationStack.PopByteArray();
 
             Block block;
 
@@ -341,540 +288,534 @@ namespace NeoSharp.Core.VM
                 return false;
             }
 
-            stack.PushObject(block);
+            engine.CurrentContext.EvaluationStack.PushObject(block);
 
             return true;
         }
 
-        protected virtual bool Blockchain_GetTransaction(Stack stack)
+        protected virtual bool Blockchain_GetTransaction(IExecutionEngine engine)
         {
-            var hash = stack.PopByteArray();
+            var hash = engine.CurrentContext.EvaluationStack.PopByteArray();
             var transaction = _transactionRepository.GetTransaction(new UInt256(hash)).Result;
 
-            stack.PushObject(transaction);
+            engine.CurrentContext.EvaluationStack.PushObject(transaction);
 
             return true;
         }
 
-        protected virtual bool Blockchain_GetTransactionHeight(Stack stack)
+        protected virtual bool Blockchain_GetTransactionHeight(IExecutionEngine engine)
         {
-            var hash = stack.PopByteArray();
+            var hash = engine.CurrentContext.EvaluationStack.PopByteArray();
             // TODO: looks like we need an index transaction in the block;
             var height = 0;
             // var transaction = _transactionRepository.GetTransaction(new UInt256(hash)).Result;
 
-            stack.Push(height);
+            engine.CurrentContext.EvaluationStack.Push(height);
 
             return true;
         }
 
-        protected virtual bool Blockchain_GetAccount(Stack stack)
+        protected virtual bool Blockchain_GetAccount(IExecutionEngine engine)
         {
-            var hash = new UInt160(stack.PopByteArray());
+            var hash = new UInt160(engine.CurrentContext.EvaluationStack.PopByteArray());
             var account = Accounts.GetOrAdd(hash, () => new Account(hash));
 
-            stack.PushObject(account);
+            engine.CurrentContext.EvaluationStack.PushObject(account);
 
             return true;
         }
 
-        protected virtual bool Blockchain_GetValidators(Stack stack)
+        protected virtual bool Blockchain_GetValidators(IExecutionEngine engine)
         {
             // TODO: looks like we need to get all validators
             //ECPoint[] validators = _blockchain.GetValidators();
-            //stack.Push(validators.Select(p => (StackItem)p.EncodePoint(true)).ToArray());
+            //engine.CurrentContext.EvaluationStack.Push(validators.Select(p => (engine.CurrentContext.EvaluationStackItem)p.EncodePoint(true)).ToArray());
             return true;
         }
 
-        protected virtual bool Blockchain_GetAsset(Stack stack)
+        protected virtual bool Blockchain_GetAsset(IExecutionEngine engine)
         {
-            var hash = new UInt256(stack.PopByteArray());
+            var hash = new UInt256(engine.CurrentContext.EvaluationStack.PopByteArray());
             var asset = Assets.TryGet(hash);
             if (asset == null) return false;
-            stack.PushObject(asset);
+            engine.CurrentContext.EvaluationStack.PushObject(asset);
             return true;
         }
 
-        protected virtual bool Blockchain_GetContract(Stack stack)
+        protected virtual bool Blockchain_GetContract(IExecutionEngine engine)
         {
-            var hash = new UInt160(stack.PopByteArray());
+            var hash = new UInt160(engine.CurrentContext.EvaluationStack.PopByteArray());
             var contract = Contracts.TryGet(hash);
             if (contract == null)
-                stack.Push(Array.Empty<byte>());
+                engine.CurrentContext.EvaluationStack.Push(Array.Empty<byte>());
             else
-                stack.PushObject(contract);
+                engine.CurrentContext.EvaluationStack.PushObject(contract);
             return true;
         }
 
-        protected virtual bool Header_GetIndex(Stack stack)
+        protected virtual bool Header_GetIndex(IExecutionEngine engine)
         {
-            var blockBase = stack.PopObject<BlockBase>();
+            var blockBase = engine.CurrentContext.EvaluationStack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
-            stack.Push(blockBase.Index);
+            engine.CurrentContext.EvaluationStack.Push(blockBase.Index);
 
             return true;
         }
 
-        protected virtual bool Header_GetHash(Stack stack)
+        protected virtual bool Header_GetHash(IExecutionEngine engine)
         {
-            var blockBase = stack.PopObject<BlockBase>();
+            var blockBase = engine.CurrentContext.EvaluationStack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
-            stack.Push(blockBase.Hash.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(blockBase.Hash.ToArray());
 
             return true;
         }
 
-        protected virtual bool Header_GetVersion(Stack stack)
+        protected virtual bool Header_GetVersion(IExecutionEngine engine)
         {
-            var blockBase = stack.PopObject<BlockBase>();
+            var blockBase = engine.CurrentContext.EvaluationStack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
-            stack.Push(blockBase.Version);
+            engine.CurrentContext.EvaluationStack.Push(blockBase.Version);
 
             return true;
         }
 
-        protected virtual bool Header_GetPrevHash(Stack stack)
+        protected virtual bool Header_GetPrevHash(IExecutionEngine engine)
         {
-            var blockBase = stack.PopObject<BlockBase>();
+            var blockBase = engine.CurrentContext.EvaluationStack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
-            stack.Push(blockBase.PreviousBlockHash.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(blockBase.PreviousBlockHash.ToArray());
 
             return true;
         }
 
-        protected virtual bool Header_GetMerkleRoot(Stack stack)
+        protected virtual bool Header_GetMerkleRoot(IExecutionEngine engine)
         {
             // TODO: Should MerkleRoot be in BlockBase?
-            var blockBase = stack.PopObject<BlockHeader>();
+            var blockBase = engine.CurrentContext.EvaluationStack.PopObject<BlockHeader>();
             if (blockBase == null) return false;
 
-            stack.Push(blockBase.MerkleRoot.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(blockBase.MerkleRoot.ToArray());
 
             return true;
         }
 
-        protected virtual bool Header_GetTimestamp(Stack stack)
+        protected virtual bool Header_GetTimestamp(IExecutionEngine engine)
         {
-            var blockBase = stack.PopObject<BlockBase>();
+            var blockBase = engine.CurrentContext.EvaluationStack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
-            stack.Push(blockBase.Timestamp);
+            engine.CurrentContext.EvaluationStack.Push(blockBase.Timestamp);
 
             return true;
         }
 
-        protected virtual bool Header_GetConsensusData(Stack stack)
+        protected virtual bool Header_GetConsensusData(IExecutionEngine engine)
         {
-            var blockBase = stack.PopObject<BlockBase>();
+            var blockBase = engine.CurrentContext.EvaluationStack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
-            stack.Push(blockBase.ConsensusData);
+            engine.CurrentContext.EvaluationStack.Push(blockBase.ConsensusData);
 
             return true;
         }
 
-        protected virtual bool Header_GetNextConsensus(Stack stack)
+        protected virtual bool Header_GetNextConsensus(IExecutionEngine engine)
         {
-            var blockBase = stack.PopObject<BlockBase>();
+            var blockBase = engine.CurrentContext.EvaluationStack.PopObject<BlockBase>();
             if (blockBase == null) return false;
 
-            stack.Push(blockBase.NextConsensus.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(blockBase.NextConsensus.ToArray());
 
             return true;
         }
 
-        protected virtual bool Block_GetTransactionCount(Stack stack)
+        protected virtual bool Block_GetTransactionCount(IExecutionEngine engine)
         {
-            var block = stack.PopObject<Block>();
+            var block = engine.CurrentContext.EvaluationStack.PopObject<Block>();
             if (block == null) return false;
 
-            stack.Push(block.Transactions.Length);
+            engine.CurrentContext.EvaluationStack.Push(block.Transactions.Length);
 
             return true;
         }
 
-        protected virtual bool Block_GetTransactions(Stack stack)
+        protected virtual bool Block_GetTransactions(IExecutionEngine engine)
         {
-            var block = stack.PopObject<Block>();
+            var block = engine.CurrentContext.EvaluationStack.PopObject<Block>();
             if (block == null) return false;
             if (block.Transactions.Length > EngineMaxArraySize) return false;
 
-            stack.PushArray(block.Transactions);
+            engine.CurrentContext.EvaluationStack.PushArray(block.Transactions);
 
             return true;
         }
 
-        protected virtual bool Block_GetTransaction(Stack stack)
+        protected virtual bool Block_GetTransaction(IExecutionEngine engine)
         {
-            var block = stack.PopObject<Block>();
+            var block = engine.CurrentContext.EvaluationStack.PopObject<Block>();
             if (block == null) return false;
 
-            var index = (int)stack.PopBigInteger();
+            var index = (int)engine.CurrentContext.EvaluationStack.PopBigInteger();
             if (index < 0 || index >= block.Transactions.Length) return false;
 
             var transaction = block.Transactions[index];
 
-            stack.PushObject(transaction);
+            engine.CurrentContext.EvaluationStack.PushObject(transaction);
 
             return true;
         }
 
-        protected virtual bool Transaction_GetHash(Stack stack)
+        protected virtual bool Transaction_GetHash(IExecutionEngine engine)
         {
-            var transaction = stack.PopObject<Transaction>();
+            var transaction = engine.CurrentContext.EvaluationStack.PopObject<Transaction>();
             if (transaction == null) return false;
 
-            stack.Push(transaction.Hash.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(transaction.Hash.ToArray());
 
             return true;
         }
 
-        protected virtual bool Transaction_GetType(Stack stack)
+        protected virtual bool Transaction_GetType(IExecutionEngine engine)
         {
-            var transaction = stack.PopObject<Transaction>();
+            var transaction = engine.CurrentContext.EvaluationStack.PopObject<Transaction>();
             if (transaction == null) return false;
 
-            stack.Push((int)transaction.Type);
+            engine.CurrentContext.EvaluationStack.Push((int)transaction.Type);
 
             return true;
         }
 
-        protected virtual bool Transaction_GetAttributes(Stack stack)
+        protected virtual bool Transaction_GetAttributes(IExecutionEngine engine)
         {
-            var transaction = stack.PopObject<Transaction>();
+            var transaction = engine.CurrentContext.EvaluationStack.PopObject<Transaction>();
             if (transaction == null) return false;
             if (transaction.Attributes.Length > EngineMaxArraySize)
                 return false;
 
-            stack.PushArray(transaction.Attributes);
+            engine.CurrentContext.EvaluationStack.PushArray(transaction.Attributes);
 
             return true;
         }
 
-        protected virtual bool Transaction_GetInputs(Stack stack)
+        protected virtual bool Transaction_GetInputs(IExecutionEngine engine)
         {
-            var transaction = stack.PopObject<Transaction>();
+            var transaction = engine.CurrentContext.EvaluationStack.PopObject<Transaction>();
             if (transaction == null) return false;
             if (transaction.Inputs.Length > EngineMaxArraySize)
                 return false;
 
-            stack.PushArray(transaction.Inputs);
+            engine.CurrentContext.EvaluationStack.PushArray(transaction.Inputs);
 
             return true;
         }
 
-        protected virtual bool Transaction_GetOutputs(Stack stack)
+        protected virtual bool Transaction_GetOutputs(IExecutionEngine engine)
         {
-            var transaction = stack.PopObject<Transaction>();
+            var transaction = engine.CurrentContext.EvaluationStack.PopObject<Transaction>();
             if (transaction == null) return false;
             if (transaction.Outputs.Length > EngineMaxArraySize)
                 return false;
 
-            stack.PushArray(transaction.Outputs);
+            engine.CurrentContext.EvaluationStack.PushArray(transaction.Outputs);
 
             return true;
         }
 
-        protected virtual bool Transaction_GetReferences(Stack stack)
+        protected virtual bool Transaction_GetReferences(IExecutionEngine engine)
         {
-            var transaction = stack.PopObject<Transaction>();
+            var transaction = engine.CurrentContext.EvaluationStack.PopObject<Transaction>();
             if (transaction == null) return false;
             // TODO: Check refs length?
             if (transaction.Inputs.Length > EngineMaxArraySize)
                 return false;
 
             var references = _transactionRepository.GetReferences(transaction).Result;
-            stack.PushArray(transaction.Inputs.Select(i => references[i]).ToArray());
+            engine.CurrentContext.EvaluationStack.PushArray(transaction.Inputs.Select(i => references[i]).ToArray());
 
             return true;
         }
 
-        protected virtual bool Transaction_GetUnspentCoins(Stack stack)
+        protected virtual bool Transaction_GetUnspentCoins(IExecutionEngine engine)
         {
-            var transaction = stack.PopObject<Transaction>();
+            var transaction = engine.CurrentContext.EvaluationStack.PopObject<Transaction>();
             if (transaction == null) return false;
 
             var outputs = _transactionRepository.GetUnspent(transaction.Hash).Result;
             if (outputs.Count() > EngineMaxArraySize)
                 return false;
 
-            stack.PushArray(outputs.ToArray());
+            engine.CurrentContext.EvaluationStack.PushArray(outputs.ToArray());
 
             return true;
         }
 
-        protected virtual bool InvocationTransaction_GetScript(Stack stack)
+        protected virtual bool InvocationTransaction_GetScript(IExecutionEngine engine)
         {
-            var transaction = stack.PopObject<InvocationTransaction>();
+            var transaction = engine.CurrentContext.EvaluationStack.PopObject<InvocationTransaction>();
             if (transaction == null) return false;
 
-            stack.Push(transaction.Script);
+            engine.CurrentContext.EvaluationStack.Push(transaction.Script);
 
             return true;
         }
 
-        protected virtual bool Attribute_GetUsage(Stack stack)
+        protected virtual bool Attribute_GetUsage(IExecutionEngine engine)
         {
-            var transactionAttr = stack.PopObject<TransactionAttribute>();
+            var transactionAttr = engine.CurrentContext.EvaluationStack.PopObject<TransactionAttribute>();
             if (transactionAttr == null) return false;
 
-            stack.Push((int)transactionAttr.Usage);
+            engine.CurrentContext.EvaluationStack.Push((int)transactionAttr.Usage);
 
             return true;
         }
 
-        protected virtual bool Attribute_GetData(Stack stack)
+        protected virtual bool Attribute_GetData(IExecutionEngine engine)
         {
-            var transactionAttr = stack.PopObject<TransactionAttribute>();
+            var transactionAttr = engine.CurrentContext.EvaluationStack.PopObject<TransactionAttribute>();
             if (transactionAttr == null) return false;
 
-            stack.Push(transactionAttr.Data);
+            engine.CurrentContext.EvaluationStack.Push(transactionAttr.Data);
 
             return true;
         }
 
-        protected virtual bool Input_GetHash(Stack stack)
+        protected virtual bool Input_GetHash(IExecutionEngine engine)
         {
-            var coinReference = stack.PopObject<CoinReference>();
+            var coinReference = engine.CurrentContext.EvaluationStack.PopObject<CoinReference>();
             if (coinReference == null) return false;
 
-            stack.Push(coinReference.PrevHash.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(coinReference.PrevHash.ToArray());
 
             return true;
         }
 
-        protected virtual bool Input_GetIndex(Stack stack)
+        protected virtual bool Input_GetIndex(IExecutionEngine engine)
         {
-            var coinReference = stack.PopObject<CoinReference>();
+            var coinReference = engine.CurrentContext.EvaluationStack.PopObject<CoinReference>();
             if (coinReference == null) return false;
 
-            stack.Push((int)coinReference.PrevIndex);
+            engine.CurrentContext.EvaluationStack.Push((int)coinReference.PrevIndex);
 
             return true;
         }
 
-        protected virtual bool Output_GetAssetId(Stack stack)
+        protected virtual bool Output_GetAssetId(IExecutionEngine engine)
         {
-            var transactionOutput = stack.PopObject<TransactionOutput>();
+            var transactionOutput = engine.CurrentContext.EvaluationStack.PopObject<TransactionOutput>();
             if (transactionOutput == null) return false;
 
-            stack.Push(transactionOutput.AssetId.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(transactionOutput.AssetId.ToArray());
 
             return true;
         }
 
-        protected virtual bool Output_GetValue(Stack stack)
+        protected virtual bool Output_GetValue(IExecutionEngine engine)
         {
-            var transactionOutput = stack.PopObject<TransactionOutput>();
+            var transactionOutput = engine.CurrentContext.EvaluationStack.PopObject<TransactionOutput>();
             if (transactionOutput == null) return false;
 
-            stack.Push(transactionOutput.Value.Value);
+            engine.CurrentContext.EvaluationStack.Push(transactionOutput.Value.Value);
 
             return true;
         }
 
-        protected virtual bool Output_GetScriptHash(Stack stack)
+        protected virtual bool Output_GetScriptHash(IExecutionEngine engine)
         {
-            var transactionOutput = stack.PopObject<TransactionOutput>();
+            var transactionOutput = engine.CurrentContext.EvaluationStack.PopObject<TransactionOutput>();
             if (transactionOutput == null) return false;
 
-            stack.Push(transactionOutput.ScriptHash.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(transactionOutput.ScriptHash.ToArray());
 
             return true;
         }
 
-        protected virtual bool Account_GetScriptHash(Stack stack)
+        protected virtual bool Account_GetScriptHash(IExecutionEngine engine)
         {
-            var account = stack.PopObject<Account>();
+            var account = engine.CurrentContext.EvaluationStack.PopObject<Account>();
             if (account == null) return false;
 
-            stack.Push(account.ScriptHash.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(account.ScriptHash.ToArray());
 
             return true;
         }
 
-        protected virtual bool Account_GetVotes(Stack stack)
+        protected virtual bool Account_GetVotes(IExecutionEngine engine)
         {
-            var account = stack.PopObject<Account>();
+            var account = engine.CurrentContext.EvaluationStack.PopObject<Account>();
             if (account == null) return false;
 
             // TODO: it was EncodePoint before. Check with NEO
-            account.Votes.Select(v => v.EncodedData).ForEach(stack.Push);
+            account.Votes.Select(v => v.EncodedData).ForEach(engine.CurrentContext.EvaluationStack.Push);
 
             return true;
         }
 
-        protected virtual bool Account_GetBalance(Stack stack)
+        protected virtual bool Account_GetBalance(IExecutionEngine engine)
         {
-            var account = stack.PopObject<Account>();
+            var account = engine.CurrentContext.EvaluationStack.PopObject<Account>();
             if (account == null) return false;
 
-            var assetId = new UInt256(stack.PopByteArray());
+            var assetId = new UInt256(engine.CurrentContext.EvaluationStack.PopByteArray());
             var balance = account.Balances.TryGetValue(assetId, out var value) ? value : Fixed8.Zero;
 
-            stack.Push(balance.Value);
+            engine.CurrentContext.EvaluationStack.Push(balance.Value);
 
             return true;
         }
 
-        protected virtual bool Asset_GetAssetId(Stack stack)
+        protected virtual bool Asset_GetAssetId(IExecutionEngine engine)
         {
-            var asset = stack.PopObject<Asset>();
+            var asset = engine.CurrentContext.EvaluationStack.PopObject<Asset>();
             if (asset == null) return false;
 
-            stack.Push(asset.Id.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(asset.Id.ToArray());
 
             return true;
         }
 
-        protected virtual bool Asset_GetAssetType(Stack stack)
+        protected virtual bool Asset_GetAssetType(IExecutionEngine engine)
         {
-            var asset = stack.PopObject<Asset>();
+            var asset = engine.CurrentContext.EvaluationStack.PopObject<Asset>();
             if (asset == null) return false;
 
-            stack.Push((int)asset.AssetType);
+            engine.CurrentContext.EvaluationStack.Push((int)asset.AssetType);
 
             return true;
         }
 
-        protected virtual bool Asset_GetAmount(Stack stack)
+        protected virtual bool Asset_GetAmount(IExecutionEngine engine)
         {
-            var asset = stack.PopObject<Asset>();
+            var asset = engine.CurrentContext.EvaluationStack.PopObject<Asset>();
             if (asset == null) return false;
 
-            stack.Push(asset.Amount.Value);
+            engine.CurrentContext.EvaluationStack.Push(asset.Amount.Value);
 
             return true;
         }
 
-        protected virtual bool Asset_GetAvailable(Stack stack)
+        protected virtual bool Asset_GetAvailable(IExecutionEngine engine)
         {
-            var asset = stack.PopObject<Asset>();
+            var asset = engine.CurrentContext.EvaluationStack.PopObject<Asset>();
             if (asset == null) return false;
 
-            stack.Push(asset.Available.Value);
+            engine.CurrentContext.EvaluationStack.Push(asset.Available.Value);
 
             return true;
         }
 
-        protected virtual bool Asset_GetPrecision(Stack stack)
+        protected virtual bool Asset_GetPrecision(IExecutionEngine engine)
         {
-            var asset = stack.PopObject<Asset>();
+            var asset = engine.CurrentContext.EvaluationStack.PopObject<Asset>();
             if (asset == null) return false;
 
-            stack.Push((int)asset.Precision);
+            engine.CurrentContext.EvaluationStack.Push((int)asset.Precision);
 
             return true;
         }
 
-        protected virtual bool Asset_GetOwner(Stack stack)
+        protected virtual bool Asset_GetOwner(IExecutionEngine engine)
         {
-            var asset = stack.PopObject<Asset>();
+            var asset = engine.CurrentContext.EvaluationStack.PopObject<Asset>();
             if (asset == null) return false;
 
             // TODO: it was EncodePoint before. Check with NEO
-            stack.Push(asset.Owner.EncodedData);
+            engine.CurrentContext.EvaluationStack.Push(asset.Owner.EncodedData);
 
             return true;
         }
 
-        protected virtual bool Asset_GetAdmin(Stack stack)
+        protected virtual bool Asset_GetAdmin(IExecutionEngine engine)
         {
-            var asset = stack.PopObject<Asset>();
+            var asset = engine.CurrentContext.EvaluationStack.PopObject<Asset>();
             if (asset == null) return false;
 
-            stack.Push(asset.Admin.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(asset.Admin.ToArray());
 
             return true;
         }
 
-        protected virtual bool Asset_GetIssuer(Stack stack)
+        protected virtual bool Asset_GetIssuer(IExecutionEngine engine)
         {
-            var asset = stack.PopObject<Asset>();
+            var asset = engine.CurrentContext.EvaluationStack.PopObject<Asset>();
             if (asset == null) return false;
 
-            stack.Push(asset.Issuer.ToArray());
+            engine.CurrentContext.EvaluationStack.Push(asset.Issuer.ToArray());
 
             return true;
         }
 
-        protected virtual bool Contract_GetScript(Stack stack)
+        protected virtual bool Contract_GetScript(IExecutionEngine engine)
         {
-            var contract = stack.PopObject<Contract>();
+            var contract = engine.CurrentContext.EvaluationStack.PopObject<Contract>();
             if (contract == null) return false;
 
-            stack.Push(contract.Script);
+            engine.CurrentContext.EvaluationStack.Push(contract.Script);
 
             return true;
         }
 
-        protected virtual bool Contract_IsPayable(Stack stack)
+        protected virtual bool Contract_IsPayable(IExecutionEngine engine)
         {
-            var contract = stack.PopObject<Contract>();
+            var contract = engine.CurrentContext.EvaluationStack.PopObject<Contract>();
             if (contract == null) return false;
 
-            stack.Push(contract.Payable);
+            engine.CurrentContext.EvaluationStack.Push(contract.Payable);
 
             return true;
         }
 
-        protected virtual bool Storage_GetContext(ExecutionEngineBase engine)
+        protected virtual bool Storage_GetContext(IExecutionEngine engine)
         {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
-
-            ctx.EvaluationStack.PushObject(new StorageContext
+            engine.CurrentContext.EvaluationStack.PushObject(new StorageContext
             (
-                new UInt160(ctx.ScriptHash),
+                new UInt160(engine.CurrentContext.ScriptHash),
                 false
             ));
 
             return true;
         }
 
-        protected virtual bool Storage_GetReadOnlyContext(ExecutionEngineBase engine)
+        protected virtual bool Storage_GetReadOnlyContext(IExecutionEngine engine)
         {
-            var ctx = engine.CurrentContext;
-            if (ctx == null) return false;
-
-            ctx.EvaluationStack.PushObject(new StorageContext
+            engine.CurrentContext.EvaluationStack.PushObject(new StorageContext
             (
-                new UInt160(ctx.ScriptHash),
+                new UInt160(engine.CurrentContext.ScriptHash),
                 true
             ));
 
             return true;
         }
 
-        protected virtual bool Storage_Get(Stack stack)
+        protected virtual bool Storage_Get(IExecutionEngine engine)
         {
-            var storageContext = stack.PopObject<StorageContext>();
+            var storageContext = engine.CurrentContext.EvaluationStack.PopObject<StorageContext>();
             if (storageContext == null) return false;
             if (!CheckStorageContext(storageContext)) return false;
 
-            var key = stack.PopByteArray();
+            var key = engine.CurrentContext.EvaluationStack.PopByteArray();
             var item = Storages.TryGet(new StorageKey
             {
                 ScriptHash = storageContext.ScriptHash,
                 Key = key
             });
 
-            stack.Push(item?.Value ?? Array.Empty<byte>());
+            engine.CurrentContext.EvaluationStack.Push(item?.Value ?? Array.Empty<byte>());
 
             return true;
         }
 
-        protected virtual bool Storage_Find(Stack stack)
+        protected virtual bool Storage_Find(IExecutionEngine engine)
         {
-            var storageContext = stack.PopObject<StorageContext>();
+            var storageContext = engine.CurrentContext.EvaluationStack.PopObject<StorageContext>();
             if (storageContext == null) return false;
             if (!CheckStorageContext(storageContext)) return false;
 
-            var prefix = stack.PopByteArray();
+            var prefix = engine.CurrentContext.EvaluationStack.PopByteArray();
             byte[] prefixKey;
 
             using (var ms = new MemoryStream())
@@ -896,22 +837,22 @@ namespace NeoSharp.Core.VM
                 prefixKey = storageContext.ScriptHash.ToArray().Concat(ms.ToArray()).ToArray();
             }
 
-            // TODO: Find a better way not to expose StackItem types or Create* methods
+            // TODO: Find a better way not to expose engine.CurrentContext.EvaluationStackItem types or Create* methods
             var enumerator = Storages.Find(prefixKey)
                 .Where(p => p.Key.Key.Take(prefix.Length).SequenceEqual(prefix))
-                .Select(p => new KeyValuePair<StackItemBase, StackItemBase>(stack.CreateByteArray(p.Key.Key), stack.CreateByteArray(p.Value.Value)))
+                .Select(p => new KeyValuePair<StackItemBase, StackItemBase>(engine.CurrentContext.EvaluationStack.CreateByteArray(p.Key.Key), engine.CurrentContext.EvaluationStack.CreateByteArray(p.Value.Value)))
                 .GetEnumerator();
             var keyEnumerator = new KeyEnumerator(enumerator);
 
-            stack.PushObject(keyEnumerator);
+            engine.CurrentContext.EvaluationStack.PushObject(keyEnumerator);
             _disposables.Add(keyEnumerator);
 
             return true;
         }
 
-        protected virtual bool StorageContext_AsReadOnly(Stack stack)
+        protected virtual bool StorageContext_AsReadOnly(IExecutionEngine engine)
         {
-            var storageContext = stack.PopObject<StorageContext>();
+            var storageContext = engine.CurrentContext.EvaluationStack.PopObject<StorageContext>();
             if (storageContext == null) return false;
             if (!storageContext.IsReadOnly)
                 storageContext = new StorageContext
@@ -920,7 +861,7 @@ namespace NeoSharp.Core.VM
                     true
                 );
 
-            stack.PushObject(storageContext);
+            engine.CurrentContext.EvaluationStack.PushObject(storageContext);
 
             return true;
         }

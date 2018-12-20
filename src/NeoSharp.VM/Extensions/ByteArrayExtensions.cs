@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Linq;
 
 namespace NeoSharp.VM.Extensions
 {
@@ -120,23 +121,13 @@ namespace NeoSharp.VM.Extensions
         }
 
         /// <summary>
-        /// Return true if is ASCCI string
+        /// Return true if is ASCII string
         /// </summary>
         /// <param name="data">Data</param>
-        /// <returns>Return true if is ASCCI string</returns>
-        public static bool IsASCIIPrintable(this byte[] data)
+        /// <returns>Return true if is ASCII string</returns>
+        public static bool IsAsciiPrintable(this byte[] data)
         {
-            if (data == null) return false;
-
-            foreach (var c in data)
-            {
-                if (c < 32 || c > 126)
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return data != null && data.All(c => c >= 32 && c <= 126);
         }
     }
 }

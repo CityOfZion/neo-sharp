@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace NeoSharp.VM
 {
-    public abstract class ExecutionEngineBase : IDisposable
+    public abstract class ExecutionEngineBase : IExecutionEngine, IDisposable
     {
         #region Public fields from arguments
 
