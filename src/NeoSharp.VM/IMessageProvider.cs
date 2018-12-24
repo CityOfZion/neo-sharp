@@ -7,6 +7,13 @@
         /// </summary>
         /// <param name="iteration">Iteration number</param>
         /// <returns>Return message content</returns>
-        byte[] GetMessage(uint iteration);
+        object GetMessage(uint iteration);
+
+        /// <summary>
+        /// Get message data for check signatures
+        /// </summary>
+        /// <param name="iteration">Iteration number</param>
+        /// <returns>Return message data</returns>
+        byte[] GetMessageData(uint iteration);
     }
 }

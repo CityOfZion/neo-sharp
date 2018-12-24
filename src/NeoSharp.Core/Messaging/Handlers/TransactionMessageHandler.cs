@@ -5,7 +5,7 @@ using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
@@ -70,7 +70,7 @@ namespace NeoSharp.Core.Messaging.Handlers
 
             // TODO #374: It is a bit more complicated
 
-            _transactionPool.Add(transaction);
+            await _transactionPool.Add(transaction);
             _logger.LogInformation($"Transaction with Hash {transaction.Hash?.ToString(true)} added to the TransactionPool.");
         }
         #endregion

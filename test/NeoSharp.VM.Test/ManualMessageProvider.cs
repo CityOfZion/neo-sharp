@@ -2,20 +2,23 @@
 {
     public class ManualMessageProvider : IMessageProvider
     {
-        /// <summary>
-        /// Message
-        /// </summary>
-        private readonly byte[] _message;
+        private readonly object _message;
+
+        private readonly byte[] _messageData;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="message">Message</param>
-        public ManualMessageProvider(byte[] message)
+        /// <param name="messageData">Message data</param>
+        public ManualMessageProvider(object message, byte[] messageData)
         {
             _message = message;
+            _messageData = messageData;
         }
 
-        public byte[] GetMessage(uint iteration) => _message;
+        public object GetMessage(uint iteration) => _message;
+
+        public byte[] GetMessageData(uint iteration) => _messageData;
     }
 }

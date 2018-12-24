@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Cryptography;
 using NeoSharp.Types;
 
-namespace NeoSharp.Core.Models.OperationManger
+namespace NeoSharp.Core.Models.OperationManager
 {
     public class BlockHeaderOperationsManager : IBlockHeaderOperationsManager
     {
@@ -50,7 +51,7 @@ namespace NeoSharp.Core.Models.OperationManger
             _witnessSigner.Sign(blockHeader.Witness);
         }
 
-        public bool Verify(BlockHeader blockHeader)
+        public Task<bool> Verify(BlockHeader blockHeader)
         {
             throw new NotImplementedException();
         }

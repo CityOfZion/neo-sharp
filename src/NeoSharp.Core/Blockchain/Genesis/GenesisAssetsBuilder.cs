@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Types;

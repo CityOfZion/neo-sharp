@@ -5,6 +5,7 @@ using System.Text;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Types;
@@ -29,14 +30,18 @@ namespace NeoSharp.Core.VM
             IBlockchainContext blockchainContext,
             IBlockRepository blockRepository,
             ITransactionRepository transactionRepository,
-            ETriggerType trigger)
+            ITransactionOperationsManager transactionOperationsManager)
         : base
             (
             accounts?.CreateSnapshot(),
             assets?.CreateSnapshot(),
             contracts?.CreateSnapshot(),
             storages?.CreateSnapshot(),
-            interopService, blockchainContext, blockRepository, transactionRepository, trigger
+            interopService,
+            blockchainContext,
+            blockRepository,
+            transactionRepository,
+            transactionOperationsManager
             )
         {
             _persistingBlock = persistingBlock;

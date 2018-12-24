@@ -42,10 +42,10 @@ namespace NeoSharp.VM.Test
                 var state = new StateMachine
                 (
                     null, null, null, contracts,
-                    storages, interopService, null, null, null, test.Trigger
+                    storages, interopService, null, null, null, null
                 );
 
-                var args = new ExecutionEngineArgs()
+                var args = new ExecutionEngineArgs
                 {
                     Trigger = test.Trigger,
                     InteropService = interopService,
@@ -71,7 +71,7 @@ namespace NeoSharp.VM.Test
 
                 if (test.Message != null)
                 {
-                    args.MessageProvider = new ManualMessageProvider(test.Message);
+                    args.MessageProvider = new ManualMessageProvider(test.Message, test.Message);
                 }
 
 
@@ -81,9 +81,9 @@ namespace NeoSharp.VM.Test
                 {
                     foreach (var script in test.ScriptTable)
                     {
-                        var contract = new Contract()
+                        var contract = new Contract
                         {
-                            Code = new Code()
+                            Code = new Code
                             {
                                 Script = script.Script,
                                 ScriptHash = script.Script.ToScriptHash(),

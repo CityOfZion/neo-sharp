@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.Logging;
 using NeoSharp.Core.Messaging.Messages;
-using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Core.Network;
 
 namespace NeoSharp.Core.Messaging.Handlers
@@ -58,7 +58,7 @@ namespace NeoSharp.Core.Messaging.Handlers
             }
             else
             {
-                if (!_blockOperationsManager.Verify(block))
+                if (!(await _blockOperationsManager.Verify(block)))
                 {
                     _logger.LogWarning($"Block {block.Hash} with Index {block.Index} verification fail.");
                     return;

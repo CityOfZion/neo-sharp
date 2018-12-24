@@ -3,9 +3,10 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NeoSharp.Core.Exceptions;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Types;
 
 namespace NeoSharp.Core.Blockchain.Processing
@@ -33,13 +34,13 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         public int Capacity => DefaultCapacity;
 
-        public void Add(Transaction transaction)
+        public async Task Add(Transaction transaction)
         {
             if (transaction == null) throw new ArgumentNullException(nameof(transaction));
 
-            this._transactionOperationsManager.Sign(transaction);
+            _transactionOperationsManager.Sign(transaction);
 
-            if (!this._transactionOperationsManager.Verify(transaction))
+            if (!(await _transactionOperationsManager.Verify(transaction)))
             {
                 throw new InvalidTransactionException($"The transaction with hash \"{transaction.Hash}\" was not passed verification.");
             }

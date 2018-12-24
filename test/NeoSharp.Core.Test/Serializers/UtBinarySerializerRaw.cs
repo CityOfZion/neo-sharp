@@ -5,7 +5,7 @@ using Moq;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.Core.Types;
 using NeoSharp.Cryptography;

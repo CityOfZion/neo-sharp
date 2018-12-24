@@ -9,7 +9,7 @@ using NeoSharp.Application.Client;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Core.Network.Rpc;
 using NeoSharp.Core.SmartContract.ContractParameters;
 using NeoSharp.Types;

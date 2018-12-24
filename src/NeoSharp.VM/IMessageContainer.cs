@@ -2,6 +2,6 @@
 {
     public interface IMessageContainer : IMessageProvider
     {
-        void RegisterMessage(byte[] message);
+        void RegisterMessage(object message);
     }
 }

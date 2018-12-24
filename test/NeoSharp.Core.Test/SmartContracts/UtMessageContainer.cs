@@ -1,5 +1,7 @@
 ﻿using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Models;
 using NeoSharp.Core.SmartContract;
 using NeoSharp.TestHelpers;
 
@@ -11,14 +13,14 @@ namespace NeoSharp.Core.Test.SmartContracts
         [TestMethod]
         public void TestMessageContainer()
         {
-            var data = RandomByteArray(250);
-            var msg = new MessageContainer();
+            var tx = new MinerTransaction();
+            var messageContainer = new MessageContainer(BinarySerializer.Default);
 
-            Assert.IsTrue(msg.GetMessage(0).SequenceEqual(new byte[] { }));
+            Assert.IsTrue(messageContainer.GetMessageData(0).SequenceEqual(new byte[] { }));
 
-            msg.RegisterMessage(data);
+            messageContainer.RegisterMessage(tx);
 
-            Assert.IsTrue(msg.GetMessage(0).SequenceEqual(data));
+            Assert.IsTrue(messageContainer.GetMessageData(0).SequenceEqual(BinarySerializer.Default.Serialize(tx)));
         }
     }
 }

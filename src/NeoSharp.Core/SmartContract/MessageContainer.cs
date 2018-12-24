@@ -1,22 +1,31 @@
 ﻿using System;
 using System.Linq;
+using NeoSharp.BinarySerialization;
+using NeoSharp.Core.Models;
 using NeoSharp.VM;
 
 namespace NeoSharp.Core.SmartContract
 {
     public class MessageContainer : IMessageContainer
     {
-        private byte[] _message = Array.Empty<byte>();
+        private readonly IBinarySerializer _binarySerializer;
 
-        public byte[] GetMessage(uint iteration) => _message;
+        private object _message;
+        private byte[] _messageData;
 
-        public void RegisterMessage(byte[] message)
+        public MessageContainer(IBinarySerializer binarySerializer)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message));
-            if (message.Length == 0)
-                throw new ArgumentException("Value cannot be an empty collection.", nameof(message));
+            _binarySerializer = binarySerializer;
+        }
 
-            _message = message.ToArray();
+        public object GetMessage(uint iteration) => _message;
+
+        public byte[] GetMessageData(uint iteration) => _messageData ?? Array.Empty<byte>();
+
+        public void RegisterMessage(object message)
+        {
+            _message = message ?? throw new ArgumentNullException(nameof(message));
+            _messageData = _binarySerializer.Serialize(message);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace NeoSharp.Core.Models.OperationManger
+﻿namespace NeoSharp.Core.Models.OperationManager
 {
     public interface ISigner<in T>
     {

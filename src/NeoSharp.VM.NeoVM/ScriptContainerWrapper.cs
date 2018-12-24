@@ -13,7 +13,7 @@ namespace NeoSharp.VM.NeoVM
 
         public byte[] GetMessage()
         {
-            return _messageProvider.GetMessage(0);
+            return _messageProvider.GetMessageData(0);
         }
     }
 }

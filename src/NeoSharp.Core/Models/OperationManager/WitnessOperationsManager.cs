@@ -1,7 +1,8 @@
-﻿using NeoSharp.Cryptography;
+﻿using System.Threading.Tasks;
+using NeoSharp.Cryptography;
 using NeoSharp.Types;
 
-namespace NeoSharp.Core.Models.OperationManger
+namespace NeoSharp.Core.Models.OperationManager
 {
     public class WitnessOperationsManager : IWitnessOperationsManager
     {
@@ -27,10 +28,10 @@ namespace NeoSharp.Core.Models.OperationManger
             witness.Hash = new UInt160(_crypto.Hash160(witness.VerificationScript));
         }
 
-        public bool Verify(Witness witness)
+        public Task<bool> Verify(Witness witness)
         {
             // TODO [AboimPinto]: need to be implemented.
-            return true;
+            return Task.FromResult(true);
         }
         
         #endregion

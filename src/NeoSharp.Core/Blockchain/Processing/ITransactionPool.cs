@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using NeoSharp.Core.Models;
 using NeoSharp.Types;
 
@@ -10,7 +11,7 @@ namespace NeoSharp.Core.Blockchain.Processing
 
         int Capacity { get; }
 
-        void Add(Transaction transaction);
+        Task Add(Transaction transaction);
 
         void Remove(UInt256 hash);
 

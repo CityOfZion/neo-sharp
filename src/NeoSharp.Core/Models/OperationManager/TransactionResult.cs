@@ -1,6 +1,6 @@
 ﻿using NeoSharp.Types;
 
-namespace NeoSharp.Core.Models.OperationManger
+namespace NeoSharp.Core.Models.OperationManager
 {
     public class TransactionResult
     {

@@ -7,6 +7,7 @@ using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Core.Network;
 using NeoSharp.Types;
 using NeoSharp.VM;
@@ -20,6 +21,7 @@ namespace NeoSharp.Core.VM
         private readonly IBlockchainContext _blockchainContext;
         private readonly IBlockRepository _blockRepository;
         private readonly ITransactionRepository _transactionRepository;
+        private readonly ITransactionOperationsManager _transactionOperationsManager;
 
         private readonly List<IDisposable> _disposables = new List<IDisposable>();
 
@@ -39,7 +41,8 @@ namespace NeoSharp.Core.VM
             InteropService interopService,
             IBlockchainContext blockchainContext,
             IBlockRepository blockRepository,
-            ITransactionRepository transactionRepository)
+            ITransactionRepository transactionRepository,
+            ITransactionOperationsManager transactionOperationsManager)
         {
             Accounts = accounts;
             Assets = assets;
@@ -48,6 +51,7 @@ namespace NeoSharp.Core.VM
             _blockchainContext = blockchainContext;
             _blockRepository = blockRepository;
             _transactionRepository = transactionRepository;
+            _transactionOperationsManager = transactionOperationsManager;
 
             //Standard Library
             interopService.Register("System.Runtime.CheckWitness", Runtime_CheckWitness);
@@ -194,11 +198,9 @@ namespace NeoSharp.Core.VM
 
         protected bool CheckWitness(IExecutionEngine engine, UInt160 hash)
         {
-            // TODO: IVerifiable?
-            //IVerifiable container = (IVerifiable)engine.MessageProvider;
-            //UInt160[] _hashes_for_verifying = container.GetScriptHashesForVerifying();
-            //return _hashes_for_verifying.Contains(hash);
-            return true;
+            var transaction = (InvocationTransaction)engine.MessageProvider.GetMessage(0);
+            var hashesForVerifying = _transactionOperationsManager.GetScriptHashes(transaction).Result;
+            return hashesForVerifying.Contains(hash);
         }
 
         protected bool CheckWitness(IExecutionEngine engine, ECPoint pubKey)

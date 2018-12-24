@@ -5,7 +5,7 @@ using NeoSharp.Core.Blockchain.Processing;
 using NeoSharp.Core.DI;
 using NeoSharp.Core.DI.Modules;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.TestHelpers;
 
 namespace NeoSharp.Application.Test

@@ -1,11 +1,12 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using NeoSharp.BinarySerialization;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Cryptography;
 using NeoSharp.Cryptography;
 using NeoSharp.Types;
 
-namespace NeoSharp.Core.Models.OperationManger
+namespace NeoSharp.Core.Models.OperationManager
 {
     public class BlockOperationManager : IBlockOperationsManager
     {
@@ -68,12 +69,9 @@ namespace NeoSharp.Core.Models.OperationManger
             _witnessOperationsManager.Sign(block.Witness);
         }
 
-        public bool Verify(Block block)
+        public async Task<bool> Verify(Block block)
         {
-            var task = _blockRepository.GetBlockHeader(block.PreviousBlockHash);
-            task.Wait();
-
-            var prevHeader = task.Result;
+            var prevHeader = await _blockRepository.GetBlockHeader(block.PreviousBlockHash);
 
             if (prevHeader == null)
             {
@@ -90,7 +88,7 @@ namespace NeoSharp.Core.Models.OperationManger
                 return false;
             }
 
-            if (!_witnessOperationsManager.Verify(block.Witness))
+            if (!(await _witnessOperationsManager.Verify(block.Witness)))
             {
                 return false;
             }

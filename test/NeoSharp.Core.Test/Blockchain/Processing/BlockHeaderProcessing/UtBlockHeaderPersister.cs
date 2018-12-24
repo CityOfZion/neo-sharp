@@ -6,7 +6,7 @@ using Moq;
 using NeoSharp.Core.Blockchain.Processing.BlockHeaderProcessing;
 using NeoSharp.Core.Blockchain.Repositories;
 using NeoSharp.Core.Models;
-using NeoSharp.Core.Models.OperationManger;
+using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Core.Network;
 using NeoSharp.Core.Test.Builders;
 using NeoSharp.TestHelpers;
