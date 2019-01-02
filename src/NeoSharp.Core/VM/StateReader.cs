@@ -9,7 +9,9 @@ using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManager;
 using NeoSharp.Core.Network;
+using NeoSharp.Core.SmartContract;
 using NeoSharp.Types;
+using NeoSharp.Types.ExtensionMethods;
 using NeoSharp.VM;
 
 namespace NeoSharp.Core.VM
@@ -205,9 +207,8 @@ namespace NeoSharp.Core.VM
 
         protected bool CheckWitness(IExecutionEngine engine, ECPoint pubKey)
         {
-            // TODO: Contract.CreateSignatureRedeemScript?
-            //return CheckWitness(engine, Contract.CreateSignatureRedeemScript(pubkey).ToScriptHash());
-            return true;
+            var script = ContractFactory.CreateSinglePublicKeyRedeemScript(pubKey);
+            return CheckWitness(engine, script.ToScriptHash());
         }
 
         protected virtual bool Runtime_CheckWitness(IExecutionEngine engine)

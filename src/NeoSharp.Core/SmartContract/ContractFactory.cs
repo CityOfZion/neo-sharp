@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NeoSharp.Core.Models;
 using NeoSharp.VM;
@@ -17,30 +18,31 @@ namespace NeoSharp.Core.SmartContract
         /// <param name="publicKey">Public key.</param>
         public static Contract CreateSinglePublicKeyRedeemContract(ECPoint publicKey)
         {
-            string contractHexCode;
+            var script = CreateSinglePublicKeyRedeemScript(publicKey);
+            var contractCode = new Code {
+                Script = script.HexToBytes(),
+                ScriptHash = script.HexToBytes().ToScriptHash(),
+                ReturnType = ContractParameterType.Void,
+                Parameters = new[] { ContractParameterType.Signature }
+            };
+
+            return new Contract
+            {
+                Code = contractCode
+            };
+        }
+
+        public static string CreateSinglePublicKeyRedeemScript(ECPoint publicKey)
+        {
+            if (publicKey == null) throw new ArgumentNullException(nameof(publicKey));
+
             using (var sb = new ScriptBuilder())
             {
                 sb.EmitPush(publicKey.EncodedData);
                 sb.Emit(EVMOpCode.CHECKSIG);
-                contractHexCode = sb.ToArray().ToHexString();
+
+                return sb.ToArray().ToHexString();
             }
-
-            var returnType = ContractParameterType.Void; 
-            ContractParameterType[] parameters = { ContractParameterType.Signature };
-
-            var contractCode = new Code {
-                Script = contractHexCode.HexToBytes(),
-                ScriptHash = contractHexCode.HexToBytes().ToScriptHash(),
-                ReturnType = returnType,
-                Parameters = parameters
-            };
-
-            var contract = new Contract
-            {
-                Code = contractCode
-            };
-
-            return contract;
         }
 
         /// <summary>
@@ -51,42 +53,44 @@ namespace NeoSharp.Core.SmartContract
         /// <param name="publicKeys">Public keys.</param>
         public static Contract CreateMultiplePublicKeyRedeemContract(int numberOfRequiredPublicKeys, ECPoint[] publicKeys)
         {
-            if (!((1 <= numberOfRequiredPublicKeys) 
-                  && (numberOfRequiredPublicKeys <= publicKeys.Length) 
-                  && (publicKeys.Length <= 1024)))
-                throw new ArgumentException("Invalid public keys. ");
+            var script = CreateMultiplePublicKeyRedeemScript(numberOfRequiredPublicKeys, publicKeys);
+            var code = new Code
+            {
+                Script = script,
+                ScriptHash = script.ToScriptHash(),
+                ReturnType = ContractParameterType.Void,
+                Parameters = Enumerable.Repeat(ContractParameterType.Signature, numberOfRequiredPublicKeys).ToArray()
+            };
 
-            byte[] contractHexCode;
+            return new Contract
+            {
+                Code = code
+            };
+        }
+
+        public static byte[] CreateMultiplePublicKeyRedeemScript(int numberOfRequiredPublicKeys, IReadOnlyCollection<ECPoint> publicKeys)
+        {
+            if (publicKeys == null) throw new ArgumentNullException(nameof(publicKeys));
+            if (!(1 <= numberOfRequiredPublicKeys
+                  && numberOfRequiredPublicKeys <= publicKeys.Count
+                  && publicKeys.Count <= 1024))
+                throw new ArgumentException("Invalid public keys");
 
             using (var sb = new ScriptBuilder())
             {
                 sb.EmitPush(numberOfRequiredPublicKeys);
+
                 foreach (var publicKey in publicKeys.OrderBy(p => p))
                 {
                     sb.EmitPush(publicKey.EncodedData);
                 }
-                sb.EmitPush(publicKeys.Length);
+
+                sb.EmitPush(publicKeys.Count);
                 sb.Emit(EVMOpCode.CHECKMULTISIG);
-                contractHexCode = sb.ToArray();
+
+                return sb.ToArray();
             }
 
-            var returnType = ContractParameterType.Void; 
-            var parameters = Enumerable.Repeat(ContractParameterType.Signature, numberOfRequiredPublicKeys).ToArray();
-
-            var contractCode = new Code
-            {
-                Script = contractHexCode,
-                ScriptHash = contractHexCode.ToScriptHash(),
-                ReturnType = returnType,
-                Parameters = parameters
-            };
-
-            var contract = new Contract
-            {
-                Code = contractCode
-            };
-
-            return contract;
         }
     }
 }

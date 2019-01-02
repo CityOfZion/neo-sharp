@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NeoSharp.Core.Blockchain.Repositories;
+using NeoSharp.Core.Cryptography;
 using NeoSharp.Core.Extensions;
 using NeoSharp.Core.Models;
 using NeoSharp.Core.Models.OperationManager;
@@ -96,46 +97,51 @@ namespace NeoSharp.Core.VM
         private bool Asset_Create(IExecutionEngine engine)
         {
             var stack = engine.CurrentContext.EvaluationStack;
+            var tx = (InvocationTransaction)engine.MessageProvider.GetMessage(0);
+            var assetType = (AssetType)(byte)stack.PopBigInteger();
+            if (!Enum.IsDefined(typeof(AssetType), assetType) || assetType == AssetType.CreditFlag || assetType == AssetType.DutyFlag || assetType == AssetType.GoverningToken || assetType == AssetType.UtilityToken)
+                return false;
+            if (stack.PeekByteArray().Length > 1024)
+                return false;
 
-            //var tx = (InvocationTransaction)engine.MessageProvider;
-            //var assetType = (AssetType)(byte)stack.PopBigInteger();
-            //if (!Enum.IsDefined(typeof(AssetType), assetType) || assetType == AssetType.CreditFlag || assetType == AssetType.DutyFlag || assetType == AssetType.GoverningToken || assetType == AssetType.UtilityToken)
-            //    return false;
-            //if (stack.PeekByteArray().Length > 1024)
-            //    return false;
-            //var name = Encoding.UTF8.GetString(stack.PopByteArray());
-            //var amount = new Fixed8((long)stack.PopBigInteger());
-            //if (amount == Fixed8.Zero || amount < -Fixed8.Satoshi) return false;
-            //if (assetType == AssetType.Invoice && amount != -Fixed8.Satoshi)
-            //    return false;
-            //var precision = (byte)stack.PopBigInteger();
-            //if (precision > 8) return false;
-            //if (assetType == AssetType.Share && precision != 0) return false;
-            //if (amount != -Fixed8.Satoshi && amount.GetData() % (long)Math.Pow(10, 8 - precision) != 0)
-            //    return false;
-            //ECPoint owner = ECPoint.DecodePoint(stack.PopByteArray(), ECCurve.Secp256r1);
-            //if (owner.IsInfinity) return false;
-            //if (!CheckWitness(engine, owner))
-            //    return false;
-            //var admin = new UInt160(stack.PopByteArray());
-            //var issuer = new UInt160(stack.PopByteArray());
-            //Asset asset = _assets.GetOrAdd(tx.Hash, () => new Asset
-            //{
-            //    Id = tx.Hash,
-            //    AssetType = assetType,
-            //    Name = name,
-            //    Amount = amount,
-            //    Available = Fixed8.Zero,
-            //    Precision = precision,
-            //    Fee = Fixed8.Zero,
-            //    FeeAddress = new UInt160(),
-            //    Owner = owner,
-            //    Admin = admin,
-            //    Issuer = issuer,
-            //    Expiration = Blockchain.Default.Height + 1 + 2000000,
-            //    IsFrozen = false
-            //});
-            //stack.PushObject(asset);
+            var name = Encoding.UTF8.GetString(stack.PopByteArray());
+            var amount = new Fixed8((long)stack.PopBigInteger());
+            if (amount == Fixed8.Zero || amount < -Fixed8.Satoshi) return false;
+            if (assetType == AssetType.Invoice && amount != -Fixed8.Satoshi)
+                return false;
+
+            var precision = (byte)stack.PopBigInteger();
+            if (precision > 8) return false;
+            if (assetType == AssetType.Share && precision != 0) return false;
+            if (amount != -Fixed8.Satoshi && amount.Value % (long)Math.Pow(10, 8 - precision) != 0)
+                return false;
+
+            var owner = new ECPoint(stack.PopByteArray());
+            if (owner.IsInfinity) return false;
+            if (!CheckWitness(engine, owner))
+                return false;
+
+            var admin = new UInt160(stack.PopByteArray());
+            var issuer = new UInt160(stack.PopByteArray());
+            var asset = Assets.GetOrAdd(tx.Hash, () => new Asset
+            {
+                Id = tx.Hash,
+                AssetType = assetType,
+                Name = name,
+                Amount = amount,
+                Available = Fixed8.Zero,
+                Precision = precision,
+                //Fee = Fixed8.Zero,
+                //FeeAddress = new UInt160(),
+                Owner = owner,
+                Admin = admin,
+                Issuer = issuer,
+                Expiration = _blockchainContext.CurrentBlock.Index + 1 + 2000000,
+                IsFrozen = false
+            });
+
+            stack.PushObject(asset);
+
             return true;
         }
 
@@ -145,7 +151,6 @@ namespace NeoSharp.Core.VM
             var asset = stack.PopObject<Asset>();
             if (asset == null) return false;
 
-            // TODO: PopBigInteger to byte? 
             var years = (byte)stack.PopBigInteger();
 
             asset = Assets.GetAndChange(asset.Id);
@@ -176,7 +181,6 @@ namespace NeoSharp.Core.VM
             var parameters = stack.PopByteArray().Select(p => (ContractParameterType)p).ToArray();
             if (parameters.Length > 252) return false;
 
-            // TODO: PopBigInteger to byte? 
             var returnType = (ContractParameterType)(byte)stack.PopBigInteger();
             var metadata = (ContractMetadata)(byte)stack.PopBigInteger();
 
