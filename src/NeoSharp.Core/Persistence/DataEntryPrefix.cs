@@ -15,9 +15,11 @@
         IxHeightToHash = 0x81,
         IxConfirmed = 0x82,
         IxClaimable = 0x83,
+        IxHashToHeight = 0x84,
         IxValidatorsCount = 0x90,
         SysCurrentBlock = 0xc0,
         SysCurrentHeader = 0xc1,
+        SysCurrentTransaction = 0xc2,
         SysVersion = 0xf0
     }
 }

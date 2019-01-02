@@ -52,6 +52,7 @@ namespace NeoSharp.Core.Blockchain
             _blockchainContext.LastBlockHeader = await _blockRepository.GetBlockHeader(blockHeaderHeight);
 
             _blockProcessor.Run();
+
             if (_blockchainContext.CurrentBlock == null || _blockchainContext.LastBlockHeader == null)
             {
                 await _blockProcessor.AddBlock(_genesisBuilder.Build());

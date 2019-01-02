@@ -22,6 +22,11 @@ namespace NeoSharp.Core.Blockchain.Repositories
 
         #region ITransactionModel Implementation 
 
+        public async Task<uint> GetTransactionHeightFromHash(UInt256 hash)
+        {
+            return await _repository.GetTransactionHeightFromHash(hash);
+        }
+
         /// <inheritdoc />
         public async Task<Transaction> GetTransaction(UInt256 hash)
         {

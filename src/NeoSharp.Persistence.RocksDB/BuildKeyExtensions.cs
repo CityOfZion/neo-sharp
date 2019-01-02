@@ -59,11 +59,16 @@ namespace NeoSharp.Persistence.RocksDB
             return DataEntryPrefix.IxClaimable.BuildKey(hash.ToArray());
         }
 
-        public static byte[] BuildIxHeightToHashKey(this uint index)
+        public static byte[] BuildIndexBlockHeightToHashKey(this uint index)
         {
             var indexByteArray = BitConverter.GetBytes(index);
 
             return DataEntryPrefix.IxHeightToHash.BuildKey(indexByteArray);
+        }
+
+        public static byte[] BuildTransactionHashToHeightKey(this UInt256 hash)
+        {
+            return DataEntryPrefix.IxHashToHeight.BuildKey(hash.ToArray());
         }
 
         private static byte[] BuildKey(this DataEntryPrefix dataEntryPrefix, byte[] key)

@@ -7,6 +7,8 @@ namespace NeoSharp.Core.Blockchain.Repositories
 {
     public interface ITransactionRepository
     {
+        Task<uint> GetTransactionHeightFromHash(UInt256 hash);
+
         /// <summary>
         /// Returns the corresponding transaction information according to the specified hash value
         /// </summary>

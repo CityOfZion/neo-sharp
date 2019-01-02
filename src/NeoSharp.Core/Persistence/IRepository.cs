@@ -84,6 +84,8 @@ namespace NeoSharp.Core.Persistence
         /// <param name="transaction">Transaction to add</param>
         Task AddTransaction(Transaction transaction);
 
+        Task<uint> GetTransactionHeightFromHash(UInt256 hash);
+
         /// <summary>
         /// Retrieves a transaction by identifier / hash
         /// </summary>
@@ -261,5 +263,5 @@ namespace NeoSharp.Core.Persistence
         Task SetIndexClaimable(UInt160 scriptHash, HashSet<CoinReference> coinReferences);
 
         #endregion
-    }
+   }
 }

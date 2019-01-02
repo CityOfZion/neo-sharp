@@ -309,9 +309,7 @@ namespace NeoSharp.Core.VM
         protected virtual bool Blockchain_GetTransactionHeight(IExecutionEngine engine)
         {
             var hash = engine.CurrentContext.EvaluationStack.PopByteArray();
-            // TODO: looks like we need an index transaction in the block;
-            var height = 0;
-            // var transaction = _transactionRepository.GetTransaction(new UInt256(hash)).Result;
+            var height = _transactionRepository.GetTransactionHeightFromHash(new UInt256(hash)).Result;
 
             engine.CurrentContext.EvaluationStack.Push(height);
 

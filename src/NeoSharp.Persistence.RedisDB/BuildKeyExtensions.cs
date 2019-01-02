@@ -63,6 +63,11 @@ namespace NeoSharp.Persistence.RedisDB
             return DataEntryPrefix.IxClaimable.BuildKey(hash.ToString());
         }
 
+        public static string BuildTransactionHashToHeightKey(this UInt256 hash)
+        {
+            return DataEntryPrefix.IxHashToHeight.BuildKey(hash.ToString());
+        }
+
         private static string BuildKey(this DataEntryPrefix type, string key)
         {
             return string.Format("{0}:{1}", key, type);

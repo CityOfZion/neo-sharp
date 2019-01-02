@@ -184,7 +184,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
 
             var rocksDbContextMock = AutoMockContainer.GetMock<IRocksDbContext>();
             rocksDbContextMock
-                .Setup(x => x.Get(heightParameter.BuildIxHeightToHashKey()))
+                .Setup(x => x.Get(heightParameter.BuildIndexBlockHeightToHashKey()))
                 .ReturnsAsync((byte[]) null);
 
             var testee = AutoMockContainer.Create<RocksDbRepository>();
@@ -203,7 +203,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
         {
             // Arrange
             const uint heightParameter = 0;
-            var heightByteArray = heightParameter.BuildIxHeightToHashKey();
+            var heightByteArray = heightParameter.BuildIndexBlockHeightToHashKey();
             var byteArrayParameter = new byte[]
             {
                 157, 179, 60, 8, 66, 122, 255, 105, 126, 49, 180, 74, 212, 41, 126, 177, 14, 255, 59, 82, 218, 113, 248,
@@ -240,7 +240,7 @@ namespace NeoSharp.Persistence.RocksDB.Tests
             var hash = UInt256.Parse("0x4520462a8c80056291f871da523bff0eb17e29d44ab4317e69ff7a42083cb39d");
             var hashKeyByteArray = hash.BuildDataBlockKey();
             const uint index = 0;
-            var indexByteArray = index.BuildIxHeightToHashKey();
+            var indexByteArray = index.BuildIndexBlockHeightToHashKey();
 
             var blockHeaderParameter = new BlockHeader
             {

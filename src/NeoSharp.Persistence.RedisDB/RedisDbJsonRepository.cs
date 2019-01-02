@@ -20,8 +20,8 @@ namespace NeoSharp.Persistence.RedisDB
 
         private readonly string _sysCurrentBlockKey = DataEntryPrefix.SysCurrentBlock.ToString();
         private readonly string _sysCurrentBlockHeaderKey = DataEntryPrefix.SysCurrentHeader.ToString();
+        private readonly string _sysCurrentTransactionKey = DataEntryPrefix.SysCurrentTransaction.ToString();
         private readonly string _sysVersionKey = DataEntryPrefix.SysVersion.ToString();
-        private readonly string _indexHeightKey = DataEntryPrefix.IxIndexHeight.ToString();
 
         #endregion
 
@@ -89,8 +89,17 @@ namespace NeoSharp.Persistence.RedisDB
 
         public async Task AddTransaction(Transaction transaction)
         {
+            var raw = await _redisDbJsonContext.Get(_sysCurrentTransactionKey);
+            var transactionHeight = raw == RedisValue.Null ? uint.MinValue : (uint)raw;
+
             var transactionJson = _jsonConverter.SerializeObject(transaction);
             await _redisDbJsonContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionJson);
+
+            transactionHeight += 1u;
+
+            await _redisDbJsonContext.Set(_sysCurrentTransactionKey, transactionHeight);
+            await _redisDbJsonContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionHeight);
+
         }
 
         public async Task<UInt256> GetBlockHashFromHeight(uint height)
@@ -110,6 +119,12 @@ namespace NeoSharp.Persistence.RedisDB
             var blockHeaderRedisValue = await _redisDbJsonContext.Get(hash.BuildDataBlockKey());
             return blockHeaderRedisValue.IsNull ? null : _jsonConverter.DeserializeObject<BlockHeader>(blockHeaderRedisValue);
 
+        }
+
+        public async Task<uint> GetTransactionHeightFromHash(UInt256 hash)
+        {
+            var rawHeight = await _redisDbJsonContext.Get(hash.BuildTransactionHashToHeightKey());
+            return rawHeight == RedisValue.Null ? uint.MinValue : (uint)rawHeight;
         }
 
         public async Task<Transaction> GetTransaction(UInt256 hash)

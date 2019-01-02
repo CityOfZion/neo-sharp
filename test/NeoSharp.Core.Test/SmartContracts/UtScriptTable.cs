@@ -162,6 +162,11 @@ namespace NeoSharp.Core.Test.SmartContracts
                 throw new System.NotImplementedException();
             }
 
+            public Task<uint> GetTransactionHeightFromHash(UInt256 hash)
+            {
+                throw new System.NotImplementedException();
+            }
+
             public Task<Transaction> GetTransaction(UInt256 hash)
             {
                 throw new System.NotImplementedException();

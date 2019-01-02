@@ -21,6 +21,7 @@ namespace NeoSharp.Persistence.RedisDB
 
         private readonly string _sysCurrentBlockKey = DataEntryPrefix.SysCurrentBlock.ToString();
         private readonly string _sysCurrentBlockHeaderKey = DataEntryPrefix.SysCurrentHeader.ToString();
+        private readonly string _sysCurrentTransactionKey = DataEntryPrefix.SysCurrentTransaction.ToString();
         private readonly string _sysVersionKey = DataEntryPrefix.SysVersion.ToString();
         private readonly string _indexHeightKey = DataEntryPrefix.IxIndexHeight.ToString();
 
@@ -90,8 +91,22 @@ namespace NeoSharp.Persistence.RedisDB
 
         public async Task AddTransaction(Transaction transaction)
         {
+            var raw = await _redisDbContext.Get(_sysCurrentTransactionKey);
+            var transactionHeight = raw == RedisValue.Null ? uint.MinValue : (uint)raw;
+
             var transactionBytes = _binarySerializer.Serialize(transaction);
             await _redisDbContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionBytes);
+
+            transactionHeight += 1u;
+
+            await _redisDbContext.Set(_sysCurrentTransactionKey, transactionHeight);
+            await _redisDbContext.Set(transaction.Hash.BuildDataTransactionKey(), transactionHeight);
+        }
+
+        public async Task<uint> GetTransactionHeightFromHash(UInt256 hash)
+        {
+            var rawHeight = await _redisDbContext.Get(hash.BuildTransactionHashToHeightKey());
+            return rawHeight == RedisValue.Null ? uint.MinValue : (uint)rawHeight;
         }
 
         public async Task<UInt256> GetBlockHashFromHeight(uint height)
